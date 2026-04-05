@@ -9,8 +9,15 @@
     transition: all 0.2s;
     background: #f9fafb;
 }
-.image-upload-box:hover { border-color: #3b82f6; background: #eff6ff; }
-.image-upload-box img { max-height: 100px; margin: 0 auto; display: block; }
+.image-upload-box:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.image-upload-box img {
+    max-height: 100px;
+    margin: 0 auto;
+    display: block;
+}
 
 .chart-preview-box {
     border: 1px solid #e5e7eb;
@@ -27,10 +34,14 @@
 }
 
 @media (min-width: 640px) {
-    .img-preview-grid { grid-template-columns: repeat(2, 1fr); }
+    .img-preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 @media (min-width: 1024px) {
-    .img-preview-grid { grid-template-columns: repeat(4, 1fr); }
+    .img-preview-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 /* Chart options */
@@ -52,9 +63,18 @@
     font-weight: 500;
 }
 
-.chart-option-btn:hover { border-color: #3b82f6; }
-.chart-option-btn.active { border-color: #174E93; background: #174E93; color: white; }
-.chart-option-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.chart-option-btn:hover {
+    border-color: #3b82f6;
+}
+.chart-option-btn.active {
+    border-color: #174e93;
+    background: #174e93;
+    color: white;
+}
+.chart-option-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 /* Data type checkboxes */
 .data-type-grid {
@@ -74,9 +94,17 @@
     cursor: pointer;
     transition: all 0.2s;
 }
-.data-type-checkbox:hover { border-color: #3b82f6; background: #eff6ff; }
-.data-type-checkbox.checked { border-color: #174E93; background: #eff6ff; }
-.data-type-checkbox input { accent-color: #174E93; }
+.data-type-checkbox:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.data-type-checkbox.checked {
+    border-color: #174e93;
+    background: #eff6ff;
+}
+.data-type-checkbox input {
+    accent-color: #174e93;
+}
 
 /* Chart preview container */
 .chart-preview-container {
@@ -84,7 +112,9 @@
     gap: 1rem;
 }
 @media (min-width: 768px) {
-    .chart-preview-container { grid-template-columns: repeat(2, 1fr); }
+    .chart-preview-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .chart-card {
@@ -102,7 +132,9 @@
     text-align: center;
 }
 
-.chart-card canvas { max-height: 200px; }
+.chart-card canvas {
+    max-height: 200px;
+}
 
 /* Section management */
 .section-card {
@@ -120,7 +152,10 @@
     margin-bottom: 0.75rem;
 }
 
-.section-card-title { font-weight: 600; color: #1f2937; }
+.section-card-title {
+    font-weight: 600;
+    color: #1f2937;
+}
 
 /* Chart Config Items */
 .chart-config-item {
@@ -156,9 +191,15 @@
     cursor: pointer;
     transition: all 0.2s;
 }
-.chart-config-remove:hover { background: #fee2e2; color: #dc2626; }
+.chart-config-remove:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
 
-.chart-config-types { display: flex; gap: 0.5rem; }
+.chart-config-types {
+    display: flex;
+    gap: 0.5rem;
+}
 
 .chart-type-btn {
     padding: 0.375rem 0.75rem;
@@ -171,9 +212,26 @@
     font-weight: 500;
     color: #6b7280;
 }
-.chart-type-btn:hover { border-color: #3b82f6; color: #3b82f6; }
-.chart-type-btn.active { border-color: #174E93; background: #174E93; color: white; }
+.chart-type-btn:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+.chart-type-btn.active {
+    border-color: #174e93;
+    background: #174e93;
+    color: white;
+}
 
 /* Modal enhancements */
-.modal-lg { max-width: 32rem; }
+.modal-lg {
+    max-width: 32rem;
+}
 
+/* Preview image item - only remove background color */
+.preview-img-item {
+    background: transparent !important;
+}
+
+#preview-container {
+    background: transparent !important;
+}

@@ -651,11 +651,11 @@
                     img.id +
                     '" data-img-index="' +
                     idx +
-                    '" style="position: relative; cursor: grab; border-radius: 0.75rem; overflow: visible !important; background: #f8fafc; user-select: none; width: ' +
+                    '" style="position: relative; cursor: grab; border-radius: 0.75rem; overflow: visible !important; background: transparent !important; user-select: none; width: ' +
                     w +
                     "px; height: " +
                     h +
-                    "px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: box-shadow 0.2s; " +
+                    "px; transition: box-shadow 0.2s; " +
                     transformStr +
                     '">';
 
@@ -671,7 +671,7 @@
                     img.x +
                     "% " +
                     img.y +
-                    '%; display: block; border-radius: 0.75rem;">';
+                    '%; display: block;">';
 
                 previewHTML += "</div>";
             });
@@ -699,11 +699,11 @@
                     img.id +
                     '" data-img-index="' +
                     idx +
-                    '" style="position: relative; cursor: grab; border-radius: 0.75rem; overflow: visible !important; background: #f8fafc; user-select: none; width: ' +
+                    '" style="position: relative; cursor: grab; border-radius: 0.75rem; overflow: visible !important; background: transparent !important; user-select: none; width: ' +
                     w +
                     "px; height: " +
                     h +
-                    "px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: box-shadow 0.2s; " +
+                    "px; transition: box-shadow 0.2s; " +
                     transformStr +
                     '">';
 
@@ -719,7 +719,7 @@
                     img.x +
                     "% " +
                     img.y +
-                    '%; display: block; border-radius: 0.75rem;">';
+                    '%; display: block;">';
 
                 previewHTML += "</div>";
             });

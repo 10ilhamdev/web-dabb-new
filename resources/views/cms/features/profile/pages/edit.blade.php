@@ -322,9 +322,9 @@
                             </svg>
                             Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point
                         </p>
-                        <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-hidden"
+                        <div class="border border-gray-300 rounded-lg bg-transparent overflow-y-auto overflow-x-hidden"
                             style="min-height: 700px; max-height: 700px;">
-                            <div id="preview-container" class="p-6" style="background: #fafbfc; width: 100%;">
+                            <div id="preview-container" class="p-6" style="background: transparent; width: 100%;">
                                 {{-- Preview content akan diisi oleh JavaScript --}}
                             </div>
                         </div>
@@ -669,7 +669,9 @@
         window.sectionDeleteUrl =
             '{{ route('cms.features.profile.sections.destroy', [$feature, $sub, $page, '__SECTION_ID__']) }}';
     </script>
-    <script src="{{ asset('js/cms/features/profile/edit.js') }}"></script>
+    <script
+        src="{{ asset('js/cms/features/profile/edit.js?v=' . md5_file(public_path('js/cms/features/profile/edit.js'))) }}">
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[RTE] DOMContentLoaded fired, initProfileEditForm exists:', typeof initProfileEditForm !==

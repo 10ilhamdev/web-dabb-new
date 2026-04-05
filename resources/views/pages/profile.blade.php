@@ -29,6 +29,7 @@
 
         .profile-section {
             padding: 36px 0;
+            background: transparent !important;
         }
 
         .profile-section-bg {
@@ -303,6 +304,9 @@
             display: flex !important;
             flex-direction: column !important;
             gap: 0.75rem !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
         .struktur-layout {
@@ -335,6 +339,33 @@
             .sdm-layout {
                 grid-template-columns: 1fr 1fr;
             }
+        }
+
+        /* Strip only background color from image containers */
+        .page-image-container>div {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        .page-image-container>div>img {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        /* For tugas_fungsi pages with images - remove section background */
+        .page-layout-dual {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* More specific rules for image divs - ensure no white background card effect */
+        [style*="position: relative"][style*="border-radius: 0.75rem"][style*="overflow: hidden"] {
+            background-color: transparent !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
         }
     </style>
 @endpush
@@ -453,9 +484,9 @@
                                             }
                                         @endphp
                                         <div
-                                            style="position: relative; border-radius: 0.75rem; overflow: hidden; background: #f8fafc; user-select: none; width: {{ $width }}px; height: {{ $height }}px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translate({{ $offsetX }}px, {{ $offsetY }}px);">
+                                            style="position: relative; border-radius: 0.75rem; overflow: hidden; background: transparent; user-select: none; width: {{ $width }}px; height: {{ $height }}px; transform: translate({{ $offsetX }}px, {{ $offsetY }}px);">
                                             <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}"
-                                                style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalPointX }}% {{ $focalPointY }}%; display: block; border-radius: 0.75rem;">
+                                                style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalPointX }}% {{ $focalPointY }}%; display: block;">
                                         </div>
                                     @endforeach
                                 </div>
