@@ -322,10 +322,14 @@
                             </svg>
                             Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point
                         </p>
-                        <div class="border border-gray-300 rounded-lg bg-transparent overflow-y-auto overflow-x-hidden"
-                            style="min-height: 700px; max-height: 700px;">
-                            <div id="preview-container" class="p-6" style="background: transparent; width: 100%;">
-                                {{-- Preview content akan diisi oleh JavaScript --}}
+                        <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-auto"
+                            style="min-height: 380px; max-height: 380px;">
+                            <div id="preview-wrapper"
+                                style="display: inline-block; width: 100%; min-width: 1170px; padding: 0;">
+                                <div id="preview-container"
+                                    style="background: transparent; width: min(1170px, 94%); margin: 0 auto;">
+                                    {{-- Preview content akan diisi oleh JavaScript --}}
+                                </div>
                             </div>
                         </div>
                         <p class="text-xs text-gray-400 mt-3 italic">Preview otomatis terupdate saat Anda mengedit</p>

@@ -235,3 +235,26 @@
 #preview-container {
     background: transparent !important;
 }
+
+#preview-container ol,
+#preview-container ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+}
+
+#preview-container ol li,
+#preview-container ul li {
+    margin-bottom: 0.5rem;
+    line-height: 1.75;
+    list-style-position: outside;
+    color: #475569;
+}
+
+#preview-container ol {
+    list-style-type: decimal;
+}
+
+#preview-container ul {
+    list-style-type: disc;
+}
