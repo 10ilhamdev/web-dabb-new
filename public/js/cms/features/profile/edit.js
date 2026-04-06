@@ -631,7 +631,7 @@
                 '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; word-break: break-word; overflow-wrap: break-word;">';
 
             previewHTML +=
-                '<div style="color: #475569; line-height: 1.75; font-size: 1rem; width: 100%; margin-bottom: 1.5rem; word-break: break-word; overflow-wrap: break-word; min-width: 0;">';
+                '<div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem; width: 100%; margin-bottom: 1.5rem; word-break: break-word; overflow-wrap: break-word; min-width: 0;">';
             previewHTML += descriptionHTML;
             previewHTML += "</div>";
 
@@ -679,7 +679,7 @@
             previewHTML += "</div>";
         } else if (hasDesc) {
             previewHTML +=
-                '<div style="color: #475569; line-height: 1.75; font-size: 1rem; width: 100%; margin-bottom: 1.5rem; word-break: break-word; overflow-wrap: break-word; min-width: 0;">';
+                '<div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem; width: 100%; margin-bottom: 1.5rem; word-break: break-word; overflow-wrap: break-word; min-width: 0;">';
             previewHTML += descriptionHTML;
             previewHTML += "</div>";
         } else if (hasImages) {
