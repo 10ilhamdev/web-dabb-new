@@ -740,8 +740,9 @@
         attachPreviewDragHandlers();
         attachPreviewResizeHandlers();
 
-        // Adjust grid columns based on saved offsets (horizontal handled by grid, vertical by transform)
+        // Adjust grid columns and apply transforms
         adjustPreviewGrid();
+        applyImageTransforms();
     }
 
     /**
@@ -842,7 +843,6 @@
                         img.offsetX = Math.round(startOffsetX + shiftX);
                         img.offsetY = Math.round(startOffsetY + shiftY);
 
-                        // Live-adjust grid when resizing from any handle
                         adjustPreviewGrid();
                     };
 
@@ -853,7 +853,8 @@
                         );
                         document.removeEventListener("mouseup", handleMouseUp);
                         saveImagePositionsBeforeSubmit();
-                        renderPagePreview();
+                        adjustPreviewGrid();
+                        applyImageTransforms();
                     };
 
                     document.addEventListener("mousemove", handleMouseMove);
@@ -922,23 +923,20 @@
         if (!gridContainer) return;
 
         var gridWidth = gridContainer.getBoundingClientRect().width;
-        var gap = 32; // 2rem
+        var gap = 32;
         var defaultHalf = (gridWidth - gap) / 2;
+        var MIN_TEXT_WIDTH = 180;
 
-        // Calculate the extra space the image column needs beyond the default half.
-        // Sources: leftward drag (negative offsetX) and image width exceeding half.
         var extraNeeded = 0;
         _gambarStore.forEach(function(img) {
             var w = Number(img.width) || 200;
             var offsetX = Number(img.offsetX) || 0;
 
-            // Leftward drag: image visually moves into text area by |offsetX| pixels
             if (offsetX < 0) {
                 var leftExtra = Math.abs(offsetX);
                 if (leftExtra > extraNeeded) extraNeeded = leftExtra;
             }
 
-            // Image wider than default half
             if (w > defaultHalf) {
                 var widthExtra = w - defaultHalf;
                 if (widthExtra > extraNeeded) extraNeeded = widthExtra;
@@ -947,35 +945,38 @@
 
         if (extraNeeded > 0) {
             var imgColWidth = defaultHalf + extraNeeded + 16;
-            var maxImgCol = gridWidth - gap - 80;
+            var maxImgCol = gridWidth - gap - MIN_TEXT_WIDTH;
             if (imgColWidth > maxImgCol) imgColWidth = maxImgCol;
             var textColWidth = gridWidth - gap - imgColWidth;
-            gridContainer.style.gridTemplateColumns = textColWidth + 'px ' + imgColWidth + 'px';
 
-            // Since grid column now absorbed the horizontal offset,
-            // remove translateX from images so they don't overlap text.
-            // Keep translateY for vertical positioning.
-            document.querySelectorAll('.preview-img-item').forEach(function(item) {
-                var imgId = item.dataset.imgId;
-                var imgData = _gambarStore.find(function(i) { return i.id === imgId; });
-                if (imgData) {
-                    var oY = Number(imgData.offsetY) || 0;
-                    item.style.transform = oY !== 0 ? 'translateY(' + oY + 'px)' : 'none';
-                }
-            });
+            if (textColWidth < MIN_TEXT_WIDTH) {
+                textColWidth = MIN_TEXT_WIDTH;
+                imgColWidth = gridWidth - gap - textColWidth;
+            }
+
+            gridContainer.style.gridTemplateColumns = textColWidth + 'px ' + imgColWidth + 'px';
         } else {
             gridContainer.style.gridTemplateColumns = '1fr 1fr';
-            // No extra needed — apply full transforms for rightward/other drags
-            document.querySelectorAll('.preview-img-item').forEach(function(item) {
-                var imgId = item.dataset.imgId;
-                var imgData = _gambarStore.find(function(i) { return i.id === imgId; });
-                if (imgData) {
-                    var oX = Number(imgData.offsetX) || 0;
-                    var oY = Number(imgData.offsetY) || 0;
-                    item.style.transform = (oX !== 0 || oY !== 0) ? 'translate(' + oX + 'px, ' + oY + 'px)' : 'none';
-                }
-            });
         }
+    }
+
+    /**
+     * Apply transforms to all preview images from store data
+     */
+    function applyImageTransforms() {
+        document.querySelectorAll('.preview-img-item').forEach(function(item) {
+            var imgId = item.dataset.imgId;
+            var imgData = _gambarStore.find(function(i) { return i.id === imgId; });
+            if (imgData) {
+                var oX = Number(imgData.offsetX) || 0;
+                var oY = Number(imgData.offsetY) || 0;
+                if (oX !== 0 || oY !== 0) {
+                    item.style.transform = 'translate(' + oX + 'px, ' + oY + 'px)';
+                } else {
+                    item.style.transform = 'none';
+                }
+            }
+        });
     }
 
     /**
@@ -1038,17 +1039,33 @@
                         const deltaX = moveEvent.clientX - startMouseX;
                         const deltaY = moveEvent.clientY - startMouseY;
 
-                        const newX = startItemX + deltaX;
+                        let newX = startItemX + deltaX;
                         const newY = startItemY + deltaY;
 
-                        // Live-update gambarStore so adjustPreviewGrid reads current state
                         const imgLive = _gambarStore[draggedIndex];
                         if (imgLive) {
-                            imgLive.offsetX = Math.round(newX);
+                            const imgWidth = Number(imgLive.width) || 200;
+                            const MIN_TEXT_WIDTH = 180;
+                            const gridContainer = document.querySelector('#preview-container [style*="grid-template-columns"]');
+
+                            if (gridContainer) {
+                                const gridRect = gridContainer.getBoundingClientRect();
+                                const gap = 32;
+                                const halfWidth = (gridRect.width - gap) / 2;
+
+                                if (newX < 0) {
+                                    const textColumnWidth = halfWidth + newX;
+                                    if (textColumnWidth < MIN_TEXT_WIDTH) {
+                                        newX = MIN_TEXT_WIDTH - halfWidth;
+                                    }
+                                }
+                            }
+
+                            newX = Math.round(newX);
+                            imgLive.offsetX = newX;
                             imgLive.offsetY = Math.round(newY);
                         }
 
-                        // Move image freely with transform, and adjust grid for text reflow
                         draggedItem.style.transform = `translate(${newX}px, ${newY}px)`;
                         adjustPreviewGrid();
                     };
@@ -1058,16 +1075,30 @@
 
                         isDragging = false;
 
-                        // Calculate final offset
                         const deltaX = upEvent.clientX - startMouseX;
                         const deltaY = upEvent.clientY - startMouseY;
 
-                        const finalOffsetX = startItemX + deltaX;
+                        let finalOffsetX = startItemX + deltaX;
                         const finalOffsetY = startItemY + deltaY;
 
-                        // Save to _gambarStore
                         const img = _gambarStore[draggedIndex];
                         if (img) {
+                            const MIN_TEXT_WIDTH = 180;
+                            const gridContainer = document.querySelector('#preview-container [style*="grid-template-columns"]');
+
+                            if (gridContainer) {
+                                const gridRect = gridContainer.getBoundingClientRect();
+                                const gap = 32;
+                                const halfWidth = (gridRect.width - gap) / 2;
+
+                                if (finalOffsetX < 0) {
+                                    const textColumnWidth = halfWidth + finalOffsetX;
+                                    if (textColumnWidth < MIN_TEXT_WIDTH) {
+                                        finalOffsetX = MIN_TEXT_WIDTH - halfWidth;
+                                    }
+                                }
+                            }
+
                             img.offsetX = Math.round(finalOffsetX);
                             img.offsetY = Math.round(finalOffsetY);
                             console.log("[DRAG SAVED]", {
@@ -1098,6 +1129,7 @@
 
                         saveImagePositionsBeforeSubmit();
                         adjustPreviewGrid();
+                        applyImageTransforms();
                     };
 
                     document.addEventListener("mousemove", handleMouseMove);
@@ -1296,6 +1328,8 @@
                         y: 50,
                         width: 200,
                         height: 150,
+                        offsetX: 0,
+                        offsetY: 0,
                         isExisting: false,
                     });
                 });
