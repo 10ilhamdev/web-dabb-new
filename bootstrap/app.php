@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // === TAMBAHKAN BARIS INI UNTUK MEMPERBAIKI MASALAH TUNNEL / EXPOSE ===
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             SetLocale::class,
             TrackPageView::class,
