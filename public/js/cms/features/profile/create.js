@@ -545,30 +545,21 @@
 
         if (hasImages) {
             previewHTML +=
-                '<div style="width: 100%; overflow: visible; display: block;">';
+                '<div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;">';
+
+            previewHTML +=
+                '<div class="preview-text-col" style="min-width:0;overflow:hidden;">' +
+                leftCol +
+                "</div>";
+            previewHTML +=
+                '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:32px;min-width:220px;">';
 
             _gambarStore.forEach((img) => {
                 const w = img.width || 200;
                 const h = img.height || 150;
-                let oX = typeof img.offsetX === "number" ? img.offsetX : null;
-                let oY = typeof img.offsetY === "number" ? img.offsetY : null;
-                let drTop = 0,
-                    drRight = 0;
-                if (oX !== null) drRight = -oX;
-                if (oY !== null) drTop = oY;
-                let marginStr = "";
-                if (oX === null && oY === null) {
-                    // First upload: float right, no offset, normal margin
-                    marginStr = "margin: 0 0 32px 32px; float: right;";
-                } else {
-                    marginStr =
-                        "margin: " +
-                        drTop +
-                        "px " +
-                        drRight +
-                        "px 32px 32px; float: right;";
-                }
-                const styleStr = `position: relative; border-radius: 0.75rem; overflow: visible !important; width: ${w}px; height: ${h}px; ${marginStr} z-index: 10;`;
+                const oX = Number(img.offsetX) || 0;
+                const oY = Number(img.offsetY) || 0;
+                const styleStr = `position: relative; border-radius: 0.75rem; overflow: visible !important; width: ${w}px; height: ${h}px; margin: 0; z-index: 10; transform: translate(${oX}px, ${oY}px);`;
                 previewHTML +=
                     '<div class="preview-img-item" data-img-id="' +
                     img.id +
@@ -588,9 +579,7 @@
                 previewHTML += "</div>";
             });
 
-            // The text comes AFTER floating elements in HTML!
-            previewHTML += leftCol;
-            previewHTML += '<div style="clear: both;"></div>';
+            previewHTML += "</div>";
             previewHTML += "</div>";
         } else if (hasDesc || hasTitle || hasLink) {
             previewHTML += leftCol;
@@ -850,10 +839,8 @@
             if (imgData) {
                 var oX = Number(imgData.offsetX) || 0;
                 var oY = Number(imgData.offsetY) || 0;
-                var drTop = oY;
-                var drRight = -oX;
-                item.style.margin = drTop + "px " + drRight + "px 32px 32px";
-                item.style.transform = "none";
+                item.style.margin = "0";
+                item.style.transform = "translate(" + oX + "px, " + oY + "px)";
             }
         });
     }
@@ -928,11 +915,9 @@
                             imgLive.offsetY = Math.round(newY);
                         }
 
-                        let drTop = newY;
-                        let drRight = -newX;
-                        draggedItem.style.margin =
-                            drTop + "px " + drRight + "px 32px 32px";
-                        draggedItem.style.transform = "none";
+                        draggedItem.style.margin = "0";
+                        draggedItem.style.transform =
+                            "translate(" + newX + "px, " + newY + "px)";
                         adjustPreviewGrid();
                     };
 

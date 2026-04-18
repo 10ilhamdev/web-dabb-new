@@ -2,8 +2,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
+
     <link rel="stylesheet" href="{{ asset('richtexteditor/runtime/guest_richtexteditor_content.css') }}">
     <style>
         #preview-wrapper {
@@ -363,7 +362,9 @@
         window.rteUploadUrl = '{{ route('cms.settings.rte.upload') }}';
         window.csrfToken = '{{ csrf_token() }}';
     </script>
-    <script src="{{ asset('js/cms/features/profile/create.js') }}"></script>
+    <script
+        src="{{ asset('js/cms/features/profile/create.js?v=' . md5_file(public_path('js/cms/features/profile/create.js'))) }}">
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[RTE] DOMContentLoaded fired, initProfileCreateForm exists:',

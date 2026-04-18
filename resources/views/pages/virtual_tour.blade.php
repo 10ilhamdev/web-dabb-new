@@ -5,7 +5,7 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"> 
 <link rel="stylesheet" href="{{ asset('css/virtual_tour.css') }}">
 @endpush
 
@@ -90,6 +90,16 @@
         <div id="vt-panorama"></div>
     </div>
 </div>
+
+{{-- Login Modal (if guest) --}}
+@if(isset($requiresLoginModal) && $requiresLoginModal)
+    @include('partials.login_modal', [
+        'loginModalPreviews'  => $loginModalPreviews ?? [],
+        'loginModalPreview'   => $loginModalPreview ?? null,
+        'loginModalRoomNames' => $loginModalRoomNames ?? [],
+        'loginModalRoomName'  => $loginModalRoomName ?? null
+    ])
+@endif
 
 @endsection
 

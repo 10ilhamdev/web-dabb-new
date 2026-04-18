@@ -313,7 +313,7 @@ class FeaturePageController extends Controller
     /**
      * Public: show feature page with sections (paginated).
      */
-    public function publicShow(Feature $feature, ?int $pageNum = null, bool $requiresLoginModal = false, ?string $loginModalPreview = null, ?string $loginModalRoomName = null)
+    public function publicShow(Feature $feature, ?int $pageNum = null, bool $requiresLoginModal = false, ?array $loginModalPreviews = null, ?string $loginModalPreview = null, ?array $loginModalRoomNames = null, ?string $loginModalRoomName = null)
     {
         $feature->load('parent');
         $pages = $feature->pages()->withCount('sections')->orderBy('order')->get();
@@ -340,7 +340,9 @@ class FeaturePageController extends Controller
             'currentPageNum'      => $pageNum,
             'totalPages'          => $pages->count(),
             'requiresLoginModal'  => $requiresLoginModal,
+            'loginModalPreviews'  => $loginModalPreviews ?? [],
             'loginModalPreview'   => $loginModalPreview,
+            'loginModalRoomNames' => $loginModalRoomNames ?? [],
             'loginModalRoomName'  => $loginModalRoomName,
             'virtual3dRooms'      => $virtual3dRooms,
         ]);
@@ -371,8 +373,14 @@ class FeaturePageController extends Controller
         );
 
         // Resolve preview image for the login modal right panel
+        $loginModalPreviews = [];
         $loginModalPreview = null;
+        $loginModalRoomNames = [];
         $loginModalRoomName = null;
+
+        // Force initialize to ensure they're always defined
+        $loginModalPreviews = $loginModalPreviews ?? [];
+        $loginModalRoomNames = $loginModalRoomNames ?? [];
 
         // Profile page type — load all profile pages from profiles table with their sections
         if ($feature->page_type === 'profile') {
@@ -406,6 +414,32 @@ class FeaturePageController extends Controller
             $slides = collect();
             $locale = app()->getLocale();
 
+            // Set previews for login modal (array for carousel if multiple pages)
+            if ($requiresLoginModal && $pages->isNotEmpty()) {
+                foreach ($pages as $page) {
+                    $previewUrl = null;
+                    $pageTitle = app()->getLocale() === 'en' && $page->title_en ? $page->title_en : $page->title;
+                    $firstSlide = $page->slideshowSlides->sortBy('order')->first();
+
+                    if ($page->thumbnail_path) {
+                        $previewUrl = asset('storage/'.$page->thumbnail_path);
+                    } elseif ($firstSlide) {
+                        $imgs = $firstSlide->images;
+                        $urls = $firstSlide->image_urls;
+                        if ($imgs && count($imgs) > 0) {
+                            $previewUrl = asset('storage/'.$imgs[0]);
+                        } elseif ($urls && count($urls) > 0) {
+                            $previewUrl = $urls[0];
+                        }
+                    }
+
+                    if ($previewUrl) {
+                        $loginModalPreviews[] = $previewUrl;
+                        $loginModalRoomNames[] = $pageTitle;
+                    }
+                }
+            }
+
             // Check if specific page is requested
             $pageNum = $request->input('page');
             if ($pageNum) {
@@ -415,15 +449,21 @@ class FeaturePageController extends Controller
                 }
             }
 
+            // Use first preview as fallback for selectedPage view
+            $loginModalPreview = $loginModalPreviews[0] ?? null;
+            $loginModalRoomName = $loginModalRoomNames[0] ?? null;
+
             // Use separate views for landing vs content
             if ($selectedPage) {
                 return view('pages.virtual_slideshow_content', compact(
-                    'feature', 'pages', 'selectedPage', 'slides', 'locale'
+                    'feature', 'pages', 'selectedPage', 'slides', 'locale',
+                    'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
                 ));
             }
 
             return view('pages.virtual_slideshow_landing', compact(
-                'feature', 'pages'
+                'feature', 'pages',
+                'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
             ));
         }
 
@@ -439,21 +479,7 @@ class FeaturePageController extends Controller
             return view('welcome', compact('feature', 'content'));
         }
         if ($requiresLoginModal) {
-            // Try direct virtual rooms on this feature
-            $firstRoom = $feature->virtual3dRooms()->first() ?? $feature->virtualRooms()->first();
-
-            // If none, check sub-features' virtual rooms
-            if (!$firstRoom && method_exists($feature, 'subfeatures')) {
-                foreach ($feature->subfeatures as $sub) {
-                    $firstRoom = $sub->virtual3dRooms()->first() ?? $sub->virtualRooms()->first();
-                    if ($firstRoom) break;
-                }
-            }
-            if ($firstRoom) {
-                $imgPath = $firstRoom->thumbnail_path ?? $firstRoom->image_360_path ?? null;
-                $loginModalPreview = $imgPath ? asset('storage/'.$imgPath) : null;
-                $loginModalRoomName = $firstRoom->name;
-            }
+            // No separate preview gathering needed here - handled in virtual3dRooms/virtualRooms sections
         }
 
         // Virtual 3D Rooms feature — show interactive 4-walls 3D room
@@ -470,16 +496,20 @@ class FeaturePageController extends Controller
             }
 
             if ($virtual3dRooms->isNotEmpty()) {
-                // Add first room thumbnail for modal if needed
+                // Add room thumbnails for modal carousel if needed
                 if ($requiresLoginModal) {
-                    $first3dRoom = $virtual3dRooms->first();
-                    $loginModalPreview = $first3dRoom->thumbnail_path ? asset('storage/'.$first3dRoom->thumbnail_path) : null;
-                    $loginModalRoomName = $first3dRoom->name;
+                    foreach ($virtual3dRooms as $room) {
+                        $imgPath = $room->thumbnail_path ?? null;
+                        if ($imgPath) {
+                            $loginModalPreviews[] = asset('storage/'.$imgPath);
+                            $loginModalRoomNames[] = $room->name;
+                        }
+                    }
                 }
 
                 return view('pages.virtual_3d_tour', compact(
                     'feature', 'virtual3dRooms', 'requiresLoginModal',
-                    'loginModalPreview', 'loginModalRoomName'
+                    'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
                 ));
             }
         }
@@ -489,15 +519,19 @@ class FeaturePageController extends Controller
             $virtualRooms = $feature->virtualRooms()->withCount('hotspots')->with('hotspots')->get();
             if ($virtualRooms->isNotEmpty()) {
                 if ($requiresLoginModal) {
-                    $firstRoom = $virtualRooms->first();
-                    $imgPath = $firstRoom->thumbnail_path ?? $firstRoom->image_360_path ?? null;
-                    $loginModalPreview = $imgPath ? asset('storage/'.$imgPath) : null;
-                    $loginModalRoomName = $firstRoom->name;
+                    foreach ($virtualRooms as $room) {
+                        $imgPath = $room->thumbnail_path ?? $room->image_360_path ?? null;
+                        if ($imgPath) {
+                            $loginModalPreviews[] = asset('storage/'.$imgPath);
+                            $loginModalRoomNames[] = $room->name;
+                        }
+                    }
+                    $loginModalRoomName = $loginModalRoomNames[0] ?? null;
                 }
 
                 return view('pages.virtual_tour', compact(
                     'feature', 'virtualRooms', 'requiresLoginModal',
-                    'loginModalPreview', 'loginModalRoomName'
+                    'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
                 ));
             }
         }
@@ -505,26 +539,67 @@ class FeaturePageController extends Controller
         // Virtual Book Pages - show flip book
         if ($feature->is_virtual_book || $feature->books()->exists()) {
             $books = $feature->books()->with('pages')->orderBy('order')->get();
+
+            // Set previews for login modal (array for carousel if multiple books)
+            if ($requiresLoginModal && $books->isNotEmpty()) {
+                foreach ($books as $book) {
+                    $previewUrl = null;
+                    $bookTitle = app()->getLocale() === 'en' && $book->title_en ? $book->title_en : $book->title;
+
+                    if ($book->thumbnail) {
+                        $previewUrl = asset('storage/'.$book->thumbnail);
+                    } elseif ($book->cover_image) {
+                        $previewUrl = asset('storage/'.$book->cover_image);
+                    } elseif ($feature->book_cover) {
+                        $previewUrl = asset('storage/'.$feature->book_cover);
+                    } elseif ($feature->book_thumbnail) {
+                        $previewUrl = asset('storage/'.$feature->book_thumbnail);
+                    }
+
+                    if ($previewUrl) {
+                        $loginModalPreviews[] = $previewUrl;
+                        $loginModalRoomNames[] = $bookTitle;
+                    }
+                }
+            }
+
+            // Fallback for single book view
+            $loginModalPreview = $loginModalPreviews[0] ?? null;
+            $loginModalRoomName = $loginModalRoomNames[0] ?? null;
+
             $readBookId = request('read');
 
             if ($readBookId) {
                 $book = $books->firstWhere('id', $readBookId);
                 if ($book) {
+                    // Update preview for specific book if needed
+                    if ($requiresLoginModal) {
+                        $previewUrl = null;
+                        if ($book->thumbnail) {
+                            $previewUrl = asset('storage/'.$book->thumbnail);
+                        } elseif ($book->cover_image) {
+                            $previewUrl = asset('storage/'.$book->cover_image);
+                        }
+                        if ($previewUrl) {
+                            $loginModalPreview = $previewUrl;
+                            $loginModalRoomName = app()->getLocale() === 'en' && $book->title_en ? $book->title_en : $book->title;
+                        }
+                    }
                     return view('pages.virtual_book_viewer', compact(
                         'feature', 'book', 'requiresLoginModal',
-                        'loginModalPreview', 'loginModalRoomName'
+                        'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
                     ));
                 }
             }
 
             return view('pages.virtual_book_grid', compact(
                 'feature', 'books', 'requiresLoginModal',
-                'loginModalPreview', 'loginModalRoomName'
+                'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
             ));
         }
 
         if ($feature->pages_count > 0) {
-            return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreview, $loginModalRoomName);
+            return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
         }
 
         $virtual3dRooms = $feature->virtual3dRooms()->with('media')->get();
@@ -537,7 +612,7 @@ class FeaturePageController extends Controller
         }
 
         return view('pages.virtual_3d_tour', compact(
-            'feature', 'requiresLoginModal', 'loginModalPreview', 'loginModalRoomName', 'virtual3dRooms'
+            'feature', 'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'virtual3dRooms'
         ));
     }
 

@@ -397,18 +397,6 @@
                 </p>
             @endif
             <h1>{{ strtoupper($locale === 'id' ? $feature->name : $feature->name_en ?? $feature->name) }}</h1>
-
-            {{-- Page Navigation --}}
-            @if ($totalPages > 1)
-                <div class="page-nav">
-                    @for ($i = 1; $i <= $totalPages; $i++)
-                        <a href="{{ request()->url() }}?page={{ $i }}"
-                            class="page-nav-btn{{ $currentPageIndex + 1 === $i ? ' active' : '' }}">
-                            {{ $i }}
-                        </a>
-                    @endfor
-                </div>
-            @endif
         </div>
     </div>
 

@@ -355,7 +355,7 @@ window.onerror = function(msg, url, line, col, error) {
 @if(isset($requiresLoginModal) && $requiresLoginModal)
     @include('partials.login_modal', [
         'previewImage' => $loginModalPreview ?? null,
-        'roomName' => $loginModalRoomName ?? null
+        'roomName'     => $loginModalRoomName ?? null
     ])
 @endif
 

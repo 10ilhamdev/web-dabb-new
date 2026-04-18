@@ -275,4 +275,12 @@
     @endif
 </section>
 
+{{-- Login Modal (if guest) --}}
+@if(isset($requiresLoginModal) && $requiresLoginModal)
+    @include('partials.login_modal', [
+        'previewImage' => $loginModalPreview ?? null,
+        'roomName'     => $loginModalRoomName ?? null
+    ])
+@endif
+
 @endsection

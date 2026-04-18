@@ -291,6 +291,18 @@
     document.querySelectorAll('[data-position]').forEach(function(el) { el.style.objectPosition = el.dataset.position; });
 </script>
 
+{{-- Login Modal (if guest) --}}
+@if(isset($requiresLoginModal) && $requiresLoginModal)
+    @include('partials.login_modal', [
+        'previewImage'    => $loginModalPreview ?? null,
+        'roomName'       => $loginModalRoomName ?? null,
+        'loginModalPreviews'  => $loginModalPreviews ?? [],
+        'loginModalPreview'   => $loginModalPreview ?? null,
+        'loginModalRoomNames' => $loginModalRoomNames ?? [],
+        'loginModalRoomName'  => $loginModalRoomName ?? null
+    ])
+@endif
+
 @endsection
 
 @push('scripts')

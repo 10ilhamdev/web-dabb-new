@@ -754,6 +754,14 @@
 
 @endsection
 
+{{-- Login Modal (if guest) --}}
+@if(isset($requiresLoginModal) && $requiresLoginModal)
+    @include('partials.login_modal', [
+        'previewImage' => $loginModalPreview ?? null,
+        'roomName'     => $loginModalRoomName ?? null
+    ])
+@endif
+
 @push('scripts')
 <script src="{{ asset('js/pages/virtual_slideshow.js') }}"></script>
 @endpush
