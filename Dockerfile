@@ -1,3 +1,15 @@
+# Stage 1: Composer dependencies
+FROM composer:2.9 AS vendor
+
+WORKDIR /app
+
+# Copy composer files terlebih dahulu agar cache lebih efisien
+COPY composer.json composer.lock ./
+
+# Install dependencies (vendor)
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+# Stage 2: PHP runtime
 FROM php:8.3-fpm-bookworm
 
 WORKDIR /var/www
@@ -21,20 +33,17 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) pdo pdo_mysql gd zip
 
-# 3. Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --install-dir=/usr/local/bin --filename=composer
-
-# 4. Copy seluruh source code SEBELUM composer install
+# 3. Copy source code
 COPY . .
 
-# 5. Jalankan composer install (bypass memory limit, verbose untuk debug)
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
-    --no-interaction --prefer-dist --optimize-autoloader -vvv
+# 4. Copy vendor dari stage Composer
+COPY --from=vendor /app/vendor ./vendor
 
-# 6. Set user permissions (Laravel storage/logs)
-RUN mkdir -p /var/www/storage /var/www/bootstrap/cache \
-    && chown -R www-data:www-data /var/www \
+# 5. Buat folder Laravel yang wajib ada
+RUN mkdir -p /var/www/storage /var/www/bootstrap/cache
+
+# 6. Set permission untuk Laravel
+RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 CMD ["php-fpm"]
