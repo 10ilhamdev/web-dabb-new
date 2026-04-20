@@ -88,7 +88,7 @@
                 </div>
 
                 {{-- Google --}}
-                <a href="#"
+                <a href="{{ route('auth.google.login') }}"
                     style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;color:#374151;border:1px solid #d1d5db;padding:9px;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;transition:background 0.2s;box-sizing:border-box;"
                     onmouseover="this.style.background='#f9fafb';" onmouseout="this.style.background='#fff';">
                     <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" style="height:18px;"

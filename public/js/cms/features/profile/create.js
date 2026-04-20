@@ -141,8 +141,10 @@
             dragBox.appendChild(focal);
 
             dragBox.addEventListener("mousedown", function (e) {
-                if (e.target.closest("button") || !imageLoaded) return;
+                if (e.target.closest("button")) return;
+                if (e.button !== 0) return;
                 e.preventDefault();
+                e.stopPropagation();
                 const update = (ev) => {
                     const rect = dragBox.getBoundingClientRect();
                     if (rect.width === 0) return;
@@ -464,8 +466,8 @@
                 { name: "image_positions[]", value: posStr },
                 { name: "image_widths[]", value: img.width || 200 },
                 { name: "image_heights[]", value: img.height || 150 },
-                { name: "image_offset_x[]", value: img.offsetX || 0 },
-                { name: "image_offset_y[]", value: img.offsetY || 0 },
+                { name: "image_offset_x[]", value: img.offsetX !== undefined && img.offsetX !== null ? img.offsetX : 0 },
+                { name: "image_offset_y[]", value: img.offsetY !== undefined && img.offsetY !== null ? img.offsetY : 0 },
             ];
 
             inputs.forEach((inputData) => {
@@ -693,19 +695,24 @@
                             shiftY = -(newHeight - startHeight);
                         }
 
+                        const newOffsetX = startOffsetX + shiftX;
+                        const newOffsetY = startOffsetY + shiftY;
+
+                        // Apply size + position via margin (same convention as
+                        // drag handler and applyImageTransforms) so the element
+                        // stays in the exact same visual position it will have
+                        // after mouseup. Using transform here caused a jump
+                        // because margin offsets were still active underneath.
                         item.style.width = newWidth + "px";
                         item.style.height = newHeight + "px";
-                        item.style.transform =
-                            "translate(" +
-                            (startOffsetX + shiftX) +
-                            "px, " +
-                            (startOffsetY + shiftY) +
-                            "px)";
+                        item.style.transform = "none";
+                        item.style.margin =
+                            newOffsetY + "px " + (-newOffsetX) + "px 32px 32px";
 
                         img.width = Math.round(newWidth);
                         img.height = Math.round(newHeight);
-                        img.offsetX = Math.round(startOffsetX + shiftX);
-                        img.offsetY = Math.round(startOffsetY + shiftY);
+                        img.offsetX = Math.round(newOffsetX);
+                        img.offsetY = Math.round(newOffsetY);
 
                         adjustPreviewGrid();
                     };
@@ -1068,8 +1075,8 @@
                         y: 50,
                         width: 200,
                         height: 150,
-                        offsetX: null, // <--- changed from 0 to null
-                        offsetY: null, // <--- changed from 0 to null
+                        offsetX: 0,
+                        offsetY: 0,
                         isExisting: false,
                     });
                 });

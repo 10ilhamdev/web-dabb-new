@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(php *)",
+      "Bash(cp \"C:/Users/loq15/OneDrive/Pictures/Screenshot 2026-04-18 164013.png\" \"./ss1.png\")",
+      "Bash(cp \"C:/Users/loq15/OneDrive/Pictures/Screenshot 2026-04-18 164113.png\" \"./ss2.png\")",
+      "Bash(cp \"C:/Users/loq15/OneDrive/Pictures/Screenshot 2026-04-18 164221.png\" \"./ss3.png\")",
+      "Bash(xargs grep *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8080/storage/features/profile/DQ68brYAeP2f7qAYnGLIStKuVn3OHJEqRZ8EtvU0.png\")",
+      "Bash(cmd.exe //c \"mklink /D public\\\\storage ..\\\\storage\\\\app\\\\public\")",
+      "Bash(curl -s -I \"http://localhost:8080/storage/features/profile/DQ68brYAeP2f7qAYnGLIStKuVn3OHJEqRZ8EtvU0.png\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8080/storage/features/profile/oB6DNoyMzsXkQTdiOBf66RvehZKynKugX7dxtawU.png\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8080/favicon.ico\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8080/images/logo.png\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8080/image/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8080/storage/features/profile/DQ68brYAeP2f7qAYnGLIStKuVn3OHJEqRZ8EtvU0.png\")",
+      "Bash(curl -sv \"http://localhost:8080/storage/features/profile/DQ68brYAeP2f7qAYnGLIStKuVn3OHJEqRZ8EtvU0.png\")",
+      "Bash(powershell.exe -Command \"Get-Process -Id 6204 | Select-Object -Property ProcessName,Path | Format-List\")",
+      "Bash(docker compose:*)",
+      "Bash(curl -s -o /dev/null -w \"HTTP: %{http_code}\\\\n\" \"http://localhost:8080/storage/features/profile/DQ68brYAeP2f7qAYnGLIStKuVn3OHJEqRZ8EtvU0.png\")",
+      "Bash(curl:*)"
     ]
   }
 }

@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Response;
+
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FeatureController;
@@ -115,7 +117,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{feature}/virtual-3d-rooms/{room}/edit', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'edit'])->name('virtual_3d_rooms.edit');
         Route::put('/{feature}/virtual-3d-rooms/{room}', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'update'])->name('virtual_3d_rooms.update');
         Route::delete('/{feature}/virtual-3d-rooms/{room}', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'destroy'])->name('virtual_3d_rooms.destroy');
-        
+
         // Media Management untuk Virtual 3D Rooms
         Route::post('/{feature}/virtual-3d-rooms/{room}/media', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'uploadMedia'])->name('virtual_3d_rooms.media.store');
         Route::put('/{feature}/virtual-3d-rooms/{room}/media/{media}', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'updateMediaPosition'])->name('virtual_3d_rooms.media.update');
@@ -189,9 +191,31 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+
+// Storage files route - MUST be before auth middleware and catch-all routes
+// Explicitly serve files from storage to prevent corruption issues
+Route::get('/storage/{path}', function($path) {
+    $storagePath = storage_path('app/public/' . $path);
+    
+    // Security: prevent directory traversal
+    if (strpos(realpath($storagePath), realpath(storage_path('app/public'))) !== 0) {
+        abort(403, 'Unauthorized access to storage.');
+    }
+    
+    if (!file_exists($storagePath)) {
+        abort(404, 'File not found.');
+    }
+    
+    return response()->file($storagePath);
+})
+->where('path', '.+');
 require __DIR__.'/auth.php';
 
 // Public feature pages by path (e.g., /pameran/tetap) - must be last
+// Exclude 'storage/*' so Laravel's built-in storage.public route (see FilesystemServiceProvider)
+// can serve files from the public disk. Without this exclusion, the catch-all swallows /storage/* URLs.
 Route::get('/{path}', [FeaturePageController::class, 'publicShowByPath'])
-    ->where('path', '.+')
+    ->where('path', '^(?!storage/|cms/|api/|dashboard|profile|auth).+')
     ->name('feature.path');
+
+

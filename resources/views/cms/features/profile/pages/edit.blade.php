@@ -668,10 +668,14 @@
             $existingImagesData = [];
             if ($page->images && is_array($page->images)) {
                 foreach ($page->images as $index => $img) {
-                    $cleanPath = $img;
-                    if (strpos($img, 'storage/') === 0) {
-                        $cleanPath = substr($img, 8);
+                    // Normalize path: remove any leading 'storage/' or '/' prefix
+                    $cleanPath = ltrim($img, '/');
+                    if (strpos($cleanPath, 'storage/') === 0) {
+                        $cleanPath = substr($cleanPath, 8);
                     }
+                    // Check if file exists in storage (via symlink or directly in storage/app/public)
+                    $fileExists = file_exists(public_path('storage/' . $cleanPath)) || file_exists(storage_path('app/public/' . $cleanPath));
+                    // Generate URL via the public/storage symlink (standard Laravel convention)
                     $imageUrl = asset('storage/' . $cleanPath);
 
                     $posData = $page->image_positions[$index] ?? null;
@@ -700,6 +704,7 @@
                         'height' => $height,
                         'offsetX' => $offsetX,
                         'offsetY' => $offsetY,
+                        'fileExists' => $fileExists,
                     ];
                 }
             }

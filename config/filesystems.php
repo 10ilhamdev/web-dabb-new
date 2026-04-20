@@ -43,6 +43,12 @@ return [
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
+            // 'serve' disabled: file di-serve langsung oleh web server lewat symlink
+            // public/storage -> storage/app/public (Apache + Options +FollowSymLinks
+            // di public/.htaccess). Jangan di-true-kan — menyalakan route PHP fallback
+            // membuat router Laravel ikut mengevaluasi setiap /storage/* dan menambah
+            // overhead saat halaman punya banyak gambar.
+            'serve' => true,
             'throw' => false,
             'report' => false,
         ],
@@ -78,3 +84,4 @@ return [
     ],
 
 ];
+

@@ -118,8 +118,14 @@
                     "[IMG] ✗ Error loading:",
                     img.path || img.preview,
                 );
-                loader.innerHTML =
-                    '<div class="text-gray-400 text-xs text-center">Image error</div>';
+                // Show specific error message
+                if (img.fileExists === false) {
+                    loader.innerHTML =
+                        '<div class="text-red-500 text-xs text-center px-2">File tidak ditemukan di storage<br><span class="text-gray-400 text-[10px]">' + (img.path || '') + '</span></div>';
+                } else {
+                    loader.innerHTML =
+                        '<div class="text-gray-400 text-xs text-center">Gagal memuat gambar</div>';
+                }
             };
 
             imgEl.src = img.preview;
@@ -141,10 +147,11 @@
 
             // Drag to adjust focal point
             dragBox.addEventListener("mousedown", function (e) {
-                if (e.target.closest("button") || !imageLoaded) return;
+                if (e.target.closest("button")) return;
                 if (e.button !== 0) return; // Left click only
 
                 e.preventDefault();
+                e.stopPropagation();
                 dragBox.style.cursor = "grabbing";
 
                 const update = (ev) => {
@@ -492,57 +499,18 @@
     }
 
     /**
-     * Save image positions to hidden inputs sebelum form submit
+     * Save image positions to hidden inputs before form submit
+     * NOTE: This only disables the static input. Array inputs (image_positions[],
+     * image_widths[], etc.) are built fresh in the form submit handler.
      */
     function saveImagePositionsBeforeSubmit() {
         const form = document.getElementById("pageForm");
         if (!form) return;
 
-        // Remove previous dynamically generated inputs
-        document
-            .querySelectorAll(".dynamic-img-pos")
-            .forEach((el) => el.remove());
-
-        // Create individual array inputs for each image
-        _gambarStore.forEach((img, idx) => {
-            const posX = img.x !== undefined ? img.x : 50;
-            const posY = img.y !== undefined ? img.y : 50;
-            const posStr = posX + "% " + posY + "%";
-
-            const inputs = [
-                { name: "image_positions[]", value: posStr },
-                { name: "image_widths[]", value: img.width || 200 },
-                { name: "image_heights[]", value: img.height || 150 },
-                { name: "image_offset_x[]", value: img.offsetX || 0 },
-                { name: "image_offset_y[]", value: img.offsetY || 0 },
-            ];
-
-            inputs.forEach((inputData) => {
-                const hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = inputData.name;
-                hiddenInput.value = inputData.value;
-                hiddenInput.className = "dynamic-img-pos";
-                form.appendChild(hiddenInput);
-            });
-        });
-
-        // Disable old stringified JSON input if it exists
+        // Disable old stringified JSON input — array inputs are built in submit handler
         const oldInput = document.getElementById("image_positions_input");
         if (oldInput) {
             oldInput.disabled = true;
-        }
-    }
-
-    /**
-     * Setup form submit listener
-     */
-    function setupFormSubmitListener() {
-        const form = document.getElementById("pageForm");
-        if (form) {
-            form.addEventListener("submit", function (e) {
-                saveImagePositionsBeforeSubmit();
-            });
         }
     }
 
@@ -833,19 +801,24 @@
                             shiftY = -(newHeight - startHeight);
                         }
 
+                        const newOffsetX = startOffsetX + shiftX;
+                        const newOffsetY = startOffsetY + shiftY;
+
+                        // Apply size + position via margin (same convention as
+                        // drag handler and applyImageTransforms) so the element
+                        // stays in the exact same visual position it will have
+                        // after mouseup. Using transform here caused a jump
+                        // because margin offsets were still active underneath.
                         item.style.width = newWidth + "px";
                         item.style.height = newHeight + "px";
-                        item.style.transform =
-                            "translate(" +
-                            (startOffsetX + shiftX) +
-                            "px, " +
-                            (startOffsetY + shiftY) +
-                            "px)";
+                        item.style.transform = "none";
+                        item.style.margin =
+                            newOffsetY + "px " + (-newOffsetX) + "px 32px 32px";
 
                         img.width = Math.round(newWidth);
                         img.height = Math.round(newHeight);
-                        img.offsetX = Math.round(startOffsetX + shiftX);
-                        img.offsetY = Math.round(startOffsetY + shiftY);
+                        img.offsetX = Math.round(newOffsetX);
+                        img.offsetY = Math.round(newOffsetY);
 
                         adjustPreviewGrid();
                     };
@@ -1201,13 +1174,10 @@
                     console.log("Total images:", window.existingImages.length);
                     window.existingImages.forEach(function (img, idx) {
                         console.log(
-                            `[IMG ${idx}] Path: ${img.path}, URL: ${img.url}`,
+                            `[IMG ${idx}] Path: ${img.path}, URL: ${img.url}, Exists: ${img.fileExists}`,
                         );
                         const offsetXValue = Number(img.offsetX) || 0;
                         const offsetYValue = Number(img.offsetY) || 0;
-                        console.log(
-                            `  → Offset loaded: X=${offsetXValue} (type: ${typeof offsetXValue}), Y=${offsetYValue} (type: ${typeof offsetYValue})`,
-                        );
                         _gambarStore.push({
                             id: "existing-" + idx,
                             preview: img.url,
@@ -1219,6 +1189,7 @@
                             offsetX: offsetXValue,
                             offsetY: offsetYValue,
                             isExisting: true,
+                            fileExists: img.fileExists !== false,
                         });
                     });
                     console.groupEnd();
@@ -1275,7 +1246,6 @@
 
                 // Setup preview triggers
                 setupPreviewTriggers();
-                setupFormSubmitListener();
             },
 
             onTypeChange() {},
@@ -1317,8 +1287,8 @@
                         y: 50,
                         width: 200,
                         height: 150,
-                        offsetX: null, // <--- changed from 0 to null
-                        offsetY: null, // <--- changed from 0 to null
+                        offsetX: 0,
+                        offsetY: 0,
                         isExisting: false,
                     });
                 });
@@ -1680,60 +1650,48 @@
                         });
                 }
 
-                // Image positions and dimensions as array
-                console.group("[FORM SUBMIT] Image Position Data");
-                _gambarStore.forEach(function (img, idx) {
-                    console.log(`[IMG ${idx}]`, {
-                        id: img.id,
-                        x: img.x,
-                        y: img.y,
-                        width: img.width,
-                        height: img.height,
-                        offsetX: img.offsetX,
-                        offsetY: img.offsetY,
-                    });
-                    console.log(
-                        `  └─ OFFSET VALUES:`,
-                        `offsetX=${img.offsetX}, offsetY=${img.offsetY}`,
-                    );
+                // Clear removed_images_input — controller uses existing_images to determine deletions
+                var removedInput = document.getElementById("removed_images_input");
+                if (removedInput) removedInput.value = "";
 
-                    const posInput = document.createElement("input");
+                // Image positions and dimensions as array
+                _gambarStore.forEach(function (img, idx) {
+                    var posX = img.x !== undefined ? img.x : 50;
+                    var posY = img.y !== undefined ? img.y : 50;
+
+                    var posInput = document.createElement("input");
                     posInput.type = "hidden";
                     posInput.name = "image_positions[]";
-                    posInput.value = img.x + "% " + img.y + "%";
+                    posInput.value = posX + "% " + posY + "%";
                     form.appendChild(posInput);
 
-                    const widthInput = document.createElement("input");
+                    var widthInput = document.createElement("input");
                     widthInput.type = "hidden";
                     widthInput.name = "image_widths[]";
                     widthInput.value = img.width || 200;
                     form.appendChild(widthInput);
 
-                    const heightInput = document.createElement("input");
+                    var heightInput = document.createElement("input");
                     heightInput.type = "hidden";
                     heightInput.name = "image_heights[]";
                     heightInput.value = img.height || 150;
                     form.appendChild(heightInput);
 
-                    const offsetXInput = document.createElement("input");
+                    var offsetXVal = img.offsetX !== undefined && img.offsetX !== null ? img.offsetX : 0;
+                    var offsetYVal = img.offsetY !== undefined && img.offsetY !== null ? img.offsetY : 0;
+
+                    var offsetXInput = document.createElement("input");
                     offsetXInput.type = "hidden";
                     offsetXInput.name = "image_offset_x[]";
-                    offsetXInput.value = img.offsetX || 0;
-                    console.log(
-                        `  └─ HIDDEN INPUT created: image_offset_x[] = ${offsetXInput.value}`,
-                    );
+                    offsetXInput.value = offsetXVal;
                     form.appendChild(offsetXInput);
 
-                    const offsetYInput = document.createElement("input");
+                    var offsetYInput = document.createElement("input");
                     offsetYInput.type = "hidden";
                     offsetYInput.name = "image_offset_y[]";
-                    offsetYInput.value = img.offsetY || 0;
-                    console.log(
-                        `  └─ HIDDEN INPUT created: image_offset_y[] = ${offsetYInput.value}`,
-                    );
+                    offsetYInput.value = offsetYVal;
                     form.appendChild(offsetYInput);
                 });
-                console.groupEnd();
 
                 // Only disable the original gambar_files input, NOT the dynamically created images[]
                 form.querySelectorAll(
@@ -1741,6 +1699,10 @@
                 ).forEach(function (i) {
                     i.disabled = true;
                 });
+
+                // Disable static image_positions_input to avoid double-submit with array inputs
+                var staticImgPosInput = document.getElementById("image_positions_input");
+                if (staticImgPosInput) staticImgPosInput.disabled = true;
 
                 const btn = document.getElementById("submitBtn");
                 if (btn) {

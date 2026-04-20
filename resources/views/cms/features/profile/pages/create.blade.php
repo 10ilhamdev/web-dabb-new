@@ -2,41 +2,92 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
-
     <link rel="stylesheet" href="{{ asset('richtexteditor/runtime/guest_richtexteditor_content.css') }}">
     <style>
-        #preview-wrapper {
-            background: #fff;
-            overflow-x: auto;
-            padding: 1rem;
-        }
-        #preview-container {
+        /* Mirror guest page profile.blade.php styles for preview pane */
+        #preview-container.profile-section-desc {
+            color: #414141 !important;
+            line-height: 1.6 !important;
+            font-size: 14px !important;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
             width: 100%;
+            max-width: calc((min(1170px, 94vw) - 2rem) / 2) !important;
+            padding: 0;
+            margin: 0;
         }
-        #preview-container .profile-section-desc {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #414141;
+        #preview-container.profile-section-desc p { margin-bottom: 1rem !important; }
+        #preview-container.profile-section-desc ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+        #preview-container.profile-section-desc ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+        #preview-container.profile-section-desc li { margin: 0.25em 0 !important; display: list-item !important; }
+        #preview-container.profile-section-desc a:hover { text-decoration: underline !important; color: #009ac9 !important; }
+        #preview-container.profile-section-desc h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
+        #preview-container.profile-section-desc h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
+        #preview-container.profile-section-desc h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
+        #preview-container.profile-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
+        #preview-container.profile-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
+        #preview-container.profile-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
+        #preview-container.profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
+        #preview-container.profile-section-desc table td,
+        #preview-container.profile-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+        #preview-container.profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
+
+        /* Title & Section Parity */
+        #preview-container .profile-section-title {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            margin-bottom: 0.5rem !important;
+            font-family: 'Montserrat', sans-serif !important;
         }
-        #preview-container .profile-section-desc p {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #414141;
-            margin-bottom: 1rem;
+        #preview-container .profile-section-subtitle {
+            font-size: 1.1rem !important;
+            color: #174E93 !important;
+            font-weight: 600 !important;
+            margin-bottom: 1.5rem !important;
+            font-family: 'Montserrat', sans-serif !important;
         }
-        #preview-container .profile-section-desc a {
-            color: #377dff;
+        #preview-container .section-block { margin-bottom: 1.5rem !important; }
+        #preview-container .section-block h3 {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            margin-bottom: 0.5rem !important;
+            font-family: 'Montserrat', sans-serif !important;
         }
-        #preview-container .profile-section-desc table {
-            border-collapse: collapse;
-            width: 100%;
+        #preview-container .section-block p {
+            color: #475569 !important;
+            line-height: 1.75 !important;
+            margin-bottom: 0.75rem !important;
+            font-family: 'Montserrat', sans-serif !important;
         }
-        #preview-container .profile-section-desc table td,
-        #preview-container .profile-section-desc table th {
-            border: 1px solid #ddd;
-            padding: 8px;
+        #preview-container .page-link-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            margin-top: 1.5rem !important;
+            padding: 0.75rem 1.5rem !important;
+            background: #174E93 !important;
+            color: white !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            font-size: 0.9rem !important;
+            font-family: 'Montserrat', sans-serif !important;
+        }
+
+        /* Prevent text column from stretching - CRITICAL FIX */
+        #preview-container .preview-text-col {
+            overflow: hidden;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+
+        /* Ensure grid layout preserves column structure */
+        #preview-container [style*="grid-template-columns"] {
+            align-items: start;
         }
     </style>
 @endpush
@@ -60,7 +111,8 @@
 @section('breadcrumb_active', 'Tambah Halaman')
 
 @section('content')
-    <div class="px-4 py-6 max-w-5xl mx-auto sm:px-6 lg:px-8" x-data="profilePageForm()">
+    {{-- PERBAIKAN: max-w-5xl diubah menjadi max-w-7xl agar lebarnya sama dengan Edit --}}
+    <div class="px-4 py-6 max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="profilePageForm()">
 
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-6">
@@ -71,7 +123,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 class="text-2xl font-bold text-gray-800">Tambah Halaman</h1>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Tambah Halaman</h1>
+            </div>
         </div>
 
         {{-- Main Grid: Form (Left) + Preview (Right) --}}
@@ -253,25 +307,28 @@
                         </div>
                     </div>
 
-                    {{-- Images (Gambar section) - ALL TYPES --}}
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    {{-- Images (Gambar section) - Disamakan struktur formnya dengan Edit --}}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
                         <h3 class="text-sm font-semibold text-gray-700 mb-1">Gambar Pendukung</h3>
-                        <p class="text-xs text-gray-400 mb-4">Unggah gambar yang akan ditampilkan di halaman</p>
+                        <p class="text-xs text-gray-400 mb-3">Drag untuk ubah posisi focal point atau klik Posisi untuk preset. Max 10MB per file.</p>
 
-                        <div id="gambar-previews"></div>
+                        <input type="hidden" name="image_positions" id="image_positions_input" value="{}">
 
-                        <div class="relative mt-3">
+                        <div id="gambar-previews" class="mb-3"></div>
+
+                        <div class="relative">
                             <input type="file" name="gambar_files" multiple accept="image/jpeg,image/png,image/webp"
                                 @change="handleGambarChange($event)"
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                data-max-file-size="10485760">
                             <div
-                                class="w-full px-4 py-4 border-2 border-dashed border-gray-200 rounded-lg text-center bg-gray-50 hover:bg-gray-100 hover:border-blue-400 transition-all group cursor-pointer">
-                                <svg class="w-6 h-6 mx-auto text-gray-400 group-hover:text-blue-500 transition-colors mb-1"
+                                class="w-full px-3 py-2.5 border-2 border-dashed border-gray-200 rounded-lg text-center bg-gray-50 hover:bg-gray-100 hover:border-blue-400 transition-all group cursor-pointer">
+                                <svg class="w-5 h-5 mx-auto text-gray-400 group-hover:text-blue-500 transition-colors mb-0.5"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4"></path>
                                 </svg>
-                                <span class="text-sm font-medium text-gray-600">Unggah Gambar</span>
+                                <span class="text-xs font-medium text-gray-600">Klik atau drag untuk upload gambar</span>
                             </div>
                         </div>
                     </div>
@@ -302,7 +359,7 @@
                 </form>
             </div>
 
-            {{-- Right Column: Live Preview --}}
+            {{-- Right Column: Live Preview (Wider, disamakan dengan style dan div di Edit) --}}
             <div class="lg:col-span-2">
                 <div class="sticky top-6">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -315,13 +372,21 @@
                             </svg>
                             Preview Halaman
                         </h3>
+                        <p class="text-xs text-gray-500 mb-3 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point
+                        </p>
 
                         <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-auto"
                             style="min-height: 380px; max-height: 400px;">
-                            <div id="preview-wrapper" style="width: min(1170px, 94%); margin: 0 auto; padding: 0 1rem;">
-                                <div id="preview-container">
-                                    <div
-                                        style="color: #999; text-align: center; padding: 2rem; font-style: italic;">
+                            <div id="preview-wrapper" style="display: block; width: 1140px; padding: 0 15px;">
+                                <div id="preview-container" class="profile-section-desc"
+                                    style="background: transparent; width: 100%; border: none; padding: 0;">
+                                    <div style="color: #999; text-align: center; padding: 2rem; font-style: italic;">
                                         <p style="margin: 0; font-size: 13px;">Tambahkan konten dan/atau gambar untuk
                                             melihat preview</p>
                                     </div>
