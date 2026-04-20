@@ -131,67 +131,6 @@
             imgEl.src = img.preview;
             dragBox.appendChild(imgEl);
 
-            const focal = document.createElement("div");
-            focal.className =
-                "absolute w-4 h-4 border-2 border-white rounded-full shadow-lg pointer-events-none flex items-center justify-center";
-            focal.style.cssText =
-                "background-color:rgba(59,130,246,0.7);transform:translate(-50%,-50%);left:" +
-                img.x +
-                "%;top:" +
-                img.y +
-                "%;z-index:10;";
-            const dot = document.createElement("div");
-            dot.className = "w-1 h-1 bg-white rounded-full";
-            focal.appendChild(dot);
-            dragBox.appendChild(focal);
-
-            // Drag to adjust focal point
-            dragBox.addEventListener("mousedown", function (e) {
-                if (e.target.closest("button")) return;
-                if (e.button !== 0) return; // Left click only
-
-                e.preventDefault();
-                e.stopPropagation();
-                dragBox.style.cursor = "grabbing";
-
-                const update = (ev) => {
-                    const rect = dragBox.getBoundingClientRect();
-                    if (rect.width === 0) return;
-                    const px = parseFloat(
-                        Math.max(
-                            0,
-                            Math.min(
-                                100,
-                                ((ev.clientX - rect.left) / rect.width) * 100,
-                            ),
-                        ).toFixed(2),
-                    );
-                    const py = parseFloat(
-                        Math.max(
-                            0,
-                            Math.min(
-                                100,
-                                ((ev.clientY - rect.top) / rect.height) * 100,
-                            ),
-                        ).toFixed(2),
-                    );
-                    imgEl.style.objectPosition = px + "% " + py + "%";
-                    focal.style.left = px + "%";
-                    focal.style.top = py + "%";
-                    img.x = px;
-                    img.y = py;
-                    renderPagePreview();
-                };
-                const stop = () => {
-                    dragBox.style.cursor = "move";
-                    window.removeEventListener("mousemove", update);
-                    window.removeEventListener("mouseup", stop);
-                };
-                window.addEventListener("mousemove", update);
-                window.addEventListener("mouseup", stop);
-                update(e);
-            });
-
             wrapper.appendChild(dragBox);
 
             // Add positioning controls button
@@ -840,46 +779,6 @@
 
                 item.appendChild(el);
             });
-
-            // Add focal point picker overlay (hidden by default, show on dblclick)
-            const focalOverlay = document.createElement("div");
-            focalOverlay.dataset.focal = "overlay";
-            focalOverlay.style.cssText = `
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: transparent;
-                cursor: crosshair;
-                display: none;
-                z-index: 15;
-                border: 2px dashed rgba(59,130,246,0.5);
-                border-radius: 0.75rem;
-            `;
-
-            focalOverlay.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const rect = focalOverlay.getBoundingClientRect();
-                const x = Math.round(
-                    ((e.clientX - rect.left) / rect.width) * 100,
-                );
-                const y = Math.round(
-                    ((e.clientY - rect.top) / rect.height) * 100,
-                );
-                img.x = Math.max(0, Math.min(100, x));
-                img.y = Math.max(0, Math.min(100, y));
-                renderPagePreview();
-            });
-
-            // Double click to toggle focal point picker
-            item.addEventListener("dblclick", (e) => {
-                e.stopPropagation();
-                focalOverlay.style.display =
-                    focalOverlay.style.display === "none" ? "block" : "none";
-            });
-
-            item.appendChild(focalOverlay);
 
             // Set initial size
             if (img.width && img.height) {
