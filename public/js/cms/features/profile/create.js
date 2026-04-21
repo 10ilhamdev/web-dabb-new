@@ -1252,6 +1252,8 @@
 
         // Setup preview triggers
         setupPreviewTriggers();
+        setupZoomControls();
+
 
         // Form submit
         document
@@ -1298,5 +1300,53 @@
     };
 
     // Export for Alpine
-    window.profilePageForm = profilePageForm;
+    
+    // Zoom functionality for preview
+    let currentZoom = 1;
+    const MIN_ZOOM = 0.5;
+    const MAX_ZOOM = 2;
+    const ZOOM_STEP = 0.1;
+
+    function updatePreviewZoom(zoomLevel) {
+        const previewContainer = document.getElementById('preview-container');
+        if (previewContainer) {
+            previewContainer.style.transform = `scale(` + zoomLevel + `)`;
+            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+        }
+    }
+
+    function setupZoomControls() {
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+
+        if (zoomInBtn) {
+            zoomInBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentZoom < MAX_ZOOM) {
+                    currentZoom = Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
+                    updatePreviewZoom(currentZoom);
+                }
+            });
+        }
+
+        if (zoomOutBtn) {
+            zoomOutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentZoom > MIN_ZOOM) {
+                    currentZoom = Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM);
+                    updatePreviewZoom(currentZoom);
+                }
+            });
+        }
+
+        if (zoomResetBtn) {
+            zoomResetBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentZoom = 1;
+                updatePreviewZoom(currentZoom);
+            });
+        }
+    }
+window.profilePageForm = profilePageForm;
 })();

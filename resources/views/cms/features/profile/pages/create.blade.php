@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
@@ -380,11 +380,26 @@
                             </svg>
                             Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point
                         </p>
-
+                        
+                        <!-- Zoom Controls -->
+                        <div class="flex items-center gap-2 mb-3">
+                            <button type="button" id="zoomOutBtn" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" title="Zoom Out">
+                                <span style="font-size: 18px; font-weight: bold;">-</span>
+                            </button>
+                            <span id="zoomLevel" class="text-xs text-gray-500 font-medium w-12 text-center">100%</span>
+                            <button type="button" id="zoomInBtn" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" title="Zoom In">
+                                <span style="font-size: 18px; font-weight: bold;">+</span>
+                            </button>
+                            <button type="button" id="zoomResetBtn" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" title="Reset Zoom">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </div>
                         <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-auto"
                             style="min-height: 380px; max-height: 400px;">
                             <div id="preview-wrapper" style="display: block; width: 1140px; padding: 0 15px;">
-                                <div id="preview-container" class="profile-section-desc"
+                                <div id="preview-container" class="profile-section-desc" style="transform-origin: top left; transition: transform 0.2s ease;"
                                     style="background: transparent; width: 100%; border: none; padding: 0;">
                                     <div style="color: #999; text-align: center; padding: 2rem; font-style: italic;">
                                         <p style="margin: 0; font-size: 13px;">Tambahkan konten dan/atau gambar untuk
