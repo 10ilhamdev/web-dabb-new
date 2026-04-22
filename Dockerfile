@@ -46,4 +46,5 @@ RUN mkdir -p /var/www/storage /var/www/bootstrap/cache
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-CMD ["php-fpm"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
+

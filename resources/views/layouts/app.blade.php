@@ -51,8 +51,8 @@
                                 {{ __('dashboard.logo.line1') }}</div>
                             <div class="font-bold text-[12px] tracking-wide text-white drop-shadow-sm">
                                 {{ __('dashboard.logo.line2') }}</div>
-                            <div class="font-normal text-[9px] text-blue-200/80 mt-0.5 whitespace-nowrap">
-                                {{ __('dashboard.logo.tagline') }}</div>
+                            {{-- <div class="font-normal text-[9px] text-blue-200/80 mt-0.5 whitespace-nowrap">
+                                {{ __('dashboard.logo.tagline') }}</div> --}}
                         </div>
                     </div>
                 </div>
