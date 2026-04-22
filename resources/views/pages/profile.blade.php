@@ -113,7 +113,19 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            align-items: start;
+            align-items: flex-start;
+        }
+
+        .page-layout-dual > div:first-child {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .page-layout-dual > div:last-child {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         @media (max-width: 768px) {
@@ -122,7 +134,7 @@
             }
         }
 
-        .page-link-btn {
+.page-link-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -150,7 +162,7 @@
         @media (min-width: 768px) {
             .struktur-layout {
                 grid-template-columns: 1fr auto;
-                align-items: start;
+            align-items: flex-start;
             }
         }
 
@@ -238,7 +250,10 @@
         .section-images {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: 1.5rem;
+            padding-top: 0.5rem;
+            width: 100%;
+            align-items: center;
             margin-top: 0.75rem;
         }
 
@@ -288,7 +303,10 @@
         .page-image-container {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 1.5rem;
+            padding-top: 0.5rem;
+            width: 100%;
+            align-items: center;
             background: transparent;
             border: none;
             box-shadow: none;
@@ -298,12 +316,19 @@
             background: transparent;
             box-shadow: none;
             border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
 
         .page-image-container > div > img {
             background: transparent;
             box-shadow: none;
             border: none;
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
     </style>
 @endpush
@@ -356,20 +381,20 @@
                         {{-- Grid layout: text left, images right --}}
                         <div class="page-layout-dual">
                             {{-- Text column --}}
-                            <div>
+                            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                                 @if ($pageDesc)
                                     <div class="profile-section-desc">{!! $pageDesc !!}</div>
                                 @endif
-                                <h2 class="profile-section-title">{{ $pageTitle }}</h2>
                                 @if ($page->sections && $page->sections->count())
                                     @foreach ($page->sections as $section)
                                         <div class="section-block">
                                             @if ($section->title)
-                                                <h3>{{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
-                                                </h3>
+                                                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                    {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                                </h2>
                                             @endif
                                             @if ($section->description)
-                                                <p>{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</p>
+                                                <div style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
                                             @endif
                                         </div>
                                     @endforeach
@@ -679,10 +704,7 @@
                                         titleColor: '#1f2937',
                                         bodyColor: '#4b5563',
                                         borderColor: '#e5e7eb',
-                                        borderWidth: 1
-                                    }
-                                }
-                            }
+                                        borderWidth: 1}
                         });
                     } else {
                         new Chart(canvas.getContext('2d'), {
@@ -734,10 +756,7 @@
                                             color: '#6b7280'
                                         },
                                         grid: {
-                                            display: false
-                                        }
-                                    }
-                                }
+                                            display: false}
                             }
                         });
                     }
@@ -747,3 +766,17 @@
         </script>
     @endif
 @endpush
+
+
+
+
+
+
+
+
+
+
+
+
+
+
