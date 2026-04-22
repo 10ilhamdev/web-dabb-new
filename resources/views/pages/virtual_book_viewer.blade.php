@@ -65,6 +65,14 @@
             background: transparent;
         }
 
+        /* Single-view: allow vertical scrolling so a zoomed single page can be
+           taller than the viewport without being cropped. */
+        body.single-view-active .viewer-content {
+            overflow-y: auto;
+            justify-content: flex-start;
+            padding-top: 1.5rem;
+        }
+
         /* Books Styles */
         .flip-book {
             margin: 0 auto;
@@ -82,12 +90,22 @@
             width: 100%;
             /* 550x733 ratio per page -> 1100x733 total = ~1.5 ratio */
             /* Scale width dynamically based on available height to ensure it fits without scrolling */
-            max-width: min(1200px, calc((100vh - 200px) * 1.5));
+            max-width: min(1200px, calc((100vh - 180px) * 1.5));
             margin: 0 auto;
             display: block;
             position: relative;
             padding: 10px 0;
             box-sizing: border-box;
+            transition: max-width 0.3s ease;
+        }
+
+        /* Single page (portrait) mode: wrapper is ~90vw so one page is rendered
+           much larger than a single page in double view — genuine zoom. Height grows
+           automatically (ratio 1/0.75); page is allowed to exceed viewport height and
+           the viewer-content becomes scrollable (see body.single-view-active rule).
+           Still below 2 * BASE_WIDTH (1100) so PageFlip remains in portrait. */
+        .flip-book-wrapper.single-view {
+            max-width: min(90vw, 1000px);
         }
 
         .page {
@@ -131,6 +149,14 @@
         .vb-controls button { padding: 0.5rem 1.25rem; background: #0d9488; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: background 0.2s; }
         .vb-controls button:hover { background: #0f766e; }
         .vb-state-info { display: none; }
+
+        /* View mode toggle (double / single page) */
+        .vb-view-toggle { display: inline-flex; align-items: center; border: 1px solid #d1d5db; border-radius: 0.5rem; overflow: hidden; background: #fff; }
+        .vb-view-toggle button { background: transparent; color: #4b5563; border: none; padding: 0.45rem 0.9rem; cursor: pointer; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.4rem; transition: background 0.2s, color 0.2s; }
+        .vb-view-toggle button:hover { background: #f3f4f6; color: #111827; }
+        .vb-view-toggle button.active { background: #0d9488; color: #fff; }
+        .vb-view-toggle button.active:hover { background: #0f766e; color: #fff; }
+        .vb-view-toggle svg { width: 16px; height: 16px; }
     </style>
 </head>
 <body>
@@ -143,7 +169,18 @@
         <div class="viewer-title">
             {{ app()->getLocale() === 'en' && $book->title_en ? $book->title_en : $book->title }}
         </div>
-        <div class="viewer-spacer"></div>
+        <div class="viewer-spacer" style="display:flex; justify-content:flex-end;">
+            <div class="vb-view-toggle" role="group" aria-label="Zoom mode">
+                <button type="button" id="vbViewDouble" class="active" title="{{ app()->getLocale() === 'en' ? 'Zoom out (default)' : 'Perkecil (bawaan)' }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="7.5" y1="11" x2="14.5" y2="11"></line></svg>
+                    {{ app()->getLocale() === 'en' ? 'Zoom out' : 'Perkecil' }}
+                </button>
+                <button type="button" id="vbViewSingle" title="{{ app()->getLocale() === 'en' ? 'Zoom in (single page)' : 'Perbesar (satu halaman)' }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line><line x1="11" y1="7.5" x2="11" y2="14.5"></line><line x1="7.5" y1="11" x2="14.5" y2="11"></line></svg>
+                    {{ app()->getLocale() === 'en' ? 'Zoom in' : 'Perbesar' }}
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="viewer-content">
@@ -284,10 +321,33 @@
         document.addEventListener('DOMContentLoaded', function() {
             var bookId = '{{ $bookId }}';
             var bookEl = document.getElementById(bookId);
+            var wrapperEl = bookEl.parentElement; // .flip-book-wrapper
+
+            var pageFlip = null;
+            var currentPageIndex = 0;
+            var viewMode = 'double'; // 'double' | 'single'
+
+            // Higher internal resolution so the rendered pages look sharp when zoomed.
+            // size: stretch will scale to the wrapper; larger base = more pixels for backgrounds.
+            var BASE_WIDTH = 1100;
+            var BASE_HEIGHT = 1466;
+
+            function updateCoverMode() {
+                if (!pageFlip) return;
+                var totalPages = pageFlip.getPageCount();
+                var isFrontCover = (currentPageIndex === 0);
+                var isBackCover = (currentPageIndex >= totalPages - 1);
+                var orientation = pageFlip.getOrientation ? pageFlip.getOrientation() : 'landscape';
+
+                bookEl.classList.remove('is-front-cover', 'is-back-cover');
+                if (orientation === 'landscape') {
+                    if (isFrontCover) bookEl.classList.add('is-front-cover');
+                    else if (isBackCover) bookEl.classList.add('is-back-cover');
+                }
+            }
 
             function initBook() {
                 if (typeof window.PageFlip === 'undefined') {
-                    // Poll until PageFlip is loaded by Vite
                     setTimeout(initBook, 100);
                     return;
                 }
@@ -295,14 +355,14 @@
                 var pages = bookEl.querySelectorAll('.page');
                 if (pages.length === 0) return;
 
-                var pageFlip = new window.PageFlip(bookEl, {
-                    width: 550,
-                    height: 733,
-                    size: "stretch", // Stretch ensures book matches container's width, which we cap dynamically
-                    minWidth: 315,
-                    maxWidth: 1000,
-                    minHeight: 420,
-                    maxHeight: 1350,
+                pageFlip = new window.PageFlip(bookEl, {
+                    width: BASE_WIDTH,
+                    height: BASE_HEIGHT,
+                    size: "stretch",
+                    minWidth: 200,
+                    maxWidth: 2000,
+                    minHeight: 300,
+                    maxHeight: 2700,
                     maxShadowOpacity: 0.5,
                     showCover: true,
                     mobileScrollSupport: false
@@ -310,20 +370,6 @@
 
                 pageFlip.loadFromHTML(pages);
 
-                var totalPages = pageFlip.getPageCount();
-                var currentPageIndex = 0;
-
-                function updateCoverMode() {
-                    var isFrontCover = (currentPageIndex === 0);
-                    var isBackCover = (currentPageIndex >= totalPages - 1);
-                    var orientation = pageFlip.getOrientation ? pageFlip.getOrientation() : 'landscape';
-
-                    bookEl.classList.remove('is-front-cover', 'is-back-cover');
-                    if (orientation === 'landscape') {
-                        if (isFrontCover) bookEl.classList.add('is-front-cover');
-                        else if (isBackCover) bookEl.classList.add('is-back-cover');
-                    }
-                }
                 updateCoverMode();
 
                 var controls = document.querySelector('.vb-controls');
@@ -331,6 +377,7 @@
 
                 if (controls) {
                     controls.querySelector('.page-total').innerText = pageFlip.getPageCount();
+                    controls.querySelector('.page-current').innerText = 1;
                     controls.querySelector('.btn-prev').addEventListener('click', function() { pageFlip.flipPrev(); });
                     controls.querySelector('.btn-next').addEventListener('click', function() { pageFlip.flipNext(); });
                     pageFlip.on('flip', function(e) {
@@ -350,7 +397,39 @@
                 }
             }
 
-            // Start initialization loop
+            // View mode toggle — only changes wrapper width; StPageFlip auto-detects
+            // portrait vs landscape based on available width, so no destroy/re-init needed.
+            var btnDouble = document.getElementById('vbViewDouble');
+            var btnSingle = document.getElementById('vbViewSingle');
+            function setViewMode(mode) {
+                if (mode === viewMode) return;
+                viewMode = mode;
+
+                if (mode === 'single') {
+                    wrapperEl.classList.add('single-view');
+                    document.body.classList.add('single-view-active');
+                    btnSingle.classList.add('active');
+                    btnDouble.classList.remove('active');
+                } else {
+                    wrapperEl.classList.remove('single-view');
+                    document.body.classList.remove('single-view-active');
+                    btnDouble.classList.add('active');
+                    btnSingle.classList.remove('active');
+                }
+
+                // Nudge the PageFlip instance to re-measure the container.
+                // StPageFlip listens to window resize, so dispatch one after the
+                // CSS transition settles.
+                setTimeout(function() {
+                    window.dispatchEvent(new Event('resize'));
+                }, 50);
+                setTimeout(function() {
+                    window.dispatchEvent(new Event('resize'));
+                }, 350);
+            }
+            if (btnDouble) btnDouble.addEventListener('click', function() { setViewMode('double'); });
+            if (btnSingle) btnSingle.addEventListener('click', function() { setViewMode('single'); });
+
             initBook();
         });
     </script>
