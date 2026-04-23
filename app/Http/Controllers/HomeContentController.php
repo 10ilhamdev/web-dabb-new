@@ -32,7 +32,50 @@ class HomeContentController extends Controller
     {
         $feature = Feature::findOrFail($featureId);
 
-        $data = $request->except(['_token', '_method', 'locale', 'info_image_1', 'info_image_2', 'stats_image', 'photo_file']);
+        $data = $request->except(['_token', '_method', 'locale', 'info_image_1', 'info_image_2', 'stats_image', 'photo_file', 'hero_background_file', 'hero_background_remove']);
+
+        // Handle hero background upload (image or video)
+        $existingForHero = $this->loadLangFile('id', $featureId);
+        $oldHeroPath = $existingForHero['hero']['background_path'] ?? null;
+
+        if ($request->boolean('hero_background_remove')) {
+            if ($oldHeroPath) {
+                Storage::disk('public')->delete($oldHeroPath);
+            }
+            $data['hero']['background_path'] = '';
+            $data['hero']['background_type'] = '';
+        } elseif ($request->hasFile('hero_background_file')) {
+            $file = $request->file('hero_background_file');
+            if ($file && $file->isValid()) {
+                $mime = (string) $file->getMimeType();
+                $ext = strtolower($file->getClientOriginalExtension());
+
+                $type = null;
+                if (str_starts_with($mime, 'image/') || in_array($ext, ['jpg','jpeg','png','webp','gif','avif'])) {
+                    $type = 'image';
+                } elseif (str_starts_with($mime, 'video/') || in_array($ext, ['mp4','webm','ogg','mov'])) {
+                    $type = 'video';
+                }
+
+                if ($type) {
+                    $path = $file->store('home/hero', 'public');
+                    if ($oldHeroPath) {
+                        Storage::disk('public')->delete($oldHeroPath);
+                    }
+                    $data['hero']['background_path'] = $path;
+                    $data['hero']['background_type'] = $type;
+                }
+            }
+        } else {
+            // No new upload and no removal: preserve the hidden-field values that were submitted
+            // (these already came through $request->input('hero.*') via $data).
+            // Normalize missing keys so merge doesn't wipe them.
+            if (!isset($data['hero']) || !is_array($data['hero'])) {
+                $data['hero'] = [];
+            }
+            $data['hero']['background_path'] = $data['hero']['background_path'] ?? ($oldHeroPath ?? '');
+            $data['hero']['background_type'] = $data['hero']['background_type'] ?? ($existingForHero['hero']['background_type'] ?? '');
+        }
 
         // Handle info section image uploads
         foreach ([1, 2] as $num) {
@@ -120,8 +163,11 @@ class HomeContentController extends Controller
         $this->saveLangFile('id', $data, $featureId, $replaceKeys);
 
         // 2. Load full ID file, translate, and save EN version
+        // Skip keys that store file paths / structural values (not user-visible text).
         $fullIdContent = $this->loadLangFile('id', $featureId);
-        $translatedData = $translationService->translateArray($fullIdContent);
+        $translatedData = $translationService->translateArray($fullIdContent, [
+            'background_path', 'background_type', 'image', 'photo', 'stats_image',
+        ]);
         $this->saveLangFile('en', $translatedData, $featureId, $replaceKeys);
 
         return redirect()->route('cms.features.index', $featureId)

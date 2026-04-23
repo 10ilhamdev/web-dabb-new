@@ -257,7 +257,8 @@ section { padding: 48px 0; }
     z-index: 1;
     pointer-events: none;
 }
-.hero video {
+.hero video,
+.hero > img.hero-bg {
     position: absolute;
     top: 0;
     left: 0;

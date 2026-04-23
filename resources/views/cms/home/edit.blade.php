@@ -56,6 +56,57 @@
                         <input type="text" name="hero_cta" value="{{ $idContent['hero_cta'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
+
+                    {{-- Hero Background (gambar atau video) --}}
+                    @php
+                        $heroBgPath = $idContent['hero']['background_path'] ?? '';
+                        $heroBgType = $idContent['hero']['background_type'] ?? '';
+                        if ($heroBgPath && !$heroBgType) {
+                            $heroExt = strtolower(pathinfo($heroBgPath, PATHINFO_EXTENSION));
+                            if (in_array($heroExt, ['mp4', 'webm', 'ogg', 'mov'])) $heroBgType = 'video';
+                            elseif (in_array($heroExt, ['jpg','jpeg','png','webp','gif','avif'])) $heroBgType = 'image';
+                        }
+                    @endphp
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Background Hero (Gambar atau Video)</label>
+
+                        @if($heroBgPath)
+                            <div class="mb-3 flex items-start gap-3">
+                                <div class="w-48 h-28 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+                                    @if($heroBgType === 'video')
+                                        <video src="{{ asset('storage/' . $heroBgPath) }}" class="w-full h-full object-cover" muted autoplay loop playsinline></video>
+                                    @elseif($heroBgType === 'image')
+                                        <img src="{{ asset('storage/' . $heroBgPath) }}" alt="Hero Background" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-xs text-gray-400">Tipe tidak dikenali</span>
+                                    @endif
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs text-gray-500 mb-2">
+                                        <span class="font-semibold">Saat ini:</span>
+                                        <span class="uppercase">{{ $heroBgType ?: 'Unknown' }}</span>
+                                        · <span class="font-mono break-all">{{ $heroBgPath }}</span>
+                                    </p>
+                                    <label class="inline-flex items-center gap-2 text-xs text-red-600">
+                                        <input type="checkbox" name="hero_background_remove" value="1" class="rounded border-gray-300">
+                                        Hapus background (kembali ke video default)
+                                    </label>
+                                </div>
+                            </div>
+                        @endif
+
+                        <input type="file" name="hero_background_file"
+                            accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/ogg,video/quicktime"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <p class="text-xs text-gray-400 mt-1">
+                            Unggah <span class="font-semibold">gambar</span> (JPG/PNG/WebP/GIF/AVIF) atau <span class="font-semibold">video</span> (MP4/WebM/OGG/MOV) untuk menggantikan latar hero.
+                            Jika dikosongkan, website akan menggunakan video default (library-books.mp4).
+                        </p>
+
+                        {{-- Hidden field agar path lama tidak hilang saat form dikirim tanpa upload baru --}}
+                        <input type="hidden" name="hero[background_path]" value="{{ $heroBgPath }}">
+                        <input type="hidden" name="hero[background_type]" value="{{ $heroBgType }}">
+                    </div>
                 </div>
             </div>
 

@@ -171,4 +171,8 @@ Disclaimer | #',
         'DUCla4wku-w',
         'DUA1BeEEsun',
     ],
+    'hero' => [
+        'background_path' => '',
+        'background_type' => '',
+    ],
 ];

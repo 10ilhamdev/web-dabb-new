@@ -59,10 +59,37 @@
 @endpush
 
 @section('content')
+    @php
+        // Hero background: gambar atau video yang dapat diatur dari CMS.
+        // Fallback ke video default (library-books.mp4) jika belum di-set.
+        $heroBgPath = home('hero.background_path');
+        $heroBgType = home('hero.background_type'); // 'image' | 'video' | null
+
+        // Deteksi otomatis tipe dari ekstensi bila belum ter-set.
+        if ($heroBgPath && !$heroBgType) {
+            $ext = strtolower(pathinfo($heroBgPath, PATHINFO_EXTENSION));
+            if (in_array($ext, ['mp4', 'webm', 'ogg', 'mov'])) {
+                $heroBgType = 'video';
+            } elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'])) {
+                $heroBgType = 'image';
+            }
+        }
+
+        $heroBgUrl = $heroBgPath ? asset('storage/' . ltrim($heroBgPath, '/')) : null;
+    @endphp
+
     <header class="hero">
-        <video autoplay muted loop playsinline>
-            <source src="{{ asset('video/library-books.mp4') }}" type="video/mp4">
-        </video>
+        @if ($heroBgUrl && $heroBgType === 'image')
+            <img class="hero-bg" src="{{ $heroBgUrl }}" alt="">
+        @elseif ($heroBgUrl && $heroBgType === 'video')
+            <video autoplay muted loop playsinline>
+                <source src="{{ $heroBgUrl }}" type="video/{{ strtolower(pathinfo($heroBgPath, PATHINFO_EXTENSION)) === 'webm' ? 'webm' : 'mp4' }}">
+            </video>
+        @else
+            <video autoplay muted loop playsinline>
+                <source src="{{ asset('video/library-books.mp4') }}" type="video/mp4">
+            </video>
+        @endif
         <div class="container hero-grid">
             <div>
                 <h1>{{ home('hero_title') }}</h1>
