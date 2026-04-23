@@ -7,6 +7,10 @@
             </div>
         </div>
 
+        <button type="button" class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" onclick="this.closest('.top-nav').classList.toggle('open'); this.setAttribute('aria-expanded', this.closest('.top-nav').classList.contains('open'));">
+            <span></span><span></span><span></span>
+        </button>
+
         <div class="nav-right">
             <div class="menu">
                 @foreach ($navFeatures as $feature)
@@ -86,3 +90,26 @@
         </div>
     </div>
 </nav>
+
+<script>
+    (function () {
+        // Mobile: tap a dropdown toggle to expand inline instead of relying on hover.
+        var mql = window.matchMedia('(max-width: 1280px)');
+        document.querySelectorAll('.top-nav .nav-dropdown-toggle, .top-nav .nav-submenu-toggle').forEach(function (toggle) {
+            toggle.addEventListener('click', function (e) {
+                if (!mql.matches) return;
+                e.preventDefault();
+                var parent = toggle.closest('.nav-dropdown, .nav-submenu-item');
+                if (parent) parent.classList.toggle('open');
+            });
+        });
+        // Close the mobile menu when a real link is tapped.
+        document.querySelectorAll('.top-nav .menu a:not(.nav-dropdown-toggle):not(.nav-submenu-toggle)').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (!mql.matches) return;
+                var nav = link.closest('.top-nav');
+                if (nav) nav.classList.remove('open');
+            });
+        });
+    })();
+</script>

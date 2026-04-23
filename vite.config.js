@@ -15,7 +15,7 @@ export default defineConfig({
     server: {
         host: "0.0.0.0",
         hmr: {
-            host: "192.168.1.46", //ipv4 address laptop
+            host: "10.10.0.53", //ipv4 address laptop
         },
         watch: {
             usePolling: true,
