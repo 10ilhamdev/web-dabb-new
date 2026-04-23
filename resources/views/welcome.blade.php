@@ -252,35 +252,112 @@
             <h2 class="section-title">{{ home('sections.gallery') }}</h2>
             <div class="separator"></div>
             @php
+                $locale = app()->getLocale();
                 $previews = collect();
-                // 1. Ambil list pameran arsip 3d virtual
-                $virtual3dRooms = \App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(5)->get();
-                foreach($virtual3dRooms as $room) {
-                    $imgPath = $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : asset('image/pameran1.png');
-                    $link = $room->feature && $room->feature->path ? url($room->feature->path) : url('/pameran/virtual');
+                $fallbackImg = asset('image/pameran1.png');
+
+                $pickTitle = function ($model, $fields = ['name', 'title']) use ($locale) {
+                    foreach ($fields as $f) {
+                        $en = $f . '_en';
+                        if ($locale === 'en' && !empty($model->{$en})) return $model->{$en};
+                        if (!empty($model->{$f})) return $model->{$f};
+                    }
+                    return null;
+                };
+
+                $storageImg = function ($path) use ($fallbackImg) {
+                    return $path ? asset('storage/' . ltrim($path, '/')) : $fallbackImg;
+                };
+
+                // 1. Pameran 360° (real)
+                foreach (\App\Models\VirtualRoom::with('feature')->orderBy('id', 'desc')->limit(8)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path) continue;
                     $previews->push([
-                        'name' => $room->name,
-                        'image' => $imgPath,
-                        'link' => $link,
-                        'type' => '3D Virtual'
+                        'name'  => $pickTitle($room) ?? 'Pameran 360°',
+                        'image' => $storageImg($room->thumbnail_path ?: $room->image_360_path),
+                        'link'  => url($room->feature->path),
+                        'type'  => '360° Virtual',
                     ]);
                 }
 
-                // 2. Ambil list pameran arsip 360 lama, maksimal 5
-                $virtualRooms = \App\Models\VirtualRoom::with('feature')->orderBy('id', 'desc')->limit(5)->get();
-                foreach($virtualRooms as $room) {
-                    $imgPath = $room->thumbnail_path ?? $room->image_360_path;
-                    $imgPath = $imgPath ? asset('storage/' . $imgPath) : asset('image/pameran1.png');
-                    $link = $room->feature && $room->feature->path ? url($room->feature->path) : url('/pameran/virtual');
+                // 2. Pameran Arsip 3D
+                foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(8)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path) continue;
                     $previews->push([
-                        'name' => $room->name,
-                        'image' => $imgPath,
-                        'link' => $link,
-                        'type' => '360° Virtual'
+                        'name'  => $pickTitle($room) ?? 'Pameran 3D',
+                        'image' => $storageImg($room->thumbnail_path),
+                        'link'  => url($room->feature->path),
+                        'type'  => '3D Virtual',
                     ]);
                 }
 
-                // Fallback kosong jika blm ada data
+                // 3. Pameran Arsip Buku Virtual
+                foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(8)->get() as $book) {
+                    if (!$book->feature || !$book->feature->path) continue;
+                    $previews->push([
+                        'name'  => $pickTitle($book, ['title', 'name']) ?? 'Buku Virtual',
+                        'image' => $storageImg($book->thumbnail ?: $book->cover_image),
+                        'link'  => url($book->feature->path),
+                        'type'  => 'Buku Virtual',
+                    ]);
+                }
+
+                // 4. Pameran Arsip Slideshow Virtual — sumber gambar mengikuti logika
+                //    halaman landing slideshow: thumbnail_path → slide pertama (images/image_urls).
+                $slideshowPages = \App\Models\VirtualSlideshowPage::with(['feature', 'slideshowSlides'])
+                    ->orderBy('id', 'desc')
+                    ->limit(8)
+                    ->get();
+
+                foreach ($slideshowPages as $slidePage) {
+                    if (!$slidePage->feature || !$slidePage->feature->path) continue;
+
+                    $thumbUrl = null;
+                    if (!empty($slidePage->thumbnail_path)) {
+                        $thumbUrl = asset('storage/' . ltrim($slidePage->thumbnail_path, '/'));
+                    } else {
+                        $firstSlide = $slidePage->slideshowSlides->sortBy('order')->first();
+                        if ($firstSlide) {
+                            $imgs = $firstSlide->images ?? [];
+                            $urls = $firstSlide->image_urls ?? [];
+                            if (!empty($imgs)) {
+                                $thumbUrl = asset('storage/' . ltrim($imgs[0], '/'));
+                            } elseif (!empty($urls)) {
+                                $firstUrl = $urls[0];
+                                // Normalisasi Google Drive URL agar bisa di-embed sebagai gambar.
+                                if (strpos($firstUrl, 'drive.google.com') !== false) {
+                                    foreach (['/\/file\/d\/([a-zA-Z0-9_-]+)/', '/id=([a-zA-Z0-9_-]+)/', '/\/open\?id=([a-zA-Z0-9_-]+)/'] as $pat) {
+                                        if (preg_match($pat, $firstUrl, $m)) {
+                                            $thumbUrl = 'https://lh3.googleusercontent.com/d/' . $m[1];
+                                            break;
+                                        }
+                                    }
+                                    if (!$thumbUrl) $thumbUrl = $firstUrl;
+                                } elseif (preg_match('/commons\.wikimedia\.org\/wiki\/File:(.+)/', $firstUrl, $m)) {
+                                    $thumbUrl = 'https://commons.wikimedia.org/wiki/Special:FilePath/' . $m[1];
+                                } else {
+                                    $thumbUrl = $firstUrl;
+                                }
+                            }
+                        }
+                    }
+
+                    $previews->push([
+                        'name'  => $pickTitle($slidePage, ['title', 'name']) ?? 'Slideshow Virtual',
+                        'image' => $thumbUrl ?: $fallbackImg,
+                        'link'  => url($slidePage->feature->path) . '?page=' . ($slidePage->order ?? 1),
+                        'type'  => 'Slideshow Virtual',
+                    ]);
+                }
+
+                // Dedupe: hanya tampilkan satu kartu per kombinasi type+name.
+                // Nama yang sama pada tipe pameran yang sama dianggap duplikat
+                // walaupun berasal dari feature berbeda — agar tidak muncul kembar di gallery.
+                $previews = $previews
+                    ->unique(fn ($p) => strtolower(trim(($p['type'] ?? '') . '|' . ($p['name'] ?? ''))))
+                    ->values();
+
+                // Fallback kosong jika blm ada data sama sekali
                 if ($previews->isEmpty()) {
                     $previews->push(['name' => 'Pameran 1', 'image' => asset('image/pameran1.png'), 'link' => '#', 'type' => 'Pameran']);
                     $previews->push(['name' => 'Pameran 2', 'image' => asset('image/desain_dokumentasi.png'), 'link' => '#', 'type' => 'Pameran']);
