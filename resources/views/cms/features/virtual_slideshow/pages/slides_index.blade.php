@@ -60,32 +60,26 @@
                 </a>
             </div>
 
-            @if ($slides->isEmpty())
-                <div class="px-6 py-20 text-center">
-                    <div class="flex flex-col items-center gap-4">
-                        <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center">
-                            <svg class="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
-                            </svg>
-                        </div>
-                        <p class="text-gray-400 text-sm">{{ __('cms.virtual_slideshow.empty_slides') }}</p>
-                        <a href="{{ route('cms.features.slideshow.pages.slides.create', [$feature, $page]) }}"
-                            class="inline-flex items-center gap-2 px-4 py-2 bg-[#174E93] text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            {{ __('cms.virtual_slideshow.add_first_slide') }}
-                        </a>
-                    </div>
-                </div>
-            @else
-                <div class="divide-y divide-gray-50">
-                    @foreach ($slides as $slide)
-                        <div class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors">
-                            <div class="text-gray-400 font-medium text-sm w-6 text-center">{{ $slide->order }}</div>
+            <div>
+                <table id="tableSlideshowSlides" class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="w-16 text-center">{{ __('cms.virtual_slideshow.col_order') }}</th>
+                            <th class="w-28">{{ __('cms.virtual_slideshow.col_thumbnail') }}</th>
+                            <th class="w-36">{{ __('cms.virtual_slideshow.col_type') }}</th>
+                            <th>{{ __('cms.virtual_slideshow.col_title') }}</th>
+                            <th class="w-48">{{ __('cms.virtual_slideshow.col_content') }}</th>
+                            <th class="w-32 text-center">{{ __('cms.virtual_slideshow.col_action') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse ($slides as $slide)
+                        <tr>
+                            {{-- Order --}}
+                            <td class="text-center text-gray-700 font-medium">{{ $slide->order }}</td>
 
                             {{-- Thumbnail --}}
+                            <td>
                             <div
                                 class="w-20 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
                                 @if ($slide->slide_type === 'hero')
@@ -185,25 +179,27 @@
                                 @endif
                             </div>
 
-                            {{-- Info --}}
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1">
-                                    @php
-                                        $typeLabels = [
-                                            'hero' => __('cms.virtual_slideshow.type_hero'),
-                                            'text' => __('cms.virtual_slideshow.type_text'),
-                                            'carousel' => __('cms.virtual_slideshow.type_carousel'),
-                                            'video' => __('cms.virtual_slideshow.type_video'),
-                                            'text_carousel' => __('cms.virtual_slideshow.type_text_carousel'),
-                                        ];
-                                        $typeColors = [
-                                            'hero' => 'bg-purple-100 text-purple-700',
-                                            'text' => 'bg-gray-100 text-gray-600',
-                                            'carousel' => 'bg-blue-100 text-blue-700',
-                                            'video' => 'bg-red-100 text-red-700',
-                                            'text_carousel' => 'bg-teal-100 text-teal-700',
-                                        ];
-                                    @endphp
+                            </td>
+
+                            {{-- Type --}}
+                            <td>
+                                @php
+                                    $typeLabels = [
+                                        'hero' => __('cms.virtual_slideshow.type_hero'),
+                                        'text' => __('cms.virtual_slideshow.type_text'),
+                                        'carousel' => __('cms.virtual_slideshow.type_carousel'),
+                                        'video' => __('cms.virtual_slideshow.type_video'),
+                                        'text_carousel' => __('cms.virtual_slideshow.type_text_carousel'),
+                                    ];
+                                    $typeColors = [
+                                        'hero' => 'bg-purple-100 text-purple-700',
+                                        'text' => 'bg-gray-100 text-gray-600',
+                                        'carousel' => 'bg-blue-100 text-blue-700',
+                                        'video' => 'bg-red-100 text-red-700',
+                                        'text_carousel' => 'bg-teal-100 text-teal-700',
+                                    ];
+                                @endphp
+                                <div class="flex flex-wrap items-center gap-1">
                                     <span
                                         class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $typeColors[$slide->slide_type] ?? 'bg-gray-100 text-gray-600' }}">
                                         {{ $typeLabels[$slide->slide_type] ?? $slide->slide_type }}
@@ -215,13 +211,21 @@
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-sm font-medium text-gray-800 truncate">
+                            </td>
+
+                            {{-- Title + description --}}
+                            <td>
+                                <p class="text-sm font-semibold text-gray-800">
                                     {{ html_entity_decode($slide->title ?: __('cms.virtual_slideshow.untitled')) }}</p>
                                 @if ($slide->description)
-                                    <p class="text-xs text-gray-400 truncate mt-0.5">
-                                        {{ Str::limit(strip_tags(html_entity_decode($slide->description)), 80) }}</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">
+                                        {{ Str::limit(strip_tags(html_entity_decode($slide->description)), 100) }}</p>
                                 @endif
-                                <div class="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                            </td>
+
+                            {{-- Content counts --}}
+                            <td>
+                                <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                                     @php
                                         $totalImages = (isset($slide->images) ? count($slide->images) : 0) + (isset($slide->image_urls) ? count($slide->image_urls) : 0);
 
@@ -312,32 +316,51 @@
                                         <span>💬 {{ __('cms.virtual_slideshow.info_popup_count', ['count' => $totalInfoPopup]) }}</span>
                                     @endif
                                 </div>
-                            </div>
+                            </td>
 
                             {{-- Actions --}}
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                <a href="{{ route('cms.features.slideshow.pages.slides.edit', [$feature, $page, $slide]) }}"
-                                    class="inline-flex items-center justify-center w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md transition-colors"
-                                    title="Edit">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </a>
-                                <button type="button"
-                                    @click="deleteModal = { open: true, id: {{ $slide->id }}, name: '{{ addslashes($slide->title ?? 'slide ' . $slide->order) }}' }"
-                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
-                                    title="{{ __('cms.virtual_slideshow.delete') }}">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                            <td>
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('cms.features.slideshow.pages.slides.edit', [$feature, $page, $slide]) }}"
+                                        class="inline-flex items-center justify-center w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md transition-colors"
+                                        title="Edit">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                    <button type="button"
+                                        @click="deleteModal = { open: true, id: {{ $slide->id }}, name: '{{ addslashes($slide->title ?? 'slide ' . $slide->order) }}' }"
+                                        class="inline-flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                                        title="{{ __('cms.virtual_slideshow.delete') }}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
+                                        <svg class="w-7 h-7 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-gray-400 text-sm">{{ __('cms.virtual_slideshow.empty_slides') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
 
+            @if ($slides->isNotEmpty())
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
                     <a href="{{ url($feature->path) }}?page={{ $page->order }}" target="_blank"
                         class="inline-flex items-center gap-2 text-sm text-[#174E93] hover:underline font-medium">
@@ -398,3 +421,19 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#tableSlideshowSlides').DataTable({
+                columnDefs: [{
+                    orderable: false,
+                    targets: [1, 4, 5]
+                }],
+                order: [
+                    [0, 'asc']
+                ],
+            });
+        });
+    </script>
+@endpush

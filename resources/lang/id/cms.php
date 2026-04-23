@@ -693,6 +693,15 @@ return [
     'virtual_slideshow' => [
         'title' => 'Pameran Arsip Virtual Slideshow',
 
+        // Table columns
+        'col_order' => 'Urutan',
+        'col_thumbnail' => 'Thumbnail',
+        'col_title' => 'Judul',
+        'col_type' => 'Tipe',
+        'col_slides' => 'Jumlah Slide',
+        'col_content' => 'Konten',
+        'col_action' => 'Aksi',
+
         // Index page
         'pages_list_title' => 'Daftar Halaman / Exhibition',
         'pages_list_desc' => 'Kelola halaman pameran arsip virtual dan konten slide di dalamnya.',

@@ -690,6 +690,15 @@ return [
     'virtual_slideshow' => [
         'title' => 'Virtual Archive Slideshow',
 
+        // Table columns
+        'col_order' => 'Order',
+        'col_thumbnail' => 'Thumbnail',
+        'col_title' => 'Title',
+        'col_type' => 'Type',
+        'col_slides' => 'Slides Count',
+        'col_content' => 'Content',
+        'col_action' => 'Action',
+
         // Index page
         'pages_list_title' => 'Page List / Exhibition',
         'pages_list_desc' => 'Manage virtual archive exhibition pages and slide content.',
