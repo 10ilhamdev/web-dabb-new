@@ -952,4 +952,135 @@ return [
         'public_empty' => 'Belum ada halaman profil yang tersedia.',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CMS — Manajemen Pengguna (pengguna/index)
+    |--------------------------------------------------------------------------
+    */
+    'pengguna' => [
+        'title' => 'Manajemen Pengguna',
+        'subtitle' => 'Daftar Pengguna',
+        'breadcrumb' => 'Pengguna',
+        'list' => 'Daftar Pengguna',
+
+        // Stats
+        'stats_total' => 'Total Pengguna',
+        'stats_admin' => 'Admin',
+        'stats_pegawai' => 'Pegawai',
+        'stats_eksternal' => 'User Eksternal',
+        'stats_verified' => 'Terverifikasi',
+        'stats_total_sub' => 'Jumlah seluruh pengguna',
+        'stats_admin_sub' => 'Akun administrator',
+        'stats_pegawai_sub' => 'Akun pegawai ANRI',
+        'stats_eksternal_sub' => 'Akun selain admin & pegawai',
+        'stats_verified_sub' => 'Email sudah diverifikasi',
+
+        // Filters
+        'filter_role' => 'Pilih Peran',
+        'filter_status' => 'Pilih Status',
+        'filter_verified_all' => 'Semua Status',
+        'filter_verified_yes' => 'Terverifikasi',
+        'filter_verified_no' => 'Belum Verifikasi',
+
+        // Table
+        'col_user' => 'Pengguna',
+        'col_email' => 'Email',
+        'col_username' => 'Username',
+        'col_role' => 'Peran',
+        'col_status' => 'Status',
+        'col_joined' => 'Bergabung',
+        'col_action' => 'Aksi',
+
+        // Buttons
+        'add_button' => 'Tambah Pengguna',
+        'edit_button' => 'Edit',
+        'delete_button' => 'Hapus',
+        'cancel' => 'Batal',
+        'save' => 'Simpan',
+        'update' => 'Perbarui',
+        'back' => 'Kembali',
+
+        // Forms
+        'create_title' => 'Tambah Pengguna Baru',
+        'create_subtitle' => 'Buat akun pengguna baru untuk sistem',
+        'edit_title' => 'Edit Pengguna',
+        'edit_subtitle' => 'Perbarui informasi pengguna',
+        'form_name' => 'Nama Lengkap',
+        'form_name_placeholder' => 'Masukkan nama lengkap',
+        'form_username' => 'Username',
+        'form_username_placeholder' => 'Opsional',
+        'form_email' => 'Email',
+        'form_email_placeholder' => 'contoh@email.com',
+        'form_role' => 'Peran',
+        'form_role_placeholder' => '-- Pilih Peran --',
+        'form_password' => 'Password',
+        'form_password_placeholder' => 'Minimal 8 karakter',
+        'form_password_confirmation' => 'Konfirmasi Password',
+        'form_password_optional' => 'Kosongkan jika tidak ingin mengubah password',
+        'form_photo' => 'Foto Profil',
+        'form_photo_help' => 'JPG/PNG maksimal 2MB. Opsional.',
+        'form_photo_current' => 'Foto saat ini',
+
+        // Data profil role
+        'form_profile_title' => 'Data Profil Pengguna',
+        'form_profile_desc' => 'Data tambahan sesuai peran pengguna. Semua kolom bersifat opsional.',
+        'form_nip' => 'NIP',
+        'form_nip_placeholder' => 'Masukkan NIP (18 digit)',
+        'form_jenis_kelamin' => 'Jenis Kelamin',
+        'form_tempat_lahir' => 'Tempat Lahir',
+        'form_tempat_lahir_placeholder' => 'Contoh: Jakarta',
+        'form_tanggal_lahir' => 'Tanggal Lahir',
+        'form_kartu_identitas' => 'Kartu Identitas (Upload)',
+        'form_kartu_identitas_help' => 'JPG/PNG/PDF maksimal 2MB. Opsional.',
+        'form_kartu_identitas_current' => 'File saat ini',
+        'form_kartu_identitas_view' => 'Lihat file',
+        'form_nomor_kartu_identitas' => 'Nomor Kartu Identitas',
+        'form_nomor_kartu_identitas_placeholder' => 'Masukkan nomor KTP/KTM/NIK',
+        'form_alamat' => 'Alamat',
+        'form_alamat_placeholder' => 'Alamat lengkap',
+        'form_nomor_whatsapp' => 'Nomor WhatsApp',
+        'form_nomor_whatsapp_placeholder' => 'Contoh: 0831xxxxxxxx',
+        'form_agama' => 'Agama',
+        'form_agama_placeholder' => '— Pilih Agama —',
+        'form_jabatan' => 'Jabatan',
+        'form_jabatan_placeholder' => '— Pilih Jabatan —',
+        'form_pangkat_golongan' => 'Pangkat / Golongan',
+        'form_pangkat_golongan_placeholder' => '— Pilih Pangkat —',
+        'form_jenis_keperluan' => 'Jenis Keperluan',
+        'form_jenis_keperluan_placeholder' => '— Pilih Keperluan —',
+        'form_judul_keperluan' => 'Judul Keperluan',
+        'form_judul_keperluan_placeholder' => 'Contoh: Penelitian Skripsi',
+        'keperluan_register_only' => 'Hanya Daftar Akun',
+        'keperluan_research' => 'Penelitian',
+        'keperluan_visit' => 'Kunjungan',
+
+        // Status badges
+        'status_verified' => 'Terverifikasi',
+        'status_pending' => 'Menunggu',
+
+        // Delete
+        'delete_title' => 'Hapus Pengguna',
+        'delete_confirm' => 'Apakah Anda yakin ingin menghapus pengguna :name? Tindakan ini tidak dapat dibatalkan.',
+        'delete_yes' => 'Ya, Hapus',
+
+        // Flash
+        'created_successfully' => 'Pengguna berhasil ditambahkan.',
+        'updated_successfully' => 'Pengguna berhasil diperbarui.',
+        'deleted_successfully' => 'Pengguna berhasil dihapus.',
+        'cannot_delete_self' => 'Anda tidak dapat menghapus akun Anda sendiri.',
+
+        // Empty
+        'empty' => 'Belum ada pengguna.',
+
+        // Export / DataTables buttons
+        'btn_copy' => 'Copy',
+        'btn_csv' => 'CSV',
+        'btn_excel' => 'Excel',
+        'btn_word' => 'Word',
+        'btn_pdf' => 'PDF',
+        'btn_print' => 'Print',
+        'btn_export' => 'Ekspor',
+        'filter_section_title' => 'Filter',
+    ],
+
 ];

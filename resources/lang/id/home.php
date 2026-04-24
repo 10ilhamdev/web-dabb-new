@@ -172,7 +172,7 @@ Disclaimer | #',
         'DUA1BeEEsun',
     ],
     'hero' => [
-        'background_path' => '',
-        'background_type' => '',
+        'background_path' => 'home/hero/cnIRep64BueQFLotwMiKfPfvG16pV1KX0rI6dUmV.mp4',
+        'background_type' => 'video',
     ],
 ];

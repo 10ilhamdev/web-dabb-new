@@ -14,6 +14,7 @@ use App\Http\Controllers\Cms\VirtualRoomController;
 use App\Http\Controllers\Cms\VirtualBookPageController;
 use App\Http\Controllers\Cms\VirtualSlideshowController;
 use App\Http\Controllers\Cms\ProfileController as CmsProfileController;
+use App\Http\Controllers\Cms\PenggunaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -188,6 +189,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{feature}/virtual-book-pages', function($feature) {
             return redirect()->route('cms.features.virtual_books.index', $feature);
         });
+    });
+
+    // CMS Pengguna (User Management)
+    Route::middleware('role:admin')->prefix('cms/pengguna')->name('cms.pengguna.')->group(function () {
+        Route::get('/', [PenggunaController::class, 'index'])->name('index');
+        Route::get('/create', [PenggunaController::class, 'create'])->name('create');
+        Route::post('/', [PenggunaController::class, 'store'])->name('store');
+        Route::get('/{pengguna}/edit', [PenggunaController::class, 'edit'])->name('edit');
+        Route::put('/{pengguna}', [PenggunaController::class, 'update'])->name('update');
+        Route::delete('/{pengguna}', [PenggunaController::class, 'destroy'])->name('destroy');
     });
 });
 

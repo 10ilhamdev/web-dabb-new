@@ -147,8 +147,8 @@
                 </div>
 
                 <!-- Pengguna -->
-                <a href="#"
-                    class="sidebar-link flex items-center px-3 py-3 rounded-lg text-[#b8cdef] hover:text-white group">
+                <a href="{{ route('cms.pengguna.index') }}"
+                    class="sidebar-link {{ request()->routeIs('cms.pengguna.*') ? 'active text-white' : 'text-[#b8cdef] hover:text-white' }} flex items-center px-3 py-3 rounded-lg group">
                     <svg class="w-6 h-6 shrink-0 opacity-80 group-hover:opacity-100" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -949,4 +949,135 @@ return [
         'public_empty' => 'No profile pages available yet.',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CMS — User Management (pengguna/index)
+    |--------------------------------------------------------------------------
+    */
+    'pengguna' => [
+        'title' => 'User Management',
+        'subtitle' => 'User List',
+        'breadcrumb' => 'Users',
+        'list' => 'User List',
+
+        // Stats
+        'stats_total' => 'Total Users',
+        'stats_admin' => 'Admins',
+        'stats_pegawai' => 'Staff',
+        'stats_eksternal' => 'External Users',
+        'stats_verified' => 'Verified',
+        'stats_total_sub' => 'All user accounts',
+        'stats_admin_sub' => 'Administrator accounts',
+        'stats_pegawai_sub' => 'ANRI staff accounts',
+        'stats_eksternal_sub' => 'Non-admin & non-staff accounts',
+        'stats_verified_sub' => 'Emails have been verified',
+
+        // Filters
+        'filter_role' => 'Select Role',
+        'filter_status' => 'Select Status',
+        'filter_verified_all' => 'All Status',
+        'filter_verified_yes' => 'Verified',
+        'filter_verified_no' => 'Pending',
+
+        // Table
+        'col_user' => 'User',
+        'col_email' => 'Email',
+        'col_username' => 'Username',
+        'col_role' => 'Role',
+        'col_status' => 'Status',
+        'col_joined' => 'Joined',
+        'col_action' => 'Actions',
+
+        // Buttons
+        'add_button' => 'Add User',
+        'edit_button' => 'Edit',
+        'delete_button' => 'Delete',
+        'cancel' => 'Cancel',
+        'save' => 'Save',
+        'update' => 'Update',
+        'back' => 'Back',
+
+        // Forms
+        'create_title' => 'Add New User',
+        'create_subtitle' => 'Create a new user account for the system',
+        'edit_title' => 'Edit User',
+        'edit_subtitle' => 'Update user information',
+        'form_name' => 'Full Name',
+        'form_name_placeholder' => 'Enter full name',
+        'form_username' => 'Username',
+        'form_username_placeholder' => 'Optional',
+        'form_email' => 'Email',
+        'form_email_placeholder' => 'example@email.com',
+        'form_role' => 'Role',
+        'form_role_placeholder' => '-- Select Role --',
+        'form_password' => 'Password',
+        'form_password_placeholder' => 'Minimum 8 characters',
+        'form_password_confirmation' => 'Confirm Password',
+        'form_password_optional' => 'Leave blank if you do not want to change the password',
+        'form_photo' => 'Profile Photo',
+        'form_photo_help' => 'JPG/PNG, max 2MB. Optional.',
+        'form_photo_current' => 'Current photo',
+
+        // Role profile data
+        'form_profile_title' => 'User Profile Data',
+        'form_profile_desc' => 'Additional data per user role. All fields are optional.',
+        'form_nip' => 'NIP',
+        'form_nip_placeholder' => 'Enter NIP (18 digits)',
+        'form_jenis_kelamin' => 'Gender',
+        'form_tempat_lahir' => 'Birth Place',
+        'form_tempat_lahir_placeholder' => 'e.g. Jakarta',
+        'form_tanggal_lahir' => 'Birth Date',
+        'form_kartu_identitas' => 'Identity Card (Upload)',
+        'form_kartu_identitas_help' => 'JPG/PNG/PDF, max 2MB. Optional.',
+        'form_kartu_identitas_current' => 'Current file',
+        'form_kartu_identitas_view' => 'View file',
+        'form_nomor_kartu_identitas' => 'Identity Card Number',
+        'form_nomor_kartu_identitas_placeholder' => 'Enter ID/Student card number',
+        'form_alamat' => 'Address',
+        'form_alamat_placeholder' => 'Full address',
+        'form_nomor_whatsapp' => 'WhatsApp Number',
+        'form_nomor_whatsapp_placeholder' => 'e.g. 0831xxxxxxxx',
+        'form_agama' => 'Religion',
+        'form_agama_placeholder' => '— Select Religion —',
+        'form_jabatan' => 'Position',
+        'form_jabatan_placeholder' => '— Select Position —',
+        'form_pangkat_golongan' => 'Rank / Class',
+        'form_pangkat_golongan_placeholder' => '— Select Rank —',
+        'form_jenis_keperluan' => 'Purpose Type',
+        'form_jenis_keperluan_placeholder' => '— Select Purpose —',
+        'form_judul_keperluan' => 'Purpose Title',
+        'form_judul_keperluan_placeholder' => 'e.g. Thesis Research',
+        'keperluan_register_only' => 'Register Only',
+        'keperluan_research' => 'Research',
+        'keperluan_visit' => 'Visit',
+
+        // Status badges
+        'status_verified' => 'Verified',
+        'status_pending' => 'Pending',
+
+        // Delete
+        'delete_title' => 'Delete User',
+        'delete_confirm' => 'Are you sure you want to delete user :name? This action cannot be undone.',
+        'delete_yes' => 'Yes, Delete',
+
+        // Flash
+        'created_successfully' => 'User created successfully.',
+        'updated_successfully' => 'User updated successfully.',
+        'deleted_successfully' => 'User deleted successfully.',
+        'cannot_delete_self' => 'You cannot delete your own account.',
+
+        // Empty
+        'empty' => 'No users yet.',
+
+        // Export / DataTables buttons
+        'btn_copy' => 'Copy',
+        'btn_csv' => 'CSV',
+        'btn_excel' => 'Excel',
+        'btn_word' => 'Word',
+        'btn_pdf' => 'PDF',
+        'btn_print' => 'Print',
+        'btn_export' => 'Export',
+        'filter_section_title' => 'Filter',
+    ],
+
 ];
