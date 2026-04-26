@@ -8,7 +8,9 @@ use App\Models\RoleColumn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
@@ -131,7 +133,14 @@ class RoleController extends Controller
         }
 
         // Sync columns (contains DDL - must run outside DB::transaction)
-        $this->syncColumns($role, $request->input('columns', []));
+        try {
+            $this->syncColumns($role, $request->input('columns', []));
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $this->formatMysqlErrorMessage($e));
+        }
 
         // Update model file if relation_name changed
         $this->generateRoleModel($data['relation_name'], $data['table_name']);
@@ -185,9 +194,10 @@ class RoleController extends Controller
             return;
         }
 
-        $dbName = config('database.connections.mysql.database');
+        $connectionName = DB::getDefaultConnection();
+        $dbName = DB::connection($connectionName)->getDatabaseName();
 
-        $columns = DB::select("
+        $columns = DB::connection($connectionName)->select("
             SELECT
                 COLUMN_NAME,
                 DATA_TYPE,
@@ -196,6 +206,7 @@ class RoleController extends Controller
                 NUMERIC_SCALE,
                 IS_NULLABLE,
                 COLUMN_TYPE,
+                EXTRA,
                 COLUMN_DEFAULT,
                 COLUMN_COMMENT
             FROM information_schema.COLUMNS
@@ -204,22 +215,52 @@ class RoleController extends Controller
         ", [$dbName, $role->table_name]);
 
         // Get unique index columns for this table
-        $uniqueIndexColumns = DB::select("
+        $uniqueIndexColumns = DB::connection($connectionName)->select("
             SELECT COLUMN_NAME
             FROM information_schema.STATISTICS
             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND NON_UNIQUE = 0 AND INDEX_NAME != 'PRIMARY'
         ", [$dbName, $role->table_name]);
         $uniqueColumns = array_column($uniqueIndexColumns, 'COLUMN_NAME');
 
-        $skipColumns = ['id', 'user_id', 'created_at', 'updated_at'];
+        // Get primary key columns
+        $primaryKeyColumns = DB::connection($connectionName)->select("
+            SELECT COLUMN_NAME
+            FROM information_schema.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = 'PRIMARY'
+        ", [$dbName, $role->table_name]);
+        $primaryColumns = array_column($primaryKeyColumns, 'COLUMN_NAME');
+
+        // Get foreign key metadata
+        $foreignKeys = DB::connection($connectionName)->select("
+            SELECT
+                kcu.COLUMN_NAME,
+                kcu.REFERENCED_TABLE_NAME,
+                kcu.REFERENCED_COLUMN_NAME,
+                rc.UPDATE_RULE,
+                rc.DELETE_RULE
+            FROM information_schema.KEY_COLUMN_USAGE kcu
+            JOIN information_schema.REFERENTIAL_CONSTRAINTS rc
+                ON rc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA
+                AND rc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
+            WHERE kcu.TABLE_SCHEMA = ?
+              AND kcu.TABLE_NAME = ?
+              AND kcu.REFERENCED_TABLE_NAME IS NOT NULL
+        ", [$dbName, $role->table_name]);
+
+        $foreignMap = [];
+        foreach ($foreignKeys as $fk) {
+            $foreignMap[$fk->COLUMN_NAME] = [
+                'references_table' => $fk->REFERENCED_TABLE_NAME,
+                'references_column' => $fk->REFERENCED_COLUMN_NAME,
+                'on_update' => strtolower($fk->UPDATE_RULE),
+                'on_delete' => strtolower($fk->DELETE_RULE),
+            ];
+        }
+
         $sortOrder = 0;
 
         foreach ($columns as $column) {
             $columnName = $column->COLUMN_NAME;
-
-            if (in_array($columnName, $skipColumns)) {
-                continue;
-            }
 
             // Store EXACT MySQL DATA_TYPE (varchar, int, datetime, enum, etc.)
             $exactDbType = strtolower($column->DATA_TYPE);
@@ -247,6 +288,15 @@ class RoleController extends Controller
 
             $isNullable = $column->IS_NULLABLE === 'YES';
             $defaultValue = $column->COLUMN_DEFAULT;
+            $isPrimary = in_array($columnName, $primaryColumns);
+            $isForeign = array_key_exists($columnName, $foreignMap);
+            $columnTypeRaw = strtolower((string) ($column->COLUMN_TYPE ?? ''));
+            $isUnsigned = str_contains($columnTypeRaw, 'unsigned');
+
+            // AUTO_INCREMENT must follow DB metadata strictly.
+            // Do NOT infer from primary key/type, because PK numeric column can be non-auto-increment.
+            $extra = strtolower((string) ($column->EXTRA ?? ''));
+            $isAutoIncrement = str_contains($extra, 'auto_increment');
 
             // Extract enum options from COLUMN_TYPE (e.g., enum('a','b','c'))
             $options = null;
@@ -265,6 +315,14 @@ class RoleController extends Controller
                 'column_length' => $columnLength,
                 'is_nullable' => $isNullable,
                 'is_unique' => in_array($columnName, $uniqueColumns),
+                'is_primary' => $isPrimary,
+                'is_foreign' => $isForeign,
+                'references_table' => $isForeign ? $foreignMap[$columnName]['references_table'] : null,
+                'references_column' => $isForeign ? $foreignMap[$columnName]['references_column'] : null,
+                'on_delete' => $isForeign ? $foreignMap[$columnName]['on_delete'] : null,
+                'on_update' => $isForeign ? $foreignMap[$columnName]['on_update'] : null,
+                'is_unsigned' => $isUnsigned,
+                'is_auto_increment' => $isAutoIncrement,
                 'default_value' => $defaultValue,
                 'options' => $options,
                 'sort_order' => $sortOrder++,
@@ -406,44 +464,84 @@ class RoleController extends Controller
         $existingIds = $role->columns->pluck('id')->toArray();
         $updatedIds = [];
 
-        foreach ($columnsInput as $index => $input) {
-            $columnData = [
-                'column_name' => $input['column_name'],
-                'column_type' => $input['column_type'],
-                'column_label' => $input['column_label'],
-                'column_length' => $input['column_length'] ?? null,
-                'is_nullable' => ($input['is_nullable'] ?? '0') == '1',
-                'is_unique' => ($input['is_unique'] ?? '0') == '1',
-                'default_value' => $input['default_value'] ?? null,
-                'options' => !empty($input['options']) ? explode(',', $input['options']) : null,
-                'sort_order' => $index,
-            ];
+        $columnErrors = [];
 
-            if (!empty($input['id'])) {
-                // Update existing
-                $column = RoleColumn::find($input['id']);
-                if ($column) {
-                    $oldName = $column->column_name;
-                    $column->update($columnData);
-                    $this->alterColumn($role->table_name, $oldName, $column);
+        foreach ($columnsInput as $index => $input) {
+            $toBool = static fn($v): bool => in_array($v, [true, 1, '1', 'on', 'true', 'yes'], true);
+
+            $columnName = $input['column_name'] ?? ('column_index_' . $index);
+
+            try {
+                $columnData = [
+                    'column_name' => $input['column_name'],
+                    'column_type' => $input['column_type'],
+                    'column_label' => $input['column_label'],
+                    'column_length' => $input['column_length'] ?? null,
+                    'is_nullable' => $toBool($input['is_nullable'] ?? '0'),
+                    'is_unique' => $toBool($input['is_unique'] ?? '0'),
+                    'is_primary' => $toBool($input['is_primary'] ?? '0'),
+                    'is_foreign' => $toBool($input['is_foreign'] ?? '0'),
+                    'references_table' => $input['references_table'] ?? null,
+                    'references_column' => $input['references_column'] ?? null,
+                    'on_delete' => $input['on_delete'] ?? null,
+                    'on_update' => $input['on_update'] ?? null,
+                    'is_unsigned' => $toBool($input['is_unsigned'] ?? '0'),
+                    'is_auto_increment' => $toBool($input['is_auto_increment'] ?? '0'),
+                    'default_value' => $input['default_value'] ?? null,
+                    'options' => !empty($input['options']) ? explode(',', $input['options']) : null,
+                    'sort_order' => $index,
+                ];
+
+                if (!empty($input['id'])) {
+                    // Update existing
+                    $column = RoleColumn::find($input['id']);
+                    if ($column) {
+                        $oldName = $column->column_name;
+                        $column->update($columnData);
+                        $this->alterColumn($role->table_name, $oldName, $column);
+                        $updatedIds[] = $column->id;
+                    }
+                } else {
+                    // Create new
+                    $column = RoleColumn::create(['role_id' => $role->id, ...$columnData]);
+                    $this->addColumnToTable($role->table_name, $column);
                     $updatedIds[] = $column->id;
                 }
-            } else {
-                // Create new
-                $column = RoleColumn::create(['role_id' => $role->id, ...$columnData]);
-                $this->addColumnToTable($role->table_name, $column);
-                $updatedIds[] = $column->id;
+            } catch (\Throwable $e) {
+                $columnErrors[] = $this->formatColumnErrorMessage($columnName, $e);
             }
         }
 
-        // Delete removed columns
+        // If any error happened during update/create phase, abort before destructive delete.
+        if (!empty($columnErrors)) {
+            throw new \RuntimeException(implode("\n", $columnErrors));
+        }
+
+        // Delete removed columns only when sync phase is fully successful.
+        // Also protect system columns from accidental deletion.
+        $protectedColumns = ['id', 'user_id', 'created_at', 'updated_at'];
         $toDelete = array_diff($existingIds, $updatedIds);
+
         foreach ($toDelete as $id) {
             $column = RoleColumn::find($id);
-            if ($column) {
+            if (!$column) {
+                continue;
+            }
+
+            if (in_array($column->column_name, $protectedColumns, true)) {
+                continue;
+            }
+
+            try {
                 $this->dropColumnFromTable($role->table_name, $column->column_name);
                 $column->delete();
+            } catch (\Throwable $e) {
+                $columnErrors[] = $this->formatColumnErrorMessage($column->column_name, $e);
             }
+        }
+
+        if (!empty($columnErrors)) {
+            throw new \RuntimeException(implode("\n", $columnErrors));
         }
     }
 
@@ -498,11 +596,11 @@ class RoleController extends Controller
             'longtext' => $table->longText($column->column_name),
             'mediumtext' => $table->mediumText($column->column_name),
             'tinytext' => $table->tinyText($column->column_name),
-            'int'      => $table->integer($column->column_name),
-            'bigint'   => $table->bigInteger($column->column_name),
-            'smallint' => $table->smallInteger($column->column_name),
-            'tinyint'  => $table->tinyInteger($column->column_name),
-            'mediumint' => $table->mediumInteger($column->column_name),
+            'int'      => $table->integer($column->column_name, $column->is_auto_increment, $column->is_unsigned),
+            'bigint'   => $table->bigInteger($column->column_name, $column->is_auto_increment, $column->is_unsigned),
+            'smallint' => $table->smallInteger($column->column_name, $column->is_auto_increment, $column->is_unsigned),
+            'tinyint'  => $table->tinyInteger($column->column_name, $column->is_auto_increment, $column->is_unsigned),
+            'mediumint' => $table->mediumInteger($column->column_name, $column->is_auto_increment, $column->is_unsigned),
             'decimal'  => $table->decimal($column->column_name, $column->column_length ?? 10, 2),
             'float'    => $table->float($column->column_name),
             'double'   => $table->double($column->column_name),
@@ -518,7 +616,7 @@ class RoleController extends Controller
             'mediumblob' => $table->binary($column->column_name),
             // Backwards compatibility with old mapped types
             'string'   => $table->string($column->column_name, $column->column_length ?? 255),
-            'integer'  => $table->integer($column->column_name),
+            'integer'  => $table->integer($column->column_name, $column->is_auto_increment, $column->is_unsigned),
             'file'     => $table->string($column->column_name, 255),
             default    => $table->string($column->column_name, 255),
         };
@@ -531,6 +629,28 @@ class RoleController extends Controller
             $col->default($column->default_value);
         }
 
+        if ($column->is_unique) {
+            $table->unique($column->column_name);
+        }
+
+        if ($column->is_primary) {
+            $table->primary($column->column_name);
+        }
+
+        if ($column->is_foreign && $column->references_table && $column->references_column) {
+            $fk = $table->foreign($column->column_name)
+                ->references($column->references_column)
+                ->on($column->references_table);
+
+            if ($column->on_delete) {
+                $fk->onDelete($column->on_delete);
+            }
+
+            if ($column->on_update) {
+                $fk->onUpdate($column->on_update);
+            }
+        }
+
         return $col;
     }
 
@@ -540,25 +660,125 @@ class RoleController extends Controller
      */
     private function modifyColumn(string $tableName, string $oldName, RoleColumn $column): void
     {
+        $this->validateMysqlColumnRules($column);
+
+        $integerTypes = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'integer'];
+        $typeName = strtolower((string) $column->column_type);
+
         $type = $this->buildMysqlTypeDefinition($column);
         $nullable = $column->is_nullable ? "NULL" : "NOT NULL";
         $default = '';
+        $autoIncrement = '';
 
         if ($column->default_value !== null && $column->default_value !== '') {
-            $default = "DEFAULT '{$column->default_value}'";
+            $escapedDefault = str_replace("'", "''", (string) $column->default_value);
+            $default = "DEFAULT '{$escapedDefault}'";
         }
+
+        if ($column->default_value === null && $column->is_nullable) {
+            $default = "DEFAULT NULL";
+        }
+
+        if ($column->is_auto_increment && in_array($typeName, $integerTypes, true)) {
+            $autoIncrement = "AUTO_INCREMENT";
+            $default = '';
+            $nullable = "NOT NULL";
+        }
+
+        $sqlTail = trim(preg_replace('/\s+/', ' ', implode(' ', array_filter([$type, $nullable, $default, $autoIncrement]))));
 
         try {
             if ($oldName !== $column->column_name) {
-                // Rename column
-                DB::statement("ALTER TABLE `{$tableName}` CHANGE `{$oldName}` `{$column->column_name}` {$type} {$nullable} {$default}");
+                DB::statement("ALTER TABLE `{$tableName}` CHANGE `{$oldName}` `{$column->column_name}` {$sqlTail}");
             } else {
-                // Modify column
-                DB::statement("ALTER TABLE `{$tableName}` MODIFY COLUMN `{$column->column_name}` {$type} {$nullable} {$default}");
+                DB::statement("ALTER TABLE `{$tableName}` MODIFY COLUMN `{$column->column_name}` {$sqlTail}");
             }
-        } catch (\Exception $e) {
-            // Ignore errors for incompatible type changes
+        } catch (\Throwable $e) {
+            Log::error('Failed to alter role column', [
+                'table' => $tableName,
+                'old_name' => $oldName,
+                'new_name' => $column->column_name,
+                'type' => $column->column_type,
+                'is_unsigned' => (bool) $column->is_unsigned,
+                'is_nullable' => (bool) $column->is_nullable,
+                'is_auto_increment' => (bool) $column->is_auto_increment,
+                'default_value' => $column->default_value,
+                'sql_tail' => $sqlTail,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
         }
+    }
+
+    private function validateMysqlColumnRules(RoleColumn $column): void
+    {
+        $type = strtolower((string) $column->column_type);
+        $unsignedSupported = $this->supportsUnsigned($type);
+        $integerTypes = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'integer'];
+
+        if ($column->is_unsigned && !$unsignedSupported) {
+            throw new \InvalidArgumentException("Kolom '{$column->column_name}': UNSIGNED tidak didukung untuk tipe '{$type}'.");
+        }
+
+        if ($column->is_auto_increment && !in_array($type, $integerTypes, true)) {
+            throw new \InvalidArgumentException("Kolom '{$column->column_name}': AUTO_INCREMENT hanya didukung untuk tipe integer MySQL.");
+        }
+
+        if ($column->is_auto_increment && $column->is_nullable) {
+            throw new \InvalidArgumentException("Kolom '{$column->column_name}': AUTO_INCREMENT tidak boleh NULL.");
+        }
+    }
+
+    private function formatMysqlErrorMessage(\Throwable $e): string
+    {
+        $base = $e->getMessage();
+
+        if ($e instanceof QueryException && isset($e->errorInfo[1])) {
+            $mysqlCode = (int) $e->errorInfo[1];
+            $friendly = $this->mapMysqlErrorCodeToFriendlyMessage($mysqlCode, null, $base);
+            return "MySQL Error {$mysqlCode}: {$friendly}";
+        }
+
+        if (str_contains($base, 'SQLSTATE')) {
+            return "MySQL Error: {$base}";
+        }
+
+        return $base;
+    }
+
+    private function formatColumnErrorMessage(string $columnName, \Throwable $e): string
+    {
+        $raw = $e->getMessage();
+
+        if ($e instanceof QueryException && isset($e->errorInfo[1])) {
+            $mysqlCode = (int) $e->errorInfo[1];
+            $friendly = $this->mapMysqlErrorCodeToFriendlyMessage($mysqlCode, $columnName, $raw);
+            return "Kolom '{$columnName}' (MySQL {$mysqlCode}): {$friendly}";
+        }
+
+        if (str_starts_with($raw, "Kolom '{$columnName}':")) {
+            return $raw;
+        }
+
+        return "Kolom '{$columnName}': {$raw}";
+    }
+
+    private function mapMysqlErrorCodeToFriendlyMessage(int $code, ?string $columnName, string $raw): string
+    {
+        return match ($code) {
+            1064 => "Sintaks SQL tidak valid untuk struktur kolom. Periksa kombinasi tipe, panjang, unsigned, nullability, dan default.",
+            1264 => "Nilai data existing di kolom tidak kompatibel dengan tipe baru (out of range). Ubah/bersihkan data lama terlebih dahulu.",
+            1366 => "Ada nilai data existing yang tidak bisa dikonversi ke tipe kolom baru (incorrect value).",
+            1364 => "Kolom wajib (NOT NULL) tidak memiliki default yang valid.",
+            1048 => "Kolom NOT NULL tidak boleh berisi NULL.",
+            1062 => "Gagal menerapkan UNIQUE/PRIMARY karena ada data duplikat existing.",
+            1452 => "Gagal menerapkan foreign key: ada data child yang tidak memiliki parent (integritas referensi gagal).",
+            1451 => "Gagal mengubah/menghapus karena masih direferensikan oleh foreign key lain.",
+            1075 => "AUTO_INCREMENT tidak valid. Pastikan hanya satu kolom auto_increment dan kolom tersebut bertipe integer serta key.",
+            1171 => "PRIMARY KEY harus NOT NULL. Ubah kolom menjadi NOT NULL terlebih dahulu.",
+            default => $raw,
+        };
     }
 
     /**
@@ -566,44 +786,51 @@ class RoleController extends Controller
      */
     private function buildMysqlTypeDefinition(RoleColumn $column): string
     {
-        $type = strtolower($column->column_type);
+        $type = strtolower((string) $column->column_type);
         $length = $column->column_length;
+        $unsigned = $this->supportsUnsigned($type) && $column->is_unsigned ? ' UNSIGNED' : '';
 
         return match ($type) {
-            'varchar'    => "VARCHAR({$length})",
-            'char'       => "CHAR({$length})",
+            'varchar'    => "VARCHAR(" . ($length ?: 255) . ")",
+            'char'       => "CHAR(" . ($length ?: 255) . ")",
             'text'       => "TEXT",
             'longtext'   => "LONGTEXT",
             'mediumtext' => "MEDIUMTEXT",
             'tinytext'   => "TINYTEXT",
-            'int'        => "INT" . ($length ? "({$length})" : ""),
-            'bigint'     => "BIGINT" . ($length ? "({$length})" : ""),
-            'smallint'   => "SMALLINT" . ($length ? "({$length})" : ""),
-            'tinyint'    => "TINYINT" . ($length ? "({$length})" : ""),
-            'mediumint'  => "MEDIUMINT" . ($length ? "({$length})" : ""),
-            'decimal'    => "DECIMAL({$length},2)",
-            'float'      => "FLOAT",
-            'double'     => "DOUBLE",
+            'int', 'integer' => "INT" . ($length ? "({$length})" : "") . $unsigned,
+            'bigint'     => "BIGINT" . ($length ? "({$length})" : "") . $unsigned,
+            'smallint'   => "SMALLINT" . ($length ? "({$length})" : "") . $unsigned,
+            'tinyint'    => "TINYINT" . ($length ? "({$length})" : "") . $unsigned,
+            'mediumint'  => "MEDIUMINT" . ($length ? "({$length})" : "") . $unsigned,
+            'decimal'    => "DECIMAL(" . ($length ?: 10) . ",2)" . $unsigned,
+            'float'      => "FLOAT" . $unsigned,
+            'double'     => "DOUBLE" . $unsigned,
             'date'       => "DATE",
             'datetime'   => "DATETIME",
             'timestamp'  => "TIMESTAMP",
             'time'       => "TIME",
             'enum'       => $column->options
-                ? "ENUM(" . implode(',', array_map(fn($o) => "'{$o}'", $column->options)) . ")"
+                ? "ENUM(" . implode(',', array_map(fn($o) => "'" . str_replace("'", "\\'", (string) $o) . "'", $column->options)) . ")"
                 : "ENUM('option_1')",
             'set'        => $column->options
-                ? "SET(" . implode(',', array_map(fn($o) => "'{$o}'", $column->options)) . ")"
+                ? "SET(" . implode(',', array_map(fn($o) => "'" . str_replace("'", "\\'", (string) $o) . "'", $column->options)) . ")"
                 : "SET('option_1')",
-            'boolean'    => "TINYINT(1)",
+            'boolean'    => "TINYINT(1)" . ($column->is_unsigned ? " UNSIGNED" : ""),
             'blob'       => "BLOB",
             'longblob'   => "LONGBLOB",
             'mediumblob' => "MEDIUMBLOB",
             // Backwards compatibility
-            'string'     => "VARCHAR({$length})",
-            'integer'    => "INT",
+            'string'     => "VARCHAR(" . ($length ?: 255) . ")",
             'file'       => "VARCHAR(255)",
             default      => "VARCHAR(255)",
         };
+    }
+
+    private function supportsUnsigned(string $type): bool
+    {
+        return in_array(strtolower($type), [
+            'tinyint', 'smallint', 'mediumint', 'int', 'integer', 'bigint', 'decimal', 'float', 'double', 'boolean'
+        ], true);
     }
 
     /**
@@ -634,16 +861,24 @@ class RoleController extends Controller
 
         // Get columns from role_columns table
         $role = Role::where('relation_name', $relationName)->first();
-        $fillable = ["'user_id'"];
+
+        // Build fillable dynamically from role_columns, but avoid duplicates and
+        // avoid framework-managed / key columns from being mass assignable.
+        $fillable = ['user_id'];
 
         if ($role) {
             $columns = $role->columns->pluck('column_name')->toArray();
             foreach ($columns as $col) {
-                $fillable[] = "'{$col}'";
+                if (in_array($col, ['id', 'user_id', 'created_at', 'updated_at'], true)) {
+                    continue;
+                }
+                $fillable[] = $col;
             }
         }
 
-        $fillableStr = implode(",\n        ", $fillable);
+        $fillable = array_values(array_unique($fillable));
+        $fillableQuoted = array_map(fn($f) => "'{$f}'", $fillable);
+        $fillableStr = implode(",\n        ", $fillableQuoted);
 
         $content = <<<PHP
 <?php

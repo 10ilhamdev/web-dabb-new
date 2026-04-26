@@ -195,7 +195,7 @@
                                         value="{{ $col->options ? implode(',', $col->options) : '' }}"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 </div>
-                                <div class="flex items-center gap-4 pt-6">
+                                <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
                                     <label class="inline-flex items-center gap-2 cursor-pointer">
                                         <input type="checkbox" name="columns[{{ $index }}][is_nullable]"
                                             value="1" {{ $col->is_nullable ? 'checked' : '' }}
@@ -208,6 +208,79 @@
                                             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                         <span class="text-sm text-gray-700">Unique</span>
                                     </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="columns[{{ $index }}][is_primary]"
+                                            value="1" {{ $col->is_primary ? 'checked' : '' }}
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Primary</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="columns[{{ $index }}][is_unsigned]"
+                                            value="1" {{ $col->is_unsigned ? 'checked' : '' }}
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Unsigned</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="columns[{{ $index }}][is_auto_increment]"
+                                            value="1" {{ $col->is_auto_increment ? 'checked' : '' }}
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Auto Increment</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="columns[{{ $index }}][is_foreign]"
+                                            value="1" {{ $col->is_foreign ? 'checked' : '' }}
+                                            onchange="toggleForeign(this, {{ $index }})"
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Foreign Key</span>
+                                    </label>
+                                </div>
+
+                                <div id="foreign-{{ $index }}"
+                                    class="md:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-3 {{ $col->is_foreign ? '' : 'hidden' }}">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">References
+                                            Table</label>
+                                        <input type="text" name="columns[{{ $index }}][references_table]"
+                                            value="{{ $col->references_table }}"
+                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">References
+                                            Column</label>
+                                        <input type="text" name="columns[{{ $index }}][references_column]"
+                                            value="{{ $col->references_column }}"
+                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">On Delete</label>
+                                        <select name="columns[{{ $index }}][on_delete]"
+                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                            <option value="">Default</option>
+                                            <option value="cascade" {{ $col->on_delete === 'cascade' ? 'selected' : '' }}>
+                                                CASCADE</option>
+                                            <option value="restrict"
+                                                {{ $col->on_delete === 'restrict' ? 'selected' : '' }}>RESTRICT</option>
+                                            <option value="set null"
+                                                {{ $col->on_delete === 'set null' ? 'selected' : '' }}>SET NULL</option>
+                                            <option value="no action"
+                                                {{ $col->on_delete === 'no action' ? 'selected' : '' }}>NO ACTION</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">On Update</label>
+                                        <select name="columns[{{ $index }}][on_update]"
+                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                            <option value="">Default</option>
+                                            <option value="cascade" {{ $col->on_update === 'cascade' ? 'selected' : '' }}>
+                                                CASCADE</option>
+                                            <option value="restrict"
+                                                {{ $col->on_update === 'restrict' ? 'selected' : '' }}>RESTRICT</option>
+                                            <option value="set null"
+                                                {{ $col->on_update === 'set null' ? 'selected' : '' }}>SET NULL</option>
+                                            <option value="no action"
+                                                {{ $col->on_update === 'no action' ? 'selected' : '' }}>NO ACTION</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -280,7 +353,7 @@
                         <input type="text" name="columns[${index}][options]" placeholder="Option 1,Option 2,Option 3"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
-                    <div class="flex items-center gap-4 pt-6">
+                    <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
                         <label class="inline-flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="columns[${index}][is_nullable]" value="1" checked
                                 class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
@@ -291,6 +364,62 @@
                                 class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                             <span class="text-sm text-gray-700">Unique</span>
                         </label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="columns[${index}][is_primary]" value="1"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">Primary</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="columns[${index}][is_unsigned]" value="1"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">Unsigned</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="columns[${index}][is_auto_increment]" value="1"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">Auto Increment</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="columns[${index}][is_foreign]" value="1"
+                                onchange="toggleForeign(this, ${index})"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">Foreign Key</span>
+                        </label>
+                    </div>
+
+                    <div id="foreign-${index}" class="md:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-3 hidden">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">References Table</label>
+                            <input type="text" name="columns[${index}][references_table]" placeholder="e.g. users"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">References Column</label>
+                            <input type="text" name="columns[${index}][references_column]" placeholder="e.g. id"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">On Delete</label>
+                            <select name="columns[${index}][on_delete]"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="">Default</option>
+                                <option value="cascade">CASCADE</option>
+                                <option value="restrict">RESTRICT</option>
+                                <option value="set null">SET NULL</option>
+                                <option value="no action">NO ACTION</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">On Update</label>
+                            <select name="columns[${index}][on_update]"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="">Default</option>
+                                <option value="cascade">CASCADE</option>
+                                <option value="restrict">RESTRICT</option>
+                                <option value="set null">SET NULL</option>
+                                <option value="no action">NO ACTION</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             `;
@@ -304,11 +433,18 @@
 
         function toggleOptions(select, index) {
             const optionsDiv = document.getElementById('options-' + index);
+            if (!optionsDiv) return;
             if (select.value === 'enum' || select.value === 'set') {
                 optionsDiv.classList.remove('hidden');
             } else {
                 optionsDiv.classList.add('hidden');
             }
+        }
+
+        function toggleForeign(checkbox, index) {
+            const foreignDiv = document.getElementById('foreign-' + index);
+            if (!foreignDiv) return;
+            foreignDiv.classList.toggle('hidden', !checkbox.checked);
         }
 
         function syncColumnsFromDb() {

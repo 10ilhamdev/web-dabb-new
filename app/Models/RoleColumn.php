@@ -14,6 +14,14 @@ class RoleColumn extends Model
         'column_length',
         'is_nullable',
         'is_unique',
+        'is_primary',
+        'is_foreign',
+        'references_table',
+        'references_column',
+        'on_delete',
+        'on_update',
+        'is_unsigned',
+        'is_auto_increment',
         'default_value',
         'options',
         'sort_order',
@@ -22,6 +30,10 @@ class RoleColumn extends Model
     protected $casts = [
         'is_nullable' => 'boolean',
         'is_unique' => 'boolean',
+        'is_primary' => 'boolean',
+        'is_foreign' => 'boolean',
+        'is_unsigned' => 'boolean',
+        'is_auto_increment' => 'boolean',
         'options' => 'array',
     ];
 

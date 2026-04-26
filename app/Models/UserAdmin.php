@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserAdmin extends Model
 {
-    protected $table = 'user_admin';
+    protected $table = 'user_admins';
 
     protected $fillable = [
         'user_id',
-        'nip',
         'jenis_kelamin',
         'tempat_lahir',
         'tanggal_lahir',
