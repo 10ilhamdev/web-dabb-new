@@ -214,6 +214,7 @@
 @push('scripts')
     <style>
         .bg-gray-50.dragging { opacity: 0.4; }
+        input[type="checkbox"]:disabled { opacity: 0.3; cursor: not-allowed; }
     </style>
     <script>
         const columnTypes = @json($columnTypes);
