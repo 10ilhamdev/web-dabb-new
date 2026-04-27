@@ -1204,6 +1204,30 @@ return [
         'error_column_prefix' => "Kolom ':column' (MySQL :code): :message",
         'error_mysql_prefix' => "MySQL Error :code: :message",
 
+        // Column pre-validation errors (store / update)
+        'column_enum_space_empty' => 'Kolom #:index: nilai ENUM/SET harus dipisah koma TANPA spasi. Gunakan format: IV,IB,VIP (tanpa spasi).',
+        'column_enum_space_in_value' => "Kolom #:index: nilai ENUM/SET tidak boleh mengandung spasi. Ubah ':part' menjadi ':clean'. Contoh: IV,IB,VIP",
+        'column_enum_invalid_char' => "Kolom #:index: nilai ENUM/SET ':value' mengandung karakter tidak valid. Hanya huruf, angka, dan underscore yang diizinkan.",
+        'column_name_empty' => 'Kolom #:index: Nama kolom tidak boleh kosong.',
+        'column_name_has_space' => "Kolom #:index: Nama kolom ':name' tidak boleh mengandung spasi. Gunakan underscore: nomor_kartu.",
+        'column_name_invalid_pattern' => "Kolom #:index: Nama kolom ':name' hanya boleh huruf, angka, dan underscore. Tidak boleh dimulai dengan angka.",
+        'column_enum_required' => "Kolom #:index: ENUM wajib memiliki minimal satu opsi di field 'Options'. Contoh: IV,IB,VIP",
+        'column_set_required' => "Kolom #:index: SET wajib memiliki minimal satu opsi di field 'Options'. Contoh: option_1,option_2",
+        'column_enum_duplicate' => "Kolom #:index: Nilai ENUM/SET tidak boleh duplikat. Nilai duplikat: ':values'",
+        'column_name_prefix' => "Kolom ':column':",
+
+        // MySQL error code mapped messages
+        'mysql_1064' => 'Sintaks SQL tidak valid. Periksa kombinasi tipe, panjang, unsigned, nullability, dan default value.',
+        'mysql_1264' => 'Nilai data existing tidak kompatibel dengan tipe kolom baru (out of range). Ubah/hapus data lama terlebih dahulu.',
+        'mysql_1366' => 'Ada nilai data existing yang tidak bisa dikonversi ke tipe kolom baru (incorrect value).',
+        'mysql_1364' => 'Kolom wajib (NOT NULL) tidak memiliki default yang valid.',
+        'mysql_1048' => 'Kolom NOT NULL tidak boleh berisi NULL.',
+        'mysql_1062' => 'Gagal menerapkan UNIQUE/PRIMARY karena ada data duplikat existing.',
+        'mysql_1452' => 'Gagal menerapkan foreign key: ada data child yang tidak memiliki parent (integritas referensi gagal).',
+        'mysql_1451' => 'Gagal mengubah/menghapus karena masih direferensikan oleh foreign key lain.',
+        'mysql_1075' => 'AUTO_INCREMENT tidak valid. Pastikan hanya satu kolom auto_increment, kolom tersebut bertipe integer, dan memiliki key.',
+        'mysql_1171' => 'PRIMARY KEY harus NOT NULL. Ubah kolom menjadi NOT NULL terlebih dahulu.',
+
         // DataTables / Filters
         'search_placeholder' => 'Cari...',
         'filter_type' => 'Pilih filter Tipe',

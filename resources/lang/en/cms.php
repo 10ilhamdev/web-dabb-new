@@ -1201,6 +1201,30 @@ return [
         'error_column_prefix' => "Column ':column' (MySQL :code): :message",
         'error_mysql_prefix' => "MySQL Error :code: :message",
 
+        // Column pre-validation errors (store / update)
+        'column_enum_space_empty' => 'Column #:index: ENUM/SET values must be comma-separated WITHOUT spaces. Use format: IV,IB,VIP (no spaces).',
+        'column_enum_space_in_value' => "Column #:index: ENUM/SET values must not contain spaces. Change ':part' to ':clean'. Example: IV,IB,VIP",
+        'column_enum_invalid_char' => "Column #:index: ENUM/SET value ':value' contains invalid characters. Only letters, numbers, and underscores are allowed.",
+        'column_name_empty' => 'Column #:index: Column name cannot be empty.',
+        'column_name_has_space' => "Column #:index: Column name ':name' must not contain spaces. Use underscores instead: nomor_kartu.",
+        'column_name_invalid_pattern' => "Column #:index: Column name ':name' can only contain letters, numbers, and underscores. Must not start with a number.",
+        'column_enum_required' => "Column #:index: ENUM requires at least one option in the 'Options' field. Example: IV,IB,VIP",
+        'column_set_required' => "Column #:index: SET requires at least one option in the 'Options' field. Example: option_1,option_2",
+        'column_enum_duplicate' => "Column #:index: ENUM/SET values must not contain duplicates. Duplicate values: ':values'",
+        'column_name_prefix' => "Column ':column':",
+
+        // MySQL error code mapped messages
+        'mysql_1064' => 'Invalid SQL syntax. Check the combination of type, length, unsigned, nullability, and default value.',
+        'mysql_1264' => 'Existing data is out of range for the new column type. Update or remove existing data first.',
+        'mysql_1366' => 'Existing data cannot be converted to the new column type (incorrect value).',
+        'mysql_1364' => 'NOT NULL column has no valid default value.',
+        'mysql_1048' => 'NOT NULL column cannot contain NULL.',
+        'mysql_1062' => 'UNIQUE/PRIMARY constraint failed because there are duplicate values in existing data.',
+        'mysql_1452' => 'Foreign key constraint failed: a child record references a non-existent parent.',
+        'mysql_1451' => 'Cannot modify/delete because the column is still referenced by another foreign key.',
+        'mysql_1075' => 'Invalid AUTO_INCREMENT. Ensure only one column is auto-increment, it is an integer type, and has a key.',
+        'mysql_1171' => 'PRIMARY KEY must be NOT NULL. Change the column to NOT NULL first.',
+
         // DataTables / Filters
         'search_placeholder' => 'Search...',
         'filter_type' => 'Select filter Type',

@@ -997,6 +997,12 @@
                     checkbox.indeterminate = anyChecked && !allChecked;
                 }
             });
+
+            // Init column_length visibility for all pre-filled columns on page load
+            document.querySelectorAll('#columnsContainer select[name$="[column_type]"]').forEach(function(sel) {
+                const match = sel.name.match(/columns\[(\d+)\]/);
+                if (match) toggleAttributes(sel, parseInt(match[1]));
+            });
         });
     </script>
 @endpush

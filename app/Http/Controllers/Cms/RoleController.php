@@ -93,6 +93,65 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        // Validate all column inputs BEFORE saving — catch enum options errors early
+        $columnsInput = $request->input('columns', []);
+        foreach ($columnsInput as $idx => $col) {
+            $type = $col['column_type'] ?? '';
+            $options = trim($col['options'] ?? '');
+
+            // ENUM/SET: values must be comma-separated WITHOUT spaces
+            if (in_array($type, ['enum', 'set']) && $options !== '') {
+                $parts = explode(',', $options);
+                foreach ($parts as $i => $part) {
+                    $clean = trim($part);
+                    if ($clean === '') {
+                        return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_enum_space_empty', $idx + 1));
+                    }
+                    if ($clean !== $part) {
+                        return redirect()->back()->withInput()->with('error',
+                            str_replace([':part', ':clean'], [$part, $clean], $this->t('cms.roles.column_enum_space_in_value', $idx + 1)));
+                    }
+                    if (!preg_match('/^[a-zA-Z0-9_]+$/', $clean)) {
+                        return redirect()->back()->withInput()->with('error',
+                            str_replace(':value', $clean, $this->t('cms.roles.column_enum_invalid_char', $idx + 1)));
+                    }
+                }
+            }
+
+            // Column name: no spaces allowed
+            $colName = trim($col['column_name'] ?? '');
+            if ($colName === '') {
+                return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_name_empty', $idx + 1));
+            }
+            if (str_contains($colName, ' ')) {
+                return redirect()->back()->withInput()->with('error',
+                    str_replace(':name', $colName, $this->t('cms.roles.column_name_has_space', $idx + 1)));
+            }
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $colName)) {
+                return redirect()->back()->withInput()->with('error',
+                    str_replace(':name', $colName, $this->t('cms.roles.column_name_invalid_pattern', $idx + 1)));
+            }
+
+            // Type-specific validation
+            if ($type === 'enum' && empty(trim($col['options'] ?? ''))) {
+                return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_enum_required', $idx + 1));
+            }
+            if ($type === 'set' && empty(trim($col['options'] ?? ''))) {
+                return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_set_required', $idx + 1));
+            }
+
+            // Check enum values for duplicates
+            if (in_array($type, ['enum', 'set']) && $options !== '') {
+                $vals = array_map('trim', explode(',', $options));
+                $uniq = array_unique($vals);
+                if (count($vals) !== count($uniq)) {
+                    $dupes = array_diff_key($vals, $uniq);
+                    return redirect()->back()->withInput()->with('error',
+                        str_replace(':values', implode("', '", $dupes), $this->t('cms.roles.column_enum_duplicate', $idx + 1)));
+                }
+            }
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9_]+$/', Rule::unique('roles', 'name')],
             'label' => ['required', 'string', 'max:100'],
@@ -192,6 +251,65 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role)
     {
+        // Validate all column inputs BEFORE syncing — catch enum options errors early
+        $columnsInput = $request->input('columns', []);
+        foreach ($columnsInput as $idx => $col) {
+            $type = $col['column_type'] ?? '';
+            $options = trim($col['options'] ?? '');
+
+            // ENUM/SET: values must be comma-separated WITHOUT spaces
+            if (in_array($type, ['enum', 'set']) && $options !== '') {
+                $parts = explode(',', $options);
+                foreach ($parts as $i => $part) {
+                    $clean = trim($part);
+                    if ($clean === '') {
+                        return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_enum_space_empty', $idx + 1));
+                    }
+                    if ($clean !== $part) {
+                        return redirect()->back()->withInput()->with('error',
+                            str_replace([':part', ':clean'], [$part, $clean], $this->t('cms.roles.column_enum_space_in_value', $idx + 1)));
+                    }
+                    if (!preg_match('/^[a-zA-Z0-9_]+$/', $clean)) {
+                        return redirect()->back()->withInput()->with('error',
+                            str_replace(':value', $clean, $this->t('cms.roles.column_enum_invalid_char', $idx + 1)));
+                    }
+                }
+            }
+
+            // Column name: no spaces allowed
+            $colName = trim($col['column_name'] ?? '');
+            if ($colName === '') {
+                return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_name_empty', $idx + 1));
+            }
+            if (str_contains($colName, ' ')) {
+                return redirect()->back()->withInput()->with('error',
+                    str_replace(':name', $colName, $this->t('cms.roles.column_name_has_space', $idx + 1)));
+            }
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $colName)) {
+                return redirect()->back()->withInput()->with('error',
+                    str_replace(':name', $colName, $this->t('cms.roles.column_name_invalid_pattern', $idx + 1)));
+            }
+
+            // Type-specific validation
+            if ($type === 'enum' && empty(trim($col['options'] ?? ''))) {
+                return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_enum_required', $idx + 1));
+            }
+            if ($type === 'set' && empty(trim($col['options'] ?? ''))) {
+                return redirect()->back()->withInput()->with('error', $this->t('cms.roles.column_set_required', $idx + 1));
+            }
+
+            // Check enum values for duplicates
+            if (in_array($type, ['enum', 'set']) && $options !== '') {
+                $vals = array_map('trim', explode(',', $options));
+                $uniq = array_unique($vals);
+                if (count($vals) !== count($uniq)) {
+                    $dupes = array_diff_key($vals, $uniq);
+                    return redirect()->back()->withInput()->with('error',
+                        str_replace(':values', implode("', '", $dupes), $this->t('cms.roles.column_enum_duplicate', $idx + 1)));
+                }
+            }
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9_]+$/', Rule::unique('roles', 'name')->ignore($role->id)],
             'label' => ['required', 'string', 'max:100'],
@@ -222,10 +340,11 @@ class RoleController extends Controller
         try {
             $this->syncColumns($role, $request->input('columns', []));
         } catch (\Throwable $e) {
+            $msg = $this->formatMysqlErrorMessage($e);
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', $this->formatMysqlErrorMessage($e));
+                ->with('error', $msg);
         }
 
         // Update model file if relation_name changed
@@ -451,12 +570,6 @@ class RoleController extends Controller
         ";
 
         $foreignKeys = DB::connection($connectionName)->select($fkQuery, [$role->table_name]);
-
-        Log::info('FK Sync Debug', [
-            'table' => $role->table_name,
-            'fk_count' => count($foreignKeys),
-            'fk_data' => array_map(fn($f) => (array) $f, $foreignKeys),
-        ]);
 
         $foreignMap = [];
         foreach ($foreignKeys as $fk) {
@@ -1037,15 +1150,6 @@ class RoleController extends Controller
 
         $sql = "ALTER TABLE `{$tableName}` ADD CONSTRAINT `{$constraintName}` FOREIGN KEY (`{$column->column_name}`) REFERENCES `{$column->references_table}`(`{$column->references_column}`) ON DELETE {$onDelete} ON UPDATE {$onUpdate}";
 
-        Log::info('Adding FK constraint', [
-            'table' => $tableName,
-            'column' => $column->column_name,
-            'constraint_name' => $constraintName,
-            'on_delete' => $onDelete,
-            'on_update' => $onUpdate,
-            'sql' => $sql,
-        ]);
-
         try {
             DB::statement($sql);
         } catch (\Throwable $e) {
@@ -1119,6 +1223,14 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * Short-hand for translating a role error message with :index replacement.
+     */
+    private function t(string $key, int|string $index): string
+    {
+        return str_replace(':index', $index, __($key));
+    }
+
     private function formatMysqlErrorMessage(\Throwable $e): string
     {
         $base = $e->getMessage();
@@ -1146,7 +1258,7 @@ class RoleController extends Controller
             return __('cms.roles.error_column_prefix', ['column' => $columnName, 'code' => $mysqlCode, 'message' => $friendly]);
         }
 
-        if (str_starts_with($raw, "Kolom '{$columnName}':") || str_starts_with($raw, "Column '{$columnName}':")) {
+        if (str_starts_with($raw, __('cms.roles.column_name_prefix', ['column' => $columnName])) || str_starts_with($raw, "Column '{$columnName}':")) {
             return $raw;
         }
 
@@ -1156,16 +1268,16 @@ class RoleController extends Controller
     private function mapMysqlErrorCodeToFriendlyMessage(int $code, ?string $columnName, string $raw): string
     {
         return match ($code) {
-            1064 => "Sintaks SQL tidak valid untuk struktur kolom. Periksa kombinasi tipe, panjang, unsigned, nullability, dan default.",
-            1264 => "Nilai data existing di kolom tidak kompatibel dengan tipe baru (out of range). Ubah/bersihkan data lama terlebih dahulu.",
-            1366 => "Ada nilai data existing yang tidak bisa dikonversi ke tipe kolom baru (incorrect value).",
-            1364 => "Kolom wajib (NOT NULL) tidak memiliki default yang valid.",
-            1048 => "Kolom NOT NULL tidak boleh berisi NULL.",
-            1062 => "Gagal menerapkan UNIQUE/PRIMARY karena ada data duplikat existing.",
-            1452 => "Gagal menerapkan foreign key: ada data child yang tidak memiliki parent (integritas referensi gagal).",
-            1451 => "Gagal mengubah/menghapus karena masih direferensikan oleh foreign key lain.",
-            1075 => "AUTO_INCREMENT tidak valid. Pastikan hanya satu kolom auto_increment dan kolom tersebut bertipe integer serta key.",
-            1171 => "PRIMARY KEY harus NOT NULL. Ubah kolom menjadi NOT NULL terlebih dahulu.",
+            1064 => __('cms.roles.mysql_1064'),
+            1264 => __('cms.roles.mysql_1264'),
+            1366 => __('cms.roles.mysql_1366'),
+            1364 => __('cms.roles.mysql_1364'),
+            1048 => __('cms.roles.mysql_1048'),
+            1062 => __('cms.roles.mysql_1062'),
+            1452 => __('cms.roles.mysql_1452'),
+            1451 => __('cms.roles.mysql_1451'),
+            1075 => __('cms.roles.mysql_1075'),
+            1171 => __('cms.roles.mysql_1171'),
             default => $raw,
         };
     }
