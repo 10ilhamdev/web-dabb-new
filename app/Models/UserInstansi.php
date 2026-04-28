@@ -10,6 +10,7 @@ class UserInstansi extends Model
 
     protected $fillable = [
         'user_id',
+        'id',
         'tempat_lahir',
         'tanggal_lahir',
         'kartu_identitas',
@@ -18,6 +19,8 @@ class UserInstansi extends Model
         'nomor_whatsapp',
         'jenis_keperluan',
         'judul_keperluan',
+        'created_at',
+        'updated_at'
     ];
 
     public function user()

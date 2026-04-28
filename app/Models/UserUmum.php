@@ -10,6 +10,7 @@ class UserUmum extends Model
 
     protected $fillable = [
         'user_id',
+        'id',
         'jenis_kelamin',
         'tempat_lahir',
         'tanggal_lahir',
@@ -18,7 +19,9 @@ class UserUmum extends Model
         'alamat',
         'nomor_whatsapp',
         'jenis_keperluan',
-        'judul_keperluan'
+        'judul_keperluan',
+        'created_at',
+        'updated_at'
     ];
 
     public function user()

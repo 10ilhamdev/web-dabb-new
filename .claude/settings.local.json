@@ -20,7 +20,14 @@
       "Bash(docker compose:*)",
       "Bash(curl -s -o /dev/null -w \"HTTP: %{http_code}\\\\n\" \"http://localhost:8080/storage/features/profile/DQ68brYAeP2f7qAYnGLIStKuVn3OHJEqRZ8EtvU0.png\")",
       "Bash(curl:*)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(rm \"2026_03_11_000001_add_image_height_to_virtual_book_pages_table.php\")",
+      "Bash(rm \"2026_03_11_000002_add_multiple_images_support_to_virtual_book_pages_table.php\")",
+      "Bash(rm \"2026_03_11_000003_create_books_table.php\")",
+      "Bash(rm \"2026_03_11_000004_add_book_id_to_virtual_book_pages_table.php\")",
+      "Bash(rm \"2026_03_11_000005_add_cover_position_to_books_table.php\")",
+      "Read(//usr/**)",
+      "Read(//usr/local/**)"
     ]
   }
 }

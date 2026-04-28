@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,6 +12,10 @@ return new class extends Migration
         Schema::create('virtual_slideshow_slides', function (Blueprint $table) {
             $table->id();
             $table->foreignId('feature_id')->constrained('features')->onDelete('cascade');
+            $table->foreignId('feature_page_id')
+                ->nullable()
+                ->constrained('feature_pages')
+                ->onDelete('cascade');
             $table->enum('slide_type', ['hero', 'text', 'carousel', 'video', 'text_carousel'])->default('text');
             $table->string('title')->nullable();
             $table->string('title_en')->nullable();
@@ -18,11 +23,14 @@ return new class extends Migration
             $table->string('subtitle_en')->nullable();
             $table->text('description')->nullable();
             $table->text('description_en')->nullable();
-            $table->json('images')->nullable();      // array of storage paths
-            $table->string('video_url')->nullable(); // YouTube or direct video URL
+            $table->json('images')->nullable();
+            $table->json('image_urls')->nullable();
+            $table->string('video_url')->nullable();
+            $table->string('video_file')->nullable();
+            $table->json('carousel_video_urls')->nullable();
             $table->enum('layout', ['left', 'right', 'center'])->default('center');
-            $table->string('bg_color')->nullable();  // e.g. #F8FAFC
-            $table->json('info_popup')->nullable();  // {"0":"caption img 0","video":"caption video"}
+            $table->string('bg_color')->nullable();
+            $table->json('info_popup')->nullable();
             $table->integer('order')->default(0);
             $table->timestamps();
         });

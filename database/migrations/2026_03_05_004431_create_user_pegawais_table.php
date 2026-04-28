@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('user_admins', function (Blueprint $table) {
+        Schema::create('user_pegawais', function (Blueprint $table) {
             $table->bigInteger('id')->autoIncrement();
             $table->unsignedBigInteger('user_id');
             $table->string('nip', 18);
@@ -24,10 +24,10 @@ return new class extends Migration
             $table->enum('pangkat_golongan', ['IV/e (Pembina Utama)', 'IV/d (Pembina Utama Madya)', 'IV/c (Pembina Utama Muda)', 'IV/b (Pembina Tingkat I)', 'IV/a (Pembina)', 'III/d (Penata Tingkat I)', 'III/c (Penata)', 'III/b (Penata Muda Tingkat I)', 'III/a (Penata Muda)', 'II/d (Pengatur Tingkat I)', 'II/c (Pengatur)', 'II/b (Pengatur Muda Tingkat I)', 'II/a (Pengatur Muda)', 'I/d (Juru Tingkat I)', 'I/c (Juru)', 'I/b (Juru Muda Tingkat I)', 'I/a (Juru Muda)']);
             $table->timestamps();
 
-            $table->unique('nip', 'idx_user_admins_nip');
-            $table->unique('nomor_kartu_identitas', 'idx_user_admins_nomor_kartu_identitas');
-            $table->unique('nomor_whatsapp', 'idx_user_admins_nomor_whatsapp');
-            $table->foreign('user_id', 'fk_user_admins_user_id')
+            $table->unique('nip', 'idx_user_pegawais_nip');
+            $table->unique('nomor_kartu_identitas', 'idx_user_pegawais_nomor_kartu_identitas');
+            $table->unique('nomor_whatsapp', 'idx_user_pegawais_nomor_whatsapp');
+            $table->foreign('user_id', 'fk_user_pegawais_user_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade')
@@ -37,6 +37,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('user_admins');
+        Schema::dropIfExists('user_pegawais');
     }
 };

@@ -4,24 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserAdmin extends Model
+class UserInstansiSwasta extends Model
 {
-    protected $table = 'user_admins';
+    protected $table = 'user_instansi_swasta';
 
     protected $fillable = [
         'user_id',
         'id',
-        'nip',
-        'jenis_kelamin',
         'tempat_lahir',
         'tanggal_lahir',
         'kartu_identitas',
         'nomor_kartu_identitas',
         'alamat',
         'nomor_whatsapp',
-        'agama',
-        'jabatan',
-        'pangkat_golongan',
+        'jenis_keperluan',
+        'judul_keperluan',
         'created_at',
         'updated_at'
     ];

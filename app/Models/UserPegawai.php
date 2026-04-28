@@ -10,6 +10,7 @@ class UserPegawai extends Model
 
     protected $fillable = [
         'user_id',
+        'id',
         'nip',
         'jenis_kelamin',
         'tempat_lahir',
@@ -20,7 +21,9 @@ class UserPegawai extends Model
         'nomor_whatsapp',
         'agama',
         'jabatan',
-        'pangkat_golongan'
+        'pangkat_golongan',
+        'created_at',
+        'updated_at'
     ];
 
     public function user()

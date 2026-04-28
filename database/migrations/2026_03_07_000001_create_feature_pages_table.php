@@ -29,6 +29,7 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->longText('description_en')->nullable();
             $table->json('images')->nullable();
+            $table->json('image_positions')->nullable();
             $table->integer('order')->default(0);
             $table->timestamps();
 

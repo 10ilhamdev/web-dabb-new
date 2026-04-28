@@ -48,7 +48,9 @@
                     <select class="role-selector" id="role-select" onchange="showForm()">
                         <option value="" disabled selected>{{ __('auth.select_account_type') }}</option>
                         @foreach($rolesData as $roleKey => $roleInfo)
-                            <option value="{{ $roleKey }}">{{ $roleInfo['label'] }}</option>
+                            <option value="{{ $roleKey }}">
+                                {{ __("auth.role_{$roleKey}") }}
+                            </option>
                         @endforeach
                     </select>
 
@@ -60,7 +62,7 @@
 
                     <a href="{{ route('auth.google.register') }}" class="btn-google" style="display: flex; justify-content: center; align-items: center; width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; color: #4a5568; font-weight: 600; text-decoration: none; transition: all 0.2s ease;">
                         <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google" style="margin-right: 10px; width: 24px;">
-                        Daftar dengan Google
+                        {{ __('auth.signup_google') }}
                     </a>
                 </div>
 
@@ -85,9 +87,9 @@
                             value="{{ old('username') }}" required>
 
                         <!-- Always show: Email -->
-                        <label for="email" class="required">{{ __('Email') }}</label>
+                        <label for="email" class="required">{{ __('auth.email') }}</label>
                         <input type="email" name="email" id="email" class="login-input"
-                            placeholder="nama@gmail.com" value="{{ old('email') }}" required>
+                            placeholder="{{ __('auth.placeholder_email') }}" value="{{ old('email') }}" required>
 
                         <!-- Divider -->
                         <div style="grid-column: 1 / -1;">
@@ -110,10 +112,10 @@
                         </div>
 
                         <!-- Password -->
-                        <label for="password" class="required">{{ __('Password') }}</label>
+                        <label for="password" class="required">{{ __('auth.field_password') }}</label>
                         <div class="password-wrapper">
                             <input type="password" name="password" id="password" class="login-input"
-                                placeholder="{{ __('Password') }}" required>
+                                placeholder="{{ __('auth.field_password') }}" required>
                         </div>
 
                         <!-- Confirm Password -->

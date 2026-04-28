@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 // Jalankan backup setiap 5 menit
-Schedule::command('db:dump')->everyFiveMinutes();
+Schedule::command('db:dump')
+    ->everyFiveMinutes()
+    ->appendOutputTo(storage_path('logs/scheduler-db-dump.log'));
 
 // Jalankan pengecekan perubahan file setiap 1 menit.
 // Command npm:build akan otomatis skip (tidak menjalankan npm run build)

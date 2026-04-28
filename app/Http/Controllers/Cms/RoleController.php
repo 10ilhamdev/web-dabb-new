@@ -925,6 +925,11 @@ class RoleController extends Controller
         if ($column->is_foreign && $column->references_table && $column->references_column) {
             $this->addForeignKeyConstraint($tableName, $column);
         }
+
+        // Add UNIQUE index if column should be unique
+        if ($column->is_unique) {
+            $this->addUniqueConstraint($tableName, $column->column_name);
+        }
     }
 
     /**
@@ -942,6 +947,9 @@ class RoleController extends Controller
 
         // Drop FK constraint first before dropping column
         $this->dropForeignKeyForColumn($tableName, $columnName);
+
+        // Drop UNIQUE constraint (if any) before dropping column
+        $this->dropUniqueConstraintForColumn($tableName, $columnName);
 
         Schema::table($tableName, function ($table) use ($columnName) {
             $table->dropColumn($columnName);
@@ -1078,6 +1086,9 @@ class RoleController extends Controller
         // Drop existing FK constraint for this column before modifying (FK is separate from column definition)
         $this->dropForeignKeyForColumn($tableName, $column->column_name);
 
+        // Drop existing UNIQUE constraint for this column before modifying (if exists)
+        $this->dropUniqueConstraintForColumn($tableName, $column->column_name);
+
         $sqlTail = $this->buildColumnSqlTail($column);
 
         try {
@@ -1106,6 +1117,11 @@ class RoleController extends Controller
         // Re-add FK constraint after column modification if this column has FK
         if ($column->is_foreign && $column->references_table && $column->references_column) {
             $this->addForeignKeyConstraint($tableName, $column);
+        }
+
+        // Add UNIQUE constraint after column modification if this column should be unique
+        if ($column->is_unique) {
+            $this->addUniqueConstraint($tableName, $column->column_name);
         }
     }
 
@@ -1139,6 +1155,56 @@ class RoleController extends Controller
                     'column' => $columnName,
                     'error' => $e->getMessage(),
                 ]);
+            }
+        }
+    }
+
+    /**
+     * Drop any existing UNIQUE constraint on a column so column can be modified without conflict.
+     */
+    private function dropUniqueConstraintForColumn(string $tableName, string $columnName): void
+    {
+        $indexes = DB::select("
+            SELECT INDEX_NAME
+            FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = ?
+              AND COLUMN_NAME = ?
+              AND NON_UNIQUE = 0
+              AND INDEX_NAME != 'PRIMARY'
+        ", [$tableName, $columnName]);
+
+        foreach ($indexes as $idx) {
+            $indexName = $idx->INDEX_NAME;
+            if (!$indexName) continue;
+            try {
+                DB::statement("ALTER TABLE `{$tableName}` DROP INDEX `{$indexName}`");
+            } catch (\Throwable $e) {
+                // Ignore if already dropped
+            }
+        }
+    }
+
+    /**
+     * Add UNIQUE constraint for a column using raw SQL.
+     */
+    private function addUniqueConstraint(string $tableName, string $columnName): void
+    {
+        $indexName = "idx_{$tableName}_{$columnName}";
+        $sql = "ALTER TABLE `{$tableName}` ADD UNIQUE INDEX `{$indexName}` (`{$columnName}`)";
+
+        try {
+            DB::statement($sql);
+            Log::info('UNIQUE index added', ['index' => $indexName, 'table' => $tableName, 'column' => $columnName]);
+        } catch (\Throwable $e) {
+            // If index name already exists, MySQL will error — ignore duplicate
+            if (!str_contains($e->getMessage(), 'Duplicate key name')) {
+                Log::error('Failed to add UNIQUE index', [
+                    'table' => $tableName,
+                    'column' => $columnName,
+                    'error' => $e->getMessage(),
+                ]);
+                throw $e;
             }
         }
     }

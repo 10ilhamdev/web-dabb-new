@@ -473,29 +473,32 @@
          * LENGTH      : varchar + char + decimal only
          */
         function toggleAttributes(el, index) {
-            // el can be the column-type <select> OR a checkbox (is_primary / is_auto_increment)
-            const isElementSelect = el.tagName === 'SELECT';
+            // Extract index from the element's name attribute — always correct, even after reorder.
+            // index param is accepted for backward compat but is ignored if el has a name attribute.
             const colDiv = el.closest('.bg-gray-50');
             if (!colDiv) return;
 
-            // Get current column type — from select OR from the dropdown in this column block
-            let type = isElementSelect ? el.value : (
-                colDiv.querySelector('select[name^="columns["][name$="[column_type]"]')?.value || ''
-            );
+            // Derive the correct index from the first field we can find in this column block
+            const nameAttr = colDiv.querySelector('[name^="columns["]')?.name;
+            const resolvedIndex = nameAttr ? (nameAttr.match(/columns\[(\d+)\]/) || [])[1] : index;
+            if (resolvedIndex === undefined) return;
+
+            // Get current column type
+            const typeSelect = colDiv.querySelector('select[name^="columns["][name$="[column_type]"]');
+            const type = typeSelect?.value || '';
             if (!type) return;
 
-            const isInteger     = integerTypes.includes(type);
-            const isDecimal     = type === 'decimal';
+            const isInteger      = integerTypes.includes(type);
+            const isDecimal      = type === 'decimal';
             const isUnsignedable = unsignedTypes.includes(type);
-            const isUnindexable = ['text','longtext','mediumtext','tinytext','blob','longblob','mediumblob'].includes(type);
-            const canHaveLength = ['varchar','char'].includes(type) || isDecimal;
+            const isUnindexable  = ['text','longtext','mediumtext','tinytext','blob','longblob','mediumblob'].includes(type);
+            const canHaveLength  = ['varchar','char'].includes(type) || isDecimal;
 
-            // --- Column Length ---
-            const lengthRow = colDiv.querySelector('input[name="columns[' + index + '][column_length]"]')?.closest('div');
+            // --- Column Length visibility ---
+            const lengthRow = colDiv.querySelector(`input[name="columns[${resolvedIndex}][column_length]"]`)?.closest('div');
             if (lengthRow) {
-                const hideLength = !canHaveLength;
-                lengthRow.style.display = hideLength ? 'none' : '';
-                if (hideLength) {
+                lengthRow.style.display = canHaveLength ? '' : 'none';
+                if (!canHaveLength) {
                     const input = lengthRow.querySelector('input');
                     if (input) input.value = '';
                 }
@@ -507,37 +510,31 @@
 
             const cb = {};
             ['is_nullable','is_unique','is_primary','is_unsigned','is_auto_increment','is_foreign'].forEach(function(name) {
-                const element = checkboxesContainer.querySelector('input[name="columns[' + index + '][' + name + ']"]');
-                if (element) cb[name] = element;
+                cb[name] = checkboxesContainer.querySelector(`input[name="columns[${resolvedIndex}][${name}]"]`);
             });
 
-            // --- Resolve intended new state for this column ---
-            // --- Resolve intended new state ---
-            // onchange fires AFTER toggle, so el.checked = NEW intended state directly.
-            const isFromPrimaryCB   = !!(el.name && el.name.includes('is_primary'));
-            const isFromAutoIncCB   = !!(el.name && el.name.includes('is_auto_increment'));
+            // Determine which control triggered this call
+            const isFromPrimaryCB = !!(el.name && el.name.includes('is_primary'));
+            const isFromAutoIncCB = !!(el.name && el.name.includes('is_auto_increment'));
 
-            const intendedPK    = isFromPrimaryCB   ? el.checked : !!cb.is_primary?.checked;
-            const intendedAuto  = isFromAutoIncCB   ? el.checked : !!cb.is_auto_increment?.checked;
-
-            // NOT NULL forced when PK or AUTO_INCREMENT would be active after this interaction
+            // Resolve intended state after this interaction
+            const intendedPK   = isFromPrimaryCB ? el.checked : !!cb.is_primary?.checked;
+            const intendedAuto  = isFromAutoIncCB ? el.checked : !!cb.is_auto_increment?.checked;
             const forcedNotNull = intendedPK || intendedAuto;
 
-            // --- Per-checkbox: disabled + checked state ---
-
-            // PRIMARY KEY: only integer types
+            // PRIMARY KEY: integer types only
             if (cb.is_primary) {
                 cb.is_primary.disabled = !isInteger;
                 if (!isInteger) cb.is_primary.checked = false;
             }
 
-            // AUTO_INCREMENT: only integer types
+            // AUTO_INCREMENT: integer types only
             if (cb.is_auto_increment) {
                 cb.is_auto_increment.disabled = !isInteger;
                 if (!isInteger) cb.is_auto_increment.checked = false;
             }
 
-            // UNIQUE: all scalar types EXCEPT BLOB/TEXT
+            // UNIQUE: all scalar types except BLOB/TEXT
             if (cb.is_unique) {
                 cb.is_unique.disabled = isUnindexable;
                 if (isUnindexable) cb.is_unique.checked = false;
@@ -549,12 +546,12 @@
                 if (!isUnsignedable) cb.is_unsigned.checked = false;
             }
 
-            // FOREIGN KEY: integer + varchar + char only
+            // FOREIGN KEY: integer + varchar + char
             if (cb.is_foreign) {
                 cb.is_foreign.disabled = !isInteger && type !== 'varchar' && type !== 'char';
                 if (cb.is_foreign.disabled) {
                     cb.is_foreign.checked = false;
-                    const foreignDiv = document.getElementById('foreign-' + index);
+                    const foreignDiv = document.getElementById('foreign-' + resolvedIndex);
                     if (foreignDiv) foreignDiv.classList.add('hidden');
                 }
             }
@@ -565,8 +562,7 @@
                 if (forcedNotNull) cb.is_nullable.checked = false;
             }
 
-            // Cascade: AUTO_INC→PK — only when AUTO_INC is being CHECKED ON (el.checked = true = new state).
-            // Nullable's disabled state is driven purely by forcedNotNull above — never touch it here.
+            // Cascade: AUTO_INC → PK
             if (isFromAutoIncCB && el.checked && cb.is_primary) {
                 cb.is_primary.checked = true;
                 cb.is_primary.disabled = !isInteger;
@@ -705,6 +701,10 @@
             if (prev && prev.matches('.bg-gray-50')) {
                 div.parentNode.insertBefore(div, prev);
                 reindexColumns();
+                // Refresh toggle state for all columns after reorder
+                document.querySelectorAll('#columnsContainer select[name$="[column_type]"]').forEach(function(sel) {
+                    toggleAttributes(sel, 0);
+                });
             }
         }
 
@@ -714,6 +714,10 @@
             if (next && next.matches('.bg-gray-50')) {
                 div.parentNode.insertBefore(next, div);
                 reindexColumns();
+                // Refresh toggle state for all columns after reorder
+                document.querySelectorAll('#columnsContainer select[name$="[column_type]"]').forEach(function(sel) {
+                    toggleAttributes(sel, 0);
+                });
             }
         }
 
@@ -792,6 +796,10 @@
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
             reindexColumns();
+            // Refresh toggle state for ALL columns after reorder — critical!
+            document.querySelectorAll('#columnsContainer select[name$="[column_type]"]').forEach(function(sel) {
+                toggleAttributes(sel, 0);
+            });
             draggedItem = null;
             isDragging = false;
         });
