@@ -118,16 +118,34 @@
         emoji: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="0.8" fill="currentColor"/><circle cx="15" cy="10" r="0.8" fill="currentColor"/><path d="M8 14.5c1 1.5 2.5 2.2 4 2.2s3-.7 4-2.2"/></svg>',
         document: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
         lineheight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>',
-        insertRowBefore: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 9 7 12 3 15"/></svg>',
-        insertRowAfter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 15 7 12 3 9"/></svg>',
-        insertColBefore: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9 3 12 7 15 3"/></svg>',
-        insertColAfter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="15 21 12 17 9 21"/></svg>',
-        deleteRow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 9 7 12 3 15"/><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 15 7 12 3 9"/><line x1="3" y1="8" x2="3" y2="16"/><line x1="21" y1="8" x2="21" y2="16"/></svg>',
-        deleteCol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 3 12 7 9 11"/><line x1="12" y1="3" x2="12" y2="21"/><polyline points="15 3 12 7 15 11"/><line x1="8" y1="3" x2="16" y2="3"/><line x1="8" y1="21" x2="16" y2="21"/></svg>',
+        insertRowBefore: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="10" width="18" height="10" rx="1"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="10" x2="9" y2="20"/><line x1="15" y1="10" x2="15" y2="20"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="9" y1="5" x2="15" y2="5"/></svg>',
+        insertRowAfter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="10" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="4" x2="9" y2="14"/><line x1="15" y1="4" x2="15" y2="14"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>',
+        insertColBefore: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="10" y="3" width="10" height="18" rx="1"/><line x1="10" y1="9" x2="20" y2="9"/><line x1="10" y1="15" x2="20" y2="15"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="5" y1="9" x2="5" y2="15"/></svg>',
+        insertColAfter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="10" height="18" rx="1"/><line x1="4" y1="9" x2="14" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="16" y1="12" x2="22" y2="12"/><line x1="19" y1="9" x2="19" y2="15"/></svg>',
+        deleteRow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="9" y1="6" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="18"/><line x1="9" y1="12" x2="15" y2="12" stroke="red"/><line x1="10" y1="10" x2="14" y2="14" stroke="red"/><line x1="14" y1="10" x2="10" y2="14" stroke="red"/></svg>',
+        deleteCol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="3" width="12" height="18" rx="1"/><line x1="6" y1="9" x2="18" y2="9"/><line x1="6" y1="15" x2="18" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="12" y1="9" x2="12" y2="15" stroke="red"/><line x1="10" y1="10" x2="14" y2="14" stroke="red"/><line x1="14" y1="10" x2="10" y2="14" stroke="red"/></svg>',
         deleteTable: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
         mergeCells: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M11 7h2m-1-1v2m3-1h2m-1-1v2" stroke-width="1.5"/></svg>',
         splitCell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
         tableHeader: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="9"/></svg>',
+        // New table-related icons (correct SVG icons for their functions)
+        tableDelete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+        tableInsert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
+        tableCellProp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="9"/><line x1="15" y1="3" x2="15" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/></svg>',
+        // tableRowDelete: row with minus sign — indicates remove one row
+        tableRowDelete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="1"/><line x1="8" y1="4" x2="16" y2="4"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/><line x1="12" y1="11" x2="12" y2="13" stroke-width="2.5"/></svg>',
+        // tableColDelete: column with minus sign — indicates remove one column
+        tableColDelete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="3" width="12" height="18" rx="1"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/><line x1="11" y1="10" x2="13" y2="10" stroke-width="2.5"/></svg>',
+        tableCellBg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" rx="1" fill="currentColor" opacity="0.3"/></svg>',
+        tableCellAlign: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="8" x2="14" y2="8"/><line x1="7" y1="16" x2="11" y2="16"/></svg>',
+        // tableColWidth: horizontal arrows — means "fit/auto width"
+        tableColWidth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="7 9 4 12 7 15"/><polyline points="17 9 20 12 17 15"/></svg>',
+        gripIcon: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>',
+        cellMerge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><line x1="7" y1="11" x2="17" y2="11"/></svg>',
+        cellSplit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
+        tableCellHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="9" y="9" width="6" height="6" fill="currentColor" stroke="none"/></svg>',
+        tableRowHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="3" y="9" width="18" height="6" fill="currentColor" stroke="none"/></svg>',
+        tableColHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="9" y="3" width="6" height="18" fill="currentColor" stroke="none"/></svg>',
     };
 
     // ---------------------------------------------------------------------
@@ -200,7 +218,7 @@
             { kind: 'dropdown', name: 'paragraph', label: 'Paragraph', items: BLOCK_FORMATS, action: 'block' },
             { kind: 'dropdown', name: 'font', label: 'Font', items: FONT_FAMILIES, action: 'fontName' },
             { kind: 'dropdown', name: 'size', label: 'Size', items: FONT_SIZES, action: 'fontSize' },
-            { kind: 'dropdown', name: 'lineheight', label: 'Line', items: LINE_HEIGHTS, action: 'lineHeight' },
+            { kind: 'dropdown', name: 'lineheight', title: 'Line Height', icon: ICON.lineheight, items: LINE_HEIGHTS, action: 'lineHeight' },
         ],
         [
             { kind: 'btn', name: 'bold', icon: ICON.bold, title: 'Bold (Ctrl+B)', cmd: 'bold' },
@@ -243,8 +261,8 @@
             { kind: 'btn', name: 'emoji', icon: ICON.emoji, title: 'Emoji', custom: 'emoji' },
         ],
         [
-            { kind: 'btn', name: 'undo', icon: ICON.undo, title: 'Undo (Ctrl+Z)', cmd: 'undo' },
-            { kind: 'btn', name: 'redo', icon: ICON.redo, title: 'Redo (Ctrl+Y)', cmd: 'redo' },
+            { kind: 'btn', name: 'undo', icon: ICON.undo, title: 'Undo (Ctrl+Z)', custom: 'undo' },
+            { kind: 'btn', name: 'redo', icon: ICON.redo, title: 'Redo (Ctrl+Y)', custom: 'redo' },
             { kind: 'btn', name: 'template', icon: ICON.template, title: 'Insert Template', custom: 'template' },
             { kind: 'btn', name: 'source', icon: ICON.source, title: 'View HTML source', custom: 'source' },
             { kind: 'btn', name: 'fullscreen', icon: ICON.fullscreen, title: 'Toggle full screen', custom: 'fullscreen' },
@@ -450,6 +468,15 @@
         this._initialHTML = target.innerHTML || '';
         target.innerHTML = '';
 
+        // ---- Custom undo/redo history (step-by-step, not native browser) ----
+        this._history = [];
+        this._historyIndex = -1;
+        this._historyMax = 100; // max steps to remember
+        // Flag to skip history push during initial content injection
+        this._initializing = true;
+        // Guard flag to prevent overlay destruction during active drag
+        this._isResizingOrMoving = false;
+
         this._build(target);
         this._bind();
 
@@ -459,6 +486,11 @@
         } else {
             this.setHTMLCode(this._initialHTML || '');
         }
+        // Done initializing — now history tracking is active
+        this._initializing = false;
+        // Set initial history entry to the actual content (not empty)
+        this._history = [this.content.innerHTML];
+        this._historyIndex = 0;
     }
 
     RichTextEditor.prototype._build = function (target) {
@@ -568,7 +600,12 @@
 
     RichTextEditor.prototype._buildDropdown = function (groupEl, item) {
         var self = this;
-        var label = el('span', { class: 'rte-dd-label', text: item.label || item.name });
+        var label;
+        if (item.icon) {
+            label = el('span', { class: 'rte-dd-icon', html: item.icon });
+        } else {
+            label = el('span', { class: 'rte-dd-label', text: item.label || item.name });
+        }
         var btn = el('button', {
             type: 'button',
             class: 'rte-tb-btn rte-tb-dropdown',
@@ -593,7 +630,7 @@
                     } else if (item.action === 'lineHeight') {
                         self._setLineHeight(opt.value);
                     }
-                    label.textContent = opt.label;
+                    if (!item.icon) label.textContent = opt.label;
                     closePanel();
                     self._syncSource();
                     self._updateState();
@@ -811,6 +848,8 @@
             case 'find': return this._dialogFindReplace();
             case 'template': return this._dialogTemplate();
             case 'document': return this._dialogInsertDocument();
+            case 'undo': this._historyUndo(); return;
+            case 'redo': this._historyRedo(); return;
         }
     };
 
@@ -1352,6 +1391,10 @@
     RichTextEditor.prototype._showImageEditorPopup = function (img) {
         var self = this;
         this._closeImagePopup();
+        
+        // ---- Drag-resize handle (bottom-right corner of image) ----
+        this._attachImageResizeHandle(img);
+        
         var popup = el('div', { class: 'rte-context-popup rte-image-popup' });
 
         var ctrlAlign = el('div', { class: 'rte-popup-row' }, [
@@ -1363,19 +1406,19 @@
                 onclick: function () { img.style.float = ''; img.style.display = 'block'; img.style.marginLeft = 'auto'; img.style.marginRight = 'auto'; self._syncSource(); }
             }),
             el('button', { type: 'button', text: 'Right', class: 'rte-btn rte-btn-sm',
-                onclick: function () { img.style.float = ''; img.style.display = 'block'; img.style.marginLeft = 'auto'; img.style.marginRight = ''; img.style.display = 'block'; img.style.marginLeft = 'auto'; img.style.marginRight = '0'; self._syncSource(); }
+                onclick: function () { img.style.float = ''; img.style.display = 'block'; img.style.marginLeft = 'auto'; img.style.marginRight = '0'; self._syncSource(); }
             }),
         ]);
         var ctrlWidth = el('div', { class: 'rte-popup-row' }, [
             el('label', { text: 'Width (px):' }),
             el('input', { type: 'number', value: img.width || img.offsetWidth, min: '10', class: 'rte-popup-input',
-                onchange: function () { img.width = parseInt(this.value, 10) || img.naturalWidth; self._syncSource(); }
+                oninput: function () { img.width = parseInt(this.value, 10) || img.naturalWidth; self._syncSource(); }
             }),
         ]);
         var ctrlBorder = el('div', { class: 'rte-popup-row' }, [
             el('label', { text: 'Border (px):' }),
             el('input', { type: 'number', value: parseInt(img.style.borderWidth || '0', 10), min: '0', class: 'rte-popup-input',
-                onchange: function () { img.style.borderWidth = this.value + 'px'; img.style.borderStyle = parseInt(this.value, 10) > 0 ? 'solid' : 'none'; self._syncSource(); }
+                oninput: function () { img.style.borderWidth = this.value + 'px'; img.style.borderStyle = parseInt(this.value, 10) > 0 ? 'solid' : 'none'; self._syncSource(); }
             }),
         ]);
         var ctrlDelete = el('div', { class: 'rte-popup-row' }, [
@@ -1390,13 +1433,9 @@
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: 'Ya, Hapus',
                         cancelButtonText: 'Batal',
-                        customClass: {
-                            popup: 'rounded-2xl',
-                            confirmButton: 'px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors',
-                            cancelButton: 'px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors',
-                        },
                     }).then(function (result) {
                         if (result.isConfirmed) {
+                            self._removeImageResizeHandle();
                             img.parentNode.removeChild(img);
                             self._closeImagePopup();
                             self._syncSource();
@@ -1420,11 +1459,80 @@
 
         setTimeout(function () {
             document.addEventListener('click', self._imagePopupCloseHandler = function (e) {
-                if (!popup.contains(e.target) && e.target !== img) {
+                if (!popup.contains(e.target) && e.target !== img && !e.target.classList.contains('rte-img-resize-handle')) {
                     self._closeImagePopup();
+                    self._removeImageResizeHandle();
                 }
             });
         }, 0);
+    };
+
+    RichTextEditor.prototype._attachImageResizeHandle = function (img) {
+        var self = this;
+        this._removeImageResizeHandle(); // clean up stale handles
+
+        var handle = el('div', { class: 'rte-img-resize-handle' });
+        handle.style.cssText = [
+            'position:absolute',
+            'width:12px',
+            'height:12px',
+            'background:#3b82f6',
+            'border:2px solid #fff',
+            'border-radius:2px',
+            'cursor:se-resize',
+            'z-index:9999',
+            'pointer-events:auto',
+        ].join(';');
+
+        function positionHandle() {
+            var rect = img.getBoundingClientRect();
+            var scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+            var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+            handle.style.left = (rect.right + scrollX - 8) + 'px';
+            handle.style.top = (rect.bottom + scrollY - 8) + 'px';
+        }
+
+        document.body.appendChild(handle);
+        positionHandle();
+        self._imgResizeHandle = handle;
+        self._imgResizeTarget = img;
+
+        var startX, startY, startW, startH;
+
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            startX = e.clientX;
+            startY = e.clientY;
+            startW = img.offsetWidth;
+            startH = img.offsetHeight;
+
+            function onMove(me) {
+                var dw = me.clientX - startX;
+                var newW = Math.max(20, startW + dw);
+                // Keep aspect ratio with shift held, otherwise just width
+                img.style.width = newW + 'px';
+                img.style.height = 'auto';
+                positionHandle();
+            }
+
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                self._syncSource();
+            }
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+    };
+
+    RichTextEditor.prototype._removeImageResizeHandle = function () {
+        if (this._imgResizeHandle && this._imgResizeHandle.parentNode) {
+            this._imgResizeHandle.parentNode.removeChild(this._imgResizeHandle);
+        }
+        this._imgResizeHandle = null;
+        this._imgResizeTarget = null;
     };
 
     RichTextEditor.prototype._closeImagePopup = function () {
@@ -1651,7 +1759,653 @@
         }
     };
 
-    // -------- Comprehensive Table Editor Popup --------
+    // ===================================================================
+    // TABLE SELECTION OVERLAY — 8-point resize handles + drag-to-move
+    // ===================================================================
+    RichTextEditor.prototype._showTableSelection = function (table) {
+        var self = this;
+
+        // Guard: if same table already selected AND we're not refreshing, skip
+        // NOTE: _refreshTableSelection will null out _selectedTable before calling this
+        if (this._selectedTable === table && this._tableOverlay) return;
+
+        // Destroy existing overlay + toolbar cleanly
+        this._hideTableSelection();
+
+        if (!table || !this.content.contains(table)) return;
+
+        // Create overlay wrapper (positioned relative to editor content)
+        var editorRect = this.content.getBoundingClientRect();
+        var tblRect = table.getBoundingClientRect();
+
+        var overlay = el('div', {
+            class: 'rte-table-overlay',
+            style: [
+                'left:' + (tblRect.left - editorRect.left + this.content.scrollLeft) + 'px',
+                'top:' + (tblRect.top - editorRect.top + this.content.scrollTop) + 'px',
+                'width:' + tblRect.width + 'px',
+                'height:' + tblRect.height + 'px',
+                'pointer-events:none',  // let clicks pass through to content below
+            ].join(';')
+        });
+
+        // ---- Move handle (top-left) ----
+        var moveHandle = el('div', {
+            class: 'rte-table-move-handle',
+            title: 'Drag to move table'
+        });
+        moveHandle.innerHTML = ICON.gripIcon;
+        overlay.appendChild(moveHandle);
+
+        // ---- 8-point resize handles ----
+        var handles = ['nw','n','ne','e','se','s','sw','w'];
+        handles.forEach(function (h) {
+            var handle = el('div', { class: 'rte-table-resize-handle rte-rsz-' + h });
+            overlay.appendChild(handle);
+        });
+
+        // Append into content area so it scrolls with content
+        this.content.style.position = 'relative';
+        this.content.appendChild(overlay);
+        this._tableOverlay = overlay;
+        this._selectedTable = table;
+
+        // ---- Move table by dragging the handle ----
+        var moveStartX, moveStartY, tblOrigLeft, tblOrigTop;
+
+        function onMoveStart(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            self._isResizingOrMoving = true;
+            moveStartX = e.touches ? e.touches[0].clientX : e.clientX;
+            moveStartY = e.touches ? e.touches[0].clientY : e.clientY;
+            tblOrigLeft = parseFloat(table.style.marginLeft) || 0;
+            tblOrigTop = parseFloat(table.style.marginTop) || 0;
+
+            document.addEventListener('mousemove', onMoveMove);
+            document.addEventListener('mouseup', onMoveEnd);
+            document.addEventListener('touchmove', onMoveMove, { passive: false });
+            document.addEventListener('touchend', onMoveEnd);
+        }
+
+        function onMoveMove(e) {
+            e.preventDefault();
+            var dx = (e.touches ? e.touches[0].clientX : e.clientX) - moveStartX;
+            var dy = (e.touches ? e.touches[0].clientY : e.clientY) - moveStartY;
+            table.style.marginLeft = (tblOrigLeft + dx) + 'px';
+            table.style.marginTop = (tblOrigTop + dy) + 'px';
+            self._updateTableOverlayPosition();
+        }
+
+        function onMoveEnd() {
+            self._isResizingOrMoving = false;
+            document.removeEventListener('mousemove', onMoveMove);
+            document.removeEventListener('mouseup', onMoveEnd);
+            document.removeEventListener('touchmove', onMoveMove);
+            document.removeEventListener('touchend', onMoveEnd);
+            self._syncSource();
+        }
+
+        moveHandle.addEventListener('mousedown', onMoveStart);
+        moveHandle.addEventListener('touchstart', onMoveStart, { passive: false });
+
+        // ---- Resize table by dragging handles ----
+        var resizeDir = null;
+        var resizeStartX, resizeStartY, resizeStartW, resizeStartH;
+
+        function onResizeStart(e, dir) {
+            e.preventDefault();
+            e.stopPropagation();
+            self._isResizingOrMoving = true;
+            resizeDir = dir;
+            resizeStartX = e.touches ? e.touches[0].clientX : e.clientX;
+            resizeStartY = e.touches ? e.touches[0].clientY : e.clientY;
+            resizeStartW = table.offsetWidth;
+            resizeStartH = table.offsetHeight;
+
+            document.addEventListener('mousemove', onResizeMove);
+            document.addEventListener('mouseup', onResizeEnd);
+            document.addEventListener('touchmove', onResizeMove, { passive: false });
+            document.addEventListener('touchend', onResizeEnd);
+        }
+
+        function onResizeMove(e) {
+            if (!resizeDir) return;
+            e.preventDefault();
+            var dx = (e.touches ? e.touches[0].clientX : e.clientX) - resizeStartX;
+            var dy = (e.touches ? e.touches[0].clientY : e.clientY) - resizeStartY;
+            var newW = resizeStartW;
+            var newH = resizeStartH;
+            var h = resizeDir;
+
+            if (h === 'e' || h === 'ne' || h === 'se') newW = Math.max(80, resizeStartW + dx);
+            if (h === 'w' || h === 'nw' || h === 'sw') newW = Math.max(80, resizeStartW - dx);
+            if (h === 's' || h === 'se' || h === 'sw') newH = Math.max(60, resizeStartH + dy);
+            if (h === 'n' || h === 'ne' || h === 'nw') newH = Math.max(60, resizeStartH - dy);
+
+            table.style.width = newW + 'px';
+            table.style.height = newH + 'px';
+            self._updateTableOverlayPosition();
+        }
+
+        function onResizeEnd() {
+            resizeDir = null;
+            self._isResizingOrMoving = false;
+            document.removeEventListener('mousemove', onResizeMove);
+            document.removeEventListener('mouseup', onResizeEnd);
+            document.removeEventListener('touchmove', onResizeMove);
+            document.removeEventListener('touchend', onResizeEnd);
+            self._syncSource();
+        }
+
+        handles.forEach(function (h) {
+            var handle = overlay.querySelector('.rte-rsz-' + h);
+            if (handle) {
+                handle.addEventListener('mousedown', function (e) { onResizeStart(e, h); });
+                handle.addEventListener('touchstart', function (e) { onResizeStart(e, h); }, { passive: false });
+            }
+        });
+
+        // ---- Show float table toolbar (only here — not in _refreshTableSelection) ----
+        this._showFloatTableToolbar(table);
+    };
+
+    RichTextEditor.prototype._hideTableSelection = function () {
+        if (this._tableOverlay) {
+            if (this._tableOverlay.parentNode) this._tableOverlay.parentNode.removeChild(this._tableOverlay);
+            this._tableOverlay = null;
+        }
+        this._selectedTable = null;
+        this._hideFloatTableToolbar();
+    };
+
+    RichTextEditor.prototype._updateTableOverlayPosition = function () {
+        var overlay = this._tableOverlay;
+        var table = this._selectedTable;
+        if (!overlay || !table) return;
+        var editorRect = this.content.getBoundingClientRect();
+        var tblRect = table.getBoundingClientRect();
+        overlay.style.left = (tblRect.left - editorRect.left + this.content.scrollLeft) + 'px';
+        overlay.style.top = (tblRect.top - editorRect.top + this.content.scrollTop) + 'px';
+        overlay.style.width = tblRect.width + 'px';
+        overlay.style.height = tblRect.height + 'px';
+    };
+
+    // ===================================================================
+    // FLOAT TABLE TOOLBAR — ONE unified toolbar with ALL table functions
+    // ===================================================================
+    RichTextEditor.prototype._showFloatTableToolbar = function (table) {
+        var self = this;
+        this._hideFloatTableToolbar();
+
+        var toolbar = el('div', { class: 'rte-table-float-toolbar' });
+
+        var tbl = table;
+
+        function getSelTd() {
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return null;
+            var node = sel.anchorNode;
+            var td = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+            while (td && td.tagName !== 'TD' && td.tagName !== 'TH') td = td.parentElement;
+            return td;
+        }
+
+        var activeMenu = null;
+        function closeMenus(e) {
+            if (activeMenu) { 
+                if (e && activeMenu.parentElement.contains(e.target)) return;
+                activeMenu.style.display = 'none'; 
+                activeMenu = null; 
+            }
+        }
+        document.addEventListener('click', closeMenus);
+
+        function createBtn(iconHtml, title, action) {
+            var btn = el('button', { type: 'button', class: 'rte-ft-btn', title: title, html: iconHtml });
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeMenus();
+                action();
+            });
+            return btn;
+        }
+
+        function createDropdown(iconHtml, title, items) {
+            var btnWrap = el('div', { style: 'position:relative;display:inline-block;' });
+            var btn = el('button', { type: 'button', class: 'rte-ft-btn', title: title, html: iconHtml + '<span style="display:inline-block;width:12px;height:12px;margin-left:2px;pointer-events:none;">' + ICON.chevron + '</span>' });
+            btn.style.width = '42px'; // wider to fit caret
+            
+            var menu = el('div', { class: 'rte-ft-dropdown', style: 'min-width: 180px; text-align: left; padding: 4px 0;' });
+            
+            items.forEach(function(item) {
+                if (item === 'sep') {
+                    var sep = el('div', { style: 'height:1px; background:#eef0f3; margin:4px 0;' });
+                    menu.appendChild(sep);
+                    return;
+                }
+                
+                var mItem = el('button', { type: 'button', class: 'rte-ft-dropitem', style: 'display:flex; align-items:center; gap:8px; text-align:left; padding: 6px 14px;' });
+                mItem.appendChild(el('span', { html: item.icon, style: 'width:16px;height:16px;display:inline-block;color:#6b7280;pointer-events:none;' }));
+                mItem.appendChild(el('span', { text: item.label, style: 'pointer-events:none;' }));
+                
+                if (item.kind === 'color') {
+                    var input = el('input', { type: 'color', value: '#000000', style: 'position:absolute;opacity:0;width:1px;height:1px;' });
+                    // init color
+                    input.value = item.getValue();
+                    mItem.appendChild(input);
+                    mItem.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        input.click();
+                    });
+                    input.addEventListener('input', function() {
+                        item.action(this.value);
+                    });
+                    input.addEventListener('change', function() {
+                        closeMenus();
+                    });
+                } else {
+                    mItem.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        closeMenus();
+                        item.action();
+                    });
+                }
+                menu.appendChild(mItem);
+            });
+
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var isOpen = (menu.style.display === 'block');
+                closeMenus();
+                if (!isOpen) {
+                    menu.style.display = 'block';
+                    activeMenu = menu;
+                }
+            });
+
+            btnWrap.appendChild(btn);
+            btnWrap.appendChild(menu);
+            return btnWrap;
+        }
+
+        // 1. Table Header (Single Button)
+        toolbar.appendChild(createBtn(ICON.tableHeader, 'Table Header', function() {
+            self._toggleTableHeader(tbl);
+        }));
+
+        // 2. Table Cell
+        toolbar.appendChild(createDropdown(ICON.tableCellHighlight, 'Table Cell', [
+            { label: 'Merge Cells', icon: ICON.mergeCells, action: function() { self._mergeTableCells(tbl); } },
+            { label: 'Split Cells Vertical', icon: ICON.splitCell, action: function() { self._splitTableCellVertical(tbl); } },
+            { label: 'Split Cells Horizontal', icon: ICON.splitCell, action: function() { self._splitTableCellHorizontal(tbl); } },
+            'sep',
+            { kind: 'color', label: 'Cell Text Color', icon: ICON.textcolor, getValue: function() { var td = getSelTd(); return td ? td.style.color || '#000000' : '#000000'; }, action: function(val) { var td = getSelTd(); if(td) { td.style.color = val; self._syncSource(); } } },
+            { kind: 'color', label: 'Cell Back Color', icon: ICON.paint, getValue: function() { var td = getSelTd(); return td ? td.style.backgroundColor || '#ffffff' : '#ffffff'; }, action: function(val) { var td = getSelTd(); if(td) { td.style.backgroundColor = val; self._syncSource(); } } }
+        ]));
+
+        // 3. Table Row
+        toolbar.appendChild(createDropdown(ICON.tableRowHighlight, 'Table Row', [
+            { label: 'Insert Row Above', icon: ICON.insertRowBefore, action: function() { self._insertTableRow(tbl, 0); } },
+            { label: 'Insert Row Below', icon: ICON.insertRowAfter, action: function() { self._insertTableRow(tbl, 1); } },
+            'sep',
+            { label: 'Delete Row', icon: ICON.deleteRow, action: function() { self._deleteTableRow(tbl); } }
+        ]));
+
+        // 4. Table Column
+        toolbar.appendChild(createDropdown(ICON.tableColHighlight, 'Table Column', [
+            { label: 'Insert Column Left', icon: ICON.insertColBefore, action: function() { self._insertTableCol(tbl, 0); } },
+            { label: 'Insert Column Right', icon: ICON.insertColAfter, action: function() { self._insertTableCol(tbl, 1); } },
+            'sep',
+            { label: 'Delete Column', icon: ICON.deleteCol, action: function() { self._deleteTableCol(tbl); } }
+        ]));
+
+        // 5. Table
+        toolbar.appendChild(createDropdown(ICON.table, 'Table', [
+            { label: 'Auto size', icon: ICON.tableColWidth, action: function() { tbl.style.width = ''; self._updateTableOverlayPosition(); self._syncSource(); } },
+            { label: '100% width', icon: ICON.tableColWidth, action: function() { tbl.style.width = '100%'; self._updateTableOverlayPosition(); self._syncSource(); } },
+            { label: '75% width', icon: ICON.tableColWidth, action: function() { tbl.style.width = '75%'; self._updateTableOverlayPosition(); self._syncSource(); } },
+            { label: '50% width', icon: ICON.tableColWidth, action: function() { tbl.style.width = '50%'; self._updateTableOverlayPosition(); self._syncSource(); } },
+            'sep',
+            { label: 'Delete Table', icon: ICON.tableDelete, action: function() { 
+                Swal.fire({ title: 'Hapus Tabel?', text: 'Tindakan ini tidak dapat dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(function (res) {
+                    if (res.isConfirmed) { self._hideTableSelection(); tbl.parentNode.removeChild(tbl); self._syncSource(); }
+                });
+            } }
+        ]));
+
+        // ---- Position inside overlay to scroll with table ----
+        toolbar.style.position = 'absolute';
+        toolbar.style.left = '50%';
+        toolbar.style.transform = 'translateX(-50%)';
+        toolbar.style.zIndex = '9999';
+        
+        var tblRect = tbl.getBoundingClientRect();
+        var spaceAbove = tblRect.top;
+        if (spaceAbove < 60) {
+            toolbar.style.top = '100%';
+            toolbar.style.marginTop = '8px';
+            toolbar.classList.add('rte-ft-bottom');
+        } else {
+            toolbar.style.top = '-46px';
+            toolbar.classList.add('rte-ft-top');
+        }
+
+        if (self._tableOverlay) {
+            self._tableOverlay.appendChild(toolbar);
+        } else {
+            document.body.appendChild(toolbar);
+        }
+        this._floatToolbar = toolbar;
+
+        toolbar._closeDropdowns = closeMenus;
+    };
+
+    RichTextEditor.prototype._hideFloatTableToolbar = function () {
+        if (this._floatToolbar) {
+            document.removeEventListener('click', this._floatToolbar._closeDropdowns);
+            if (this._floatToolbar.parentNode) this._floatToolbar.parentNode.removeChild(this._floatToolbar);
+            this._floatToolbar = null;
+        }
+    };
+
+    // ---- Table operation helpers ----
+    RichTextEditor.prototype._insertTableRow = function (table, dir) {
+        // dir: 0 = above, 1 = below current row
+        // Find the currently "active" row from selection
+        var sel = window.getSelection();
+        var activeTd = null;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            activeTd = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+            while (activeTd && activeTd.tagName !== 'TD' && activeTd.tagName !== 'TH') activeTd = activeTd.parentElement;
+        }
+        var rowIdx = activeTd ? activeTd.parentNode.rowIndex : 0;
+        var insertAt = (dir === 0) ? rowIdx : rowIdx + 1;
+
+        var newRow = table.insertRow(insertAt);
+        var refRow = table.rows[insertAt + 1] || table.rows[insertAt - 1] || null;
+        var numCols = refRow ? refRow.cells.length : 1;
+        for (var c = 0; c < numCols; c++) {
+            var nc = newRow.insertCell();
+            nc.innerHTML = '\u00a0';
+            nc.style.cssText = (refRow && refRow.cells[c]) ? refRow.cells[c].style.cssText : 'border:1px solid #d0d4da;padding:6px 8px;';
+        }
+        this._refreshTableSelection(table);
+    };
+
+    RichTextEditor.prototype._insertTableCol = function (table, dir) {
+        var sel = window.getSelection();
+        var activeTd = null;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            activeTd = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+            while (activeTd && activeTd.tagName !== 'TD' && activeTd.tagName !== 'TH') activeTd = activeTd.parentElement;
+        }
+        var cIdx = activeTd ? activeTd.cellIndex : 0;
+        var insertAt = (dir === 0) ? cIdx : cIdx + 1;
+
+        for (var r = 0; r < table.rows.length; r++) {
+            var nc = table.rows[r].insertCell(insertAt);
+            nc.innerHTML = '\u00a0';
+            var refStyle = table.rows[r].cells[insertAt + 1] || table.rows[r].cells[insertAt - 1];
+            nc.style.cssText = refStyle ? refStyle.style.cssText : 'border:1px solid #d0d4da;padding:6px 8px;';
+        }
+        this._refreshTableSelection(table);
+    };
+
+    RichTextEditor.prototype._deleteTableRow = function (table) {
+        if (table.rows.length <= 1) {
+            Swal.fire({ title: 'Tidak Bisa Hapus', text: 'Tabel harus memiliki minimal 1 baris.', icon: 'warning', confirmButtonText: 'OK' });
+            return;
+        }
+        var sel = window.getSelection();
+        var activeTd = null;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            activeTd = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+            while (activeTd && activeTd.tagName !== 'TD' && activeTd.tagName !== 'TH') activeTd = activeTd.parentElement;
+        }
+        var rowIdx = activeTd ? activeTd.parentNode.rowIndex : table.rows.length - 1;
+        table.deleteRow(rowIdx);
+        this._refreshTableSelection(table);
+    };
+
+    RichTextEditor.prototype._deleteTableCol = function (table) {
+        if (table.rows[0] && table.rows[0].cells.length <= 1) {
+            Swal.fire({ title: 'Tidak Bisa Hapus', text: 'Tabel harus memiliki minimal 1 kolom.', icon: 'warning', confirmButtonText: 'OK' });
+            return;
+        }
+        var sel = window.getSelection();
+        var activeTd = null;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            activeTd = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+            while (activeTd && activeTd.tagName !== 'TD' && activeTd.tagName !== 'TH') activeTd = activeTd.parentElement;
+        }
+        var cIdx = activeTd ? activeTd.cellIndex : table.rows[0].cells.length - 1;
+        for (var r = 0; r < table.rows.length; r++) {
+            table.rows[r].deleteCell(cIdx);
+        }
+        this._refreshTableSelection(table);
+    };
+
+    RichTextEditor.prototype._mergeTableCells = function (table) {
+        var selected = Array.from(table.querySelectorAll('.rte-cell-selected'));
+        if (selected.length <= 1) {
+            Swal.fire({ title: 'Gagal', text: 'Pilih (block) beberapa sel terlebih dahulu menggunakan kursor.', icon: 'warning', confirmButtonText: 'OK' });
+            return;
+        }
+
+        var minRow = Infinity, minCol = Infinity;
+        var maxRow = -1, maxCol = -1;
+        var distinctRows = new Set();
+        var colsInRow = {};
+
+        selected.forEach(function(cell) {
+            var r = cell.parentElement.rowIndex;
+            var c = cell.cellIndex;
+            minRow = Math.min(minRow, r);
+            maxRow = Math.max(maxRow, r);
+            minCol = Math.min(minCol, c);
+            maxCol = Math.max(maxCol, c);
+            
+            distinctRows.add(r);
+            colsInRow[r] = (colsInRow[r] || 0) + (cell.colSpan || 1);
+        });
+
+        var rowSpan = distinctRows.size;
+        var colSpan = Math.max.apply(null, Object.values(colsInRow));
+
+        var topCell = null;
+        selected.forEach(function(cell) {
+            if (cell.parentElement.rowIndex === minRow && cell.cellIndex === minCol) {
+                topCell = cell;
+            }
+        });
+        if (!topCell) topCell = selected[0];
+
+        selected.forEach(function(cell) {
+            if (cell !== topCell) {
+                if (cell.innerHTML.trim() !== '' && cell.innerHTML !== '&nbsp;' && cell.innerHTML !== '<br>') {
+                    topCell.innerHTML += '<br>' + cell.innerHTML;
+                }
+                cell.parentNode.removeChild(cell);
+            }
+        });
+
+        topCell.rowSpan = rowSpan;
+        topCell.colSpan = colSpan;
+        topCell.classList.remove('rte-cell-selected');
+
+        this._clearCellSelection(table);
+        this._refreshTableSelection(table);
+        this._syncSource();
+    };
+
+    RichTextEditor.prototype._splitTableCellHorizontal = function (table) {
+        var td = table.querySelector('.rte-cell-selected');
+        if (!td) {
+            var sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                var node = sel.anchorNode;
+                td = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+                while (td && td.tagName !== 'TD' && td.tagName !== 'TH') td = td.parentElement;
+            }
+        }
+        if (!td) {
+             Swal.fire({ title: 'Info', text: 'Pilih satu sel untuk dipisah secara horizontal.', icon: 'info', confirmButtonText: 'OK' });
+             return;
+        }
+        
+        var row = td.parentElement;
+        var cIdx = td.cellIndex;
+        var colspan = td.colSpan || 1;
+        
+        if (colspan > 1) {
+            td.colSpan = colspan - 1;
+            var nc = row.insertCell(cIdx + 1);
+            nc.innerHTML = '\u00a0';
+            nc.style.cssText = td.style.cssText;
+            nc.colSpan = 1;
+            nc.rowSpan = td.rowSpan;
+        } else {
+            var nc = row.insertCell(cIdx + 1);
+            nc.innerHTML = '\u00a0';
+            nc.style.cssText = td.style.cssText;
+            nc.rowSpan = td.rowSpan;
+        }
+        
+        this._clearCellSelection(table);
+        this._refreshTableSelection(table);
+        this._syncSource();
+    };
+
+    RichTextEditor.prototype._splitTableCellVertical = function (table) {
+        var td = table.querySelector('.rte-cell-selected');
+        if (!td) {
+            var sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                var node = sel.anchorNode;
+                td = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+                while (td && td.tagName !== 'TD' && td.tagName !== 'TH') td = td.parentElement;
+            }
+        }
+        if (!td) {
+             Swal.fire({ title: 'Info', text: 'Pilih satu sel untuk dipisah secara vertikal.', icon: 'info', confirmButtonText: 'OK' });
+             return;
+        }
+        
+        var rowspan = td.rowSpan || 1;
+        if (rowspan > 1) {
+            td.rowSpan = rowspan - 1;
+            var targetRow = td.parentElement.nextElementSibling;
+            if (targetRow) {
+                var safeIndex = Math.min(td.cellIndex, targetRow.cells.length);
+                var nc = targetRow.insertCell(safeIndex);
+                nc.innerHTML = '\u00a0';
+                nc.style.cssText = td.style.cssText;
+                nc.colSpan = td.colSpan;
+            }
+        } else {
+            // Split a normal cell vertically (create a new row just for this cell)
+            var tr = td.parentElement;
+            var targetRow = table.insertRow(tr.rowIndex + 1);
+            var nc = targetRow.insertCell(0);
+            nc.innerHTML = '\u00a0';
+            nc.style.cssText = td.style.cssText;
+            nc.colSpan = td.colSpan;
+            
+            // Adjust rowspan of other cells in the original row to maintain grid
+            for (var i = 0; i < tr.cells.length; i++) {
+                if (tr.cells[i] !== td) {
+                    tr.cells[i].rowSpan = (tr.cells[i].rowSpan || 1) + 1;
+                }
+            }
+        }
+        
+        this._clearCellSelection(table);
+        this._refreshTableSelection(table);
+        this._syncSource();
+    };
+
+    RichTextEditor.prototype._toggleTableHeader = function (table) {
+        var firstRow = table.rows[0];
+        if (!firstRow) return;
+        var isHeader = firstRow.cells[0] && firstRow.cells[0].tagName === 'TH';
+        for (var c = 0; c < firstRow.cells.length; c++) {
+            var cell = firstRow.cells[c];
+            var tag = isHeader ? 'TD' : 'TH';
+            var nc = document.createElement(tag);
+            nc.innerHTML = cell.innerHTML;
+            nc.style.cssText = cell.style.cssText;
+            firstRow.insertBefore(nc, cell);
+            firstRow.removeChild(cell);
+        }
+        this._refreshTableSelection(table);
+    };
+
+    RichTextEditor.prototype._refreshTableSelection = function (table) {
+        if (!table) return;
+        var self = this;
+        // Use double requestAnimationFrame to guarantee browser has reflowed the
+        // table DOM (new rows/cols) BEFORE we measure its bounding box.
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                if (!self.content.contains(table)) return; // table was removed
+                // Force-destroy old overlay so _showTableSelection won't early-return
+                if (self._tableOverlay && self._tableOverlay.parentNode) {
+                    self._tableOverlay.parentNode.removeChild(self._tableOverlay);
+                }
+                self._tableOverlay = null;
+                self._selectedTable = null;
+                // Recreate overlay + toolbar with fresh, post-reflow dimensions
+                self._showTableSelection(table);
+            });
+        });
+    };
+
+    RichTextEditor.prototype._repositionFloatTableToolbar = function (table) {
+        var toolbar = this._floatToolbar;
+        if (!toolbar || !table) return;
+        var tblRect = table.getBoundingClientRect();
+        var spaceAbove = tblRect.top;
+        
+        toolbar.style.position = 'absolute';
+        toolbar.style.left = '50%';
+        toolbar.style.transform = 'translateX(-50%)';
+
+        if (spaceAbove < 60) {
+            toolbar.style.top = '100%';
+            toolbar.style.marginTop = '8px';
+            toolbar.classList.remove('rte-ft-top');
+            toolbar.classList.add('rte-ft-bottom');
+        } else {
+            toolbar.style.top = '-46px';
+            toolbar.style.marginTop = '0px';
+            toolbar.classList.remove('rte-ft-bottom');
+            toolbar.classList.add('rte-ft-top');
+        }
+    };
+
+    // ===================================================================
+    // TABLE COLUMN/RESIZE (per-cell border drag)
+    // ===================================================================
+    RichTextEditor.prototype._initTableResize = function (table) {
+        var self = this;
+        table.style.tableLayout = 'fixed';
+
+        // Observe table changes to update selection
+        if (this._tableResizeObserver) this._tableResizeObserver.disconnect();
+        this._tableResizeObserver = new MutationObserver(function () {
+            self._updateTableOverlayPosition();
+        });
+        this._tableResizeObserver.observe(table, { attributes: true, attributeFilter: ['style', 'width'] });
+    };
+
+    // ===================================================================
+    // COMPREHENSIVE TABLE EDITOR POPUP (context menu)
+    // ===================================================================
     RichTextEditor.prototype._showTableEditorPopup = function (td) {
         var self = this;
         this._closeTablePopup();
@@ -2044,6 +2798,9 @@
             document.removeEventListener('click', this._tablePopupCloseHandler);
             this._tablePopupCloseHandler = null;
         }
+        // NOTE: do NOT call _hideTableSelection() here — the overlay/selection
+        // is a separate layer from the context popup. Closing one should not
+        // automatically close the other.
     };
 
     RichTextEditor.prototype._setColspan = function (td, count) {
@@ -2058,6 +2815,68 @@
             }
         }
         this._syncSource();
+    };
+
+    RichTextEditor.prototype._startCellSelection = function (e, startTd, table) {
+        var self = this;
+        self._clearCellSelection(table);
+        startTd.classList.add('rte-cell-selected');
+
+        var isDragging = true;
+        // Optional: prevent default to avoid text selection during drag, 
+        // but it might break clicking to place caret.
+        // We'll just let native text selection happen alongside, or clear text selection.
+        var sel = window.getSelection();
+        if (sel) sel.removeAllRanges();
+
+        function onMouseMove(me) {
+            if (!isDragging) return;
+            var target = document.elementFromPoint(me.clientX, me.clientY);
+            if (!target) return;
+            var currentTd = target.closest('td, th');
+            if (currentTd && table.contains(currentTd)) {
+                self._updateCellSelection(table, startTd, currentTd);
+            }
+        }
+
+        function onMouseUp(ue) {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    };
+
+    RichTextEditor.prototype._clearCellSelection = function (table) {
+        if (!table) table = this.content;
+        var selected = table.querySelectorAll('.rte-cell-selected');
+        selected.forEach(function(td) { td.classList.remove('rte-cell-selected'); });
+    };
+
+    RichTextEditor.prototype._updateCellSelection = function (table, startTd, endTd) {
+        this._clearCellSelection(table);
+        var startRow = startTd.parentElement.rowIndex;
+        var startCol = startTd.cellIndex;
+        var endRow = endTd.parentElement.rowIndex;
+        var endCol = endTd.cellIndex;
+
+        var minRow = Math.min(startRow, endRow);
+        var maxRow = Math.max(startRow, endRow);
+        var minCol = Math.min(startCol, endCol);
+        var maxCol = Math.max(startCol, endCol);
+
+        for (var r = minRow; r <= maxRow; r++) {
+            var row = table.rows[r];
+            if (!row) continue;
+            for (var c = minCol; c <= maxCol; c++) {
+                var cell = row.cells[c];
+                if (cell) {
+                    cell.classList.add('rte-cell-selected');
+                }
+            }
+        }
     };
 
     // -------- core operations ---------
@@ -2133,11 +2952,68 @@
         this._savedRange = saveSelection(this.content);
     };
 
+    // ---- Custom undo/redo history (step-by-step, one level at a time) ----
+    // Every meaningful content change (typing, table op, formatting) pushes
+    // a snapshot to history. Undo pops one step, redo restores it.
+    RichTextEditor.prototype._historyPush = function (htmlSnapshot) {
+        // Skip during initialization (setHTMLCode from constructor)
+        if (this._initializing) return;
+        // Deduplicate: skip push if snapshot is identical to the last entry
+        var current = this._history[this._historyIndex];
+        if (current === htmlSnapshot) return;
+        // Discard any "future" entries (redo stack) when a new action is taken
+        if (this._historyIndex < this._history.length - 1) {
+            this._history = this._history.slice(0, this._historyIndex + 1);
+        }
+        // Push (append + advance index)
+        this._history.push(htmlSnapshot);
+        this._historyIndex++;
+        // Limit history size by trimming oldest entries
+        while (this._history.length > this._historyMax) {
+            this._history.shift();
+            this._historyIndex--;
+        }
+    };
+
+    RichTextEditor.prototype._historyUndo = function () {
+        if (this._historyIndex <= 0) return;
+        // Hide table selection overlay while restoring old state
+        this._hideTableSelection();
+        this._historyIndex--;
+        var html = this._history[this._historyIndex];
+        this.content.innerHTML = html;
+        // Sync textarea but do NOT push to history (undo is not a new action)
+        if (this._target.tagName === 'TEXTAREA') {
+            this._target.value = this.content.innerHTML;
+        }
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._historyRedo = function () {
+        if (this._historyIndex >= this._history.length - 1) return;
+        // Hide table selection overlay while restoring old state
+        this._hideTableSelection();
+        this._historyIndex++;
+        var html = this._history[this._historyIndex];
+        this.content.innerHTML = html;
+        // Sync textarea but do NOT push to history (redo is not a new action)
+        if (this._target.tagName === 'TEXTAREA') {
+            this._target.value = this.content.innerHTML;
+        }
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._historyCurrent = function () {
+        return this._history[this._historyIndex] || '';
+    };
+
     RichTextEditor.prototype._syncSource = function () {
         // Mirror to underlying textarea if any
         if (this._target.tagName === 'TEXTAREA') {
             this._target.value = this.content.innerHTML;
         }
+        // Push current content to undo history (step-by-step)
+        this._historyPush(this.content.innerHTML);
     };
 
     RichTextEditor.prototype._updateState = function () {
@@ -2178,33 +3054,79 @@
         c.addEventListener('keyup', function () { self._snapshotSelection(); self._updateState(); });
         c.addEventListener('mouseup', function () { self._snapshotSelection(); self._updateState(); });
 
-        // Contextual table popup — show when cursor enters a table cell
-        c.addEventListener('mouseup', function (e) {
-            var sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0) return;
-            var node = sel.anchorNode;
-            if (!node) return;
-            var td = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-            while (td && td.tagName !== 'TD' && td.tagName !== 'TH') td = td.parentElement;
-            if (td && td.tagName === 'TH') td = td; // allow TH to also trigger
-            if (td && td.closest('table')) {
-                self._showTableEditorPopup(td);
-            } else {
+        // ---- INTEGRATED TABLE SELECTION: overlay + ONE unified float toolbar ----
+        // mousedown on table cell → show overlay + float toolbar (single source of truth)
+        c.addEventListener('mousedown', function (e) {
+            var target = e.target;
+            // Ignore clicks on overlay handles and float toolbar
+            if (target.classList && (
+                target.classList.contains('rte-table-move-handle') ||
+                target.classList.contains('rte-table-resize-handle') ||
+                target.closest('.rte-table-float-toolbar')
+            )) return;
+            if (self._isResizingOrMoving) return;
+
+            var table = target.closest ? target.closest('table') : null;
+            if (table && c.contains(table)) {
+                var td = target.closest('td, th');
+                if (td && table.contains(td)) {
+                    self._startCellSelection(e, td, table);
+                }
+
+                self._showTableSelection(table);
+                self._initTableResize(table);
                 self._closeTablePopup();
+            } else {
+                self._clearCellSelection(self._selectedTable);
+                self._hideTableSelection();
             }
         });
 
-        // Contextual image popup — show floating toolbar when image is clicked
+        // Click outside table (anywhere in content) closes selection + popup
         c.addEventListener('click', function (e) {
             var target = e.target;
+            if (target.classList && (
+                target.classList.contains('rte-table-move-handle') ||
+                target.classList.contains('rte-table-resize-handle') ||
+                target.closest('.rte-table-float-toolbar')
+            )) return;
+            if (self._tablePopup && self._tablePopup.contains(target)) return;
+
+            var table = target.closest ? target.closest('table') : null;
+            if (!table || !c.contains(table)) {
+                self._clearCellSelection(self._selectedTable);
+                self._hideTableSelection();
+                self._closeTablePopup();
+            }
             if (target.tagName === 'IMG') {
                 self._showImageEditorPopup(target);
-            } else if (target.tagName !== 'TD') {
+            } else if (target.tagName !== 'TD' && target.tagName !== 'TH') {
                 self._closeImagePopup();
             }
         });
+
+        // Update overlay position on scroll
+        c.addEventListener('scroll', function () {
+            if (self._selectedTable) self._updateTableOverlayPosition();
+        });
         c.addEventListener('blur', function () { self._snapshotSelection(); });
         c.addEventListener('focus', function () { self._updateState(); });
+        
+        // Hide table selection + cell selection when clicking completely outside the editor wrapper
+        document.addEventListener('mousedown', function (e) {
+            // self.wrapper is the outermost RTE container element
+            if (!self.wrapper.contains(e.target)) {
+                // Ignore sweetalert dialogs, image popup, table popup
+                if (e.target.closest && (
+                    e.target.closest('.swal2-container') ||
+                    e.target.closest('.rte-context-popup') ||
+                    e.target.closest('.rte-table-float-toolbar')
+                )) return;
+                self._clearCellSelection(self._selectedTable);
+                self._hideTableSelection();
+                self._closeTablePopup();
+            }
+        });
 
         // Source area syncs back to content on blur
         this.sourceArea.addEventListener('input', function () {
@@ -2251,8 +3173,8 @@
                 else if (k === 'i') { e.preventDefault(); self.exec('italic'); }
                 else if (k === 'u') { e.preventDefault(); self.exec('underline'); }
                 else if (k === 'k') { e.preventDefault(); self._dialogLink(); }
-                else if (k === 'z') { /* native undo */ }
-                else if (k === 'y') { /* native redo */ }
+                else if (k === 'z') { e.preventDefault(); self._historyUndo(); }
+                else if (k === 'y') { e.preventDefault(); self._historyRedo(); }
                 self._snapshotSelection();
                 self._updateState();
             }

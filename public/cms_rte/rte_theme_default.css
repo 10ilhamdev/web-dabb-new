@@ -996,6 +996,301 @@ body.rte-body-fullscreen {
 }
 
 /* =========================================================================
+ * Table Selection Overlay (appears when table is clicked)
+ * ========================================================================= */
+.rte-table-overlay {
+    position: absolute;
+    pointer-events: none;
+    z-index: 50;
+    border: 2px solid #377dff;
+    border-radius: 3px;
+    box-sizing: border-box;
+    overflow: visible !important;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.rte-table-overlay *,
+.rte-table-overlay *::before,
+.rte-table-overlay *::after {
+    box-sizing: border-box;
+}
+
+/* Move handle — top-left corner */
+.rte-table-move-handle {
+    position: absolute;
+    left: -13px;
+    top: -13px;
+    width: 24px;
+    height: 24px;
+    background: #377dff;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(55, 125, 255, 0.4);
+    transition: background 120ms ease, transform 120ms ease;
+}
+
+.rte-table-move-handle:hover {
+    background: #1d6bf3;
+    transform: scale(1.1);
+}
+
+.rte-table-move-handle svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+    color: #fff;
+    pointer-events: none;
+}
+
+/* Resize handles — 8-point resize */
+.rte-table-resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 2px solid #377dff;
+    border-radius: 50%;
+    pointer-events: all;
+    z-index: 3;
+    transition: transform 120ms ease, background 120ms ease;
+}
+
+.rte-table-resize-handle:hover {
+    background: #377dff;
+    transform: scale(1.3);
+}
+
+.rte-table-resize-handle.rte-rsz-nw { top: -5px; left: -5px; cursor: nw-resize; }
+.rte-table-resize-handle.rte-rsz-ne { top: -5px; right: -5px; cursor: ne-resize; }
+.rte-table-resize-handle.rte-rsz-sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+.rte-table-resize-handle.rte-rsz-se { bottom: -5px; right: -5px; cursor: se-resize; }
+.rte-table-resize-handle.rte-rsz-n  { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+.rte-table-resize-handle.rte-rsz-s  { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+.rte-table-resize-handle.rte-rsz-w  { top: 50%; left: -5px; transform: translateY(-50%); cursor: w-resize; }
+.rte-table-resize-handle.rte-rsz-e  { top: 50%; right: -5px; transform: translateY(-50%); cursor: e-resize; }
+
+.rte-table-resize-handle.rte-rsz-n:hover  { transform: translateX(-50%) scale(1.3); }
+.rte-table-resize-handle.rte-rsz-s:hover  { transform: translateX(-50%) scale(1.3); }
+.rte-table-resize-handle.rte-rsz-w:hover  { transform: translateY(-50%) scale(1.3); }
+.rte-table-resize-handle.rte-rsz-e:hover  { transform: translateY(-50%) scale(1.3); }
+
+/* Column / Row resize indicators (vertical/horizontal bars on borders) */
+.rte-col-resize-line,
+.rte-row-resize-line {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+    background: #377dff;
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.rte-col-resize-line {
+    width: 2px;
+    top: 0;
+    bottom: 0;
+    cursor: col-resize;
+    pointer-events: all;
+}
+
+.rte-row-resize-line {
+    height: 2px;
+    left: 0;
+    right: 0;
+    cursor: row-resize;
+    pointer-events: all;
+}
+
+.rte-col-resize-line:hover,
+.rte-row-resize-line:hover,
+.rte-col-resize-line.rte-active,
+.rte-row-resize-line.rte-active {
+    opacity: 1;
+}
+
+.rte-cell-selected {
+    background-color: rgba(169, 204, 255, 0.5) !important;
+}
+
+/* =========================================================================
+ * Table Float Toolbar (appears above selected table)
+ * ========================================================================= */
+.rte-table-float-toolbar {
+    position: fixed;
+    z-index: 99990;
+    background: #fff;
+    border: 1px solid #cfd6df;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    min-width: 240px;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.rte-table-float-toolbar::before {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-right: 1px solid #cfd6df;
+    border-bottom: 1px solid #cfd6df;
+    transform: translateX(-50%) rotate(45deg);
+    z-index: -1;
+}
+
+.rte-table-float-toolbar::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    z-index: -2;
+}
+
+/* Arrow caret pointing down */
+.rte-table-float-toolbar.rte-ft-top::before {
+    bottom: auto;
+    top: -6px;
+    transform: translateX(-50%) rotate(-135deg);
+}
+.rte-table-float-toolbar.rte-ft-top::after {
+    bottom: auto;
+    top: -7px;
+}
+
+.rte-ft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 1px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 120ms ease, border-color 120ms ease;
+    color: #374151;
+}
+
+.rte-ft-btn:hover {
+    background: #f1f3f4;
+    border-color: #d8dbe0;
+}
+
+.rte-ft-btn:active {
+    background: #e8f0fe;
+}
+
+.rte-ft-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.rte-ft-sep {
+    width: 1px;
+    height: 22px;
+    background: #e3e5e9;
+    margin: 0 3px;
+    flex-shrink: 0;
+}
+
+/* Color input (hidden native input inside a button) */
+.rte-ft-color-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Width dropdown */
+.rte-ft-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 1px solid #cfd6df;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    z-index: 99991;
+    min-width: 60px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+.rte-ft-dropitem {
+    display: block;
+    width: 100%;
+    padding: 7px 14px;
+    border: none;
+    background: none;
+    text-align: center;
+    font-size: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #374151;
+    cursor: pointer;
+    transition: background 100ms;
+}
+.rte-ft-dropitem:hover {
+    background: #f1f3f4;
+    color: #1d4ed8;
+}
+
+/* Table selection via column/row headers (hover + click) */
+.rte-col-resize-indicator,
+.rte-row-resize-indicator {
+    position: absolute;
+    background: rgba(55, 125, 255, 0.15);
+    border: 1px solid #377dff;
+    pointer-events: none;
+    z-index: 45;
+    display: none;
+}
+
+.rte-col-resize-indicator {
+    top: 0;
+    bottom: 0;
+}
+
+.rte-row-resize-indicator {
+    left: 0;
+    right: 0;
+}
+
+/* Selected cell highlight */
+.rte-cell-selected {
+    outline: 2px solid #377dff;
+    outline-offset: -2px;
+    background-color: rgba(55, 125, 255, 0.06);
+}
+
+/* =========================================================================
  * Backwards-compatibility shims for old richtexteditor selectors
  * (kept narrow — only what's actually referenced elsewhere in CSS)
  * ========================================================================= */
