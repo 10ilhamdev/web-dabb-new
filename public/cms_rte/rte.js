@@ -941,8 +941,30 @@
                     var f = fileInput.files && fileInput.files[0];
                     if (!f) return false;
                     self._uploadImage(f, function (url) {
-                        var html = '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(altInput.value || '') + '"' + widthAttr(widthInput) + '>';
-                        self._insertHTML(html);
+                        // Use direct DOM insertion to avoid execCommand breaking editor with large base64
+                        self._focusContent();
+                        var savedRange = self._savedRange;
+                        var img = document.createElement('img');
+                        img.src = url;
+                        if (altInput.value) img.alt = altInput.value;
+                        var wv = parseInt(widthInput.value, 10);
+                        if (wv > 0) img.width = wv;
+                        if (savedRange) {
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(savedRange);
+                            var range = sel.getRangeAt(0);
+                            range.deleteContents();
+                            range.insertNode(img);
+                            range.setStartAfter(img);
+                            range.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } else {
+                            self.content.appendChild(img);
+                        }
+                        self._syncSource();
+                        self._updateState();
                     });
                 } else {
                     var urlInput = paneUrl.querySelector('[name=url]');
@@ -957,14 +979,17 @@
         });
     };
 
-    RichTextEditor.prototype._uploadImage = function (file, cb) {
+    RichTextEditor.prototype._uploadImage = function (file, cb, errCb) {
+        var self = this;
+        self.showLoading();
         var handler = this.config.file_upload_handler;
         if (typeof handler === 'function') {
-            handler(file, function (url) { cb(url); });
+            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch(e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
             // Fallback: embed as base64 data URL.
             var reader = new FileReader();
-            reader.onload = function () { cb(reader.result); };
+            reader.onload = function () { self.hideLoading(); try { cb(reader.result); } catch(e) { console.error("Error in upload callback:", e); } };
+            reader.onerror = function(err) { self.hideLoading(); if(errCb) errCb(err); };
             reader.readAsDataURL(file);
         }
     };
@@ -1040,15 +1065,16 @@
         });
     };
 
-    RichTextEditor.prototype._uploadVideo = function (file, cb) {
+    RichTextEditor.prototype._uploadVideo = function (file, cb, errCb) {
+        var self = this;
+        self.showLoading();
         var handler = this.config.file_upload_handler;
         if (typeof handler === 'function') {
-            handler(file, function (url) { cb(url); });
+            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch(e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
-            // Fallback: embed as base64 data URL (for small files)
-            var reader = new FileReader();
-            reader.onload = function () { cb(reader.result); };
-            reader.readAsDataURL(file);
+            self.hideLoading();
+            alert("Video upload not configured.");
+            if (errCb) errCb();
         }
     };
 
@@ -1388,151 +1414,291 @@
     };
 
     // -------- Contextual Popups --------
+    // ---- Image floating toolbar (matches richtexteditor.com) ----
     RichTextEditor.prototype._showImageEditorPopup = function (img) {
         var self = this;
         this._closeImagePopup();
-        
-        // ---- Drag-resize handle (bottom-right corner of image) ----
-        this._attachImageResizeHandle(img);
-        
-        var popup = el('div', { class: 'rte-context-popup rte-image-popup' });
+        this._attachMediaResizeHandle(img);
 
-        var ctrlAlign = el('div', { class: 'rte-popup-row' }, [
-            el('label', { text: 'Align:' }),
-            el('button', { type: 'button', text: 'Left', class: 'rte-btn rte-btn-sm',
-                onclick: function () { img.style.float = ''; img.style.display = 'block'; img.style.marginLeft = ''; img.style.marginRight = 'auto'; self._syncSource(); }
-            }),
-            el('button', { type: 'button', text: 'Center', class: 'rte-btn rte-btn-sm',
-                onclick: function () { img.style.float = ''; img.style.display = 'block'; img.style.marginLeft = 'auto'; img.style.marginRight = 'auto'; self._syncSource(); }
-            }),
-            el('button', { type: 'button', text: 'Right', class: 'rte-btn rte-btn-sm',
-                onclick: function () { img.style.float = ''; img.style.display = 'block'; img.style.marginLeft = 'auto'; img.style.marginRight = '0'; self._syncSource(); }
-            }),
-        ]);
-        var ctrlWidth = el('div', { class: 'rte-popup-row' }, [
-            el('label', { text: 'Width (px):' }),
-            el('input', { type: 'number', value: img.width || img.offsetWidth, min: '10', class: 'rte-popup-input',
-                oninput: function () { img.width = parseInt(this.value, 10) || img.naturalWidth; self._syncSource(); }
-            }),
-        ]);
-        var ctrlBorder = el('div', { class: 'rte-popup-row' }, [
-            el('label', { text: 'Border (px):' }),
-            el('input', { type: 'number', value: parseInt(img.style.borderWidth || '0', 10), min: '0', class: 'rte-popup-input',
-                oninput: function () { img.style.borderWidth = this.value + 'px'; img.style.borderStyle = parseInt(this.value, 10) > 0 ? 'solid' : 'none'; self._syncSource(); }
-            }),
-        ]);
-        var ctrlDelete = el('div', { class: 'rte-popup-row' }, [
-            el('button', { type: 'button', text: '🗑 Hapus Gambar', class: 'rte-btn rte-btn-sm', style: 'color:#dc2626;background:#fef2f2;',
-                onclick: function () {
-                    Swal.fire({
-                        title: 'Hapus Gambar?',
-                        text: 'Tindakan ini tidak dapat dibatalkan.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc2626',
-                        cancelButtonColor: '#6b7280',
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal',
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            self._removeImageResizeHandle();
-                            img.parentNode.removeChild(img);
-                            self._closeImagePopup();
-                            self._syncSource();
-                        }
-                    });
+        var toolbar = el('div', { class: 'rte-img-toolbar' });
+        var activeMenu = null;
+        function closeMenus() { if (activeMenu) { activeMenu.style.display = 'none'; activeMenu = null; } }
+
+        function mkBtn(svgHtml, title, onclick) {
+            var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            b.innerHTML = svgHtml;
+            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            return b;
+        }
+
+        function mkDrop(svgHtml, title, items, onOpen) {
+            var wrap = el('div', { style: 'position:relative;display:inline-block;' });
+            var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+            var menu = el('div', { class: 'rte-img-tb-menu' });
+            items.forEach(function(item) {
+                if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
+                var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                menu.appendChild(mi);
+            });
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = menu.style.display === 'block';
+                closeMenus();
+                if (!open) { menu.style.display = 'block'; activeMenu = menu; if (onOpen) onOpen(menu); }
+            });
+            wrap.appendChild(btn); wrap.appendChild(menu);
+            return wrap;
+        }
+
+        // 1. Set Size
+        var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
+        toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', [
+            { label: 'Set Size\u2026', action: function() {
+                Swal.fire({ title: 'Set Image Size', html:
+                    '<div style="display:flex;gap:8px;justify-content:center">' +
+                    '<label style="font-size:13px">W: <input id="swal-img-w" type="number" value="' + (img.offsetWidth||img.width||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '<label style="font-size:13px">H: <input id="swal-img-h" type="number" value="' + (img.offsetHeight||img.height||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '</div>',
+                    showCancelButton: true, confirmButtonText: 'Apply', cancelButtonText: 'Cancel'
+                }).then(function(r) { if (r.isConfirmed) {
+                    var w = parseInt(document.getElementById('swal-img-w').value, 10);
+                    var h = parseInt(document.getElementById('swal-img-h').value, 10);
+                    if (w > 0) img.style.width = w + 'px';
+                    if (h > 0) img.style.height = h + 'px';
+                    self._syncSource();
+                    setTimeout(function(){self._updatePopupPositions();}, 10);
+                }});
+            }},
+            '-',
+            { label: 'Auto size', action: function() { img.style.width=''; img.style.height=''; img.removeAttribute('width'); img.removeAttribute('height'); self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '100% width', action: function() { img.style.width='100%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '75% width', action: function() { img.style.width='75%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '50% width', action: function() { img.style.width='50%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '25% width', action: function() { img.style.width='25%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+        ]));
+
+        // 2. Caption
+        var ICON_CAPTION = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><line x1="3" y1="21" x2="21" y2="21"/><line x1="7" y1="18" x2="17" y2="18"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_CAPTION, 'Image Caption', function() {
+            var fig = img.closest('figure');
+            var cap = fig ? fig.querySelector('figcaption') : null;
+            if (!fig) {
+                var newFig = document.createElement('figure');
+                newFig.style.cssText = 'display:table; margin:0 auto;';
+                if (img.style.float) { newFig.style.float = img.style.float; img.style.float = ''; }
+                if (img.style.marginLeft) { newFig.style.marginLeft = img.style.marginLeft; img.style.marginLeft = ''; }
+                if (img.style.marginRight) { newFig.style.marginRight = img.style.marginRight; img.style.marginRight = ''; }
+                newFig.draggable = true;
+                img.parentNode.insertBefore(newFig, img);
+                newFig.appendChild(img);
+                cap = document.createElement('figcaption');
+                cap.contentEditable = 'true';
+                cap.style.cssText = 'text-align:center;font-size:0.85em;color:#555;padding:4px 0;display:table-caption;caption-side:bottom;word-break:break-word;';
+                cap.textContent = 'Caption';
+                newFig.appendChild(cap);
+                cap.focus(); var r = document.createRange(); r.selectNodeContents(cap); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+            } else if (!cap) {
+                cap = document.createElement('figcaption');
+                cap.contentEditable = 'true';
+                cap.style.cssText = 'text-align:center;font-size:0.85em;color:#555;padding:4px 0;display:table-caption;caption-side:bottom;word-break:break-word;';
+                cap.textContent = 'Caption';
+                fig.appendChild(cap);
+                cap.focus();
+            } else {
+                cap.parentNode.removeChild(cap);
+                if (fig.childNodes.length === 1 && fig.firstChild === img) {
+                    if (fig.style.float) img.style.float = fig.style.float;
+                    if (fig.style.marginLeft) img.style.marginLeft = fig.style.marginLeft;
+                    if (fig.style.marginRight) img.style.marginRight = fig.style.marginRight;
+                    if (fig.style.display && fig.style.display !== 'table') img.style.display = fig.style.display;
+                    fig.parentNode.insertBefore(img, fig);
+                    fig.parentNode.removeChild(fig);
                 }
-            }),
-        ]);
+            }
+            self._syncSource();
+            setTimeout(function(){self._updatePopupPositions();}, 10);
+        }));
 
-        popup.appendChild(ctrlAlign);
-        popup.appendChild(ctrlWidth);
-        popup.appendChild(ctrlBorder);
-        popup.appendChild(ctrlDelete);
+        // 3. Insert link
+        var ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_LINK, 'Insert Link', function() {
+            var current = img.parentNode && img.parentNode.tagName === 'A' ? img.parentNode.href : '';
+            Swal.fire({ title: 'Link URL', input: 'url', inputValue: current,
+                showCancelButton: true, confirmButtonText: 'Apply', inputPlaceholder: 'https://'
+            }).then(function(r) { if (r.isConfirmed) {
+                var href = r.value.trim();
+                if (img.parentNode && img.parentNode.tagName === 'A') {
+                    if (!href) { var a = img.parentNode; a.parentNode.insertBefore(img, a); a.parentNode.removeChild(a); }
+                    else img.parentNode.href = href;
+                } else if (href) {
+                    var a = document.createElement('a'); a.href = href; a.target = '_blank';
+                    img.parentNode.insertBefore(a, img); a.appendChild(img);
+                }
+                self._syncSource();
+            }});
+        }));
 
-        var rect = img.getBoundingClientRect();
-        popup.style.position = 'fixed';
-        popup.style.left = Math.min(rect.left, window.innerWidth - 240) + 'px';
-        popup.style.top = (rect.bottom + 4) + 'px';
-        document.body.appendChild(popup);
-        this._imagePopup = popup;
+        // 4. Justify
+        var ICON_JUSTIFY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+        function setJustify(float, mL, mR) {
+            var target = img.closest('figure') || img;
+            target.style.float = float;
+            target.style.marginLeft = mL;
+            target.style.marginRight = mR;
+            if (target.tagName === 'FIGURE') {
+                target.style.display = 'table';
+            } else {
+                target.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
+            }
+            self._syncSource();
+            setTimeout(function(){self._updatePopupPositions();}, 10);
+        }
+        toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', [
+            { label: 'Justify Left',   action: function() { setJustify('none', '0', 'auto'); }},
+            { label: 'Justify Center', action: function() { setJustify('none', 'auto', 'auto'); }},
+            { label: 'Justify Right',  action: function() { setJustify('none', 'auto', '0'); }},
+            '-',
+            { label: 'Float Left',  action: function() { setJustify('left', '0', '10px'); }},
+            { label: 'Float Right', action: function() { setJustify('right', '10px', '0'); }},
+        ]));
 
-        setTimeout(function () {
-            document.addEventListener('click', self._imagePopupCloseHandler = function (e) {
-                if (!popup.contains(e.target) && e.target !== img && !e.target.classList.contains('rte-img-resize-handle')) {
+        // 5. Style
+        var ICON_STYLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        var getTarget = function() { return img; };
+        var styleItems = [
+            { label: 'Border',          key: 'border',       get: function() { return getTarget().style.border ? 'active' : ''; },     action: function() { var t = getTarget(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Grayscale',       key: 'grayscale',    get: function() { return img.style.filter === 'grayscale(100%)' ? 'active' : ''; }, action: function() { img.style.filter = img.style.filter === 'grayscale(100%)' ? '' : 'grayscale(100%)'; self._syncSource(); }},
+            { label: 'Shadow',          key: 'shadow',       get: function() { return getTarget().style.boxShadow ? 'active' : ''; },  action: function() { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 8px rgba(0,0,0,0.1)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Margin 10px',     key: 'margin',       get: function() { return getTarget().style.margin ? 'active' : ''; },    action: function() { var t = getTarget(); t.style.margin = t.style.margin ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Padding 10px',    key: 'padding',      get: function() { return getTarget().style.padding ? 'active' : ''; },   action: function() { var t = getTarget(); t.style.padding = t.style.padding ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Rounded Corners', key: 'rounded',      get: function() { return getTarget().style.borderRadius === '8px' ? 'active' : ''; }, action: function() { var t = getTarget(); t.style.borderRadius = t.style.borderRadius === '8px' ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Rounded Image',   key: 'circle',       get: function() { return img.style.borderRadius === '50%' ? 'active' : ''; }, action: function() { img.style.borderRadius = img.style.borderRadius === '50%' ? '' : '50%'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Thumbnail',       key: 'thumb',        get: function() { return (getTarget().style.background === 'rgb(255, 255, 255)' || getTarget().style.background === '#fff') ? 'active' : ''; }, action: function() { var t=getTarget(); if(t.style.background === 'rgb(255, 255, 255)' || t.style.background === '#fff') { t.style.border=''; t.style.padding=''; t.style.background=''; t.style.borderRadius=''; } else { t.style.border='1px solid #ddd'; t.style.padding='4px'; t.style.background='#fff'; t.style.borderRadius='4px'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+        ];
+        toolbar.appendChild(mkDrop(ICON_STYLE, 'Image Style', styleItems, function(menu) {
+            // Refresh active states when menu opens
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+                mi.classList.toggle('rte-img-tb-menuitem-active', styleItems[i] && styleItems[i].get && !!styleItems[i].get());
+            });
+        }));
+
+        // 6. Delete
+        var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Image', function() {
+            self._removeMediaResizeHandle();
+            var fig = img.closest('figure');
+            var target = fig || img;
+            if (target.parentNode) target.parentNode.removeChild(target);
+            self._closeImagePopup();
+            self._syncSource();
+        }));
+
+        // Position toolbar above image
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
+        this._imagePopup = toolbar;
+
+        function positionToolbar() {
+            self._updatePopupPositions();
+        }
+        requestAnimationFrame(positionToolbar);
+
+        setTimeout(function() {
+            document.addEventListener('mousedown', self._imagePopupCloseHandler = function(e) {
+                if (!toolbar.contains(e.target) && e.target !== img &&
+                    !e.target.classList.contains('rte-img-resize-handle') &&
+                    !(e.target.closest && e.target.closest('.swal2-container'))) {
                     self._closeImagePopup();
-                    self._removeImageResizeHandle();
+                    self._removeMediaResizeHandle();
                 }
             });
         }, 0);
     };
 
-    RichTextEditor.prototype._attachImageResizeHandle = function (img) {
+    RichTextEditor.prototype._attachMediaResizeHandle = function (media) {
         var self = this;
-        this._removeImageResizeHandle(); // clean up stale handles
+        this._removeMediaResizeHandle();
 
-        var handle = el('div', { class: 'rte-img-resize-handle' });
-        handle.style.cssText = [
-            'position:absolute',
-            'width:12px',
-            'height:12px',
-            'background:#3b82f6',
-            'border:2px solid #fff',
-            'border-radius:2px',
-            'cursor:se-resize',
-            'z-index:9999',
-            'pointer-events:auto',
-        ].join(';');
+        // Create full border overlay with 8 resize handles
+        var overlay = document.createElement('div');
+        overlay.className = 'rte-img-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.border = '2px solid #3b82f6';
+        overlay.style.zIndex = '9998';
+        overlay.style.boxSizing = 'border-box';
+        document.body.appendChild(overlay);
+        self._mediaResizeHandle = overlay;
+        self._mediaResizeTarget = media;
 
-        function positionHandle() {
-            var rect = img.getBoundingClientRect();
-            var scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-            var scrollY = window.pageYOffset || document.documentElement.scrollTop;
-            handle.style.left = (rect.right + scrollX - 8) + 'px';
-            handle.style.top = (rect.bottom + scrollY - 8) + 'px';
+        function positionOverlay() {
+            if (!self._mediaResizeTarget || !self._mediaResizeHandle) return;
+            var rect = self._mediaResizeTarget.getBoundingClientRect();
+            self._mediaResizeHandle.style.left   = (rect.left - 2) + 'px';
+            self._mediaResizeHandle.style.top    = (rect.top - 2) + 'px';
+            self._mediaResizeHandle.style.width  = (rect.width + 4) + 'px';
+            self._mediaResizeHandle.style.height = (rect.height + 4) + 'px';
+            
+            // Sync popups as well
+            if (self._imagePopup || self._videoPopup) self._updatePopupPositions();
+            
+            self._mediaResizeRaf = requestAnimationFrame(positionOverlay);
         }
+        positionOverlay();
+        self._mediaResizePositioner = positionOverlay;
 
-        document.body.appendChild(handle);
-        positionHandle();
-        self._imgResizeHandle = handle;
-        self._imgResizeTarget = img;
-
-        var startX, startY, startW, startH;
-
-        handle.addEventListener('mousedown', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            startX = e.clientX;
-            startY = e.clientY;
-            startW = img.offsetWidth;
-            startH = img.offsetHeight;
-
-            function onMove(me) {
-                var dw = me.clientX - startX;
-                var newW = Math.max(20, startW + dw);
-                // Keep aspect ratio with shift held, otherwise just width
-                img.style.width = newW + 'px';
-                img.style.height = 'auto';
-                positionHandle();
-            }
-
-            function onUp() {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
-                self._syncSource();
-            }
-
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
+        var dirs = ['nw','n','ne','e','se','s','sw','w'];
+        dirs.forEach(function(dir) {
+            var h = document.createElement('div');
+            h.className = 'rte-img-handle rte-img-handle-' + dir;
+            // Slightly larger and more visible
+            h.style.width = '12px';
+            h.style.height = '12px';
+            h.style.background = '#3b82f6';
+            h.style.border = '2px solid #fff';
+            h.style.boxShadow = '0 0 4px rgba(0,0,0,0.3)';
+            
+            h.addEventListener('mousedown', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                var startX = e.clientX, startY = e.clientY;
+                var startW = media.offsetWidth, startH = media.offsetHeight;
+                function onMove(me) {
+                    var dx = me.clientX - startX, dy = me.clientY - startY;
+                    var nw = startW, nh = startH;
+                    if (dir.indexOf('e') > -1) nw = Math.max(20, startW + dx);
+                    if (dir.indexOf('w') > -1) nw = Math.max(20, startW - dx);
+                    if (dir.indexOf('s') > -1) nh = Math.max(20, startH + dy);
+                    if (dir.indexOf('n') > -1) nh = Math.max(20, startH - dy);
+                    media.style.width = nw + 'px';
+                    if (dir.indexOf('n') > -1 || dir.indexOf('s') > -1) media.style.height = nh + 'px';
+                    self._updatePopupPositions();
+                }
+                function onUp() {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    self._syncSource();
+                }
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+            overlay.appendChild(h);
         });
     };
 
-    RichTextEditor.prototype._removeImageResizeHandle = function () {
-        if (this._imgResizeHandle && this._imgResizeHandle.parentNode) {
-            this._imgResizeHandle.parentNode.removeChild(this._imgResizeHandle);
+    RichTextEditor.prototype._removeMediaResizeHandle = function () {
+        if (this._mediaResizeRaf) {
+            cancelAnimationFrame(this._mediaResizeRaf);
+            this._mediaResizeRaf = null;
         }
-        this._imgResizeHandle = null;
-        this._imgResizeTarget = null;
+        if (this._mediaResizeHandle && this._mediaResizeHandle.parentNode) {
+            this._mediaResizeHandle.parentNode.removeChild(this._mediaResizeHandle);
+        }
+        this._mediaResizeHandle = null;
+        this._mediaResizeTarget = null;
+        this._mediaResizePositioner = null;
     };
 
     RichTextEditor.prototype._closeImagePopup = function () {
@@ -1541,9 +1707,200 @@
             this._imagePopup = null;
         }
         if (this._imagePopupCloseHandler) {
-            document.removeEventListener('click', this._imagePopupCloseHandler);
+            document.removeEventListener('mousedown', this._imagePopupCloseHandler);
             this._imagePopupCloseHandler = null;
         }
+    };
+
+    // ---- Video / Iframe floating toolbar ----
+    RichTextEditor.prototype._showVideoEditorPopup = function (media) {
+        var self = this;
+        this._closeVideoPopup();
+        this._videoTarget = media;
+        this._attachMediaResizeHandle(media);
+
+        var toolbar = el('div', { class: 'rte-img-toolbar' });
+        var activeMenu = null;
+        function closeMenus() { if (activeMenu) { activeMenu.style.display = 'none'; activeMenu = null; } }
+
+        function mkBtn(svgHtml, title, onclick) {
+            var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            b.innerHTML = svgHtml;
+            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            return b;
+        }
+        function mkDrop(svgHtml, title, items, onOpen) {
+            var wrap = el('div', { style: 'position:relative;display:inline-block;' });
+            var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+            var menu = el('div', { class: 'rte-img-tb-menu' });
+            items.forEach(function(item) {
+                if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
+                var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                menu.appendChild(mi);
+            });
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = menu.style.display === 'block';
+                closeMenus();
+                if (!open) { menu.style.display = 'block'; activeMenu = menu; if (onOpen) onOpen(menu); }
+            });
+            wrap.appendChild(btn); wrap.appendChild(menu);
+            return wrap;
+        }
+
+        // 1. Set Size
+        var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
+        toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', [
+            { label: 'Set Size\u2026', action: function() {
+                Swal.fire({ title: 'Set Video Size', html:
+                    '<div style="display:flex;gap:8px;justify-content:center">' +
+                    '<label style="font-size:13px">W: <input id="swal-vid-w" type="number" value="' + (media.offsetWidth||560) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '<label style="font-size:13px">H: <input id="swal-vid-h" type="number" value="' + (media.offsetHeight||315) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '</div>',
+                    showCancelButton: true, confirmButtonText: 'Apply'
+                }).then(function(r) { if (r.isConfirmed) {
+                    var w = parseInt(document.getElementById('swal-vid-w').value,10);
+                    var h = parseInt(document.getElementById('swal-vid-h').value,10);
+                    if (w>0) media.style.width = w+'px';
+                    if (h>0) media.style.height = h+'px';
+                    self._syncSource();
+                    setTimeout(function(){self._updatePopupPositions();}, 10);
+                }});
+            }},
+            '-',
+            { label: 'Auto size',  action: function() { media.style.width=''; media.style.height=''; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '100% width', action: function() { media.style.width='100%'; media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '75% width',  action: function() { media.style.width='75%';  media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '50% width',  action: function() { media.style.width='50%';  media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '25% width',  action: function() { media.style.width='25%';  media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+        ]));
+
+        // 2. Caption
+        var ICON_CAPTION = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><line x1="3" y1="21" x2="21" y2="21"/><line x1="7" y1="18" x2="17" y2="18"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_CAPTION, 'Video Caption', function() {
+            var fig = media.closest('figure');
+            var cap = fig ? fig.querySelector('figcaption') : null;
+            if (!fig) {
+                var newFig = document.createElement('figure');
+                newFig.style.cssText = 'display:table; margin:0 auto;';
+                if (media.style.float) { newFig.style.float = media.style.float; media.style.float = ''; }
+                if (media.style.marginLeft) { newFig.style.marginLeft = media.style.marginLeft; media.style.marginLeft = ''; }
+                if (media.style.marginRight) { newFig.style.marginRight = media.style.marginRight; media.style.marginRight = ''; }
+                newFig.draggable = true;
+                media.parentNode.insertBefore(newFig, media);
+                newFig.appendChild(media);
+                cap = document.createElement('figcaption');
+                cap.contentEditable = 'true';
+                cap.style.cssText = 'text-align:center;font-size:0.85em;color:#555;padding:4px 0;display:table-caption;caption-side:bottom;word-break:break-word;';
+                cap.textContent = 'Caption';
+                newFig.appendChild(cap);
+                cap.focus();
+            } else if (!cap) {
+                cap = document.createElement('figcaption');
+                cap.contentEditable = 'true';
+                cap.style.cssText = 'text-align:center;font-size:0.85em;color:#555;padding:4px 0;display:table-caption;caption-side:bottom;word-break:break-word;';
+                cap.textContent = 'Caption';
+                fig.appendChild(cap);
+                cap.focus();
+            } else {
+                cap.parentNode.removeChild(cap);
+                if (fig.childNodes.length === 1 && fig.firstChild === media) {
+                    if (fig.style.float) media.style.float = fig.style.float;
+                    if (fig.style.marginLeft) media.style.marginLeft = fig.style.marginLeft;
+                    if (fig.style.marginRight) media.style.marginRight = fig.style.marginRight;
+                    if (fig.style.display && fig.style.display !== 'table') media.style.display = fig.style.display;
+                    fig.parentNode.insertBefore(media, fig);
+                    fig.parentNode.removeChild(fig);
+                }
+            }
+            self._syncSource();
+            setTimeout(function(){self._updatePopupPositions();}, 10);
+        }));
+
+        // 3. Justify
+        var ICON_JUSTIFY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+        function setVJustify(float, mL, mR) {
+            var wrap = media.closest('figure') || media;
+            wrap.style.float = float;
+            wrap.style.marginLeft = mL;
+            wrap.style.marginRight = mR;
+            if (wrap.tagName === 'FIGURE') {
+                wrap.style.display = 'table';
+            } else {
+                wrap.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
+            }
+            self._syncSource();
+            setTimeout(function(){self._updatePopupPositions();}, 10);
+        }
+        toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', [
+            { label: 'Justify Left',   action: function() { setVJustify('none', '0', 'auto'); }},
+            { label: 'Justify Center', action: function() { setVJustify('none', 'auto', 'auto'); }},
+            { label: 'Justify Right',  action: function() { setVJustify('none', 'auto', '0'); }},
+            '-',
+            { label: 'Float Left',  action: function() { setVJustify('left', '0', '10px'); }},
+            { label: 'Float Right', action: function() { setVJustify('right', '10px', '0'); }},
+        ]));
+
+        // 4. Style
+        var ICON_STYLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        var getTarget = function() { return media; };
+        var vStyleItems = [
+            { label: 'Border', action: function() { var t = getTarget(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Shadow', action: function() { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 12px rgba(0,0,0,0.3)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Rounded', action: function() { var t = getTarget(); t.style.borderRadius = t.style.borderRadius ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+        ];
+        toolbar.appendChild(mkDrop(ICON_STYLE, 'Video Style', vStyleItems, function(menu) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+                var item = vStyleItems[i];
+                var t = getTarget();
+                if (item && item.label === 'Border') mi.classList.toggle('rte-img-tb-menuitem-active', !!t.style.border);
+                if (item && item.label === 'Shadow') mi.classList.toggle('rte-img-tb-menuitem-active', !!t.style.boxShadow);
+                if (item && item.label === 'Rounded') mi.classList.toggle('rte-img-tb-menuitem-active', !!t.style.borderRadius);
+            });
+        }));
+
+        // 5. Delete
+        var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Video', function() {
+            self._removeMediaResizeHandle();
+            var wrap = media.closest('figure') || media;
+            if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+            self._closeVideoPopup();
+            self._syncSource();
+        }));
+
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
+        this._videoPopup = toolbar;
+
+        function positionToolbar() {
+            self._updatePopupPositions();
+        }
+        requestAnimationFrame(positionToolbar);
+
+        setTimeout(function() {
+            document.addEventListener('mousedown', self._videoPopupCloseHandler = function(e) {
+                if (!toolbar.contains(e.target) && e.target !== media &&
+                    !(e.target.closest && e.target.closest('.swal2-container'))) {
+                    self._closeVideoPopup();
+                }
+            });
+        }, 0);
+    };
+
+    RichTextEditor.prototype._closeVideoPopup = function () {
+        if (this._videoPopup) {
+            if (this._videoPopup.parentNode) this._videoPopup.parentNode.removeChild(this._videoPopup);
+            this._videoPopup = null;
+        }
+        if (this._videoPopupCloseHandler) {
+            document.removeEventListener('mousedown', this._videoPopupCloseHandler);
+            this._videoPopupCloseHandler = null;
+        }
+        this._videoTarget = null;
     };
 
     // -------- Line Height --------
@@ -1748,14 +2105,16 @@
         return icons[ext] || '📎';
     };
 
-    RichTextEditor.prototype._uploadFile = function (file, cb) {
+    RichTextEditor.prototype._uploadFile = function (file, cb, errCb) {
+        var self = this;
+        self.showLoading();
         var handler = this.config.file_upload_handler;
         if (typeof handler === 'function') {
-            handler(file, function (url) { cb(url); });
+            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch(e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
-            var reader = new FileReader();
-            reader.onload = function () { cb(reader.result); };
-            reader.readAsDataURL(file);
+            self.hideLoading();
+            alert("File upload not configured.");
+            if (errCb) errCb();
         }
     };
 
@@ -1775,14 +2134,15 @@
         if (!table || !this.content.contains(table)) return;
 
         // Create overlay wrapper (positioned relative to editor content)
-        var editorRect = this.content.getBoundingClientRect();
+        var cWrap = this.content.parentElement;
+        var wrapRect = cWrap.getBoundingClientRect();
         var tblRect = table.getBoundingClientRect();
 
         var overlay = el('div', {
             class: 'rte-table-overlay',
             style: [
-                'left:' + (tblRect.left - editorRect.left + this.content.scrollLeft) + 'px',
-                'top:' + (tblRect.top - editorRect.top + this.content.scrollTop) + 'px',
+                'left:' + (tblRect.left - wrapRect.left + cWrap.scrollLeft) + 'px',
+                'top:' + (tblRect.top - wrapRect.top + cWrap.scrollTop) + 'px',
                 'width:' + tblRect.width + 'px',
                 'height:' + tblRect.height + 'px',
                 'pointer-events:none',  // let clicks pass through to content below
@@ -1805,8 +2165,7 @@
         });
 
         // Append into content area so it scrolls with content
-        this.content.style.position = 'relative';
-        this.content.appendChild(overlay);
+        this.content.parentElement.appendChild(overlay);
         this._tableOverlay = overlay;
         this._selectedTable = table;
 
@@ -1923,12 +2282,34 @@
         var overlay = this._tableOverlay;
         var table = this._selectedTable;
         if (!overlay || !table) return;
-        var editorRect = this.content.getBoundingClientRect();
+        var cWrap = this.content.parentElement;
+        var wrapRect = cWrap.getBoundingClientRect();
         var tblRect = table.getBoundingClientRect();
-        overlay.style.left = (tblRect.left - editorRect.left + this.content.scrollLeft) + 'px';
-        overlay.style.top = (tblRect.top - editorRect.top + this.content.scrollTop) + 'px';
+        overlay.style.left = (tblRect.left - wrapRect.left + cWrap.scrollLeft) + 'px';
+        overlay.style.top = (tblRect.top - wrapRect.top + cWrap.scrollTop) + 'px';
         overlay.style.width = tblRect.width + 'px';
         overlay.style.height = tblRect.height + 'px';
+    };
+
+    RichTextEditor.prototype._updatePopupPositions = function() {
+        if (this._imagePopup && this._mediaResizeTarget) {
+            var rect = this._mediaResizeTarget.getBoundingClientRect();
+            var tbW = this._imagePopup.offsetWidth || 240;
+            var left = Math.min(Math.max(rect.left + rect.width/2 - tbW/2, 4), window.innerWidth - tbW - 4);
+            var top = rect.top - 44;
+            if (top < 4) top = rect.bottom + 4;
+            this._imagePopup.style.left = left + 'px';
+            this._imagePopup.style.top = top + 'px';
+        }
+        if (this._videoPopup && this._mediaResizeTarget) {
+            var rectV = this._mediaResizeTarget.getBoundingClientRect();
+            var tbWV = this._videoPopup.offsetWidth || 180;
+            var leftV = Math.min(Math.max(rectV.left + rectV.width/2 - tbWV/2, 4), window.innerWidth - tbWV - 4);
+            var topV = rectV.top - 44;
+            if (topV < 4) topV = rectV.bottom + 4;
+            this._videoPopup.style.left = leftV + 'px';
+            this._videoPopup.style.top = topV + 'px';
+        }
     };
 
     // ===================================================================
@@ -2040,8 +2421,8 @@
             { label: 'Split Cells Vertical', icon: ICON.splitCell, action: function() { self._splitTableCellVertical(tbl); } },
             { label: 'Split Cells Horizontal', icon: ICON.splitCell, action: function() { self._splitTableCellHorizontal(tbl); } },
             'sep',
-            { kind: 'color', label: 'Cell Text Color', icon: ICON.textcolor, getValue: function() { var td = getSelTd(); return td ? td.style.color || '#000000' : '#000000'; }, action: function(val) { var td = getSelTd(); if(td) { td.style.color = val; self._syncSource(); } } },
-            { kind: 'color', label: 'Cell Back Color', icon: ICON.paint, getValue: function() { var td = getSelTd(); return td ? td.style.backgroundColor || '#ffffff' : '#ffffff'; }, action: function(val) { var td = getSelTd(); if(td) { td.style.backgroundColor = val; self._syncSource(); } } }
+            { kind: 'color', label: 'Cell Text Color', icon: ICON.textcolor, getValue: function() { var td = getSelTd(); return td ? td.style.color || '#000000' : '#000000'; }, action: function(val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function(c) { c.style.color = val; }); } else { var td = getSelTd(); if(td) td.style.color = val; } self._syncSource(); } },
+            { kind: 'color', label: 'Cell Back Color', icon: ICON.paint, getValue: function() { var td = getSelTd(); return td ? td.style.backgroundColor || '#ffffff' : '#ffffff'; }, action: function(val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function(c) { c.style.backgroundColor = val; }); } else { var td = getSelTd(); if(td) td.style.backgroundColor = val; } self._syncSource(); } }
         ]));
 
         // 3. Table Row
@@ -2901,11 +3282,33 @@
             this.content.style.display = '';
             this.wrapper.classList.remove('rte-source-mode');
         } else {
-            this.sourceArea.value = this.content.innerHTML;
-            this.sourceArea.style.display = '';
+            // Switch to source
+            this._syncSource();
             this.content.style.display = 'none';
+            this.sourceArea.style.display = '';
             this.wrapper.classList.add('rte-source-mode');
         }
+    };
+
+    RichTextEditor.prototype.showLoading = function() {
+        if (this._loadingOverlay) return;
+        this._loadingOverlay = document.createElement('div');
+        this._loadingOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;';
+        this._loadingOverlay.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;"><div style="width:30px;height:30px;border:3px solid #f3f3f3;border-top:3px solid #3b82f6;border-radius:50%;animation:rte-spin 1s linear infinite;"></div><span style="font-family:sans-serif;font-size:14px;color:#333;">Uploading...</span></div>';
+        if (!document.getElementById('rte-loading-style')) {
+            var style = document.createElement('style');
+            style.id = 'rte-loading-style';
+            style.innerHTML = '@keyframes rte-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+        }
+        this.wrapper.appendChild(this._loadingOverlay);
+    };
+
+    RichTextEditor.prototype.hideLoading = function() {
+        if (this._loadingOverlay && this._loadingOverlay.parentNode) {
+            this._loadingOverlay.parentNode.removeChild(this._loadingOverlay);
+        }
+        this._loadingOverlay = null;
     };
 
     RichTextEditor.prototype._toggleFullscreen = function () {
@@ -3100,14 +3503,64 @@
             }
             if (target.tagName === 'IMG') {
                 self._showImageEditorPopup(target);
+            } else if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') {
+                target.draggable = true; // ensure it can be dragged
+                self._showVideoEditorPopup(target);
             } else if (target.tagName !== 'TD' && target.tagName !== 'TH') {
                 self._closeImagePopup();
+                self._closeVideoPopup();
+                self._removeMediaResizeHandle();
             }
         });
 
+        // Hide popups and handle realtime reflow when dragging media natively
+        var draggingInternalMedia = false;
+        var draggedNode = null;
+        var dragEmptyImg = new Image();
+        dragEmptyImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+        c.addEventListener('dragstart', function (e) {
+            if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'IFRAME') {
+                draggingInternalMedia = true;
+                draggedNode = e.target.closest('figure') || e.target;
+                if (e.dataTransfer && e.dataTransfer.setDragImage) {
+                    e.dataTransfer.setDragImage(dragEmptyImg, 0, 0);
+                }
+                self._closeImagePopup();
+                self._closeVideoPopup();
+                self._removeMediaResizeHandle();
+            }
+        });
+        c.addEventListener('dragover', function (e) {
+            if (draggingInternalMedia && draggedNode) {
+                e.preventDefault(); // Allow drop
+                var range = (document.caretRangeFromPoint || document.caretPositionFromPoint)
+                    ? (document.caretRangeFromPoint
+                        ? document.caretRangeFromPoint(e.clientX, e.clientY)
+                        : null)
+                    : null;
+                if (range && c.contains(range.startContainer) && !draggedNode.contains(range.startContainer)) {
+                    range.insertNode(draggedNode);
+                }
+            }
+        });
+        c.addEventListener('dragend', function (e) {
+            draggingInternalMedia = false;
+            draggedNode = null;
+        });
+
         // Update overlay position on scroll
-        c.addEventListener('scroll', function () {
+        c.parentElement.addEventListener('scroll', function () {
             if (self._selectedTable) self._updateTableOverlayPosition();
+            self._updatePopupPositions();
+        });
+        window.addEventListener('scroll', function () {
+            if (self._selectedTable) self._updateTableOverlayPosition();
+            self._updatePopupPositions();
+        });
+        window.addEventListener('resize', function () {
+            if (self._selectedTable) self._updateTableOverlayPosition();
+            self._updatePopupPositions();
         });
         c.addEventListener('blur', function () { self._snapshotSelection(); });
         c.addEventListener('focus', function () { self._updateState(); });
@@ -3149,6 +3602,12 @@
 
         // Drag-and-drop image upload
         c.addEventListener('drop', function (e) {
+            if (draggingInternalMedia) {
+                draggingInternalMedia = false;
+                draggedNode = null;
+                e.preventDefault(); // Node already moved in dragover
+                return;
+            }
             if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
             var f = e.dataTransfer.files[0];
             if (!/^image\//.test(f.type)) return;

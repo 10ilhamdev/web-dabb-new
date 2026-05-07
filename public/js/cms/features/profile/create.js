@@ -1205,7 +1205,7 @@
                 editor1 = new RichTextEditor("#div_editor1", {
                     base_url: rteBaseUrl,
                     editorBodyCssClass: "rte-content-body",
-                    file_upload_handler: function (file, callback) {
+                    file_upload_handler: function (file, callback, errorCallback) {
                         var formData = new FormData();
                         formData.append("file", file);
                         formData.append("_token", window.csrfToken || "");
@@ -1219,6 +1219,7 @@
                             .catch(function (err) {
                                 console.error(err);
                                 alert("Upload gagal.");
+                                if (errorCallback) errorCallback(err);
                             });
                     },
                 });

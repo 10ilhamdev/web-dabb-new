@@ -70,7 +70,7 @@
                 ['clean'],
             ],
             editorBodyCssClass: 'rte-content-body',
-            file_upload_handler: function(file, callback, optionalIndex, optionalFiles) {
+            file_upload_handler: function(file, callback, errorCallback) {
                 var formData = new FormData();
                 formData.append('file', file);
 
@@ -94,6 +94,7 @@
                 .catch(error => {
                     console.error('Error saat upload:', error);
                     alert('Gagal mengunggah file.');
+                    if (errorCallback) errorCallback(error);
                 });
             }
         });
