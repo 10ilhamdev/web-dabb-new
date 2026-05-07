@@ -27,7 +27,7 @@
 <div class="feature-content" style="padding-bottom: 5rem;">
     <div class="container">
 
-        <div style="background: #fff; border-radius: 12px; display: flex; gap: 10px; max-width: 1000px;">
+        <div style="background: #fff; border-radius: 12px; display: flex; gap: 10px; width: 100%;">
 
             <div style="flex-shrink: 0; padding-top: 5px;">
                 <svg fill="none" stroke="#3598db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" width="32" height="32">
@@ -37,15 +37,15 @@
                 </svg>
             </div>
 
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 0;">
                 <h2 style="font-size: 1.5rem; font-weight: 700; color: #222; margin: 5px 0 1rem;">{{ $title }}</h2>
 
                 <div style="font-size: 0.95rem; color: #555; line-height: 1.8;">
                     <style>
                         /* Penyesuaian agar align (rata kiri/tengah/kanan) dari editor terbaca di website */
                         .rte-content img {
-                            display: inline-block !important;
-                            max-width: 100% !important;
+                            display: inline-block;
+                            max-width: 100%;
                             height: auto;
                         }
                         .rte-content p {

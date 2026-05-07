@@ -1632,6 +1632,7 @@
             var clickInterceptor = document.createElement('div');
             clickInterceptor.className = 'rte-iframe-click-interceptor';
             clickInterceptor.style.cssText = 'position:absolute;inset:0;z-index:9997;cursor:pointer;background:transparent;';
+            clickInterceptor.draggable = true;
             var mediaParent = media.parentNode;
             if (mediaParent && getComputedStyle(mediaParent).position === 'static') {
                 mediaParent.style.position = 'relative';
@@ -1655,6 +1656,71 @@
         document.body.appendChild(overlay);
         self._mediaResizeHandle = overlay;
         self._mediaResizeTarget = media;
+
+        // ---- Move Handle for Media ----
+        var moveHandle = document.createElement('div');
+        moveHandle.className = 'rte-media-move-handle';
+        moveHandle.title = 'Drag to move';
+        moveHandle.style.cssText = 'position:absolute;top:0;left:0;width:24px;height:24px;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;cursor:move;pointer-events:auto;z-index:10;';
+        moveHandle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="19 9 22 12 19 15"></polyline><polyline points="9 19 12 22 15 19"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>';
+        
+        var isMediaDragging = false, dragOffX = 0, dragOffY = 0, mediaOrigLeft = 0, mediaOrigTop = 0;
+        
+        function onMediaDragStart(e) {
+            e.preventDefault(); e.stopPropagation();
+            isMediaDragging = true;
+            self._isResizingOrMoving = true;
+            
+            var cx = e.touches ? e.touches[0].clientX : e.clientX;
+            var cy = e.touches ? e.touches[0].clientY : e.clientY;
+            var targetNode = media.closest('figure') || media;
+            
+            if (targetNode.style.position === 'absolute') {
+                mediaOrigLeft = parseFloat(targetNode.style.left) || targetNode.offsetLeft || 0;
+                mediaOrigTop = parseFloat(targetNode.style.top) || targetNode.offsetTop || 0;
+            } else {
+                mediaOrigLeft = parseFloat(targetNode.style.marginLeft) || 0;
+                mediaOrigTop = parseFloat(targetNode.style.marginTop) || 0;
+            }
+            dragOffX = cx;
+            dragOffY = cy;
+
+            document.addEventListener('mousemove', onMediaDragMove);
+            document.addEventListener('mouseup', onMediaDragEnd);
+            document.addEventListener('touchmove', onMediaDragMove, { passive: false });
+            document.addEventListener('touchend', onMediaDragEnd);
+        }
+        
+        function onMediaDragMove(e) {
+            if (!isMediaDragging) return;
+            e.preventDefault();
+            var cx = e.touches ? e.touches[0].clientX : e.clientX;
+            var cy = e.touches ? e.touches[0].clientY : e.clientY;
+            var targetNode = media.closest('figure') || media;
+            
+            if (targetNode.style.position === 'absolute') {
+                targetNode.style.left = (mediaOrigLeft + cx - dragOffX) + 'px';
+                targetNode.style.top = (mediaOrigTop + cy - dragOffY) + 'px';
+            } else {
+                targetNode.style.marginLeft = (mediaOrigLeft + cx - dragOffX) + 'px';
+                targetNode.style.marginTop = (mediaOrigTop + cy - dragOffY) + 'px';
+            }
+            if (self._mediaResizePositioner) self._mediaResizePositioner();
+        }
+        
+        function onMediaDragEnd() {
+            isMediaDragging = false;
+            self._isResizingOrMoving = false;
+            document.removeEventListener('mousemove', onMediaDragMove);
+            document.removeEventListener('mouseup', onMediaDragEnd);
+            document.removeEventListener('touchmove', onMediaDragMove);
+            document.removeEventListener('touchend', onMediaDragEnd);
+            self._syncSource();
+        }
+        
+        moveHandle.addEventListener('mousedown', onMediaDragStart);
+        moveHandle.addEventListener('touchstart', onMediaDragStart, { passive: false });
+        overlay.appendChild(moveHandle);
 
         function positionOverlay() {
             if (!self._mediaResizeTarget || !self._mediaResizeHandle) return;
@@ -3569,16 +3635,25 @@
         var dragOffsetY = 0;
 
         c.addEventListener('dragstart', function (e) {
-            if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'IFRAME') {
+            var isInterceptor = e.target.classList && e.target.classList.contains('rte-iframe-click-interceptor');
+            if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'IFRAME' || isInterceptor) {
                 draggingInternalMedia = true;
-                draggedNode = e.target.closest('figure') || e.target;
+                
+                var targetMedia = e.target;
+                if (isInterceptor) {
+                    targetMedia = e.target.parentNode.querySelector('video, iframe') || e.target.parentNode;
+                }
+                draggedNode = targetMedia.closest('figure') || targetMedia;
                 
                 var rect = draggedNode.getBoundingClientRect();
                 dragOffsetX = e.clientX - rect.left;
                 dragOffsetY = e.clientY - rect.top;
                 
-                if (e.dataTransfer && e.dataTransfer.setDragImage) {
-                    e.dataTransfer.setDragImage(dragEmptyImg, 0, 0);
+                if (e.dataTransfer) {
+                    e.dataTransfer.setData('text/plain', ''); // Required by Firefox and sometimes Chrome to actually start drag
+                    if (e.dataTransfer.setDragImage) {
+                        e.dataTransfer.setDragImage(dragEmptyImg, 0, 0);
+                    }
                 }
 
                 draggedNode.dataset.oldOpacity = draggedNode.style.opacity || '';
@@ -3586,7 +3661,10 @@
 
                 self._closeImagePopup();
                 self._closeVideoPopup();
-                self._removeMediaResizeHandle();
+                
+                if (self._mediaResizeHandle) {
+                    self._mediaResizeHandle.style.display = 'none';
+                }
             }
         });
         
@@ -3651,6 +3729,12 @@
             }
             draggingInternalMedia = false;
             draggedNode = null;
+            
+            if (self._mediaResizeHandle) {
+                self._mediaResizeHandle.style.display = '';
+            }
+            self._removeMediaResizeHandle();
+            
             self._syncSource();
         });
 
