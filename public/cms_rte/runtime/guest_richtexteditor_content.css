@@ -1,101 +1,133 @@
-/* RTE guest page CSS — SCOPED to prevent overriding global website styles
-   For public/guest pages (.profile-section-desc, .vsshow-hero-subtitle, etc.)
-   All rules are SCOPED within their containers to avoid global CSS contamination
-*/
+/*
+ * guest_richtexteditor_content.css
+ * Loaded AFTER rte_theme_default.css in guest layout.
+ * Purpose:
+ *   1. Hide all editor UI chrome (toolbars, modals, status bar, overlays)
+ *   2. Adapt .rte-content / .rte-content-body styles for guest page context
+ *   3. Override scoped rules for legacy .profile-section-desc / .vsshow-hero-subtitle containers
+ */
 
-/* ===== Typography — SCOPED ===== */
+/* ── 1. Hide all editor chrome elements (not needed on guest pages) ── */
+.rte-toolbar,
+.rte-statusbar,
+.rte-drag-handle-wrap,
+.rte-table-float-toolbar,
+.rte-img-toolbar,
+.rte-img-overlay,
+.rte-table-overlay,
+.rte-modal-backdrop,
+.rte-context-popup,
+.rte-find-bar,
+.rte-iframe-click-interceptor,
+.richtexteditor .rte-source {
+    display: none !important;
+}
+
+/* ── 2. Reset editor container on guest pages ── */
+.richtexteditor {
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+}
+
+.rte-content-wrap {
+    overflow: visible !important;
+    min-height: 0 !important;
+}
+
+/* ── 3. rte-content-body / rte-content guest adaptations ── */
+.rte-content,
+.rte-content-body {
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    overflow-x: hidden;
+    word-wrap: break-word;
+}
+
+/* Iframes and videos: restore pointer-events for guest (editor disables them) */
+.rte-content iframe,
+.rte-content video,
+.rte-content-body iframe,
+.rte-content-body video,
+.profile-section-desc iframe,
+.profile-section-desc video,
+.vsshow-hero-subtitle iframe,
+.vsshow-hero-subtitle video {
+    pointer-events: auto !important;
+    max-width: 100%;
+}
+
+/* ── 4. Table styling matching editor (dark th header) ── */
+.rte-content table th,
+.rte-content-body table th,
+.profile-section-desc table th,
+.vsshow-hero-subtitle table th {
+    background: #1e1e1e !important;
+    color: #fff !important;
+    font-weight: 700;
+    text-align: center;
+}
+
+.rte-content table td,
+.rte-content-body table td,
+.profile-section-desc table td,
+.vsshow-hero-subtitle table td {
+    border: 1px solid #d0d4da;
+    padding: 6px 8px;
+    vertical-align: top;
+    word-wrap: break-word;
+}
+
+/* ── 5. Figure & Figcaption ── */
+.rte-content figure,
+.rte-content-body figure,
+.profile-section-desc figure,
+.vsshow-hero-subtitle figure {
+    display: inline-table;
+    margin: 0.5em 4px;
+    vertical-align: top;
+}
+
+.rte-content figcaption,
+.rte-content-body figcaption,
+.profile-section-desc figcaption,
+.vsshow-hero-subtitle figcaption {
+    text-align: center;
+    font-size: 0.85em;
+    color: #555;
+    padding: 4px 0;
+    display: table-caption;
+    caption-side: bottom;
+    word-break: break-word;
+}
+
+/* ── 6. Image defaults ── */
+.rte-content img,
+.rte-content-body img,
+.profile-section-desc img,
+.vsshow-hero-subtitle img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 2px;
+    vertical-align: top;
+}
+
+/* ── 7. Legacy scoped container resets ── */
 .profile-section-desc,
 .vsshow-hero-subtitle {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif;
     font-size: 14px;
     line-height: 1.6;
-    color: #414141;
-}
-
-.profile-section-desc p,
-.vsshow-hero-subtitle p,
-.profile-section-desc div,
-.vsshow-hero-subtitle div {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #414141;
-    text-align: left;
-}
-
-.profile-section-desc strong, .vsshow-hero-subtitle strong,
-.profile-section-desc b, .vsshow-hero-subtitle b { font-weight: bold; }
-.profile-section-desc em, .vsshow-hero-subtitle em,
-.profile-section-desc i, .vsshow-hero-subtitle i { font-style: italic; }
-.profile-section-desc u, .vsshow-hero-subtitle u { text-decoration: underline; }
-.profile-section-desc s, .vsshow-hero-subtitle s { text-decoration: line-through; }
-
-.profile-section-desc code, .vsshow-hero-subtitle code {
-    font-family: Consolas, "Courier New", Courier, monospace;
-    background-color: #f5f5f5;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-size: 0.9em;
-}
-
-/* ===== Tables — SCOPED ===== */
-.profile-section-desc table, .vsshow-hero-subtitle table {
-    border-spacing: 0;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.profile-section-desc table td, .vsshow-hero-subtitle table td,
-.profile-section-desc table th, .vsshow-hero-subtitle table th {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    background-color: #ffffff;
-}
-
-.profile-section-desc thead, .vsshow-hero-subtitle thead { background-color: #eee; }
-.profile-section-desc thead td, .vsshow-hero-subtitle thead td,
-.profile-section-desc thead th, .vsshow-hero-subtitle thead th {
-    background-color: #eee;
-    font-weight: bold;
-}
-
-/* ===== Headings — SCOPED ===== */
-.profile-section-desc h1, .vsshow-hero-subtitle h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
-.profile-section-desc h2, .vsshow-hero-subtitle h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
-.profile-section-desc h3, .vsshow-hero-subtitle h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
-.profile-section-desc h4, .vsshow-hero-subtitle h4 { font-size: 1em; font-weight: bold; margin: 1.33em 0; }
-.profile-section-desc h5, .vsshow-hero-subtitle h5 { font-size: 0.83em; font-weight: bold; margin: 1.67em 0; }
-.profile-section-desc h6, .vsshow-hero-subtitle h6 { font-size: 0.67em; font-weight: bold; margin: 2.33em 0; }
-
-/* ===== Paragraphs & Lists — SCOPED ===== */
-.profile-section-desc p, .vsshow-hero-subtitle p { margin-bottom: 1rem; }
-.profile-section-desc ul, .vsshow-hero-subtitle ul { margin: 1em 0; padding-left: 1.5rem; list-style-type: disc; }
-.profile-section-desc ol, .vsshow-hero-subtitle ol { margin: 1em 0; padding-left: 1.5rem; list-style-type: decimal; }
-.profile-section-desc li, .vsshow-hero-subtitle li { margin: 0.25em 0; }
-
-/* ===== Blockquote — SCOPED ===== */
-.profile-section-desc blockquote, .vsshow-hero-subtitle blockquote {
-    border-left: 3px solid #ddd;
-    padding: 5px 0 5px 10px;
-    margin: 15px 0 15px 15px;
-}
-
-/* ===== Links — SCOPED ===== */
-.profile-section-desc a, .vsshow-hero-subtitle a { color: #377dff; text-decoration: none; }
-
-/* ===== Custom RTE Classes — SCOPED ===== */
-.profile-section-desc .my-cls-mark, .vsshow-hero-subtitle .my-cls-mark { background-color: yellow; font-weight: bold; }
-.profile-section-desc .my-cls-warning, .vsshow-hero-subtitle .my-cls-warning { background-color: orange; color: white; font-weight: bold; }
-.profile-section-desc .my-cls-quote, .vsshow-hero-subtitle .my-cls-quote { margin: 10px; padding-left: 10px; border-left: dashed 1px red; font-style: italic; }
-.profile-section-desc .my-cls-largecenter, .vsshow-hero-subtitle .my-cls-largecenter { font-size: 1.5em; font-weight: bold; text-align: center; margin: 10px; }
-
-.profile-section-desc img, .vsshow-hero-subtitle img { max-width: 100%; height: auto; }
-.profile-section-desc pre, .vsshow-hero-subtitle pre {
-    background: #f4f4f4;
-    border-left: 4px solid #174E93;
-    padding: 12px 16px;
-    font-family: Consolas, monospace;
-    font-size: 13px;
-    white-space: pre-wrap;
+    color: #222;
+    position: relative;
+    overflow-x: hidden;
+    word-wrap: break-word;
 }

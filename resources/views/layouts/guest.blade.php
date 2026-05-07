@@ -13,7 +13,9 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('image/logo_anri.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('image/logo_anri.png') }}">
 
-    <!-- CMS RTE Content CSS — SCOPED, avoids global rules that break guest page layout -->
+    <!-- CMS RTE Content CSS — loads RTE content styles for guest display -->
+    <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css') }}">
+    <!-- Guest-scoped override: removes editor chrome, adapts content styles for guest layout -->
     <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css') }}">
 
     <!-- Fonts -->

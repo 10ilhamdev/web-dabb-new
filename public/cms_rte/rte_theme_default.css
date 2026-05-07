@@ -15,11 +15,10 @@
     line-height: 1.5;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    position: relative;
+    overflow: visible;
+    position: static;
     width: 100%;
     max-width: 100%;
-    max-height: 100%;
     height: 100%;
     min-height: 500px;
 }
@@ -281,7 +280,7 @@
     scrollbar-width: thin;
     scrollbar-color: #d0d4da #f4f5f7;
     min-height: 200px;
-    flex-shrink: 0;
+    flex-shrink: 1;
     align-self: stretch;
 }
 
@@ -360,6 +359,15 @@
     max-width: 100%;
     height: auto;
     border-radius: 2px;
+}
+
+/* Prevent iframes and videos from swallowing click events in edit mode
+   — clicks will pass through to the content div click handler,
+   which detects which media was clicked via getBoundingClientRect */
+.rte-content iframe,
+.rte-content video {
+    pointer-events: none;
+    cursor: pointer;
 }
 
 .rte-content table {

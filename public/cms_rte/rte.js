@@ -1486,7 +1486,8 @@
             var cap = fig ? fig.querySelector('figcaption') : null;
             if (!fig) {
                 var newFig = document.createElement('figure');
-                newFig.style.cssText = 'display:table; margin:0 auto;';
+                var isCentered = img.style.marginLeft === 'auto' && img.style.marginRight === 'auto';
+                newFig.style.cssText = isCentered ? 'display:table; margin:0 auto;' : 'display:inline-table; margin:0; vertical-align:top;';
                 if (img.style.float) { newFig.style.float = img.style.float; img.style.float = ''; }
                 if (img.style.marginLeft) { newFig.style.marginLeft = img.style.marginLeft; img.style.marginLeft = ''; }
                 if (img.style.marginRight) { newFig.style.marginRight = img.style.marginRight; img.style.marginRight = ''; }
@@ -1512,7 +1513,7 @@
                     if (fig.style.float) img.style.float = fig.style.float;
                     if (fig.style.marginLeft) img.style.marginLeft = fig.style.marginLeft;
                     if (fig.style.marginRight) img.style.marginRight = fig.style.marginRight;
-                    if (fig.style.display && fig.style.display !== 'table') img.style.display = fig.style.display;
+                    if (fig.style.display && fig.style.display !== 'table' && fig.style.display !== 'inline-table') img.style.display = fig.style.display;
                     fig.parentNode.insertBefore(img, fig);
                     fig.parentNode.removeChild(fig);
                 }
@@ -1548,7 +1549,8 @@
             target.style.marginLeft = mL;
             target.style.marginRight = mR;
             if (target.tagName === 'FIGURE') {
-                target.style.display = 'table';
+                target.style.display = (float === 'none' && mL === 'auto') ? 'table' : 'inline-table';
+                target.style.verticalAlign = 'top';
             } else {
                 target.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
             }
@@ -1567,15 +1569,17 @@
         // 5. Style
         var ICON_STYLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
         var getTarget = function() { return img; };
+        var getWrap = function() { return img.closest('figure') || img; };
         var styleItems = [
-            { label: 'Border',          key: 'border',       get: function() { return getTarget().style.border ? 'active' : ''; },     action: function() { var t = getTarget(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Border',          key: 'border',       get: function() { return getWrap().style.border ? 'active' : ''; },     action: function() { var t = getWrap(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
             { label: 'Grayscale',       key: 'grayscale',    get: function() { return img.style.filter === 'grayscale(100%)' ? 'active' : ''; }, action: function() { img.style.filter = img.style.filter === 'grayscale(100%)' ? '' : 'grayscale(100%)'; self._syncSource(); }},
-            { label: 'Shadow',          key: 'shadow',       get: function() { return getTarget().style.boxShadow ? 'active' : ''; },  action: function() { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 8px rgba(0,0,0,0.1)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Margin 10px',     key: 'margin',       get: function() { return getTarget().style.margin ? 'active' : ''; },    action: function() { var t = getTarget(); t.style.margin = t.style.margin ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Padding 10px',    key: 'padding',      get: function() { return getTarget().style.padding ? 'active' : ''; },   action: function() { var t = getTarget(); t.style.padding = t.style.padding ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Rounded Corners', key: 'rounded',      get: function() { return getTarget().style.borderRadius === '8px' ? 'active' : ''; }, action: function() { var t = getTarget(); t.style.borderRadius = t.style.borderRadius === '8px' ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Shadow',          key: 'shadow',       get: function() { return getWrap().style.boxShadow ? 'active' : ''; },  action: function() { var t = getWrap(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 8px rgba(0,0,0,0.1)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Margin 10px',     key: 'margin',       get: function() { return getWrap().style.margin ? 'active' : ''; },    action: function() { var t = getWrap(); t.style.margin = t.style.margin ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Padding 10px',    key: 'padding',      get: function() { return getWrap().style.padding ? 'active' : ''; },   action: function() { var t = getWrap(); t.style.padding = t.style.padding ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Rounded Corners', key: 'rounded',      get: function() { return getWrap().style.borderRadius === '8px' ? 'active' : ''; }, action: function() { var t = getWrap(); t.style.borderRadius = t.style.borderRadius === '8px' ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
             { label: 'Rounded Image',   key: 'circle',       get: function() { return img.style.borderRadius === '50%' ? 'active' : ''; }, action: function() { img.style.borderRadius = img.style.borderRadius === '50%' ? '' : '50%'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Thumbnail',       key: 'thumb',        get: function() { return (getTarget().style.background === 'rgb(255, 255, 255)' || getTarget().style.background === '#fff') ? 'active' : ''; }, action: function() { var t=getTarget(); if(t.style.background === 'rgb(255, 255, 255)' || t.style.background === '#fff') { t.style.border=''; t.style.padding=''; t.style.background=''; t.style.borderRadius=''; } else { t.style.border='1px solid #ddd'; t.style.padding='4px'; t.style.background='#fff'; t.style.borderRadius='4px'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Thumbnail',       key: 'thumb',        get: function() { return (getWrap().style.background === 'rgb(255, 255, 255)' || getWrap().style.background === '#fff') ? 'active' : ''; }, action: function() { var t=getWrap(); if(t.style.background === 'rgb(255, 255, 255)' || t.style.background === '#fff') { t.style.border=''; t.style.padding=''; t.style.background=''; t.style.borderRadius=''; } else { t.style.border='1px solid #ddd'; t.style.padding='4px'; t.style.background='#fff'; t.style.borderRadius='4px'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Free Canvas Mode',key: 'absolute',     get: function() { var w=getWrap(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function() { var w=getWrap(); if(w.style.position==='absolute'){w.style.position='';w.style.left='';w.style.top='';w.style.zIndex='';}else{w.style.position='absolute';w.style.zIndex='100';w.style.left=w.offsetLeft+'px';w.style.top=w.offsetTop+'px';} self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }}
         ];
         toolbar.appendChild(mkDrop(ICON_STYLE, 'Image Style', styleItems, function(menu) {
             // Refresh active states when menu opens
@@ -1621,6 +1625,24 @@
     RichTextEditor.prototype._attachMediaResizeHandle = function (media) {
         var self = this;
         this._removeMediaResizeHandle();
+
+        // For IFRAME elements, add a transparent click-interceptor overlay inside the content area
+        // so that clicks on the iframe are captured by the editor (iframes swallow click events)
+        if (media.tagName === 'IFRAME' || media.tagName === 'VIDEO') {
+            var clickInterceptor = document.createElement('div');
+            clickInterceptor.className = 'rte-iframe-click-interceptor';
+            clickInterceptor.style.cssText = 'position:absolute;inset:0;z-index:9997;cursor:pointer;background:transparent;';
+            var mediaParent = media.parentNode;
+            if (mediaParent && getComputedStyle(mediaParent).position === 'static') {
+                mediaParent.style.position = 'relative';
+            }
+            if (mediaParent) mediaParent.appendChild(clickInterceptor);
+            clickInterceptor.addEventListener('click', function(e) {
+                e.stopPropagation();
+                self._showVideoEditorPopup(media);
+            });
+            self._iframeClickInterceptor = clickInterceptor;
+        }
 
         // Create full border overlay with 8 resize handles
         var overlay = document.createElement('div');
@@ -1699,6 +1721,11 @@
         this._mediaResizeHandle = null;
         this._mediaResizeTarget = null;
         this._mediaResizePositioner = null;
+        // Remove iframe click interceptor if present
+        if (this._iframeClickInterceptor && this._iframeClickInterceptor.parentNode) {
+            this._iframeClickInterceptor.parentNode.removeChild(this._iframeClickInterceptor);
+        }
+        this._iframeClickInterceptor = null;
     };
 
     RichTextEditor.prototype._closeImagePopup = function () {
@@ -1784,7 +1811,8 @@
             var cap = fig ? fig.querySelector('figcaption') : null;
             if (!fig) {
                 var newFig = document.createElement('figure');
-                newFig.style.cssText = 'display:table; margin:0 auto;';
+                var isCentered = media.style.marginLeft === 'auto' && media.style.marginRight === 'auto';
+                newFig.style.cssText = isCentered ? 'display:table; margin:0 auto;' : 'display:inline-table; margin:0; vertical-align:top;';
                 if (media.style.float) { newFig.style.float = media.style.float; media.style.float = ''; }
                 if (media.style.marginLeft) { newFig.style.marginLeft = media.style.marginLeft; media.style.marginLeft = ''; }
                 if (media.style.marginRight) { newFig.style.marginRight = media.style.marginRight; media.style.marginRight = ''; }
@@ -1809,8 +1837,8 @@
                 if (fig.childNodes.length === 1 && fig.firstChild === media) {
                     if (fig.style.float) media.style.float = fig.style.float;
                     if (fig.style.marginLeft) media.style.marginLeft = fig.style.marginLeft;
-                    if (fig.style.marginRight) media.style.marginRight = fig.style.marginRight;
-                    if (fig.style.display && fig.style.display !== 'table') media.style.display = fig.style.display;
+                    if (fig.style.marginRight) media.style.marginRight = media.style.marginRight;
+                    if (fig.style.display && fig.style.display !== 'table' && fig.style.display !== 'inline-table') media.style.display = fig.style.display;
                     fig.parentNode.insertBefore(media, fig);
                     fig.parentNode.removeChild(fig);
                 }
@@ -1827,7 +1855,8 @@
             wrap.style.marginLeft = mL;
             wrap.style.marginRight = mR;
             if (wrap.tagName === 'FIGURE') {
-                wrap.style.display = 'table';
+                wrap.style.display = (float === 'none' && mL === 'auto') ? 'table' : 'inline-table';
+                wrap.style.verticalAlign = 'top';
             } else {
                 wrap.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
             }
@@ -1846,18 +1875,18 @@
         // 4. Style
         var ICON_STYLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
         var getTarget = function() { return media; };
+        var getWrapV = function() { return media.closest('figure') || media; };
         var vStyleItems = [
-            { label: 'Border', action: function() { var t = getTarget(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Shadow', action: function() { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 12px rgba(0,0,0,0.3)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Rounded', action: function() { var t = getTarget(); t.style.borderRadius = t.style.borderRadius ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Border',  get: function() { return !!getTarget().style.border; }, action: function() { var t = getTarget(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Shadow',  get: function() { return !!getTarget().style.boxShadow; }, action: function() { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 12px rgba(0,0,0,0.3)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Rounded', get: function() { return !!getTarget().style.borderRadius; }, action: function() { var t = getTarget(); t.style.borderRadius = t.style.borderRadius ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            '-',
+            { label: 'Free Canvas Mode', get: function() { var w=getWrapV(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function() { var w=getWrapV(); if(w.style.position==='absolute'){w.style.position='';w.style.left='';w.style.top='';w.style.zIndex='';}else{w.style.position='absolute';w.style.zIndex='100';w.style.left=w.offsetLeft+'px';w.style.top=w.offsetTop+'px';} self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
         ];
         toolbar.appendChild(mkDrop(ICON_STYLE, 'Video Style', vStyleItems, function(menu) {
             menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
                 var item = vStyleItems[i];
-                var t = getTarget();
-                if (item && item.label === 'Border') mi.classList.toggle('rte-img-tb-menuitem-active', !!t.style.border);
-                if (item && item.label === 'Shadow') mi.classList.toggle('rte-img-tb-menuitem-active', !!t.style.boxShadow);
-                if (item && item.label === 'Rounded') mi.classList.toggle('rte-img-tb-menuitem-active', !!t.style.borderRadius);
+                if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
         }));
 
@@ -2289,6 +2318,8 @@
         overlay.style.top = (tblRect.top - wrapRect.top + cWrap.scrollTop) + 'px';
         overlay.style.width = tblRect.width + 'px';
         overlay.style.height = tblRect.height + 'px';
+        // Also reposition the float toolbar that follows the table
+        this._repositionFloatTableToolbar(table);
     };
 
     RichTextEditor.prototype._updatePopupPositions = function() {
@@ -2455,31 +2486,19 @@
             } }
         ]));
 
-        // ---- Position inside overlay to scroll with table ----
-        toolbar.style.position = 'absolute';
-        toolbar.style.left = '50%';
-        toolbar.style.transform = 'translateX(-50%)';
-        toolbar.style.zIndex = '9999';
-        
-        var tblRect = tbl.getBoundingClientRect();
-        var spaceAbove = tblRect.top;
-        if (spaceAbove < 60) {
-            toolbar.style.top = '100%';
-            toolbar.style.marginTop = '8px';
-            toolbar.classList.add('rte-ft-bottom');
-        } else {
-            toolbar.style.top = '-46px';
-            toolbar.classList.add('rte-ft-top');
-        }
-
-        if (self._tableOverlay) {
-            self._tableOverlay.appendChild(toolbar);
-        } else {
-            document.body.appendChild(toolbar);
-        }
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
         this._floatToolbar = toolbar;
 
         toolbar._closeDropdowns = closeMenus;
+
+        // Position it immediately after insertion (must be in DOM first for offsetWidth)
+        // Use rAF to ensure the browser has painted the element and offsetWidth is accurate
+        var self2 = this;
+        requestAnimationFrame(function() {
+            self2._repositionFloatTableToolbar(tbl);
+        });
     };
 
     RichTextEditor.prototype._hideFloatTableToolbar = function () {
@@ -2752,18 +2771,27 @@
         var tblRect = table.getBoundingClientRect();
         var spaceAbove = tblRect.top;
         
-        toolbar.style.position = 'absolute';
-        toolbar.style.left = '50%';
-        toolbar.style.transform = 'translateX(-50%)';
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        
+        var tbW = toolbar.offsetWidth || 300;
+        var tbH = toolbar.offsetHeight || 44;
+        
+        var left = Math.min(Math.max(tblRect.left + tblRect.width/2 - tbW/2, 4), window.innerWidth - tbW - 4);
+        toolbar.style.left = left + 'px';
 
         if (spaceAbove < 60) {
-            toolbar.style.top = '100%';
-            toolbar.style.marginTop = '8px';
+            var bottomTop = tblRect.bottom + 8;
+            if (bottomTop + tbH > window.innerHeight) bottomTop = window.innerHeight - tbH - 8;
+            toolbar.style.top = bottomTop + 'px';
+            toolbar.style.marginTop = '0px';
+            toolbar.style.transform = '';
             toolbar.classList.remove('rte-ft-top');
             toolbar.classList.add('rte-ft-bottom');
         } else {
-            toolbar.style.top = '-46px';
+            toolbar.style.top = (tblRect.top - 46) + 'px';
             toolbar.style.marginTop = '0px';
+            toolbar.style.transform = '';
             toolbar.classList.remove('rte-ft-bottom');
             toolbar.classList.add('rte-ft-top');
         }
@@ -3271,6 +3299,10 @@
         }
         this._syncSource();
         this._updateState();
+        if (this._selectedTable) {
+            this._updateTableOverlayPosition();
+        }
+        this._updatePopupPositions();
     };
 
     RichTextEditor.prototype._toggleSource = function () {
@@ -3501,7 +3533,22 @@
                 self._hideTableSelection();
                 self._closeTablePopup();
             }
-            if (target.tagName === 'IMG') {
+            // Coordinate-based hit test for iframes/videos (pointer-events:none makes them
+            // transparent, so click fires on their parent — we detect via bounding rect)
+            var clickedMedia = null;
+            var allMediaEls = c.querySelectorAll('iframe, video');
+            for (var mi = 0; mi < allMediaEls.length; mi++) {
+                var mr = allMediaEls[mi].getBoundingClientRect();
+                if (e.clientX >= mr.left && e.clientX <= mr.right &&
+                    e.clientY >= mr.top  && e.clientY <= mr.bottom) {
+                    clickedMedia = allMediaEls[mi];
+                    break;
+                }
+            }
+            if (clickedMedia) {
+                clickedMedia.draggable = true;
+                self._showVideoEditorPopup(clickedMedia);
+            } else if (target.tagName === 'IMG') {
                 self._showImageEditorPopup(target);
             } else if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') {
                 target.draggable = true; // ensure it can be dragged
@@ -3518,38 +3565,101 @@
         var draggedNode = null;
         var dragEmptyImg = new Image();
         dragEmptyImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        var dragOffsetX = 0;
+        var dragOffsetY = 0;
 
         c.addEventListener('dragstart', function (e) {
             if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'IFRAME') {
                 draggingInternalMedia = true;
                 draggedNode = e.target.closest('figure') || e.target;
+                
+                var rect = draggedNode.getBoundingClientRect();
+                dragOffsetX = e.clientX - rect.left;
+                dragOffsetY = e.clientY - rect.top;
+                
                 if (e.dataTransfer && e.dataTransfer.setDragImage) {
                     e.dataTransfer.setDragImage(dragEmptyImg, 0, 0);
                 }
+
+                draggedNode.dataset.oldOpacity = draggedNode.style.opacity || '';
+                draggedNode.style.opacity = '0.5';
+
                 self._closeImagePopup();
                 self._closeVideoPopup();
                 self._removeMediaResizeHandle();
             }
         });
+        
         c.addEventListener('dragover', function (e) {
             if (draggingInternalMedia && draggedNode) {
-                e.preventDefault(); // Allow drop
+                e.preventDefault();
+                
+                if (draggedNode.style.position === 'absolute') {
+                    var cRect = c.getBoundingClientRect();
+                    var newLeft = e.clientX - cRect.left - dragOffsetX + c.scrollLeft;
+                    var newTop = e.clientY - cRect.top - dragOffsetY + c.scrollTop;
+                    draggedNode.style.left = newLeft + 'px';
+                    draggedNode.style.top = newTop + 'px';
+                    return;
+                }
+                
+                var cRect = c.getBoundingClientRect();
+                if (e.clientY > cRect.bottom - 40) {
+                    var p = document.createElement('p');
+                    p.innerHTML = '<br>';
+                    c.appendChild(p);
+                }
+                
+                var oldDisplay = draggedNode.style.display;
+                draggedNode.style.display = 'none';
+                
                 var range = (document.caretRangeFromPoint || document.caretPositionFromPoint)
                     ? (document.caretRangeFromPoint
                         ? document.caretRangeFromPoint(e.clientX, e.clientY)
                         : null)
                     : null;
-                if (range && c.contains(range.startContainer) && !draggedNode.contains(range.startContainer)) {
-                    range.insertNode(draggedNode);
+                    
+                draggedNode.style.display = oldDisplay;
+                    
+                if (range && c.contains(range.startContainer)) {
+                    var container = range.startContainer;
+                    var elNode = container.nodeType === 3 ? container.parentNode : container;
+                    var targetFigure = elNode.closest ? elNode.closest('figure, img:not([data-rte-ui]), video:not([data-rte-ui])') : null;
+                    
+                    if (targetFigure && targetFigure !== draggedNode) {
+                        var rect = targetFigure.getBoundingClientRect();
+                        var insertAfter = e.clientX > (rect.left + rect.width / 2);
+                        var r2 = document.createRange();
+                        if (insertAfter) {
+                            r2.setStartAfter(targetFigure);
+                        } else {
+                            r2.setStartBefore(targetFigure);
+                        }
+                        r2.collapse(true);
+                        r2.insertNode(draggedNode);
+                    } else if (!targetFigure) {
+                        range.insertNode(draggedNode);
+                    }
                 }
             }
         });
+        
         c.addEventListener('dragend', function (e) {
+            if (draggedNode) {
+                draggedNode.style.opacity = draggedNode.dataset.oldOpacity || '';
+                delete draggedNode.dataset.oldOpacity;
+            }
             draggingInternalMedia = false;
             draggedNode = null;
+            self._syncSource();
         });
 
         // Update overlay position on scroll
+        c.addEventListener('scroll', function () {
+            if (self._selectedTable) self._updateTableOverlayPosition();
+            self._updatePopupPositions();
+        });
+        // rte-content-wrap is the real scrollable container
         c.parentElement.addEventListener('scroll', function () {
             if (self._selectedTable) self._updateTableOverlayPosition();
             self._updatePopupPositions();
@@ -3603,9 +3713,7 @@
         // Drag-and-drop image upload
         c.addEventListener('drop', function (e) {
             if (draggingInternalMedia) {
-                draggingInternalMedia = false;
-                draggedNode = null;
-                e.preventDefault(); // Node already moved in dragover
+                e.preventDefault(); // Node already moved in dragover, handled in dragend
                 return;
             }
             if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
@@ -3638,10 +3746,28 @@
                 self._updateState();
             }
 
-            // Tab inside lists -> indent
+            // Tab inside table -> next cell, otherwise -> indent
             if (e.key === 'Tab') {
-                e.preventDefault();
-                self.exec(e.shiftKey ? 'outdent' : 'indent');
+                var sel = window.getSelection();
+                var node = (sel && sel.rangeCount > 0) ? sel.anchorNode : null;
+                var td = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('td, th') : null;
+                
+                if (td) {
+                    e.preventDefault();
+                    var cells = Array.from(td.closest('table').querySelectorAll('td, th'));
+                    var idx = cells.indexOf(td);
+                    var nextCell = e.shiftKey ? cells[idx - 1] : cells[idx + 1];
+                    if (nextCell) {
+                        var range = document.createRange();
+                        range.selectNodeContents(nextCell);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                } else {
+                    e.preventDefault();
+                    self.exec(e.shiftKey ? 'outdent' : 'indent');
+                }
             }
         });
 
