@@ -96,8 +96,8 @@ body.rte-content-body p { margin-bottom: 1rem; }
 
 body.rte-content-body ul,
 body.rte-content-body ol { margin: 1em 0; padding-left: 1.5rem; }
-body.rte-content-body ul { list-style-type: disc; }
-body.rte-content-body ol { list-style-type: decimal; }
+body.rte-content-body ul { list-style: none !important; }
+body.rte-content-body ol { list-style: none !important; }
 body.rte-content-body li { margin: 0.25em 0; }
 
 body.rte-content-body code {

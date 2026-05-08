@@ -819,8 +819,8 @@ body.rte-body-fullscreen {
 }
 
 .rte-content ol {
+    list-style: none;
     padding-left: 1.8em;
-    margin: 0.5em 0;
     margin: 0.5em 0;
     counter-reset: item;
 }

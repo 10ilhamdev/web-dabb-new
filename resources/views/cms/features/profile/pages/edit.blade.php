@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@php
+/**
+ * @var \App\Models\Profile $page
+ * @var \App\Models\Feature $feature
+ * @var \App\Models\Feature $sub
+ */
+@endphp
+
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
     <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_cms_rte_content.css') }}">
@@ -11,7 +19,6 @@
             font-size: 14px !important;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
             width: 100%;
-            max-width: calc((min(1170px, 94vw) - 2rem) / 2) !important;
             padding: 0;
             margin: 0;
         }

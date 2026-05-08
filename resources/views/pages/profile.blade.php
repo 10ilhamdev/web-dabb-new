@@ -77,9 +77,27 @@
         .profile-section-desc h3,
         .profile-section-desc h4,
         .profile-section-desc h5,
-        .profile-section-desc h6,
+        .profile-section-desc h6 {
+            width: 100%;
+        }
+
         .profile-section-desc ul,
-        .profile-section-desc ol,
+        .profile-section-desc ol {
+            width: 100%;
+            padding-left: 2rem !important;
+            margin: 1em 0 !important;
+        }
+
+        .profile-section-desc ul {
+            list-style-type: disc !important;
+            list-style-position: outside !important;
+        }
+
+        .profile-section-desc ol {
+            list-style-type: decimal !important;
+            list-style-position: outside !important;
+        }
+
         .profile-section-desc table,
         .profile-section-desc blockquote {
             width: 100%;
@@ -109,28 +127,13 @@
             object-fit: cover;
         }
 
-        .page-layout-dual {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .page-layout-dual > div:first-child {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .page-layout-dual > div:last-child {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
         @media (max-width: 768px) {
-            .page-layout-dual {
-                grid-template-columns: 1fr;
+            .guest-dynamic-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .guest-dynamic-img-col {
+                min-width: 0 !important;
+                align-items: center !important;
             }
         }
 
@@ -373,116 +376,110 @@
             $chartData = $page->chart_data;
         @endphp
 
-        {{-- ===== DEFAULT & TUGAS FUNGSI ===== --}}
+        {{-- ===== DYNAMIC GUEST LAYOUT (100% FOLLOWS CMS PREVIEW LOGIC) ===== --}}
         @if (in_array($page->type, ['default', 'tugas_fungsi']))
             <section class="profile-section{{ !$isEven ? ' profile-section-bg' : '' }}">
                 <div class="container">
-                    @if ($page->type === 'tugas_fungsi')
-                        {{-- Grid layout: text left, images right --}}
-                        <div class="page-layout-dual">
-                            {{-- Text column --}}
-                            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                                @if ($pageDesc)
-                                    <div class="profile-section-desc">{!! $pageDesc !!}</div>
-                                @endif
-                                @if ($page->sections && $page->sections->count())
-                                    @foreach ($page->sections as $section)
-                                        <div class="section-block">
-                                            @if ($section->title)
-                                                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
-                                                    {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
-                                                </h2>
-                                            @endif
-                                            @if ($section->description)
-                                                <div style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                @endif
-                                @if ($page->link_text && $page->link_url)
-                                    <a href="{{ $page->link_url }}" class="page-link-btn" target="_blank">
-                                        {{ $page->link_text }}
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
-                                    </a>
-                                @endif
-                            </div>
-                            {{-- Images column --}}
-                            @if ($page->images && count($page->images))
-                                <div class="page-image-container">
-                                    @foreach ($page->images as $idx => $img)
-                                        @php
-                                            $posData = $page->image_positions[$idx] ?? null;
-                                            $width = 200;
-                                            $height = 150;
-                                            $offsetX = 0;
-                                            $offsetY = 0;
-                                            $focalPointX = 50;
-                                            $focalPointY = 50;
+                    @php
+                        $hasDesc = !empty(trim(strip_tags($pageDesc))) || !empty(trim($pageDesc));
+                        $hasImages = $page->images && count($page->images) > 0;
+                        $hasSections = $page->sections && $page->sections->count() > 0;
+                        $hasTitle = $page->type === 'default' && !empty(trim($pageTitle));
+                        $hasLink = !empty(trim($page->link_text)) && !empty(trim($page->link_url));
+                    @endphp
 
-                                            if (is_array($posData)) {
-                                                $width = intval($posData['width'] ?? 200);
-                                                $height = intval($posData['height'] ?? 150);
-                                                $offsetX = intval($posData['offsetX'] ?? 0);
-                                                $offsetY = intval($posData['offsetY'] ?? 0);
-                                                if (isset($posData['position'])) {
-                                                    $parts = explode(' ', $posData['position']);
-                                                    $focalPointX = floatval($parts[0] ?? 50);
-                                                    $focalPointY = floatval($parts[1] ?? 50);
-                                                }
+                    @if ($hasImages)
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;" class="guest-dynamic-grid">
+                            <div class="preview-text-col" style="min-width:0;overflow:hidden;">
+                                <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                                    @if ($hasDesc)
+                                        <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
+                                    @endif
+                                    @if ($hasSections)
+                                        @foreach ($page->sections as $section)
+                                            <div class="section-block" style="margin-bottom: 1.5rem;">
+                                                @if ($section->title)
+                                                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                        {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                                    </h2>
+                                                @endif
+                                                @if ($section->description)
+                                                    <div style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                    @if ($hasTitle)
+                                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                                    @endif
+                                    @if ($hasLink)
+                                        <a href="{{ $page->link_url }}" class="page-link-btn" target="_blank" style="display:inline-flex;align-items:center;gap:0.5rem;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#174E93;color:white;border-radius:0.5rem;font-weight:500;text-decoration:none;">
+                                            {{ $page->link_text }}
+                                            <svg style="width: 1rem; height: 1rem; margin-left: 0.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:32px;min-width:220px;" class="guest-dynamic-img-col">
+                                @foreach ($page->images as $idx => $img)
+                                    @php
+                                        $posData = $page->image_positions[$idx] ?? null;
+                                        $w = 200;
+                                        $h = 150;
+                                        $oX = 0;
+                                        $oY = 0;
+                                        $focalX = 50;
+                                        $focalY = 50;
+                                        if (is_array($posData)) {
+                                            $w = floatval($posData['width'] ?? 200);
+                                            $h = floatval($posData['height'] ?? 150);
+                                            $oX = floatval($posData['offsetX'] ?? 0);
+                                            $oY = floatval($posData['offsetY'] ?? 0);
+                                            if (isset($posData['position'])) {
+                                                $parts = explode(' ', $posData['position']);
+                                                $focalX = floatval($parts[0] ?? 50);
+                                                $focalY = floatval($parts[1] ?? 50);
                                             }
-                                        @endphp
-                                        <div style="width: {{ $width }}px; height: {{ $height }}px; position: relative;">
-                                            <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}"
-                                                style="width: 100%; height: 100%; object-fit: contain; object-position: {{ $focalPointX }}% {{ $focalPointY }}%; display: block; border-radius: 0.75rem;">
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    @else
-                        {{-- Single column for default --}}
-                        @if ($pageDesc)
-                            <div class="profile-section-desc">{!! $pageDesc !!}</div>
-                        @endif
-                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
-                        @if ($page->link_text && $page->link_url)
-                            <a href="{{ $page->link_url }}" class="page-link-btn" target="_blank">
-                                {{ $page->link_text }}
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </a>
-                        @endif
-                        @if ($page->sections && $page->sections->count())
-                            @foreach ($page->sections as $section)
-                                <div class="section-block" style="margin-top: 1.5rem;">
-                                    @if ($section->title)
-                                        <h3>{{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
-                                        </h3>
-                                    @endif
-                                    @if ($section->description)
-                                        <p>{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</p>
-                                    @endif
-                                    @if ($section->images && count($section->images))
-                                        <div class="section-images">
-                                            @foreach ($section->images as $img)
-                                                <img src="{{ asset('storage/' . $img) }}" alt="">
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        @elseif ($page->images && count($page->images))
-                            <div class="section-images" style="margin-top: 1.5rem;">
-                                @foreach ($page->images as $img)
-                                    <img src="{{ asset('storage/' . $img) }}" alt="">
+                                        }
+                                        $mr = -$oX;
+                                        $mt = $oY;
+                                        $styleStr = "position: relative; border-radius: 0.75rem; overflow: visible !important; width: {$w}px; height: {$h}px; margin: {$mt}px {$mr}px 0 0; z-index: 10;";
+                                    @endphp
+                                    <div style="{!! $styleStr !!}">
+                                        <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalX }}% {{ $focalY }}%; display: block; border-radius: 0.75rem;">
+                                    </div>
                                 @endforeach
                             </div>
-                        @endif
+                        </div>
+                    @elseif ($hasDesc || $hasSections || $hasTitle || $hasLink)
+                        <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                            @if ($hasDesc)
+                                <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
+                            @endif
+                            @if ($hasSections)
+                                @foreach ($page->sections as $section)
+                                    <div class="section-block" style="margin-bottom: 1.5rem;">
+                                        @if ($section->title)
+                                            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                            </h2>
+                                        @endif
+                                        @if ($section->description)
+                                            <div style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @endif
+                            @if ($hasTitle)
+                                <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                            @endif
+                            @if ($hasLink)
+                                <a href="{{ $page->link_url }}" class="page-link-btn" target="_blank" style="display:inline-flex;align-items:center;gap:0.5rem;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#174E93;color:white;border-radius:0.5rem;font-weight:500;text-decoration:none;">
+                                    {{ $page->link_text }}
+                                    <svg style="width: 1rem; height: 1rem; margin-left: 0.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </section>
@@ -635,6 +632,9 @@
     @endif
 
 @endsection
+
+@push('scripts')
+@endpush
 
 @push('scripts')
     @if ($currentPage && $currentPage->type === 'sdm_chart' && $currentPage->chart_data)

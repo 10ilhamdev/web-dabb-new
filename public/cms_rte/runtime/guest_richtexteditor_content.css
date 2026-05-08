@@ -144,9 +144,24 @@
         Arial, sans-serif;
     font-size: 14px;
     line-height: 1.6;
-    color: #222;
+    color: #414141;
     position: relative !important;
     overflow: visible !important;
     display: flow-root !important;
     word-wrap: break-word;
 }
+
+.profile-section-desc p, .vsshow-hero-subtitle p { margin-bottom: 1rem !important; }
+.profile-section-desc ul, .vsshow-hero-subtitle ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+.profile-section-desc ol, .vsshow-hero-subtitle ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+.profile-section-desc li, .vsshow-hero-subtitle li { margin: 0.25em 0 !important; display: list-item !important; }
+.profile-section-desc a:hover, .vsshow-hero-subtitle a:hover { text-decoration: underline !important; color: #009ac9 !important; }
+.profile-section-desc h1, .vsshow-hero-subtitle h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
+.profile-section-desc h2, .vsshow-hero-subtitle h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
+.profile-section-desc h3, .vsshow-hero-subtitle h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
+.profile-section-desc h4, .vsshow-hero-subtitle h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
+.profile-section-desc h5, .vsshow-hero-subtitle h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
+.profile-section-desc h6, .vsshow-hero-subtitle h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
+.profile-section-desc table, .vsshow-hero-subtitle table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
+.profile-section-desc table td, .vsshow-hero-subtitle table td,
+.profile-section-desc table th, .vsshow-hero-subtitle table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }

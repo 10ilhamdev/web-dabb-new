@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@php
+/**
+ * @var \Illuminate\Database\Eloquent\Collection|\App\Models\Profile[] $pages
+ * @var \App\Models\Feature $feature
+ * @var \App\Models\Feature $sub
+ */
+@endphp
+
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
     <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_cms_rte_content.css') }}">
@@ -11,7 +19,6 @@
             font-size: 14px !important;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
             width: 100%;
-            max-width: calc((min(1170px, 94vw) - 2rem) / 2) !important;
             padding: 0;
             margin: 0;
         }
@@ -169,7 +176,7 @@
                         </label>
                         <div class="rte-wrapper">
                             <div id="div_editor1" style="min-width: 100%;">
-                                {!! old('description', '') !!}
+                                {!! old('description') !!}
                             </div>
                         </div>
                         <input type="hidden" name="description" id="description_input">
@@ -380,7 +387,7 @@
                             </svg>
                             Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point
                         </p>
-                        
+
                         <!-- Zoom Controls -->
                         <div class="flex items-center gap-2 mb-3">
                             <button type="button" id="zoomOutBtn" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" title="Zoom Out">

@@ -581,30 +581,23 @@
 
         if (hasImages) {
             previewHTML +=
-                '<div style="width: 100%; overflow: visible; display: block;">';
+                '<div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;">';
+
+            previewHTML +=
+                '<div class="preview-text-col" style="min-width:0;overflow:hidden;">' +
+                leftCol +
+                "</div>";
+            previewHTML +=
+                '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:32px;min-width:220px;">';
 
             _gambarStore.forEach((img) => {
                 const w = img.width || 200;
                 const h = img.height || 150;
-                let oX = typeof img.offsetX === "number" ? img.offsetX : null;
-                let oY = typeof img.offsetY === "number" ? img.offsetY : null;
-                let drTop = 0,
-                    drRight = 0;
-                if (oX !== null) drRight = -oX;
-                if (oY !== null) drTop = oY;
-                let marginStr = "";
-                if (oX === null && oY === null) {
-                    // First upload: float right, no offset, normal margin
-                    marginStr = "margin: 0 0 32px 32px; float: right;";
-                } else {
-                    marginStr =
-                        "margin: " +
-                        drTop +
-                        "px " +
-                        drRight +
-                        "px 32px 32px; float: right;";
-                }
-                const styleStr = `position: relative; border-radius: 0.75rem; overflow: visible !important; width: ${w}px; height: ${h}px; ${marginStr} z-index: 10;`;
+                const oX = Number(img.offsetX) || 0;
+                const oY = Number(img.offsetY) || 0;
+                const mr = -oX;
+                const mt = oY;
+                const styleStr = `position: relative; border-radius: 0.75rem; overflow: visible !important; width: ${w}px; height: ${h}px; margin: ${mt}px ${mr}px 0 0; z-index: 10;`;
                 previewHTML +=
                     '<div class="preview-img-item" data-img-id="' +
                     img.id +
@@ -624,9 +617,7 @@
                 previewHTML += "</div>";
             });
 
-            // The text comes AFTER floating elements in HTML!
-            previewHTML += leftCol;
-            previewHTML += '<div style="clear: both;"></div>';
+            previewHTML += "</div>";
             previewHTML += "</div>";
         } else if (hasDesc || hasTitle || hasLink) {
             previewHTML += leftCol;
@@ -642,13 +633,9 @@
 
         container.innerHTML = previewHTML;
 
-        // Attach handlers first, then adjust grid for saved offsets
+        // Attach handlers
         attachPreviewDragHandlers();
         attachPreviewResizeHandlers();
-
-        // Adjust grid columns and apply transforms
-        adjustPreviewGrid();
-        applyImageTransforms();
     }
 
     /**
@@ -743,23 +730,18 @@
                         const newOffsetX = startOffsetX + shiftX;
                         const newOffsetY = startOffsetY + shiftY;
 
-                        // Apply size + position via margin (same convention as
-                        // drag handler and applyImageTransforms) so the element
-                        // stays in the exact same visual position it will have
-                        // after mouseup. Using transform here caused a jump
-                        // because margin offsets were still active underneath.
+                        const mr = -newOffsetX;
+                        const mt = newOffsetY;
+
                         item.style.width = newWidth + "px";
                         item.style.height = newHeight + "px";
                         item.style.transform = "none";
-                        item.style.margin =
-                            newOffsetY + "px " + (-newOffsetX) + "px 32px 32px";
+                        item.style.margin = mt + "px " + mr + "px 0 0";
 
                         img.width = Math.round(newWidth);
                         img.height = Math.round(newHeight);
                         img.offsetX = Math.round(newOffsetX);
                         img.offsetY = Math.round(newOffsetY);
-
-                        adjustPreviewGrid();
                     };
 
                     const handleMouseUp = () => {
@@ -769,8 +751,6 @@
                         );
                         document.removeEventListener("mouseup", handleMouseUp);
                         saveImagePositionsBeforeSubmit();
-                        adjustPreviewGrid();
-                        applyImageTransforms();
                     };
 
                     document.addEventListener("mousemove", handleMouseMove);
@@ -788,76 +768,7 @@
         });
     }
 
-    /**
-     * Unified function: adjust grid columns so that the image column is wide enough
-     * to contain all images (considering their width + leftward drag offset).
-     * Horizontal drag = change grid columns (causes text reflow).
-     * Vertical drag = transform translateY only (no text reflow needed).
-     */
-    function adjustPreviewGrid() {
-        var gridContainer = document.querySelector(
-            '#preview-container [style*="grid-template-columns"]',
-        );
-        if (!gridContainer) return;
 
-        var gridWidth = gridContainer.getBoundingClientRect().width;
-        var gap = 32;
-        var defaultHalf = (gridWidth - gap) / 2;
-        var MIN_TEXT_WIDTH = 180;
-
-        var extraNeeded = 0;
-        _gambarStore.forEach(function (img) {
-            var w = Number(img.width) || 200;
-            var offsetX = Number(img.offsetX) || 0;
-
-            if (offsetX < 0) {
-                var leftExtra = Math.abs(offsetX);
-                if (leftExtra > extraNeeded) extraNeeded = leftExtra;
-            }
-
-            if (w > defaultHalf) {
-                var widthExtra = w - defaultHalf;
-                if (widthExtra > extraNeeded) extraNeeded = widthExtra;
-            }
-        });
-
-        if (extraNeeded > 0) {
-            var imgColWidth = defaultHalf + extraNeeded + 16;
-            var maxImgCol = gridWidth - gap - MIN_TEXT_WIDTH;
-            if (imgColWidth > maxImgCol) imgColWidth = maxImgCol;
-            var textColWidth = gridWidth - gap - imgColWidth;
-
-            if (textColWidth < MIN_TEXT_WIDTH) {
-                textColWidth = MIN_TEXT_WIDTH;
-                imgColWidth = gridWidth - gap - textColWidth;
-            }
-
-            gridContainer.style.gridTemplateColumns =
-                textColWidth + "px " + imgColWidth + "px";
-        } else {
-            gridContainer.style.gridTemplateColumns = "1fr 1fr";
-        }
-    }
-
-    /**
-     * Apply transforms to all preview images from store data
-     */
-    function applyImageTransforms() {
-        document.querySelectorAll(".preview-img-item").forEach(function (item) {
-            var imgId = item.dataset.imgId;
-            var imgData = _gambarStore.find(function (i) {
-                return i.id === imgId;
-            });
-            if (imgData) {
-                var oX = Number(imgData.offsetX) || 0;
-                var oY = Number(imgData.offsetY) || 0;
-                var drTop = oY;
-                var drRight = -oX;
-                item.style.margin = drTop + "px " + drRight + "px 32px 32px";
-                item.style.transform = "none";
-            }
-        });
-    }
 
     /**
      * Attach drag & drop handlers to preview images for repositioning
@@ -1615,10 +1526,10 @@
     };
 
     // Export for Alpine
-    
+
     // Zoom functionality for preview
     let currentZoom = 1;
-    const MIN_ZOOM = 0.5;
+    const MIN_ZOOM = 0;
     const MAX_ZOOM = 2;
     const ZOOM_STEP = 0.1;
 
