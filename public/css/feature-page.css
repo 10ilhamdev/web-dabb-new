@@ -243,6 +243,15 @@
     cursor: pointer;
 }
 
+/* Profile Container — Match CMS preview width (1200px wrapper - 2x15px padding = 1170px content) */
+.profile-container {
+    width: 1170px !important;
+    max-width: 94%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 /* Section Description */
 .section-description {
     margin-top: 16px;

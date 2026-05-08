@@ -5,6 +5,7 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
     <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
+    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css') }}">
     <style>
         .profile-hero {
             position: relative;
@@ -50,75 +51,10 @@
             margin-bottom: 1.5rem;
         }
 
-        .profile-section-desc {
-            color: #475569;
-            line-height: 1.75;
-            font-size: 1rem;
-            width: 100%;
-            margin-bottom: 1.5rem;
-            padding: 0;
-        }
-
-        @media (min-width: 640px) {
-            .profile-section-desc {
-                padding: 0;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .profile-section-desc {
-                padding: 0;
-            }
-        }
-
-        .profile-section-desc p,
-        .profile-section-desc h1,
-        .profile-section-desc h2,
-        .profile-section-desc h3,
-        .profile-section-desc h4,
-        .profile-section-desc h5,
-        .profile-section-desc h6 {
-            width: 100%;
-        }
-
-        .profile-section-desc ul,
-        .profile-section-desc ol {
-            width: 100%;
-            padding-left: 2rem !important;
-            margin: 1em 0 !important;
-        }
-
-        .profile-section-desc ul {
-            list-style-type: disc !important;
-            list-style-position: outside !important;
-        }
-
-        .profile-section-desc ol {
-            list-style-type: decimal !important;
-            list-style-position: outside !important;
-        }
-
-        .profile-section-desc table,
-        .profile-section-desc blockquote {
-            width: 100%;
-        }
-
-        .profile-section-desc table {
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
+        .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
         .profile-section-desc table td,
-        .profile-section-desc table th {
-            padding: 0.75rem;
-            border: 1px solid #e5e7eb;
-        }
-
-        .profile-section-desc img {
-            max-width: 100%;
-            height: auto;
-            margin: 1rem 0;
-        }
+        .profile-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+        .profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
 
         .page-image {
             width: 100%;

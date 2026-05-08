@@ -10,33 +10,39 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
-    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_cms_rte_content.css') }}">
     <style>
         /* Mirror guest page profile.blade.php styles for preview pane */
-        #preview-container.profile-section-desc {
+        #preview-container {
+            width: 1170px !important;
+            min-width: 1170px !important;
+            margin: 0;
+            padding: 0;
+        }
+        #preview-container .profile-section-desc {
             color: #414141 !important;
             line-height: 1.6 !important;
             font-size: 14px !important;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-            width: 100%;
+            width: 100% !important;
+            min-width: 0 !important;
             padding: 0;
             margin: 0;
         }
-        #preview-container.profile-section-desc p { margin-bottom: 1rem !important; }
-        #preview-container.profile-section-desc ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-        #preview-container.profile-section-desc ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-        #preview-container.profile-section-desc li { margin: 0.25em 0 !important; display: list-item !important; }
-        #preview-container.profile-section-desc a:hover { text-decoration: underline !important; color: #009ac9 !important; }
-        #preview-container.profile-section-desc h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
-        #preview-container.profile-section-desc h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
-        #preview-container.profile-section-desc h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
-        #preview-container.profile-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
-        #preview-container.profile-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
-        #preview-container.profile-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-        #preview-container.profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
-        #preview-container.profile-section-desc table td,
-        #preview-container.profile-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
-        #preview-container.profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
+        #preview-container .profile-section-desc p { margin-bottom: 1rem !important; }
+        #preview-container .profile-section-desc ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+        #preview-container .profile-section-desc ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+        #preview-container .profile-section-desc li { margin: 0.25em 0 !important; display: list-item !important; }
+        #preview-container .profile-section-desc a:hover { text-decoration: underline !important; color: #009ac9 !important; }
+        #preview-container .profile-section-desc h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
+        #preview-container .profile-section-desc h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
+        #preview-container .profile-section-desc h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
+        #preview-container .profile-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
+        #preview-container .profile-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
+        #preview-container .profile-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
+        #preview-container .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
+        #preview-container .profile-section-desc table td,
+        #preview-container .profile-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+        #preview-container .profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
 
         /* Title & Section Parity */
         #preview-container .profile-section-title {
@@ -95,6 +101,14 @@
         /* Ensure grid layout preserves column structure */
         #preview-container [style*="grid-template-columns"] {
             align-items: start;
+        }
+
+        /* Fix RTE toolbar — only expand content area, NOT toolbar */
+        .rte-content-wrap {
+            overflow-x: auto !important;
+        }
+        .rte-content {
+            min-width: 1170px !important;
         }
     </style>
 @endpush
@@ -180,9 +194,11 @@
                         <label class="block text-sm font-medium text-gray-700 mb-3">
                             Deskripsi / Konten
                         </label>
-                        <div class="rte-wrapper">
-                            <div id="div_editor1" style="min-width: 100%;">
-                                {!! old('description', $page->description ?? '') !!}
+                        <div style="overflow-x: auto; width: 100%;">
+                            <div class="rte-wrapper">
+                                <div id="div_editor1" style="min-width: 100%;">
+                                    {!! old('description', $page->description ?? '') !!}
+                                </div>
                             </div>
                         </div>
                         <input type="hidden" name="description" id="description_input">
@@ -424,7 +440,7 @@
 
                         <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-auto"
                             style="min-height: 380px; max-height: 400px;">
-                            <div id="preview-wrapper" style="display: block; width: 1140px; padding: 0 15px;">
+                            <div id="preview-wrapper" style="display: block; width: 1200px; padding: 0 15px;">
                                 <div id="preview-container" class="profile-section-desc" style="transform-origin: top left; transition: transform 0.2s ease;"
                                     style="background: transparent; width: 100%; border: none; padding: 0;">
                                     {{-- Preview content akan diisi oleh JavaScript --}}
