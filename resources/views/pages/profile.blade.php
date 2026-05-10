@@ -51,9 +51,9 @@
             margin-bottom: 1.5rem;
         }
 
-        .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
-        .profile-section-desc table td,
-        .profile-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+        .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100% !important; }
+        .profile-section-desc table th { background-color: #1e1e1e !important; color: #ffffff !important; font-weight: 700 !important; text-align: center !important; padding: 0.75rem !important; border: 1px solid #d0d4da !important; }
+        .profile-section-desc table td { padding: 0.75rem !important; border: 1px solid #d0d4da !important; background-color: #ffffff !important; color: #414141 !important; vertical-align: top !important; }
         .profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
 
         .page-image {
@@ -340,7 +340,7 @@
                                                     </h2>
                                                 @endif
                                                 @if ($section->description)
-                                                    <div style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                                    <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
                                                 @endif
                                             </div>
                                         @endforeach
@@ -401,7 +401,7 @@
                                             </h2>
                                         @endif
                                         @if ($section->description)
-                                            <div style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                            <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
                                         @endif
                                     </div>
                                 @endforeach
@@ -442,7 +442,7 @@
                                             </h3>
                                         @endif
                                         @if ($section->description)
-                                            <p>{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</p>
+                                            <div class="profile-section-desc">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
                                         @endif
                                     </div>
                                 @endforeach

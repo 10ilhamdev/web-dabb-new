@@ -164,7 +164,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feature}/profile/{sub}/{page}', [CmsProfileController::class, 'update'])->name('profile.pages.update');
         Route::delete('/{feature}/profile/{sub}/{page}', [CmsProfileController::class, 'destroy'])->name('profile.pages.destroy');
         Route::get('/{feature}/generate-profile-chart', [CmsProfileController::class, 'generateChart'])->name('profile.generate_chart');
-        Route::get('/{feature}/profile-data-fields', [CmsProfileController::class, 'getDataFields'])->name('profile.data_fields');
+        Route::get('/profile-data-fields', [CmsProfileController::class, 'getDataFields'])->name('profile.data_fields');
+        Route::post('/translate', [CmsProfileController::class, 'translate'])->name('profile.translate');
 
         // Profile Page Sections
         Route::post('/{feature}/profile/{sub}/{page}/sections', [CmsProfileController::class, 'storeSection'])->name('profile.sections.store');

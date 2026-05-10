@@ -61,38 +61,61 @@
 .profile-section-desc iframe,
 .profile-section-desc video,
 .vsshow-hero-subtitle iframe,
-.vsshow-hero-subtitle video {
+.vsshow-hero-subtitle video,
+.vsshow-section-desc iframe,
+.vsshow-section-desc video {
     pointer-events: auto !important;
     max-width: 100%;
     display: inline-block;
 }
 
 /* ── 4. Table styling matching editor (dark th header) ── */
+.rte-content table,
+.rte-content-body table,
+.profile-section-desc table,
+.vsshow-hero-subtitle table,
+.vsshow-section-desc table,
+table[style*="border-collapse"] {
+    border-collapse: collapse !important;
+    margin: 1rem 0 !important;
+    width: 100% !important;
+    border: 1px solid #d0d4da !important;
+}
+
 .rte-content table th,
 .rte-content-body table th,
 .profile-section-desc table th,
-.vsshow-hero-subtitle table th {
-    background: #1e1e1e !important;
-    color: #fff !important;
-    font-weight: 700;
-    text-align: center;
+.vsshow-hero-subtitle table th,
+.vsshow-section-desc table th,
+table th {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    padding: 0.75rem !important;
+    border: 1px solid #d0d4da !important;
 }
 
 .rte-content table td,
 .rte-content-body table td,
 .profile-section-desc table td,
-.vsshow-hero-subtitle table td {
-    border: 1px solid #d0d4da;
-    padding: 6px 8px;
-    vertical-align: top;
-    word-wrap: break-word;
+.vsshow-hero-subtitle table td,
+.vsshow-section-desc table td,
+table td {
+    border: 1px solid #d0d4da !important;
+    padding: 0.75rem !important;
+    vertical-align: top !important;
+    word-wrap: break-word !important;
+    background-color: #ffffff !important;
+    color: #414141 !important;
 }
 
 /* ── 5. Figure & Figcaption ── */
 .rte-content figure,
 .rte-content-body figure,
 .profile-section-desc figure,
-.vsshow-hero-subtitle figure {
+.vsshow-hero-subtitle figure,
+.vsshow-section-desc figure {
     display: inline-table;
     margin: 0.5em 4px;
     vertical-align: top;
@@ -115,7 +138,8 @@
 .rte-content figcaption,
 .rte-content-body figcaption,
 .profile-section-desc figcaption,
-.vsshow-hero-subtitle figcaption {
+.vsshow-hero-subtitle figcaption,
+.vsshow-section-desc figcaption {
     text-align: center;
     font-size: 0.85em;
     color: #555;
@@ -129,7 +153,8 @@
 .rte-content img,
 .rte-content-body img,
 .profile-section-desc img,
-.vsshow-hero-subtitle img {
+.vsshow-hero-subtitle img,
+.vsshow-section-desc img {
     max-width: 100%;
     height: auto;
     border-radius: 2px;
@@ -139,7 +164,8 @@
 
 /* ── 7. Legacy scoped container resets ── */
 .profile-section-desc,
-.vsshow-hero-subtitle {
+.vsshow-hero-subtitle,
+.vsshow-section-desc {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     font-size: 14px !important;
     line-height: 1.6;
@@ -150,17 +176,17 @@
     word-wrap: break-word;
 }
 
-.profile-section-desc p, .vsshow-hero-subtitle p { margin-bottom: 1rem !important; }
-.profile-section-desc ul, .vsshow-hero-subtitle ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-.profile-section-desc ol, .vsshow-hero-subtitle ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-.profile-section-desc li, .vsshow-hero-subtitle li { margin: 0.25em 0 !important; display: list-item !important; }
-.profile-section-desc a:hover, .vsshow-hero-subtitle a:hover { text-decoration: underline !important; color: #009ac9 !important; }
-.profile-section-desc h1, .vsshow-hero-subtitle h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
-.profile-section-desc h2, .vsshow-hero-subtitle h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
-.profile-section-desc h3, .vsshow-hero-subtitle h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
-.profile-section-desc h4, .vsshow-hero-subtitle h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
-.profile-section-desc h5, .vsshow-hero-subtitle h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
-.profile-section-desc h6, .vsshow-hero-subtitle h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-.profile-section-desc table, .vsshow-hero-subtitle table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
-.profile-section-desc table td, .vsshow-hero-subtitle table td,
-.profile-section-desc table th, .vsshow-hero-subtitle table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+.profile-section-desc p, .vsshow-hero-subtitle p, .vsshow-section-desc p { margin-bottom: 1rem !important; }
+.profile-section-desc ul, .vsshow-hero-subtitle ul, .vsshow-section-desc ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+.profile-section-desc ol, .vsshow-hero-subtitle ol, .vsshow-section-desc ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+.profile-section-desc li, .vsshow-hero-subtitle li, .vsshow-section-desc li { margin: 0.25em 0 !important; display: list-item !important; }
+.profile-section-desc a:hover, .vsshow-hero-subtitle a:hover, .vsshow-section-desc a:hover { text-decoration: underline !important; color: #009ac9 !important; }
+.profile-section-desc h1, .vsshow-hero-subtitle h1, .vsshow-section-desc h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
+.profile-section-desc h2, .vsshow-hero-subtitle h2, .vsshow-section-desc h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
+.profile-section-desc h3, .vsshow-hero-subtitle h3, .vsshow-section-desc h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
+.profile-section-desc h4, .vsshow-hero-subtitle h4, .vsshow-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
+.profile-section-desc h5, .vsshow-hero-subtitle h5, .vsshow-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
+.profile-section-desc h6, .vsshow-hero-subtitle h6, .vsshow-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
+.profile-section-desc table, .vsshow-hero-subtitle table, .vsshow-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
+.profile-section-desc table td, .vsshow-hero-subtitle table td, .vsshow-section-desc table td,
+.profile-section-desc table th, .vsshow-hero-subtitle table th, .vsshow-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }

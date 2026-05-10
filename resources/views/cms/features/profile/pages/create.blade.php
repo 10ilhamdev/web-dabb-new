@@ -10,7 +10,6 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/profile/profile.css') }}">
-    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css') }}">
     <style>
         /* Mirror guest page profile.blade.php styles for preview pane */
         #preview-container {
@@ -104,6 +103,7 @@
             align-items: start;
         }
 
+        /* Fix RTE toolbar — only expand content area, NOT toolbar */
         .rte-content-wrap {
             overflow-x: auto !important;
         }
@@ -424,10 +424,7 @@
                             <div id="preview-wrapper" style="display: block; width: 1200px; padding: 0 15px;">
                                 <div id="preview-container" class="profile-section-desc" style="transform-origin: top left; transition: transform 0.2s ease;"
                                     style="background: transparent; width: 100%; border: none; padding: 0;">
-                                    <div style="color: #999; text-align: center; padding: 2rem; font-style: italic;">
-                                        <p style="margin: 0; font-size: 13px;">Tambahkan konten dan/atau gambar untuk
-                                            melihat preview</p>
-                                    </div>
+                                    {{-- Preview content akan diisi oleh JavaScript --}}
                                 </div>
                             </div>
                         </div>

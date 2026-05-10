@@ -60,10 +60,15 @@ body.rte-content-body table[border="0"] th,
 body.rte-content-body table:not([border]) th {
     border: 1px solid #e5e7eb;
     padding: 0.75rem;
-    background-color: #ffffff;
 }
 
-body.rte-content-body thead { background-color: #eee; }
+body.rte-content-body thead,
+body.rte-content-body th {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    text-align: center;
+}
 
 body.rte-content-body img { max-width: 100%; height: auto; cursor: default; }
 

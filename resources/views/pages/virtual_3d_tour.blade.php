@@ -162,7 +162,7 @@
 
                     @if($section->description)
                     <div class="section-description">
-                        <p>{!! nl2br(e(app()->getLocale() === 'en' && $section->description_en ? $section->description_en : $section->description)) !!}</p>
+                        <p>{!! app()->getLocale() === 'en' && $section->description_en ? $section->description_en : $section->description !!}</p>
                     </div>
                     @endif
                 </div>

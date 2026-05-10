@@ -845,7 +845,6 @@
                         draggedItem.style.margin =
                             drTop + "px " + drRight + "px 32px 32px";
                         draggedItem.style.transform = "none";
-                        adjustPreviewGrid();
                     };
 
                     const handleMouseUp = (upEvent) => {
@@ -890,8 +889,6 @@
                         draggedIndex = null;
 
                         saveImagePositionsBeforeSubmit();
-                        adjustPreviewGrid();
-                        applyImageTransforms();
                     };
 
                     document.addEventListener("mousemove", handleMouseMove);

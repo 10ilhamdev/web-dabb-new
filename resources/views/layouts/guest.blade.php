@@ -76,7 +76,7 @@
     {{-- Auto-expand RTE containers to fit Free Canvas Mode absolute media & prevent horizontal spill --}}
     <script>
         window.addEventListener('load', function() {
-            var rteContainers = document.querySelectorAll('.rte-content, .rte-content-body, .profile-section-desc, .vsshow-hero-subtitle');
+            var rteContainers = document.querySelectorAll('.rte-content, .rte-content-body, .profile-section-desc, .vsshow-hero-subtitle, .vsshow-section-desc');
             
             function getRelativeOffset(el, ancestor, prop) {
                 var offset = 0;
