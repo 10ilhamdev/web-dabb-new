@@ -24,7 +24,7 @@ class PasswordController extends Controller
                 'required',
                 'confirmed',
                 'different:current_password',
-                Password::min(10)
+                Password::min(9)
                     ->mixedCase()
                     ->symbols(),
             ],
@@ -51,7 +51,7 @@ class PasswordController extends Controller
             'password' => [
                 'required',
                 'confirmed',
-                Password::min(10)
+                Password::min(9)
                     ->mixedCase()
                     ->symbols(),
             ],

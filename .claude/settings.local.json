@@ -3,7 +3,10 @@
     "allow": [
       "WebFetch(domain:www.richtexteditor.com)",
       "mcp__ide__getDiagnostics",
-      "Bash(php C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan *)"
+      "Bash(php C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan *)",
+      "Bash(php \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan\" config:clear)",
+      "Bash(php \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan\" cache:clear)",
+      "Bash(php \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan\" view:clear)"
     ]
   }
 }

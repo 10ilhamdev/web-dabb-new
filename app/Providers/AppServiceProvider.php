@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Password::defaults(function () {
-            return Password::min(10)
+            return Password::min(9)
                 ->max(100)
                 ->mixedCase()
                 ->symbols();
