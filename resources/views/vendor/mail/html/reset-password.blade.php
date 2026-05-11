@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Verifikasi Alamat Email</title>
+    <title>Reset Password</title>
 </head>
 
 <body
@@ -31,34 +31,35 @@
                     <!-- Content -->
                     <tr>
                         <td style="padding: 40px 40px 30px 40px;">
-                            <h2 style="color: #333333; margin: 0 0 20px 0; font-size: 22px;">Verifikasi Alamat Email
+                            <h2 style="color: #333333; margin: 0 0 20px 0; font-size: 22px;">Reset Password
                             </h2>
 
                             <p style="color: #555555; font-size: 16px; line-height: 1.8; margin: 0 0 25px 0;">
-                                Yth. {{ $name }},
+                                Yth. Pengguna,
                             </p>
 
                             <p style="color: #555555; font-size: 16px; line-height: 1.8; margin: 0 0 25px 0;">
-                                Terima kasih telah melakukan pendaftaran di <strong>Depot Arsip Berkelanjutan
-                                    Bandung</strong>. Untuk mengaktifkan akun Anda, silakan klik tombol di bawah ini
-                                untuk memverifikasi alamat email Anda.
+                                Anda menerima email ini karena kami menerima permintaan reset password untuk akun Anda di <strong>Depot Arsip Berkelanjutan Bandung</strong>.
                             </p>
 
-                            <!-- Tombol Verifikasi -->
+                            <!-- Tombol Reset Password -->
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                                 <tr>
                                     <td align="center">
                                         <a href="{{ $url }}"
                                             style="display: inline-block; background: linear-gradient(135deg, #0579CB 0%, #034a8a 100%); color: #ffffff; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(5, 121, 203, 0.3);">
-                                            Verifikasi Email
+                                            Reset Password
                                         </a>
                                     </td>
                                 </tr>
                             </table>
 
                             <p style="color: #777777; font-size: 14px; line-height: 1.6; margin: 25px 0;">
-                                Jika Anda tidak merasa melakukan pendaftaran di situs kami, Anda dapat mengabaikan email
-                                ini.
+                                Link reset password ini akan kadaluarsa dalam {{ config('auth.passwords.'.config('auth.defaults.passwords').'.expire') }} menit.
+                            </p>
+
+                            <p style="color: #777777; font-size: 14px; line-height: 1.6; margin: 25px 0;">
+                                Jika Anda tidak melakukan permintaan reset password, Anda dapat mengabaikan email ini dan tidak ada perubahan yang akan dilakukan pada akun Anda.
                             </p>
 
                             <p style="color: #555555; font-size: 14px; line-height: 1.6; margin: 25px 0 0 0;">
