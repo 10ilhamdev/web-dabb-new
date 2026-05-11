@@ -119,9 +119,8 @@ class RoleDashboardController extends Controller
         $avgDaily365  = $total365 > 0 ? round($total365 / 365, 1) : 0;
 
         // === BUILD DATA PER ROLE (loop, not hardcoded) ===
-        $guestData7 = $guestData30 = $guestDataYear = [];
-        $roleData7 = $roleData30 = $roleDataYear = [];
-        $roleAvgHour = [];
+        $guestData7 = $guestData30 = $guestDataYear = $guestTodayHourly = [];
+        $roleData7 = $roleData30 = $roleDataYear = $roleTodayHourly = [];
 
         $guestCounts7  = PageView::whereIn('viewed_date', $last7Days)->whereNull('user_id')
             ->selectRaw('viewed_date, COUNT(*) as total')->groupBy('viewed_date')
@@ -139,6 +138,16 @@ class RoleDashboardController extends Controller
         // Guest: fill missing dates with 0
         $guestData7  = array_map(fn($d) => (int) ($guestCounts7[$d] ?? 0), $last7Days);
         $guestData30 = array_map(fn($d) => (int) ($guestCounts30[$d] ?? 0), $last30Days);
+
+        // Guest: Today Hourly (Real Data)
+        // Group by hour (0-23) using created_at with Asia/Jakarta offset
+        $guestHourlyCounts = PageView::where('viewed_date', $today)
+            ->whereNull('user_id')
+            ->selectRaw('HOUR(created_at) as hr, COUNT(*) as total')
+            ->groupBy('hr')
+            ->pluck('total', 'hr')->toArray();
+
+        $guestTodayHourly = array_map(fn($h) => (int) ($guestHourlyCounts[$h] ?? 0), range(0, 23));
 
         // Per-role: loop dynamically
         foreach ($roleNames as $rname) {
@@ -166,10 +175,14 @@ class RoleDashboardController extends Controller
             }
             $roleDataYear[$rname] = $monthCounts;
 
-            // Today hourly avg
-            $todayCount = PageView::where('viewed_date', $today)
-                ->whereHas('user', fn($q) => $q->where('role', $rname))->count();
-            $roleAvgHour[$rname] = round($todayCount / 24, 1);
+            // Today Hourly (Real Data)
+            $roleHourlyCounts = PageView::where('viewed_date', $today)
+                ->whereHas('user', fn($q) => $q->where('role', $rname))
+                ->selectRaw('HOUR(created_at) as hr, COUNT(*) as total')
+                ->groupBy('hr')
+                ->pluck('total', 'hr')->toArray();
+
+            $roleTodayHourly[$rname] = array_map(fn($h) => (int) ($roleHourlyCounts[$h] ?? 0), range(0, 23));
         }
 
         // Guest 12-month
@@ -183,7 +196,6 @@ class RoleDashboardController extends Controller
                 ->whereHas('user', fn($q) => $q->where('role', $rname))->count();
         }
         $totalToday = $todayGuestCount + $todayTotalRoles;
-        $avgHourGuest = round($todayGuestCount / 24, 1);
 
         // === CHART LABELS ===
         $chartLabels7   = array_map(fn($d) => \Carbon\Carbon::parse($d)->format('d M'), $last7Days);
@@ -204,7 +216,7 @@ class RoleDashboardController extends Controller
                 'data7'   => $roleData7[$rname] ?? [],
                 'data30'  => $roleData30[$rname] ?? [],
                 'dataYear'=> $roleDataYear[$rname] ?? array_fill(0, 12, 0),
-                'avgHour' => $roleAvgHour[$rname] ?? 0,
+                'todayHourly' => $roleTodayHourly[$rname] ?? array_fill(0, 24, 0),
             ];
         }
 
@@ -212,7 +224,7 @@ class RoleDashboardController extends Controller
             // === Chart Config ===
             'chartRoles'  => $allRoles,
             'chartColors' => $chartColors,
-            'guestColor'  => '#3B82F6',
+            'guestColor'  => '#cececeff',
             'roleJsData'  => $roleJsData,
 
             // === Chart Labels ===
@@ -224,7 +236,7 @@ class RoleDashboardController extends Controller
             'guestData7'    => $guestData7,
             'guestData30'   => $guestData30,
             'guestDataYear' => $guestDataYear,
-            'avgHourGuest'  => $avgHourGuest,
+            'guestTodayHourly' => $guestTodayHourly,
 
             // === Stats ===
             'totalVisitors' => $totalVisitors,

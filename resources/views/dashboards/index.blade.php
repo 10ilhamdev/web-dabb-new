@@ -49,9 +49,9 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <div class="text-3xl font-bold text-gray-900 leading-tight"
-                                id="avgDailyStat">{{ number_format($total7 ?? 0) }}</div>
-                            <div class="text-xs font-medium text-gray-600 mt-1">
-                                {{ __('dashboard.admin.stats.daily_visitors') }}</div>
+                                id="avgDailyStat">{{ number_format($totalToday ?? 0) }}</div>
+                            <div class="text-xs font-medium text-gray-600 mt-1" id="visitorStatTitle">
+                                {{ __('dashboard.admin.stats.total_today') }}</div>
                         </div>
                         <div class="p-2 bg-gray-50 rounded-lg text-gray-600">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,15 +61,11 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="mt-1.5">
-                        <span class="text-[10px] text-gray-400" id="avgDailyLabel">{{ __("dashboard.admin.stats.avg_daily_7") }}</span>
-                    </div>
                     <div class="mt-4 text-right">
                         <a href="#"
                             class="text-[11px] font-medium text-gray-400 hover:text-blue-500">{{ __('dashboard.admin.stats.view_details') }}</a>
                     </div>
                 </div>
-
                 <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
                     <div class="flex justify-between items-start relative">
                         <div>
@@ -121,25 +117,25 @@
         @if ($role === 'admin')
             <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-bold text-gray-800">{{ __('dashboard.admin.chart.title') }}</h2>
+                    <h2 class="text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.admin.chart.title') }}</h2>
                     {{-- Timeframe selector for ApexCharts --}}
                     <div class="flex flex-col gap-3">
                         <div class="flex justify-between items-center flex-wrap gap-3">
                             <div class="text-[11px] font-semibold text-gray-800">
                                 {{ __('dashboard.admin.chart.user_type') }}</div>
-                            <select id="chartTimeframe"
-                                class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer bg-white">
-                                <option value="day">Hari Ini (per jam)</option>
-                                <option value="week" selected>7 Hari Terakhir</option>
-                                <option value="month">30 Hari</option>
-                                <option value="year">1 Tahun</option>
+                             <select id="chartTimeframe"
+                                class="text-xs border border-gray-200 rounded-lg pl-3 pr-10 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer bg-white">
+                                <option value="day" selected>{{ __('dashboard.admin.chart.filter_day') }}</option>
+                                <option value="week">{{ __('dashboard.admin.chart.filter_week') }}</option>
+                                <option value="month">{{ __('dashboard.admin.chart.filter_month') }}</option>
+                                <option value="year">{{ __('dashboard.admin.chart.filter_year') }}</option>
                             </select>
                         </div>
                         <div class="flex items-center gap-5 text-[11px] font-medium text-gray-600" style="gap: 20px;">
                             {{-- Guest (always first) --}}
                             <div class="flex items-center gap-2" style="gap: 8px;">
                                 <span
-                                    style="width:12px;height:12px;min-width:12px;border-radius:999px;background-color:{{ $guestColor ?? '#3B82F6' }};display:inline-block;"></span>
+                                    style="width:12px;height:12px;min-width:12px;border-radius:999px;background-color:{{ $guestColor ?? '#cececeff' }};display:inline-block;"></span>
                                 <span>{{ __('dashboard.admin.chart.unregistered_user') }}</span>
                             </div>
                             {{-- Registered roles — dynamic from DB --}}
@@ -213,13 +209,14 @@ document.addEventListener('DOMContentLoaded', function() {
     var guestData30 = @json($guestData30 ?? []);
     var chartLabelsYear = @json($chartLabelsYear ?? []);
     var guestDataYear = @json($guestDataYear ?? []);
-    var avgHourGuest = {{ $avgHourGuest ?? 0 }};
-    var guestColor = '{{ $guestColor ?? '#3B82F6' }}';
+    var guestTodayHourly = @json($guestTodayHourly ?? []);
+    var guestColor = '{{ $guestColor ?? '#6366F1' }}';
 
     var chartEl = document.getElementById('visitorChart');
     if (!chartEl) return;
 
     function getGuestData(tf) {
+        if (tf === 'day')   return guestTodayHourly;
         if (tf === 'week')  return guestData7;
         if (tf === 'month') return guestData30;
         if (tf === 'year')  return guestDataYear;
@@ -228,11 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getTimeframe() {
         var sel = document.getElementById('chartTimeframe');
-        return sel ? sel.value : 'week';
+        return sel ? sel.value : 'day';
     }
 
     function buildSeries(tf) {
-        var dataKey = tf === 'day' ? 'avgHour' : tf === 'week' ? 'data7' : tf === 'month' ? 'data30' : 'dataYear';
+        var dataKey = tf === 'day' ? 'todayHourly' : tf === 'week' ? 'data7' : tf === 'month' ? 'data30' : 'dataYear';
         var series = [{
             name: "{{ __('dashboard.admin.chart.unregistered_user') }}",
             data: getGuestData(tf) || []
@@ -240,9 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
         roleChartData.forEach(function(role) {
             series.push({
                 name: role.label,
-                data: tf === 'day'
-                    ? Array(24).fill(role.avgHour)
-                    : (role[dataKey] || [])
+                data: (role[dataKey] || [])
             });
         });
         return series;
@@ -270,11 +265,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (t === 'year')  return {{ $total365 ?? 0 }};
             return 0;
         };
-        var getLabel = function(t) {
-            return {'day':'Total kunjungan hari ini','week':'Total 7 hari terakhir','month':'Total 30 hari','year':'Total 1 tahun'}[t] || '';
+        var getTitle = function(t) {
+            return {
+                'day':   @json(__('dashboard.admin.chart.filter_day')),
+                'week':  @json(__('dashboard.admin.chart.filter_week')),
+                'month': @json(__('dashboard.admin.chart.filter_month')),
+                'year':  @json(__('dashboard.admin.chart.filter_year'))
+            }[t] || '';
         };
+        var getStatTitle = function(t) {
+            return {
+                'day':   @json(__('dashboard.admin.stats.total_today')),
+                'week':  @json(__('dashboard.admin.stats.total_7_days')),
+                'month': @json(__('dashboard.admin.stats.total_30_days')),
+                'year':  @json(__('dashboard.admin.stats.total_1_year'))
+            }[t] || '';
+        };
+
         if (avgDailyStat) avgDailyStat.textContent = nf(Math.round(getTotal(tf)));
-        if (avgDailyLabel) avgDailyLabel.textContent = getLabel(tf);
+        if (visitorStatTitle) visitorStatTitle.textContent = getStatTitle(tf);
+
+        var chartTitleEl = document.getElementById('chartTitle');
+        if (chartTitleEl) {
+            chartTitleEl.textContent = @json(__('dashboard.admin.chart.title')) + ' - ' + getTitle(tf);
+        }
 
         if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
