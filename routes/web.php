@@ -50,23 +50,26 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/send-verification', [ProfileController::class, 'sendVerificationNotification'])->name('profile.send-verification');
 
     // CMS Home Content Editor (supports multiple beranda pages by feature_id)
-    Route::middleware('role:admin')->prefix('cms/home/{feature_id}')->name('cms.home.')->group(function () {
+    Route::middleware('role:cms.features')->prefix('cms/home/{feature_id}')->name('cms.home.')->group(function () {
         Route::get('/', [HomeContentController::class, 'edit'])->name('edit');
         Route::put('/', [HomeContentController::class, 'update'])->name('update');
     });
 
-    // CMS Settings
-    Route::middleware('role:admin')->prefix('cms/settings')->name('cms.settings.')->group(function () {
+    // CMS Settings - Footer
+    Route::middleware('role:cms.footer')->prefix('cms/settings')->name('cms.settings.')->group(function () {
         Route::post('/rte-upload', [SettingController::class, 'uploadRteMedia'])->name('rte.upload');
-
         Route::get('/footer', [SettingController::class, 'editFooter'])->name('footer.edit');
         Route::put('/footer', [SettingController::class, 'updateFooter'])->name('footer.update');
-        Route::get('/disclaimer', [SettingController::class, 'editDisclaimer'])->name('disclaimer.edit');
-        Route::put('/disclaimer', [SettingController::class, 'updateDisclaimer'])->name('disclaimer.update');
+    });
+
+    // CMS Settings - Disclaimer
+    Route::middleware('role:cms.disclaimer')->prefix('cms/settings')->name('cms.settings.disclaimer.')->group(function () {
+        Route::get('/disclaimer', [SettingController::class, 'editDisclaimer'])->name('edit');
+        Route::put('/disclaimer', [SettingController::class, 'updateDisclaimer'])->name('update');
     });
 
     // CMS Features
-    Route::middleware('role:admin')->prefix('cms/features')->name('cms.features.')->group(function () {
+    Route::middleware('role:cms.features')->prefix('cms/features')->name('cms.features.')->group(function () {
         Route::get('/', [FeatureController::class, 'index'])->name('index');
         Route::post('/', [FeatureController::class, 'store'])->name('store');
         Route::get('/{feature}/', [FeatureController::class, 'show'])->name('show.slash');
@@ -179,7 +182,21 @@ Route::middleware('auth')->group(function () {
     });
 
     // CMS Pengguna (User Management)
+    // Role Management (Admin only - system-level config)
     Route::middleware('role:admin')->prefix('cms/pengguna')->name('cms.pengguna.')->group(function () {
+        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
+        Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+        Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+        Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+        Route::post('/roles/{role}/sync', [RoleController::class, 'triggerSync'])->name('roles.sync');
+        Route::get('/roles/tables', [RoleController::class, 'getTables'])->name('roles.tables');
+        Route::get('/roles/tables/{table}/columns', [RoleController::class, 'getTableColumns'])->name('roles.tables.columns');
+    });
+
+    // Users CRUD (permission-based using role_permissions table)
+    Route::middleware('role:pengguna.users')->prefix('cms/pengguna')->name('cms.pengguna.')->group(function () {
         Route::get('/', [PenggunaController::class, 'index'])->name('index');
         Route::get('/create', [PenggunaController::class, 'create'])->name('create');
         Route::post('/', [PenggunaController::class, 'store'])->name('store');
@@ -188,20 +205,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{pengguna}', [PenggunaController::class, 'destroy'])->name('destroy');
         Route::post('/{pengguna}/resend-verification', [PenggunaController::class, 'resendVerification'])->name('resend-verification');
         Route::post('/{pengguna}/mark-verified', [PenggunaController::class, 'markVerified'])->name('mark-verified');
-
-        // Role Management
-        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-        Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
-        Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
-        Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-        Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
-        Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
-        Route::post('/roles/{role}/sync', [RoleController::class, 'triggerSync'])->name('roles.sync');
-
-        // FK reference: list all DB tables
-        Route::get('/roles/tables', [RoleController::class, 'getTables'])->name('roles.tables');
-        // FK reference: list columns for a given table
-        Route::get('/roles/tables/{table}/columns', [RoleController::class, 'getTableColumns'])->name('roles.tables.columns');
     });
 });
 

@@ -20,8 +20,8 @@
         </h1>
         <p class="text-gray-500 text-sm">{{ __("dashboard.welcome.subtitle_{$role}") }}</p>
 
-        {{-- ===== ADMIN SPECIAL: Stats Cards ===== --}}
-        @if ($role === 'admin')
+        {{-- ===== STATS CARDS: All roles (admin = all visitors, non-admin = user's own visits) ===== --}}
+        @if (in_array($role, ['admin', 'pegawai']))
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
 
                 <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
@@ -66,6 +66,7 @@
                             class="text-[11px] font-medium text-gray-400 hover:text-blue-500">{{ __('dashboard.admin.stats.view_details') }}</a>
                     </div>
                 </div>
+
                 <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
                     <div class="flex justify-between items-start relative">
                         <div>
@@ -111,10 +112,58 @@
                 </div>
 
             </div>
+        @else
+            {{-- Non-admin: User's own visit stats --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 mt-6">
+
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-3xl font-bold text-gray-900 leading-tight">
+                                {{ number_format($totalVisits ?? 0) }}</div>
+                            <div class="text-xs font-medium text-gray-600 mt-1">
+                                {{ __('dashboard.user_stats.total_visits') }}</div>
+                        </div>
+                        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="#"
+                            class="text-[11px] font-medium text-gray-400 hover:text-blue-500">{{ __('dashboard.user_stats.view_details') }}</a>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-3xl font-bold text-gray-900 leading-tight"
+                                id="avgDailyStat">{{ number_format($totalToday ?? 0) }}</div>
+                            <div class="text-xs font-medium text-gray-600 mt-1" id="visitorStatTitle">
+                                {{ __('dashboard.user_stats.total_today') }}</div>
+                        </div>
+                        <div class="p-2 bg-green-50 rounded-lg text-green-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="#"
+                            class="text-[11px] font-medium text-gray-400 hover:text-blue-500">{{ __('dashboard.user_stats.view_details') }}</a>
+                    </div>
+                </div>
+
+            </div>
         @endif
 
-        {{-- ===== ADMIN SPECIAL: Chart ===== --}}
-        @if ($role === 'admin')
+        {{-- ===== ADMIN: Chart with dynamic roles ===== --}}
+        @if (in_array($role, ['admin', 'pegawai']))
             <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.admin.chart.title') }}</h2>
@@ -156,49 +205,29 @@
             </div>
         @endif
 
-        {{-- ===== PEGAWAI: Simple Card ===== --}}
-        @if ($role === 'pegawai')
-            <div class="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <h2 class="text-lg font-bold text-gray-800 mb-4">{{ __('dashboard.welcome.recent_activity') }}</h2>
-                <div class="text-sm text-gray-500">{{ __('dashboard.welcome.no_activity') }}</div>
-            </div>
-        @endif
-
-        {{-- ===== GENERAL CARD: works for umum, pelajar_mahasiswa, instansi_swasta ===== --}}
-        @if (in_array($role, ['umum', 'pelajar_mahasiswa', 'instansi_swasta']))
-            <div class="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <h2 class="text-lg font-bold text-gray-800 mb-4">{{ __("dashboard.{$role}.card_title") }}</h2>
-                <p class="text-sm text-gray-600 mb-4">{{ __("dashboard.{$role}.card_desc") }}</p>
-
-                @if ($role === 'umum')
-                    <button
-                        class="bg-[#174E93] text-white px-4 py-2 rounded shadow hover:bg-blue-800 transition-colors text-sm font-medium">
-                        {{ __('dashboard.umum.card_button') }}
-                    </button>
-                @elseif($role === 'pelajar_mahasiswa')
-                    <button
-                        class="bg-[#0ea5e9] text-white px-4 py-2 rounded shadow hover:bg-blue-500 transition-colors text-sm font-medium">
-                        {{ __('dashboard.pelajar.card_button') }}
-                    </button>
-                @elseif($role === 'instansi_swasta')
-                    <div class="flex space-x-3">
-                        <button
-                            class="bg-[#174E93] text-white px-4 py-2 rounded shadow hover:bg-blue-800 transition-colors text-sm font-medium">
-                            {{ __('dashboard.instansi.card_button1') }}
-                        </button>
-                        <button
-                            class="bg-gray-100 text-gray-700 px-4 py-2 rounded border border-gray-300 hover:bg-gray-200 transition-colors text-sm font-medium">
-                            {{ __('dashboard.instansi.card_button2') }}
-                        </button>
-                    </div>
-                @endif
+        {{-- ===== NON-ADMIN: User's own visit chart ===== --}}
+        @if (!in_array($role, ['admin', 'pegawai']))
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.user_chart.title') }}</h2>
+                    <select id="chartTimeframe"
+                        class="text-xs border border-gray-200 rounded-lg pl-3 pr-10 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer bg-white">
+                        <option value="day" selected>{{ __('dashboard.user_chart.filter_day') }}</option>
+                        <option value="week">{{ __('dashboard.user_chart.filter_week') }}</option>
+                        <option value="month">{{ __('dashboard.user_chart.filter_month') }}</option>
+                        <option value="year">{{ __('dashboard.user_chart.filter_year') }}</option>
+                    </select>
+                </div>
+                <div class="w-full relative" style="height: 350px;">
+                    <div id="visitorChart"></div>
+                </div>
             </div>
         @endif
     </div>
 @endsection
 
 {{-- Chart scripts --}}
-@if ($role === 'admin')
+@if (in_array($role, ['admin', 'pegawai']))
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -328,6 +357,123 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chartInstance = new ApexCharts(chartEl, options);
             chartInstance.render();
+    }
+
+    renderChart(getTimeframe());
+
+    var tfSel = document.getElementById('chartTimeframe');
+    if (tfSel) tfSel.addEventListener('change', function() { renderChart(this.value); });
+});
+</script>
+@endpush
+@endif
+
+{{-- Non-admin user chart script --}}
+@if (!in_array($role, ['admin', 'pegawai']))
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chartLabels7 = @json($chartLabels7 ?? []);
+    var userData7 = @json($userData7 ?? []);
+    var chartLabels30 = @json($chartLabels30 ?? []);
+    var userData30 = @json($userData30 ?? []);
+    var chartLabelsYear = @json($chartLabelsYear ?? []);
+    var userDataYear = @json($userDataYear ?? []);
+    var userTodayHourly = @json($userTodayHourly ?? []);
+
+    var chartEl = document.getElementById('visitorChart');
+    if (!chartEl) return;
+
+    function getTimeframe() {
+        var sel = document.getElementById('chartTimeframe');
+        return sel ? sel.value : 'day';
+    }
+
+    function getCategories(tf) {
+        if (tf === 'day') {
+            return Array.from({length: 24}, function(_, i) { return i.toString().padStart(2,'0')+':00'; });
+        }
+        if (tf === 'month') return chartLabels30;
+        if (tf === 'year')  return chartLabelsYear;
+        return chartLabels7;
+    }
+
+    function getUserData(tf) {
+        if (tf === 'day')   return userTodayHourly;
+        if (tf === 'week')  return userData7;
+        if (tf === 'month') return userData30;
+        if (tf === 'year')  return userDataYear;
+        return userData7;
+    }
+
+    var chartInstance = null;
+
+    function renderChart(tf) {
+        var avgDailyStat = document.getElementById('avgDailyStat');
+        var visitorStatTitle = document.getElementById('visitorStatTitle');
+        var nf = function(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); };
+
+        var getTotal = function(t) {
+            if (t === 'day')   return {{ $totalToday ?? 0 }};
+            if (t === 'week')  return {{ $total7 ?? 0 }};
+            if (t === 'month') return {{ $total30 ?? 0 }};
+            if (t === 'year')  return {{ $total365 ?? 0 }};
+            return 0;
+        };
+
+        var getStatTitle = function(t) {
+            return {
+                'day':   @json(__('dashboard.user_stats.total_today')),
+                'week':  @json(__('dashboard.user_stats.total_7_days')),
+                'month': @json(__('dashboard.user_stats.total_30_days')),
+                'year':  @json(__('dashboard.user_stats.total_1_year'))
+            }[t] || '';
+        };
+
+        if (avgDailyStat) avgDailyStat.textContent = nf(Math.round(getTotal(tf)));
+        if (visitorStatTitle) visitorStatTitle.textContent = getStatTitle(tf);
+
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+        var options = {
+            series: [{
+                name: "{{ __('dashboard.user_stats.total_visits') }}",
+                data: getUserData(tf) || []
+            }],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: {
+                    show: true,
+                    tools: { download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true },
+                    export: { csv: { filename: 'my-visit-report', columnDelimiter: ',', headerCategory: 'Tanggal', headerValue: 'Kunjungan' }, svg: { filename: 'my-visit-report' }, png: { filename: 'my-visit-report' } }
+                },
+                animations: { enabled: true, easing: 'easeinout', speed: 800 },
+                zoom: { enabled: true },
+                redrawOnParentResize: true,
+            },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 2.5 },
+            colors: ['#0ea5e9'],
+            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] } },
+            xaxis: {
+                categories: getCategories(tf),
+                labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter, sans-serif' } },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+            },
+            yaxis: {
+                min: 0,
+                labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter, sans-serif' }, formatter: function(v) { return Math.round(v).toString(); } },
+                title: { text: "{{ __('dashboard.user_chart.y_axis') }}", style: { color: '#475569', fontSize: '10px', fontWeight: 'bold', fontFamily: 'Inter, sans-serif' } },
+            },
+            grid: { borderColor: '#f1f5f9', strokeDashArray: 3, xaxis: { lines: { show: false } } },
+            legend: { show: false },
+            tooltip: { theme: 'light', x: { show: true }, y: { formatter: function(v) { return Math.round(v) + ' {{ __('dashboard.user_chart.y_axis') }}'; } } },
+        };
+
+        chartInstance = new ApexCharts(chartEl, options);
+        chartInstance.render();
     }
 
     renderChart(getTimeframe());

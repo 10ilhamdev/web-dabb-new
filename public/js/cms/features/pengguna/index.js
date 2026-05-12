@@ -630,8 +630,8 @@ $(function () {
     });
 
     var table = $("#tablePengguna").DataTable({
-        columnDefs: [{ orderable: false, targets: [0, 6] }],
-        order: [[5, "desc"]],
+        columnDefs: [{ orderable: false, targets: [6] }],
+        order: [],
         language: {
             search: "",
             searchPlaceholder: window.LaravelDT?.dtSearchPlaceholder || i18n.dtSearchPlaceholder || "",

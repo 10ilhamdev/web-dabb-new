@@ -1054,7 +1054,7 @@ return [
         'form_name' => 'Nama Lengkap',
         'form_name_placeholder' => 'Masukkan nama lengkap',
         'form_username' => 'Username',
-        'form_username_placeholder' => 'Opsional',
+        'form_username_placeholder' => 'Wajib diisi',
         'form_email' => 'Email',
         'form_email_placeholder' => 'contoh@email.com',
         'form_role' => 'Peran',

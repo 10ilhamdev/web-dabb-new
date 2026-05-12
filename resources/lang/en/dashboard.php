@@ -64,6 +64,26 @@ return [
             'filter_year' => 'Last 1 year',
         ],
     ],
+    'user_stats' => [
+        'total_visits' => 'Your Total Visits',
+        'total_today' => 'Your Visits Today',
+        'total_7_days' => 'Your Visits Last 7 Days',
+        'total_30_days' => 'Your Visits Last 30 Days',
+        'total_1_year' => 'Your Visits Last 1 Year',
+        'view_details' => 'View Details',
+    ],
+    'user_chart' => [
+        'title' => 'Your Visit Chart Report',
+        'subtitle' => 'Your Visit Chart',
+        'y_axis' => 'Number of Visits',
+        'filter_day' => 'Today (Hourly)',
+        'filter_week' => 'Last 7 Days',
+        'filter_month' => 'Last 30 Days',
+        'filter_year' => 'Last 1 Year',
+    ],
+    'pegawai' => [
+        'title' => 'Employee Dashboard',
+    ],
     'welcome' => [
         'greeting_admin' => 'Welcome, Admin :name',
         'greeting_pegawai' => 'Welcome, Employee :name',
@@ -96,6 +116,14 @@ return [
         'card_desc' => 'Access the history of archive deposits, validation, and transfers between agencies.',
         'card_button1' => 'View Reports',
         'card_button2' => 'Contact Admin',
+    ],
+    // Alias for pelajar_mahasiswa (uses 'pelajar' key)
+    'pelajar_mahasiswa' => [
+        'title' => 'Student Dashboard',
+    ],
+    // Alias for instansi_swasta (uses 'instansi' key)
+    'instansi_swasta' => [
+        'title' => 'Organization Dashboard',
     ],
     'profile' => [
         'manage_account' => 'Manage Account',

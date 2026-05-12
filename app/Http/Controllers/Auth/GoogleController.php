@@ -61,9 +61,20 @@ class GoogleController extends Controller
                         'email' => __('Akun sudah terdaftar, silakan login.'),
                     ]);
                 } else {
+                    // Generate username from email or name
+                    $emailUsername = explode('@', $googleUser->getEmail())[0];
+                    $baseUsername = preg_replace('/[^a-zA-Z0-9]/', '', $emailUsername);
+                    $username = $baseUsername;
+                    $counter = 1;
+                    while (\App\Models\User::where('username', $username)->exists()) {
+                        $username = $baseUsername . $counter;
+                        $counter++;
+                    }
+
                     $newUser = User::create([
                         'name' => $googleUser->getName(),
                         'email' => $googleUser->getEmail(),
+                        'username' => $username,
                         'google_id' => $googleUser->getId(),
                         'password' => null, // Password can be null for Google signups
                         'email_verified_at' => now(), // Mark email as verified since it came from Google

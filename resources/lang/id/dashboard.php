@@ -64,6 +64,26 @@ return [
             'filter_year' => '1 Tahun Terakhir',
         ],
     ],
+    'user_stats' => [
+        'total_visits' => 'Total Kunjungan Anda',
+        'total_today' => 'Kunjungan Anda Hari Ini',
+        'total_7_days' => 'Kunjungan 7 Hari Terakhir',
+        'total_30_days' => 'Kunjungan 30 Hari Terakhir',
+        'total_1_year' => 'Kunjungan 1 Tahun Terakhir',
+        'view_details' => 'Lihat Detail',
+    ],
+    'user_chart' => [
+        'title' => 'Laporan Grafik Kunjungan Anda',
+        'subtitle' => 'Grafik Kunjungan Anda',
+        'y_axis' => 'Jumlah Kunjungan',
+        'filter_day' => 'Hari Ini (per jam)',
+        'filter_week' => '7 Hari Terakhir',
+        'filter_month' => '30 Hari Terakhir',
+        'filter_year' => '1 Tahun Terakhir',
+    ],
+    'pegawai' => [
+        'title' => 'Dashboard Pegawai',
+    ],
     'welcome' => [
         'greeting_admin' => 'Selamat Datang, Admin :name',
         'greeting_pegawai' => 'Selamat Datang, Pegawai :name',
@@ -96,6 +116,14 @@ return [
         'card_desc' => 'Akses riwayat penitipan, validasi, dan transfer arsip antar instansi.',
         'card_button1' => 'Lihat Laporan',
         'card_button2' => 'Hubungi Admin',
+    ],
+    // Alias for pelajar_mahasiswa (uses 'pelajar' key)
+    'pelajar_mahasiswa' => [
+        'title' => 'Dashboard Pelajar/Mahasiswa',
+    ],
+    // Alias for instansi_swasta (uses 'instansi' key)
+    'instansi_swasta' => [
+        'title' => 'Dashboard Instansi/Swasta',
     ],
     'profile' => [
         'manage_account' => 'Kelola Akun',

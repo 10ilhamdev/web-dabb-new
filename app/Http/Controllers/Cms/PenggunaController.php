@@ -69,10 +69,8 @@ class PenggunaController extends Controller
         // Build dynamic validation
         $rules = $this->buildValidationRules($roleModel, null);
 
-        // Username required for registerable roles (those with profile tables / public-facing accounts)
-        if (Role::registerable()->where('name', $role)->exists()) {
-            $rules['username'] = ['required', 'string', 'max:255', Rule::unique('users', 'username')];
-        }
+        // Username always required for all roles
+        $rules['username'] = ['required', 'string', 'max:255', Rule::unique('users', 'username')];
 
         $data = $request->validate($rules);
 
@@ -91,6 +89,19 @@ class PenggunaController extends Controller
                 if ($request->hasFile($fieldName)) {
                     $profileFileData[$fieldName] = $request->file($fieldName)->store('identitas', 'public');
                 }
+            }
+
+            // Generate username if not provided (for non-registerable roles like pegawai)
+            if (empty($data['username'])) {
+                $emailUsername = explode('@', $data['email'])[0];
+                $baseUsername = preg_replace('/[^a-zA-Z0-9]/', '', $emailUsername);
+                $username = $baseUsername;
+                $counter = 1;
+                while (User::where('username', $username)->exists()) {
+                    $username = $baseUsername . $counter;
+                    $counter++;
+                }
+                $data['username'] = $username;
             }
 
             // Create user

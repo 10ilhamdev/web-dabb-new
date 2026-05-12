@@ -26,7 +26,7 @@ class RoleDashboardController extends Controller
     }
 
     /**
-     * Build dashboard statistics and chart data.
+     * Build dashboard statistics and chart data for admin users.
      *
      * Fully dynamic — reads roles from `roles` table. If a role is added, removed,
      * or its badge_color changed, chart automatically adjusts without code changes.
@@ -252,6 +252,123 @@ class RoleDashboardController extends Controller
         ];
     }
 
+    /**
+     * Build dashboard statistics and chart data for non-admin users (pegawai, umum, pelajar, instansi).
+     * Shows the user's own visit data across the entire site.
+     */
+    private function buildUserStats($user): array
+    {
+        $now = now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $userId = $user->id;
+
+        // === USER VISIT STATS ===
+        // Total visits for this user (all time)
+        $totalUserVisits = PageView::where('user_id', $userId)->count();
+
+        // Today's visits for this user
+        $userTodayVisits = PageView::where('user_id', $userId)
+            ->where('viewed_date', $today)
+            ->count();
+
+        // Last 7 days
+        $last7Days = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $last7Days[] = $now->copy()->subDays($i)->format('Y-m-d');
+        }
+
+        // Last 30 days
+        $last30Days = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $last30Days[] = $now->copy()->subDays($i)->format('Y-m-d');
+        }
+
+        // Last 365 days
+        $last365Days = [];
+        for ($i = 364; $i >= 0; $i--) {
+            $last365Days[] = $now->copy()->subDays($i)->format('Y-m-d');
+        }
+
+        // 7-day visits
+        $userVisits7 = PageView::where('user_id', $userId)
+            ->whereIn('viewed_date', $last7Days)
+            ->count();
+
+        // 30-day visits
+        $userVisits30 = PageView::where('user_id', $userId)
+            ->whereIn('viewed_date', $last30Days)
+            ->count();
+
+        // 365-day visits
+        $userVisits365 = PageView::where('user_id', $userId)
+            ->whereIn('viewed_date', $last365Days)
+            ->count();
+
+        // === CHART DATA: User daily visits ===
+        // 7-day data
+        $userCounts7 = PageView::where('user_id', $userId)
+            ->whereIn('viewed_date', $last7Days)
+            ->selectRaw('viewed_date, COUNT(*) as total')
+            ->groupBy('viewed_date')
+            ->pluck('total', 'viewed_date')
+            ->toArray();
+
+        $userData7 = array_map(fn($d) => (int) ($userCounts7[$d] ?? 0), $last7Days);
+
+        // 30-day data
+        $userCounts30 = PageView::where('user_id', $userId)
+            ->whereIn('viewed_date', $last30Days)
+            ->selectRaw('viewed_date, COUNT(*) as total')
+            ->groupBy('viewed_date')
+            ->pluck('total', 'viewed_date')
+            ->toArray();
+
+        $userData30 = array_map(fn($d) => (int) ($userCounts30[$d] ?? 0), $last30Days);
+
+        // Year data (monthly)
+        $userCountsYear = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $mStart = $now->copy()->subMonths($i)->startOfMonth()->format('Y-m-d');
+            $mEnd = $now->copy()->subMonths($i)->endOfMonth()->format('Y-m-d');
+            $userCountsYear[] = PageView::where('user_id', $userId)
+                ->whereBetween('viewed_date', [$mStart, $mEnd])
+                ->count();
+        }
+
+        // Today hourly data
+        $userHourlyCounts = PageView::where('user_id', $userId)
+            ->where('viewed_date', $today)
+            ->selectRaw('HOUR(created_at) as hr, COUNT(*) as total')
+            ->groupBy('hr')
+            ->pluck('total', 'hr')
+            ->toArray();
+
+        $userTodayHourly = array_map(fn($h) => (int) ($userHourlyCounts[$h] ?? 0), range(0, 23));
+
+        // === CHART LABELS ===
+        $chartLabels7 = array_map(fn($d) => \Carbon\Carbon::parse($d)->format('d M'), $last7Days);
+        $chartLabels30 = array_map(fn($d) => \Carbon\Carbon::parse($d)->format('d M'), $last30Days);
+        $monthLabels = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $monthLabels[] = $now->copy()->subMonths($i)->format('M');
+        }
+
+        return [
+            'totalVisits' => $totalUserVisits,
+            'totalToday' => $userTodayVisits,
+            'total7' => $userVisits7,
+            'total30' => $userVisits30,
+            'total365' => $userVisits365,
+            'userData7' => $userData7,
+            'userData30' => $userData30,
+            'userDataYear' => $userCountsYear,
+            'userTodayHourly' => $userTodayHourly,
+            'chartLabels7' => $chartLabels7,
+            'chartLabels30' => $chartLabels30,
+            'chartLabelsYear' => $monthLabels,
+        ];
+    }
+
     public function show(Request $request, string $roleIdentifier): View
     {
         $roleName = self::fromSlug($roleIdentifier);
@@ -273,8 +390,10 @@ class RoleDashboardController extends Controller
             'user'       => $request->user(),
         ];
 
-        if ($roleName === 'admin') {
+        if (in_array($roleName, ['admin', 'pegawai'])) {
             $viewData = array_merge($viewData, $this->buildAdminStats());
+        } else {
+            $viewData = array_merge($viewData, $this->buildUserStats($request->user()));
         }
 
         return view('dashboards.index', $viewData);

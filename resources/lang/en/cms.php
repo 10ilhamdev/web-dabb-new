@@ -1048,7 +1048,7 @@ return [
         'form_name' => 'Full Name',
         'form_name_placeholder' => 'Enter full name',
         'form_username' => 'Username',
-        'form_username_placeholder' => 'Optional',
+        'form_username_placeholder' => 'Required',
         'form_email' => 'Email',
         'form_email_placeholder' => 'example@email.com',
         'form_role' => 'Role',
