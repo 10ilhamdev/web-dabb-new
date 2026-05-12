@@ -64,14 +64,13 @@
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ __('cms.features.col_type') }}</th>
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ __('cms.features.sub.col_path') }}</th>
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.features.col_sub_count') }}</th>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.features.sub.col_order') }}</th>
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.features.sub.col_action') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    @forelse($feature->subfeatures as $index => $sub)
+                    @forelse($feature->subfeatures as $sub)
                     <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-6 py-4 text-gray-500 font-medium">{{ $index + 1 }}</td>
+                        <td class="px-6 py-4 text-gray-500 font-medium">{{ $sub->order }}</td>
                         <td class="px-6 py-4 font-medium text-gray-800">{{ $sub->name }}</td>
                         <td class="px-6 py-4">
                             @if($sub->type === 'dropdown')
@@ -86,7 +85,6 @@
                         </td>
                         <td class="px-6 py-4 text-gray-500 font-mono text-xs">{{ $sub->path ?? '-' }}</td>
                         <td class="px-6 py-4 text-center text-gray-600">{{ $sub->subfeatures_count ?? 0 }}</td>
-                        <td class="px-6 py-4 text-center text-gray-600">{{ $sub->order }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2">
                                 @if($sub->type === 'dropdown')
@@ -129,7 +127,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-16 text-center">
+                        <td colspan="6" class="px-6 py-16 text-center">
                             <div class="flex flex-col items-center gap-3">
                                 <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -396,7 +394,7 @@
 <script>
 $(document).ready(function() {
     $('#tableSubFeatures').DataTable({
-        columnDefs: [{ orderable: false, targets: [6] }],
+        columnDefs: [{ orderable: false, targets: [4] }],
         order: [[0, 'asc']],
     });
 });

@@ -46,7 +46,7 @@
                 <tbody class="divide-y divide-gray-50">
                     @forelse($features as $index => $feature)
                     <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-6 py-4 text-gray-500 font-medium">{{ $index + 1 }}</td>
+                        <td class="px-6 py-4 text-gray-500 font-medium">{{ $feature->order }}</td>
                         <td class="px-6 py-4 font-medium text-gray-800">{{ $feature->name }}</td>
                         <td class="px-6 py-4">
                             @if($feature->type === 'dropdown')
@@ -317,7 +317,7 @@
 $(document).ready(function() {
     $('#tableFeatures').DataTable({
         columnDefs: [{ orderable: false, targets: [5] }],
-        order: [[0, 'asc']],
+        order: [[4, 'asc']],
     });
 });
 </script>

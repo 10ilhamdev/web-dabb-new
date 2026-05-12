@@ -33,6 +33,8 @@ class FeatureController extends Controller
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
+        $order = (int) $validated['order'];
+        unset($validated['order']);
 
         if ($validated['type'] === 'link') {
             // If page_type is beranda, set unique path based on feature name
@@ -58,7 +60,10 @@ class FeatureController extends Controller
             $validated['path'] = null;
         }
 
-        Feature::create($validated);
+        $scopeConditions = empty($validated['parent_id']) ? ['parent_id' => null] : ['parent_id' => $validated['parent_id']];
+
+        // Use insertAndShiftOrder so existing features at or after the target order get shifted up
+        $feature = $this->insertAndShiftOrder(Feature::class, $order, $scopeConditions, $validated);
 
         // If it's a sub-feature, redirect back to parent's show page
         if (! empty($validated['parent_id'])) {
@@ -169,6 +174,8 @@ class FeatureController extends Controller
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
+        $newOrder = (int) $validated['order'];
+        unset($validated['order']); // Remove order from validated data
 
         if ($validated['type'] === 'link') {
             // If page_type is beranda, set unique path based on feature name
@@ -189,8 +196,11 @@ class FeatureController extends Controller
             $validated['path'] = null;
         }
 
-        $this->swapOrder($feature, (int) $validated['order'], (int) $feature->order, ['parent_id' => $feature->parent_id]);
+        // Update other fields first
         $feature->update($validated);
+
+        // Then handle order change
+        $this->swapOrder($feature, $newOrder, (int) $feature->order, ['parent_id' => $feature->parent_id]);
 
         return redirect()->route('cms.features.index')
             ->with('success', __('cms.features.flash.feature_updated'));
@@ -224,7 +234,8 @@ class FeatureController extends Controller
      */
     public function destroy(Feature $feature)
     {
-        $feature->delete();
+        $scopeConditions = ['parent_id' => $feature->parent_id];
+        $this->deleteAndShiftOrder($feature, $scopeConditions);
 
         return redirect()->route('cms.features.index')
             ->with('success', __('cms.features.flash.feature_deleted'));
@@ -243,6 +254,8 @@ class FeatureController extends Controller
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
+        $newOrder = (int) $validated['order'];
+        unset($validated['order']); // Remove order from validated data
 
         if ($validated['type'] === 'link') {
             // If page_type is beranda, set unique path based on feature name
@@ -270,8 +283,11 @@ class FeatureController extends Controller
             $validated['path'] = null;
         }
 
-        $this->swapOrder($feature, (int) $validated['order'], (int) $feature->order, ['parent_id' => $feature->parent_id]);
+        // Update other fields first
         $feature->update($validated);
+
+        // Then handle order change
+        $this->swapOrder($feature, $newOrder, (int) $feature->order, ['parent_id' => $feature->parent_id]);
 
         return redirect()->route('cms.features.show', $feature->parent_id)
             ->with('success', __('cms.features.flash.sub_updated'));
@@ -283,7 +299,8 @@ class FeatureController extends Controller
     public function destroySub(Feature $feature)
     {
         $parentId = $feature->parent_id;
-        $feature->delete();
+        $scopeConditions = ['parent_id' => $parentId];
+        $this->deleteAndShiftOrder($feature, $scopeConditions);
 
         return redirect()->route('cms.features.show', $parentId)
             ->with('success', __('cms.features.flash.sub_deleted'));

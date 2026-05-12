@@ -7,45 +7,71 @@ use Illuminate\Database\Eloquent\Model;
 trait SwapsOrder
 {
     /**
-     * Swap order jika ada item lain dengan order yang sama dalam scope parent.
+     * Swap order when updating an item's order.
      *
-     * @param Model $model           Item yang sedang diupdate
-     * @param int   $newOrder        Order baru yang diinginkan
-     * @param int   $oldOrder        Order lama
-     * @param array $scopeConditions Kondisi scope parent, e.g. ['feature_id' => 5]
+     * Handles all cases:
+     * - Moving forward (e.g. order 3 → 1): shifts items 1,2 down to 2,3
+     * - Moving backward (e.g. order 1 → 3): shifts items 2,3 up to 1,2
+     * - Moving to empty slot (e.g. 1 → 4 in [1,2,3]): shifts 2,3 to 3,4
+     *
+     * @param Model $model           Item that is being updated
+     * @param int   $newOrder        Target order after update
+     * @param int   $oldOrder        Current order before update
+     * @param array $scopeConditions Scope conditions, e.g. ['parent_id' => 5]
      */
     protected function swapOrder($model, int $newOrder, int $oldOrder, array $scopeConditions): void
     {
-        if ($newOrder === $oldOrder) {
-            return;
-        }
+        $modelClass = get_class($model);
+        $modelId = $model->id;
+        $table = $model->getTable();
 
-        $query = $model::query();
-
-        // Apply each scope condition, handling NULL values properly
+        // Fetch all items in scope, sorted by order then by id (stable sort)
+        $itemsQuery = $modelClass::query();
         foreach ($scopeConditions as $column => $value) {
             if ($value === null) {
-                $query->whereNull($column);
+                $itemsQuery->whereNull($column);
             } else {
-                $query->where($column, $value);
+                $itemsQuery->where($column, $value);
+            }
+        }
+        $allItems = $itemsQuery->orderBy('order')->orderBy('id')->get();
+
+        // Build ordered array, remove current item first
+        $ordered = [];
+        $currentItem = null;
+        foreach ($allItems as $item) {
+            if ($item->id === $modelId) {
+                $currentItem = $item;
+            } else {
+                $ordered[] = $item;
             }
         }
 
-        $conflicting = $query
-            ->where('id', '!=', $model->id)
-            ->where('order', $newOrder)
-            ->first();
+        // Case 1: Same order - resolve duplicates by pushing others at that order forward
+        if ($newOrder === $oldOrder) {
+            // Shift all items that are >= newOrder forward by 1 (fills gaps, no duplicates)
+            foreach ($ordered as $item) {
+                if ((int) $item->order >= $newOrder) {
+                    \DB::table($table)->where('id', $item->id)->update(['order' => (int) $item->order + 1]);
+                }
+            }
+            return;
+        }
 
-        if ($conflicting) {
-            $conflicting->update(['order' => $oldOrder]);
+        // Case 2: Different order - splice-based reorder
+        // Insert current item at new position in the list
+        $insertAt = max(0, $newOrder - 1);
+        array_splice($ordered, $insertAt, 0, [$currentItem]);
+
+        // Update all items sequentially (1, 2, 3, ...) - this fills any gaps automatically
+        foreach ($ordered as $index => $item) {
+            \DB::table($table)->where('id', $item->id)->update(['order' => $index + 1]);
         }
     }
 
     /**
-     * Insert a new item at a specific order, shifting existing items down only if needed.
-     *
-     * If the target order is available (gap), fill it and compact items after it.
-     * If the target order already exists, shift items at or after that position up by 1.
+     * Insert a new item at a specific order, shifting existing items forward by 1.
+     * If insertOrder exceeds the current max order, cap it to max + 1 (no gaps allowed).
      *
      * @param string $modelClass      Fully qualified model class name
      * @param int    $insertOrder     The desired order for the new item
@@ -55,7 +81,6 @@ trait SwapsOrder
      */
     protected function insertAndShiftOrder(string $modelClass, int $insertOrder, array $scopeConditions, array $extraAttributes = []): Model
     {
-        // Check if target order already exists
         $query = $modelClass::query();
         foreach ($scopeConditions as $column => $value) {
             if ($value === null) {
@@ -65,43 +90,17 @@ trait SwapsOrder
             }
         }
 
-        $targetExists = $query->where('order', $insertOrder)->exists();
+        // Get current max order
+        $maxOrder = (int) $query->max('order');
+        $maxPlusOne = $maxOrder + 1;
 
-        // Only shift if target order is already taken
-        if ($targetExists) {
-            $shiftQuery = $modelClass::query();
-            foreach ($scopeConditions as $column => $value) {
-                if ($value === null) {
-                    $shiftQuery->whereNull($column);
-                } else {
-                    $shiftQuery->where($column, $value);
-                }
-            }
-            $shiftQuery->where('order', '>=', $insertOrder)->increment('order');
-        } else {
-            // Target order is a gap - after insert, compact items after this order
-            // to fill any gaps (e.g., [1,2,3,6,9] insert at 4 → [1,2,3,4,5,6])
-
-            // Create new item at target order
-            $newItem = $modelClass::create(array_merge($scopeConditions, $extraAttributes, ['order' => $insertOrder]));
-
-            // Compact items after insertOrder
-            $compactQuery = $modelClass::query();
-            foreach ($scopeConditions as $column => $value) {
-                if ($value === null) {
-                    $compactQuery->whereNull($column);
-                } else {
-                    $compactQuery->where($column, $value);
-                }
-            }
-
-            $itemsAfter = $compactQuery->where('order', '>', $insertOrder)->orderBy('order')->get();
-            foreach ($itemsAfter as $index => $item) {
-                $item->update(['order' => $insertOrder + 1 + $index]);
-            }
-
-            return $newItem;
+        // If insertOrder exceeds max + 1, cap it to max + 1 (no gaps allowed)
+        if ($insertOrder > $maxPlusOne) {
+            $insertOrder = $maxPlusOne;
         }
+
+        // Shift all items at or after the target order forward by 1
+        $query->where('order', '>=', $insertOrder)->increment('order');
 
         // Create new item at target order
         return $modelClass::create(array_merge($scopeConditions, $extraAttributes, ['order' => $insertOrder]));
@@ -109,7 +108,6 @@ trait SwapsOrder
 
     /**
      * Delete an item and compact remaining items sequentially to fill gaps.
-     * After deletion, all items are reordered sequentially starting from 1.
      *
      * @param Model $model           The item to delete
      * @param array $scopeConditions Scope conditions, e.g. ['feature_page_id' => 5]
@@ -120,41 +118,22 @@ trait SwapsOrder
         $modelClass = get_class($model);
         $result = $model->delete();
 
-        // After deletion, compact all remaining items sequentially (removes gaps)
         if ($result) {
-            $this->compactOrderInScope($modelClass, $scopeConditions);
-        }
+            $query = $modelClass::query();
+            foreach ($scopeConditions as $column => $value) {
+                if ($value === null) {
+                    $query->whereNull($column);
+                } else {
+                    $query->where($column, $value);
+                }
+            }
+            $items = $query->orderBy('order')->orderBy('id')->get();
 
-        return $result;
-    }
-
-    /**
-     * Compact orders in a scope to remove gaps (e.g., 1,2,4,5 → 1,2,3,4).
-     * Reorders all items sequentially starting from 1.
-     *
-     * @param string $modelClass      Fully qualified model class name
-     * @param array  $scopeConditions Scope conditions, e.g. ['feature_page_id' => 5]
-     * @return void
-     */
-    protected function compactOrderInScope(string $modelClass, array $scopeConditions): void
-    {
-        $query = $modelClass::query();
-
-        // Apply each scope condition
-        foreach ($scopeConditions as $column => $value) {
-            if ($value === null) {
-                $query->whereNull($column);
-            } else {
-                $query->where($column, $value);
+            foreach ($items as $index => $item) {
+                $item->updateQuietly(['order' => $index + 1]);
             }
         }
 
-        // Get all items ordered by current order
-        $items = $query->orderBy('order')->get();
-
-        // Reorder sequentially starting from 1
-        foreach ($items as $index => $item) {
-            $item->update(['order' => $index + 1]);
-        }
+        return $result;
     }
 }
