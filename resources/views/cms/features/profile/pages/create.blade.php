@@ -33,16 +33,59 @@
         #preview-container .profile-section-desc ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
         #preview-container .profile-section-desc li { margin: 0.25em 0 !important; display: list-item !important; }
         #preview-container .profile-section-desc a:hover { text-decoration: underline !important; color: #009ac9 !important; }
-        #preview-container .profile-section-desc h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
-        #preview-container .profile-section-desc h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
-        #preview-container .profile-section-desc h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
-        #preview-container .profile-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
-        #preview-container .profile-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
-        #preview-container .profile-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-        #preview-container .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
-        #preview-container .profile-section-desc table td,
-        #preview-container .profile-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
-        #preview-container .profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
+        #preview-container h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
+        #preview-container h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
+        #preview-container h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
+        #preview-container h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
+        #preview-container h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
+        #preview-container h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
+        #preview-container table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
+        #preview-container table td,
+        #preview-container table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+        #preview-container img { max-width: 100%; height: auto !important; border-radius: 2px; }
+
+        /* Figure & Figcaption Parity */
+        #preview-container figure { display: inline-table; margin: 0.5em 4px; vertical-align: top; max-width: 100%; }
+        #preview-container figcaption { text-align: center; font-size: 0.85em; color: #555; padding: 4px 0; display: table-caption; caption-side: bottom; word-break: break-word; }
+
+        /* Alignment fixes for RTE content - matches more variations and avoids !important conflicts */
+        #preview-container [style*="text-align:center"],
+        #preview-container [style*="text-align: center"],
+        #preview-container [style*="text-align : center"],
+        #preview-container [align="center"] {
+            text-align: center !important;
+        }
+
+        #preview-container [style*="text-align:center"] img,
+        #preview-container [style*="text-align: center"] img,
+        #preview-container [style*="text-align : center"] img,
+        #preview-container [align="center"] img {
+            width: auto !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
+        }
+
+        #preview-container [style*="text-align:right"],
+        #preview-container [style*="text-align: right"],
+        #preview-container [style*="text-align : right"],
+        #preview-container [align="right"] {
+            text-align: right !important;
+        }
+
+        #preview-container [style*="text-align:right"] img,
+        #preview-container [style*="text-align: right"] img,
+        #preview-container [style*="text-align : right"] img,
+        #preview-container [align="right"] img {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            display: inline-block !important;
+        }
+
+        #preview-container [style*="text-align:justify"],
+        #preview-container [style*="text-align: justify"] {
+            text-align: justify !important;
+        }
 
         /* Title & Section Parity */
         #preview-container .profile-section-title {
@@ -422,8 +465,7 @@
                         <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-auto"
                             style="min-height: 380px; max-height: 400px;">
                             <div id="preview-wrapper" style="display: block; width: 1200px; padding: 0 15px;">
-                                <div id="preview-container" class="profile-section-desc" style="transform-origin: top left; transition: transform 0.2s ease;"
-                                    style="background: transparent; width: 100%; border: none; padding: 0;">
+                                <div id="preview-container" class="profile-section-desc" style="transform-origin: top left; transition: transform 0.2s ease; background: transparent; width: 100%; border: none; padding: 0;">
                                     {{-- Preview content akan diisi oleh JavaScript --}}
                                 </div>
                             </div>

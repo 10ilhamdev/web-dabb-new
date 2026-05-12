@@ -54,7 +54,55 @@
         .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100% !important; }
         .profile-section-desc table th { background-color: #1e1e1e !important; color: #ffffff !important; font-weight: 700 !important; text-align: center !important; padding: 0.75rem !important; border: 1px solid #d0d4da !important; }
         .profile-section-desc table td { padding: 0.75rem !important; border: 1px solid #d0d4da !important; background-color: #ffffff !important; color: #414141 !important; vertical-align: top !important; }
-        .profile-section-desc img { max-width: 100%; height: auto !important; margin: 1rem 0 !important; }
+        .profile-section-desc img { max-width: 100%; height: auto !important; border-radius: 2px; }
+        
+        /* Figure & Figcaption Parity */
+        .profile-section-desc figure { display: inline-table; margin: 0.5em 4px; vertical-align: top; max-width: 100%; }
+        .profile-section-desc figcaption { text-align: center; font-size: 0.85em; color: #555; padding: 4px 0; display: table-caption; caption-side: bottom; word-break: break-word; }
+
+        .profile-section-desc [style*="text-align:center"],
+        .profile-section-desc [style*="text-align: center"],
+        .profile-section-desc [style*="text-align : center"],
+        .profile-section-desc [align="center"] { 
+            text-align: center !important; 
+        }
+
+        .profile-section-desc [style*="text-align:left"],
+        .profile-section-desc [style*="text-align: left"],
+        .profile-section-desc [style*="text-align : left"],
+        .profile-section-desc [align="left"] { 
+            text-align: left !important; 
+        }
+
+        .profile-section-desc [style*="text-align:right"],
+        .profile-section-desc [style*="text-align: right"],
+        .profile-section-desc [style*="text-align : right"],
+        .profile-section-desc [align="right"] { 
+            text-align: right !important; 
+        }
+
+        .profile-section-desc [style*="text-align:center"] img,
+        .profile-section-desc [style*="text-align: center"] img,
+        .profile-section-desc [align="center"] img { 
+            width: auto !important; 
+            margin-left: auto !important; 
+            margin-right: auto !important; 
+            display: block !important;
+        }
+
+        .profile-section-desc [style*="text-align:left"] img,
+        .profile-section-desc [align="left"] img { 
+            margin-left: 0 !important; 
+            margin-right: auto !important;
+            display: inline-block !important;
+        }
+
+        .profile-section-desc [style*="text-align:right"] img,
+        .profile-section-desc [align="right"] img { 
+            margin-left: auto !important; 
+            margin-right: 0 !important; 
+            display: inline-block !important;
+        }
 
         .page-image {
             width: 100%;
@@ -426,57 +474,89 @@
         @if ($page->type === 'struktur_image')
             <section class="profile-section{{ !$isEven ? ' profile-section-bg' : '' }}">
                 <div class="container">
-                    <h2 class="profile-section-title">{{ $pageTitle }}</h2>
-                    {{-- Grid layout: text left, images right --}}
-                    <div class="page-layout-dual">
-                        {{-- Text column --}}
-                        <div>
-                            @if ($pageDesc)
-                                <div class="profile-section-desc">{!! $pageDesc !!}</div>
+                    @php
+                        $hasDesc = !empty(trim(strip_tags($pageDesc))) || !empty(trim($pageDesc));
+                        $hasImages = $page->images && count($page->images) > 0;
+                        $hasSections = $page->sections && $page->sections->count() > 0;
+                    @endphp
+
+                    {{-- Grid layout: text/sections left, images right — exact same structure as tugas_fungsi --}}
+                    @if ($hasImages)
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;" class="guest-dynamic-grid">
+                            <div class="preview-text-col" style="min-width:0;overflow:hidden;">
+                                <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                                    @if ($hasDesc)
+                                        <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
+                                    @endif
+                                    @if ($hasSections)
+                                        @foreach ($page->sections as $section)
+                                            <div class="section-block" style="margin-bottom: 1.5rem;">
+                                                @if ($section->title)
+                                                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                        {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                                    </h2>
+                                                @endif
+                                                @if ($section->description)
+                                                    <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:32px;min-width:220px;" class="guest-dynamic-img-col">
+                                @foreach ($page->images as $idx => $img)
+                                    @php
+                                        $posData = $page->image_positions[$idx] ?? null;
+                                        $w = 200;
+                                        $h = 150;
+                                        $oX = 0;
+                                        $oY = 0;
+                                        $focalX = 50;
+                                        $focalY = 50;
+                                        if (is_array($posData)) {
+                                            $w = floatval($posData['width'] ?? 200);
+                                            $h = floatval($posData['height'] ?? 150);
+                                            $oX = floatval($posData['offsetX'] ?? 0);
+                                            $oY = floatval($posData['offsetY'] ?? 0);
+                                            if (isset($posData['position'])) {
+                                                $parts = explode(' ', $posData['position']);
+                                                $focalX = floatval($parts[0] ?? 50);
+                                                $focalY = floatval($parts[1] ?? 50);
+                                            }
+                                        }
+                                        $mr = -$oX;
+                                        $mt = $oY;
+                                        $styleStr = "position: relative; border-radius: 0.75rem; overflow: visible !important; width: {$w}px; height: {$h}px; margin: {$mt}px {$mr}px 0 0; z-index: 10;";
+                                    @endphp
+                                    <div style="{!! $styleStr !!}">
+                                        <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalX }}% {{ $focalY }}%; display: block; border-radius: 0.75rem;">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @elseif ($hasDesc || $hasSections)
+                        <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                            @if ($hasDesc)
+                                <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                             @endif
-                            @if ($page->sections && $page->sections->count())
+                            @if ($hasSections)
                                 @foreach ($page->sections as $section)
-                                    <div class="section-block">
+                                    <div class="section-block" style="margin-bottom: 1.5rem;">
                                         @if ($section->title)
-                                            <h3>{{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
-                                            </h3>
+                                            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                            </h2>
                                         @endif
                                         @if ($section->description)
-                                            <div class="profile-section-desc">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                            <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
                                         @endif
                                     </div>
                                 @endforeach
                             @endif
                         </div>
-                        {{-- Images column --}}
-                        @if ($page->images && count($page->images))
-                            <div class="page-image-container">
-                                @foreach ($page->images as $idx => $img)
-                                    @php
-                                        $posData = $page->image_positions[$idx] ?? null;
-                                        $width = 200;
-                                        $height = 150;
-                                        $focalPointX = 50;
-                                        $focalPointY = 50;
+                    @endif
 
-                                        if (is_array($posData)) {
-                                            $width = intval($posData['width'] ?? 200);
-                                            $height = intval($posData['height'] ?? 150);
-                                            if (isset($posData['position'])) {
-                                                $parts = explode(' ', $posData['position']);
-                                                $focalPointX = floatval($parts[0] ?? 50);
-                                                $focalPointY = floatval($parts[1] ?? 50);
-                                            }
-                                        }
-                                    @endphp
-                                    <div style="width: {{ $width }}px; height: {{ $height }}px; position: relative;">
-                                        <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}"
-                                            style="width: 100%; height: 100%; object-fit: contain; object-position: {{ $focalPointX }}% {{ $focalPointY }}%; display: block; border-radius: 0.75rem;">
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
                     {{-- Struktur bottom: logo + section images stacked vertically --}}
                     @if ($page->logo_path || ($page->sections && $page->sections->count()))
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1.5rem;">
@@ -504,21 +584,92 @@
         @if ($page->type === 'sdm_chart')
             <section class="profile-section{{ !$isEven ? ' profile-section-bg' : '' }}">
                 <div class="container">
-                    <div style="text-align:center;margin-bottom:2rem">
-                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
-                        @if ($page->subtitle)
-                            <p class="profile-section-subtitle">
-                                {{ $locale === 'en' ? $page->subtitle_en ?? $page->subtitle : $page->subtitle }}
-                            </p>
-                        @endif
-                        @if ($pageDesc)
-                            <div class="profile-section-desc" style="max-width:48rem;margin:0 auto;text-align:center">
-                                {!! $pageDesc !!}
-                            </div>
-                        @endif
-                    </div>
+                    @php
+                        $hasDesc = !empty(trim(strip_tags($pageDesc))) || !empty(trim($pageDesc));
+                        $hasImages = $page->images && count($page->images) > 0;
+                        $hasSections = $page->sections && $page->sections->count() > 0;
+                        $hasCharts = $chartData && is_array($chartData) && count($chartData) > 0;
+                    @endphp
 
-                    @if ($chartData && is_array($chartData) && count($chartData) > 0)
+                    {{-- Description + Images Grid (same as tugas_fungsi) --}}
+                    @if ($hasImages)
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;margin-bottom:2rem;" class="guest-dynamic-grid">
+                            <div class="preview-text-col" style="min-width:0;overflow:hidden;">
+                                <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                                    @if ($hasDesc)
+                                        <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
+                                    @endif
+                                    @if ($hasSections)
+                                        @foreach ($page->sections as $section)
+                                            <div class="section-block" style="margin-bottom: 1.5rem;">
+                                                @if ($section->title)
+                                                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                        {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                                    </h2>
+                                                @endif
+                                      @if ($section->description)
+                                                    <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:32px;min-width:220px;" class="guest-dynamic-img-col">
+                                @foreach ($page->images as $idx => $img)
+                                    @php
+                                        $posData = $page->image_positions[$idx] ?? null;
+                                        $w = 200;
+                                        $h = 150;
+                                        $oX = 0;
+                                        $oY = 0;
+                                        $focalX = 50;
+                                        $focalY = 50;
+                                        if (is_array($posData)) {
+                                            $w = floatval($posData['width'] ?? 200);
+                                            $h = floatval($posData['height'] ?? 150);
+                                            $oX = floatval($posData['offsetX'] ?? 0);
+                                            $oY = floatval($posData['offsetY'] ?? 0);
+                                            if (isset($posData['position'])) {
+                                                $parts = explode(' ', $posData['position']);
+                                                $focalX = floatval($parts[0] ?? 50);
+                                                $focalY = floatval($parts[1] ?? 50);
+                                            }
+                                        }
+                                        $mr = -$oX;
+                                        $mt = $oY;
+                                        $styleStr = "position: relative; border-radius: 0.75rem; overflow: visible !important; width: {$w}px; height: {$h}px; margin: {$mt}px {$mr}px 0 0; z-index: 10;";
+                                    @endphp
+                                    <div style="{!! $styleStr !!}">
+                                        <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalX }}% {{ $focalY }}%; display: block; border-radius: 0.75rem;">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @elseif ($hasDesc || $hasSections)
+                        <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0; margin-bottom: 2rem;">
+                            @if ($hasDesc)
+                                <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
+                            @endif
+                            @if ($hasSections)
+                                @foreach ($page->sections as $section)
+                                    <div class="section-block" style="margin-bottom: 1.5rem;">
+                                        @if ($section->title)
+                                            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; text-decoration: underline;">
+                                                {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
+                                            </h2>
+                                        @endif
+                                        @if ($section->description)
+                                            <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Charts Section (below description/images) --}}
+                    @if ($hasCharts)
                         <div class="sdm-layout" style="max-width:64rem;margin:0 auto;" id="sdm-charts-container">
                             @php
                                 $chartIndex = 0;

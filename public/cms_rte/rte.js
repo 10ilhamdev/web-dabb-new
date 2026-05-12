@@ -140,6 +140,10 @@
         tableCellAlign: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="8" x2="14" y2="8"/><line x1="7" y1="16" x2="11" y2="16"/></svg>',
         // tableColWidth: horizontal arrows — means "fit/auto width"
         tableColWidth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="7 9 4 12 7 15"/><polyline points="17 9 20 12 17 15"/></svg>',
+        zoomIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>',
+        zoomOut: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>',
+        zoomReset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.35"/></svg>',
+        fontSize: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><text x="3" y="18" font-size="14" font-weight="bold" fill="currentColor" stroke="none" font-family="serif">T</text><line x1="4" y1="20" x2="20" y2="20"/></svg>',
         gripIcon: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>',
         cellMerge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><line x1="7" y1="11" x2="17" y2="11"/></svg>',
         cellSplit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
@@ -266,6 +270,9 @@
             { kind: 'btn', name: 'template', icon: ICON.template, title: 'Insert Template', custom: 'template' },
             { kind: 'btn', name: 'source', icon: ICON.source, title: 'View HTML source', custom: 'source' },
             { kind: 'btn', name: 'fullscreen', icon: ICON.fullscreen, title: 'Toggle full screen', custom: 'fullscreen' },
+            { kind: 'btn', name: 'zoomOut', icon: ICON.zoomOut, title: 'Zoom Out', custom: 'zoomOut' },
+            { kind: 'btn', name: 'zoomIn', icon: ICON.zoomIn, title: 'Zoom In', custom: 'zoomIn' },
+            { kind: 'btn', name: 'zoomReset', icon: ICON.zoomReset, title: 'Reset Zoom', custom: 'zoomReset' },
         ],
     ];
 
@@ -468,6 +475,12 @@
         this._initialHTML = target.innerHTML || '';
         target.innerHTML = '';
 
+        // ---- Zoom state ----
+        this._zoom = 1;
+        this._zoomMin = 0.3;
+        this._zoomMax = 2.5;
+        this._zoomStep = 0.1;
+
         // ---- Custom undo/redo history (step-by-step, not native browser) ----
         this._history = [];
         this._historyIndex = -1;
@@ -530,6 +543,13 @@
         var statusbar = el('div', { class: 'rte-statusbar' }, [
             el('span', { class: 'rte-status-path', text: 'body' }),
             el('span', { class: 'rte-status-counts', text: '0 words • 0 chars' }),
+            el('span', {
+                id: 'rte-zoom-label-' + this.id,
+                class: 'rte-status-zoom',
+                text: '100%',
+                style: 'margin-left: auto; font-size: 11px; color: #888; cursor: pointer; padding: 0 6px; user-select: none;',
+                title: 'Zoom level — use zoom buttons in toolbar to adjust',
+            }),
         ]);
         wrapper.appendChild(statusbar);
 
@@ -850,6 +870,9 @@
             case 'document': return this._dialogInsertDocument();
             case 'undo': this._historyUndo(); return;
             case 'redo': this._historyRedo(); return;
+            case 'zoomIn': this._zoomIn(); return;
+            case 'zoomOut': this._zoomOut(); return;
+            case 'zoomReset': this._zoomReset(); return;
         }
     };
 
@@ -894,6 +917,13 @@
         tabs.appendChild(tabUpload);
         tabs.appendChild(tabUrl);
 
+        // Alignment selector
+        var alignSelect = el('select', { class: 'rte-form-input', name: 'align' });
+        [['left','Kiri'],['center','Tengah'],['right','Kanan']].forEach(function(a) {
+            var opt = el('option', { value: a[0], text: a[1] });
+            alignSelect.appendChild(opt);
+        });
+
         var paneUpload = el('div', { class: 'rte-form rte-tab-pane rte-tab-pane-active' }, [
             el('label', { class: 'rte-form-label', text: 'Choose image' }),
             el('input', { type: 'file', class: 'rte-form-input', name: 'file', accept: 'image/*' }),
@@ -901,6 +931,8 @@
             el('input', { type: 'text', class: 'rte-form-input', name: 'alt' }),
             el('label', { class: 'rte-form-label', text: 'Width (px, optional)' }),
             el('input', { type: 'number', class: 'rte-form-input', name: 'width', min: '0' }),
+            el('label', { class: 'rte-form-label', text: 'Posisi' }),
+            alignSelect,
         ]);
         var paneUrl = el('div', { class: 'rte-form rte-tab-pane' }, [
             el('label', { class: 'rte-form-label', text: 'Image URL' }),
@@ -909,6 +941,8 @@
             el('input', { type: 'text', class: 'rte-form-input', name: 'alt' }),
             el('label', { class: 'rte-form-label', text: 'Width (px, optional)' }),
             el('input', { type: 'number', class: 'rte-form-input', name: 'width', min: '0' }),
+            el('label', { class: 'rte-form-label', text: 'Posisi' }),
+            alignSelect,
         ]);
 
         tabUpload.addEventListener('click', function () {
@@ -930,9 +964,20 @@
             body: body,
             confirmLabel: 'Insert',
             onConfirm: function () {
+                var alignVal = alignSelect.value || 'left';
                 var widthAttr = function (input) {
                     var v = parseInt(input.value, 10);
                     return v > 0 ? ' width="' + v + '"' : '';
+                };
+                var wrapImg = function(img) {
+                    var wrapper = document.createElement('div');
+                    wrapper.style.textAlign = alignVal;
+                    wrapper.style.display = alignVal === 'center' ? 'block' : 'inline-' + alignVal;
+                    wrapper.style.margin = alignVal === 'center' ? '0 auto' : (alignVal === 'right' ? '0 0 0 auto' : '0');
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    wrapper.appendChild(img);
+                    return wrapper;
                 };
                 if (paneUpload.classList.contains('rte-tab-pane-active')) {
                     var fileInput = paneUpload.querySelector('[name=file]');
@@ -941,7 +986,6 @@
                     var f = fileInput.files && fileInput.files[0];
                     if (!f) return false;
                     self._uploadImage(f, function (url) {
-                        // Use direct DOM insertion to avoid execCommand breaking editor with large base64
                         self._focusContent();
                         var savedRange = self._savedRange;
                         var img = document.createElement('img');
@@ -949,19 +993,20 @@
                         if (altInput.value) img.alt = altInput.value;
                         var wv = parseInt(widthInput.value, 10);
                         if (wv > 0) img.width = wv;
+                        var wrapper = wrapImg(img);
                         if (savedRange) {
                             var sel = window.getSelection();
                             sel.removeAllRanges();
                             sel.addRange(savedRange);
                             var range = sel.getRangeAt(0);
                             range.deleteContents();
-                            range.insertNode(img);
-                            range.setStartAfter(img);
+                            range.insertNode(wrapper);
+                            range.setStartAfter(wrapper);
                             range.collapse(true);
                             sel.removeAllRanges();
                             sel.addRange(range);
                         } else {
-                            self.content.appendChild(img);
+                            self.content.appendChild(wrapper);
                         }
                         self._syncSource();
                         self._updateState();
@@ -972,8 +1017,9 @@
                     var widthInput2 = paneUrl.querySelector('[name=width]');
                     var url = urlInput.value.trim();
                     if (!url) return false;
-                    var html = '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(altInput2.value || '') + '"' + widthAttr(widthInput2) + '>';
-                    self._insertHTML(html);
+                    var imgHtml = '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(altInput2.value || '') + '"' + widthAttr(widthInput2) + ' style="max-width:100%;height:auto;">';
+                    var wrapperHtml = '<div style="text-align:' + alignVal + ';' + (alignVal === 'center' ? 'display:block;' : 'display:inline-' + alignVal + ';') + (alignVal === 'center' ? 'margin:0 auto;' : (alignVal === 'right' ? 'margin:0 0 0 auto;' : 'margin:0;')) + '">' + imgHtml + '</div>';
+                    self._insertHTML(wrapperHtml);
                 }
             },
         });
@@ -1417,6 +1463,7 @@
     // ---- Image floating toolbar (matches richtexteditor.com) ----
     RichTextEditor.prototype._showImageEditorPopup = function (img) {
         var self = this;
+        this._closeVideoPopup();
         this._closeImagePopup();
         this._attachMediaResizeHandle(img);
 
@@ -1613,7 +1660,9 @@
         setTimeout(function() {
             document.addEventListener('mousedown', self._imagePopupCloseHandler = function(e) {
                 if (!toolbar.contains(e.target) && e.target !== img &&
-                    !e.target.classList.contains('rte-img-resize-handle') &&
+                    !e.target.classList.contains('rte-img-handle') &&
+                    !e.target.classList.contains('rte-media-move-handle') &&
+                    !(e.target.closest && e.target.closest('.rte-img-overlay')) &&
                     !(e.target.closest && e.target.closest('.swal2-container'))) {
                     self._closeImagePopup();
                     self._removeMediaResizeHandle();
@@ -1631,13 +1680,12 @@
         if (media.tagName === 'IFRAME' || media.tagName === 'VIDEO') {
             var clickInterceptor = document.createElement('div');
             clickInterceptor.className = 'rte-iframe-click-interceptor';
-            clickInterceptor.style.cssText = 'position:absolute;inset:0;z-index:9997;cursor:pointer;background:transparent;';
+            // Use fixed position so it matches the resize overlay exactly and doesn't 
+            // overflow the parent container if the parent is larger than the media.
+            clickInterceptor.style.cssText = 'position:fixed;z-index:9997;cursor:pointer;background:transparent;';
             clickInterceptor.draggable = true;
-            var mediaParent = media.parentNode;
-            if (mediaParent && getComputedStyle(mediaParent).position === 'static') {
-                mediaParent.style.position = 'relative';
-            }
-            if (mediaParent) mediaParent.appendChild(clickInterceptor);
+            document.body.appendChild(clickInterceptor);
+
             clickInterceptor.addEventListener('click', function(e) {
                 e.stopPropagation();
                 self._showVideoEditorPopup(media);
@@ -1730,6 +1778,14 @@
             self._mediaResizeHandle.style.width  = (rect.width + 4) + 'px';
             self._mediaResizeHandle.style.height = (rect.height + 4) + 'px';
             
+            // Sync click interceptor if present
+            if (self._iframeClickInterceptor) {
+                self._iframeClickInterceptor.style.left   = rect.left + 'px';
+                self._iframeClickInterceptor.style.top    = rect.top + 'px';
+                self._iframeClickInterceptor.style.width  = rect.width + 'px';
+                self._iframeClickInterceptor.style.height = rect.height + 'px';
+            }
+
             // Sync popups as well
             if (self._imagePopup || self._videoPopup) self._updatePopupPositions();
             
@@ -1808,6 +1864,7 @@
     // ---- Video / Iframe floating toolbar ----
     RichTextEditor.prototype._showVideoEditorPopup = function (media) {
         var self = this;
+        this._closeImagePopup();
         this._closeVideoPopup();
         this._videoTarget = media;
         this._attachMediaResizeHandle(media);
@@ -1979,6 +2036,9 @@
         setTimeout(function() {
             document.addEventListener('mousedown', self._videoPopupCloseHandler = function(e) {
                 if (!toolbar.contains(e.target) && e.target !== media &&
+                    !e.target.classList.contains('rte-img-handle') &&
+                    !e.target.classList.contains('rte-media-move-handle') &&
+                    !(e.target.closest && e.target.closest('.rte-img-overlay')) &&
                     !(e.target.closest && e.target.closest('.swal2-container'))) {
                     self._closeVideoPopup();
                 }
@@ -3449,6 +3509,63 @@
         }
     };
 
+    // ---- Zoom controls ----
+    RichTextEditor.prototype._applyZoom = function () {
+        var contentWrap = this.contentWrap;
+        var content = this.content;
+        if (!contentWrap || !content) return;
+        var z = this._zoom;
+        var zoomPct = Math.round(z * 100);
+
+        // To ensure absolute layout consistency during zoom, we use a fixed logical 
+        // width for the content area. This prevents text from re-wrapping and 
+        // media from shifting positions as the zoom level changes.
+        // 1000px provides a stable canvas that mimics common container widths.
+        var layoutWidth = 1000;
+        
+        content.style.width = layoutWidth + 'px';
+        content.style.minWidth = layoutWidth + 'px';
+        content.style.margin = '0 auto'; 
+        content.style.display = 'flow-root'; // Clear floats internally
+
+        if ('zoom' in content.style) {
+            content.style.zoom = z;
+            content.style.transform = '';
+            content.style.transformOrigin = '';
+        } else {
+            // Fallback for Firefox (uses transform:scale)
+            content.style.transform = 'scale(' + z + ')';
+            content.style.transformOrigin = 'top center';
+        }
+        
+        // Ensure the parent container allows horizontal scrolling 
+        // if the zoomed content exceeds the editor width.
+        contentWrap.style.overflowX = 'auto';
+
+        // Also update a zoom label indicator inside the toolbar
+        var existing = document.getElementById('rte-zoom-label-' + this.id);
+        if (existing) existing.textContent = zoomPct + '%';
+    };
+
+    RichTextEditor.prototype._zoomIn = function () {
+        if (this._zoom < this._zoomMax) {
+            this._zoom = Math.min(this._zoom + this._zoomStep, this._zoomMax);
+            this._applyZoom();
+        }
+    };
+
+    RichTextEditor.prototype._zoomOut = function () {
+        if (this._zoom > this._zoomMin) {
+            this._zoom = Math.max(this._zoom - this._zoomStep, this._zoomMin);
+            this._applyZoom();
+        }
+    };
+
+    RichTextEditor.prototype._zoomReset = function () {
+        this._zoom = 1;
+        this._applyZoom();
+    };
+
     RichTextEditor.prototype._snapshotSelection = function () {
         this._savedRange = saveSelection(this.content);
     };
@@ -3615,11 +3732,13 @@
                 clickedMedia.draggable = true;
                 self._showVideoEditorPopup(clickedMedia);
             } else if (target.tagName === 'IMG') {
+                self._closeVideoPopup();
                 self._showImageEditorPopup(target);
             } else if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') {
+                self._closeImagePopup();
                 target.draggable = true; // ensure it can be dragged
                 self._showVideoEditorPopup(target);
-            } else if (target.tagName !== 'TD' && target.tagName !== 'TH') {
+            } else if (target.tagName !== 'TD' && target.tagName !== 'TH' && !target.closest('.rte-img-overlay')) {
                 self._closeImagePopup();
                 self._closeVideoPopup();
                 self._removeMediaResizeHandle();
@@ -3767,11 +3886,17 @@
                 if (e.target.closest && (
                     e.target.closest('.swal2-container') ||
                     e.target.closest('.rte-context-popup') ||
-                    e.target.closest('.rte-table-float-toolbar')
+                    e.target.closest('.rte-table-float-toolbar') ||
+                    e.target.closest('.rte-img-toolbar') ||
+                    e.target.closest('.rte-img-overlay') ||
+                    e.target.closest('.rte-iframe-click-interceptor')
                 )) return;
                 self._clearCellSelection(self._selectedTable);
                 self._hideTableSelection();
                 self._closeTablePopup();
+                self._closeImagePopup();
+                self._closeVideoPopup();
+                self._removeMediaResizeHandle();
             }
         });
 
