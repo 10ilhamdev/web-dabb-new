@@ -326,7 +326,7 @@ window.onerror = function(msg, url, line, col, error) {
         @else
             <div class="vt-rooms-grid">
                 @foreach($books as $book)
-                <a href="?read={{ $book->id }}" class="vt-room-card" style="text-decoration:none; color:inherit;">
+                <a href="?detail={{ $book->id }}" class="vt-room-card" style="text-decoration:none; color:inherit;">
                     <div class="vt-room-thumb">
                         @if($book->thumbnail)
                             <img src="{{ asset('storage/'.$book->thumbnail) }}" alt="{{ $book->translated_title }}" loading="lazy">

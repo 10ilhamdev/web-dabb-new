@@ -13,6 +13,15 @@ return new class extends Migration
             $table->foreignId('feature_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->string('title_en')->nullable();
+            $table->string('author', 100)->nullable();
+            $table->string('dimensions', 25)->nullable();
+            $table->string('total_pages')->nullable();
+            $table->string('weight', 25)->nullable();
+            $table->string('language', 30)->nullable();
+            $table->string('publisher', 100)->nullable();
+            $table->string('publication_year', 6)->nullable();
+            $table->string('isbn', 20)->nullable();
+            $table->text('synopsis')->nullable();
             $table->string('cover_image')->nullable();
             $table->json('cover_position')->nullable();
             $table->float('cover_scale', 8, 2)->default(1.00);

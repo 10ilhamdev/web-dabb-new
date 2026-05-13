@@ -568,6 +568,7 @@ class FeaturePageController extends Controller
             $loginModalRoomName = $loginModalRoomNames[0] ?? null;
 
             $readBookId = request('read');
+            $detailBookId = request('detail');
 
             if ($readBookId) {
                 $book = $books->firstWhere('id', $readBookId);
@@ -586,6 +587,16 @@ class FeaturePageController extends Controller
                         }
                     }
                     return view('pages.virtual_book_viewer', compact(
+                        'feature', 'book', 'requiresLoginModal',
+                        'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                    ));
+                }
+            }
+
+            if ($detailBookId) {
+                $book = $books->firstWhere('id', $detailBookId);
+                if ($book) {
+                    return view('pages.virtual_book_detail', compact(
                         'feature', 'book', 'requiresLoginModal',
                         'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
                     ));

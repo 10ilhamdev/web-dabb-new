@@ -41,6 +41,15 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'author' => 'nullable|string|max:255',
+            'dimensions' => 'nullable|string|max:255',
+            'total_pages' => 'nullable|string|max:100',
+            'weight' => 'nullable|string|max:100',
+            'language' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'publication_year' => 'nullable|string|max:100',
+            'isbn' => 'nullable|string|max:100',
+            'synopsis' => 'nullable|string',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'cover_position' => 'nullable|json',
             'cover_scale' => 'nullable|numeric|min:0.1|max:3',
@@ -153,6 +162,15 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'author' => 'nullable|string|max:255',
+            'dimensions' => 'nullable|string|max:255',
+            'total_pages' => 'nullable|string|max:100',
+            'weight' => 'nullable|string|max:100',
+            'language' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'publication_year' => 'nullable|string|max:100',
+            'isbn' => 'nullable|string|max:100',
+            'synopsis' => 'nullable|string',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'cover_position' => 'nullable|json',
             'cover_scale' => 'nullable|numeric|min:0.1|max:3',

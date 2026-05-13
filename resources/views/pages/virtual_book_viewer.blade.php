@@ -162,7 +162,7 @@
 <body>
 
     <div class="viewer-header">
-        <a href="?" class="viewer-back">
+        <a href="?detail={{ $book->id }}" class="viewer-back">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             {{ app()->getLocale() === 'en' ? 'Back to Exhibition' : 'Kembali ke Pameran' }}
         </a>
