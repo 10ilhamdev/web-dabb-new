@@ -311,6 +311,7 @@
         <script src="{{ asset('js/cms/features/pages/index.js') }}"></script>
         <script>
             $(document).ready(function() {
+                $.fn.dataTable.ext.errMode = 'none';
                 $('#tablePages').DataTable({
                     columnDefs: [{
                         orderable: false,

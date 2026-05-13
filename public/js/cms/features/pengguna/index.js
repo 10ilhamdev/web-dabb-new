@@ -610,6 +610,7 @@ function exportToPrint(dt) {
    DataTables init
 ══════════════════════════════════════════════════════════════════════════════ */
 $(function () {
+    $.fn.dataTable.ext.errMode = 'none';
     if (!$("#tablePengguna").length) return;
 
     var i18n = window.penggunaI18n || {};

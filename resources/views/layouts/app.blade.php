@@ -614,6 +614,7 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.tailwindcss.min.js"></script>
     <script>
+        $.fn.dataTable.ext.errMode = 'none';
         $.extend(true, $.fn.dataTable.defaults, {
             @if (app()->getLocale() === 'id')
                 language: {

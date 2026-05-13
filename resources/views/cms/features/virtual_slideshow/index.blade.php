@@ -353,6 +353,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = 'none';
             $('#tableSlideshowPages').DataTable({
                 columnDefs: [{
                     orderable: false,

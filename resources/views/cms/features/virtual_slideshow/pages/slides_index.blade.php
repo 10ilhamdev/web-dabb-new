@@ -1,4 +1,9 @@
 @extends('layouts.app')
+@php
+    /** @var \App\Models\VirtualSlideshowPage $page */
+    /** @var \App\Models\Feature $feature */
+    /** @var \Illuminate\Database\Eloquent\Collection $slides */
+@endphp
 
 @section('breadcrumb_items')
     <span class="text-gray-400">CMS</span>
@@ -425,6 +430,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = 'none';
             $('#tableSlideshowSlides').DataTable({
                 columnDefs: [{
                     orderable: false,

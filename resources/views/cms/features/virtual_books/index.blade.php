@@ -205,6 +205,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = 'none';
             $('#tableBooks').DataTable({
                 columnDefs: [{
                     orderable: false,

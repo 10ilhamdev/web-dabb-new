@@ -199,6 +199,7 @@ function profilePagesManager() {
 }
 
 $(document).ready(function() {
+    $.fn.dataTable.ext.errMode = 'none';
     $('#tableProfilePages').DataTable({
         columnDefs: [{ orderable: false, targets: [5] }],
         order: [[0, 'asc']],

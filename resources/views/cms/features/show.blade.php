@@ -410,6 +410,7 @@
 @if($feature->type === 'dropdown')
 <script>
 $(document).ready(function() {
+    $.fn.dataTable.ext.errMode = 'none';
     $('#tableSubFeatures').DataTable({
         columnDefs: [{ orderable: false, targets: [4] }],
         order: [[0, 'asc']],

@@ -332,6 +332,7 @@
 <script src="{{ asset('js/cms/features/index.js') }}"></script>
 <script>
 $(document).ready(function() {
+    $.fn.dataTable.ext.errMode = 'none';
     $('#tableFeatures').DataTable({
         columnDefs: [{ orderable: false, targets: [5] }],
         order: [[4, 'asc']],

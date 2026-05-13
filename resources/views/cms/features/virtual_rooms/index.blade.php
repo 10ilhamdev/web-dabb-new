@@ -191,6 +191,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = 'none';
             $('#tableVirtualRooms').DataTable({
                 columnDefs: [{
                     orderable: false,
