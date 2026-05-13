@@ -305,4 +305,14 @@ class FeatureController extends Controller
         return redirect()->route('cms.features.show', $parentId)
             ->with('success', __('cms.features.flash.sub_deleted'));
     }
+
+    /**
+     * Toggle the visibility of a feature.
+     */
+    public function toggleVisibility(Feature $feature)
+    {
+        $feature->update(['is_active' => ! $feature->is_active]);
+
+        return back()->with('success', __('cms.features.flash.visibility_toggled'));
+    }
 }

@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feature}/content', [FeatureController::class, 'updateContent'])->name('update-content');
         Route::put('/{feature}/sub', [FeatureController::class, 'updateSub'])->name('update-sub');
         Route::delete('/{feature}/sub', [FeatureController::class, 'destroySub'])->name('destroy-sub');
+        Route::patch('/{feature}/toggle-visibility', [FeatureController::class, 'toggleVisibility'])->name('toggle-visibility');
 
         // Feature Pages (multi-page content)
         Route::get('/{feature}/pages', [FeaturePageController::class, 'index'])->name('pages.index');
@@ -86,6 +87,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{feature}/pages/{page}', [FeaturePageController::class, 'show'])->name('pages.show');
         Route::put('/{feature}/pages/{page}', [FeaturePageController::class, 'update'])->name('pages.update');
         Route::delete('/{feature}/pages/{page}', [FeaturePageController::class, 'destroy'])->name('pages.destroy');
+        Route::patch('/{feature}/pages/{page}/toggle-visibility', [FeaturePageController::class, 'toggleVisibility'])->name('pages.toggle-visibility');
 
         // Page Sections
         Route::post('/{feature}/pages/{page}/sections', [FeaturePageController::class, 'storeSection'])->name('pages.sections.store');

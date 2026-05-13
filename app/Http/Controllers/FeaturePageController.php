@@ -316,7 +316,7 @@ class FeaturePageController extends Controller
     public function publicShow(Feature $feature, ?int $pageNum = null, bool $requiresLoginModal = false, ?array $loginModalPreviews = null, ?string $loginModalPreview = null, ?array $loginModalRoomNames = null, ?string $loginModalRoomName = null)
     {
         $feature->load('parent');
-        $pages = $feature->pages()->withCount('sections')->orderBy('order')->get();
+        $pages = $feature->pages()->where('is_active', true)->withCount('sections')->orderBy('order')->get();
 
         if ($pages->isEmpty()) {
             abort(404);
@@ -642,5 +642,15 @@ class FeaturePageController extends Controller
                 Storage::disk('public')->delete($image);
             }
         }
+    }
+
+    /**
+     * Toggle the visibility of a page.
+     */
+    public function toggleVisibility(Feature $feature, FeaturePage $page)
+    {
+        $page->update(['is_active' => ! $page->is_active]);
+
+        return back()->with('success', __('cms.feature_pages.flash.visibility_toggled'));
     }
 }

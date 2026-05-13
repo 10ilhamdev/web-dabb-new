@@ -110,6 +110,7 @@ return [
             'feature_deleted' => 'Fitur berhasil dihapus.',
             'sub_updated' => 'Sub fitur berhasil diperbarui.',
             'sub_deleted' => 'Sub fitur berhasil dihapus.',
+            'visibility_toggled' => 'Visibilitas fitur berhasil diubah.',
         ],
     ],
 
@@ -180,6 +181,7 @@ return [
             'section_added' => 'Seksi berhasil ditambahkan.',
             'section_updated' => 'Seksi berhasil diperbarui.',
             'section_deleted' => 'Seksi berhasil dihapus.',
+            'visibility_toggled' => 'Visibilitas halaman berhasil diubah.',
         ],
 
         // Public page

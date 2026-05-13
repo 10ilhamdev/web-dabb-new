@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('is_virtual_book')->default(false);
             $table->enum('virtual_room_type', ['none', 'real', '3d', 'book'])->default('none');
             $table->enum('page_type', ['none', 'beranda', 'onsite', 'real', '3d', 'book', 'slideshow', 'profile'])->default('none')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->string('book_cover')->nullable();
             $table->string('book_thumbnail')->nullable();
             $table->timestamps();

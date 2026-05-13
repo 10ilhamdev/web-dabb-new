@@ -20,6 +20,7 @@ class Feature extends Model
         'book_thumbnail',
         'virtual_room_type',
         'page_type',
+        'is_active',
     ];
 
     public function parent()

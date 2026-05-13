@@ -110,6 +110,7 @@ return [
             'feature_deleted' => 'Feature deleted successfully.',
             'sub_updated' => 'Sub feature updated successfully.',
             'sub_deleted' => 'Sub feature deleted successfully.',
+            'visibility_toggled' => 'Feature visibility toggled successfully.',
         ],
     ],
 
@@ -180,6 +181,7 @@ return [
             'section_added' => 'Section added successfully.',
             'section_updated' => 'Section updated successfully.',
             'section_deleted' => 'Section deleted successfully.',
+            'visibility_toggled' => 'Page visibility toggled successfully.',
         ],
 
         // Public page

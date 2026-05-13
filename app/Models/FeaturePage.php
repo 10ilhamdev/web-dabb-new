@@ -24,6 +24,7 @@ class FeaturePage extends Model
         'logo_path',
         'chart_data',
         'extra_data',
+        'is_active',
     ];
 
     protected function casts(): array
@@ -33,6 +34,7 @@ class FeaturePage extends Model
             'image_positions' => 'array',
             'chart_data' => 'array',
             'extra_data' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 

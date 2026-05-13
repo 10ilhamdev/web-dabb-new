@@ -16,6 +16,7 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->longText('description_en')->nullable();
             $table->integer('order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->foreign('feature_id')->references('id')->on('features')->onDelete('cascade');
