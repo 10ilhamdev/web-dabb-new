@@ -20,3 +20,9 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* Hide editor guides during capture */
+.is-capturing #resizeBorder,
+.is-capturing #backResizeBorder {
+    display: none !important;
+}

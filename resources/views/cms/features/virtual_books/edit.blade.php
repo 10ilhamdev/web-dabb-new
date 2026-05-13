@@ -268,6 +268,39 @@
                     </div>
 
                     <div class="pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3">File PDF (Opsional)</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload PDF</label>
+                                <input type="file" name="pdf_path" id="pdfInput" accept="application/pdf"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer">
+
+                                <div id="pdfInfo" class="mt-2 hidden">
+                                    <p class="text-xs text-blue-600 flex items-center gap-1">
+                                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Menghitung halaman PDF...
+                                    </p>
+                                </div>
+
+                                @if($book->pdf_path)
+                                    <div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                                        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"></path><path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+                                        <span class="text-xs text-gray-600 truncate max-w-[200px]">{{ basename($book->pdf_path) }}</span>
+                                        <label class="flex items-center gap-1 cursor-pointer ml-auto">
+                                            <input type="checkbox" name="remove_pdf" value="1" class="rounded text-red-600 focus:ring-red-500">
+                                            <span class="text-xs text-red-600 font-medium">Hapus</span>
+                                        </label>
+                                    </div>
+                                @endif
+                                <p class="text-xs text-gray-500 mt-1.5">Jika diupload, buku akan menggunakan PDF ini sebagai isi flipbook.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
                         <h4 class="text-sm font-semibold text-gray-800 mb-3">Informasi Buku</h4>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -282,7 +315,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Halaman</label>
-                                <input type="text" name="total_pages" value="{{ old('total_pages', $book->total_pages) }}"
+                                <input type="text" name="total_pages" id="totalPagesInput" value="{{ old('total_pages', $book->total_pages) }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
@@ -683,6 +716,36 @@
                     ),
                 ) !!}
             };
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script>
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+            document.getElementById('pdfInput').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file || file.type !== 'application/pdf') return;
+
+                const info = document.getElementById('pdfInfo');
+                const totalInput = document.getElementById('totalPagesInput');
+                
+                info.classList.remove('hidden');
+                
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                    totalInput.value = pdf.numPages;
+                    
+                    // Show success feedback
+                    const infoText = info.querySelector('p');
+                    infoText.classList.remove('text-blue-600');
+                    infoText.classList.add('text-green-600');
+                    infoText.innerHTML = `<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Berhasil mendeteksi ${pdf.numPages} halaman`;
+                } catch (err) {
+                    console.error('PDF error:', err);
+                    info.querySelector('p').innerText = 'Gagal membaca halaman PDF';
+                    info.querySelector('p').classList.add('text-red-600');
+                }
+            });
         </script>
         <script src="{{ asset('js/cms/features/virtual_books/book-cover-editor.js') }}"></script>
     @endpush

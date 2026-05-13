@@ -133,21 +133,56 @@
         .page.--left { border-right: 0; box-shadow: inset -7px 0 30px -7px rgba(0, 0, 0, 0.4); }
         .page.--right { border-left: 0; box-shadow: inset 7px 0 30px -7px rgba(0, 0, 0, 0.4); text-align: right; }
         .page.hard { background-color: hsl(35, 50%, 90%); border: solid 1px hsl(35, 20%, 50%); }
-        .page.page-cover { background-color: transparent; color: hsl(35, 35%, 35%); border: solid 1px hsl(35, 20%, 50%); padding: 0; }
+        .page.page-cover { background-color: transparent; color: hsl(35, 35%, 35%); border: none; padding: 0; }
         .page.page-cover .page-cover-inner { position: absolute; inset: 0; background: linear-gradient(to bottom, #b45309, #78350f); overflow: hidden; }
-        .page.page-cover .cover-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: linear-gradient(to right, #78350f, #b45309); }
-        .page.page-cover .cover-image-container { position: absolute; top: 12px; left: 18px; right: 12px; bottom: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .page.page-cover .cover-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 6.25%; background: linear-gradient(to right, #78350f, #b45309); z-index: 1; pointer-events: none; }
+        .page.page-cover .cover-image-container { position: absolute; width: 81.25%; height: 90.625%; top: 50%; left: 53.125%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.1); overflow: visible; z-index: 5; }
         .page.page-cover .cover-image-container img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
-        .page.page-cover .cover-title { position: absolute; top: 16px; left: 0; right: 0; text-align: center; padding: 0 16px; color: white; font-weight: 600; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); line-height: 1.3; z-index: 1; }
-        .page.page-cover .cover-extra-texts { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; padding: 0 16px; z-index: 1; }
-        .page.page-cover .cover-extra-texts span { display: block; color: rgba(255,255,255,0.8); font-size: 0.7rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-top: 4px; }
+        .page.page-cover .cover-title { position: absolute; top: 6.25%; left: 0; right: 0; text-align: center; padding: 0 16px; color: white; font-weight: 600; font-size: 1.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1.3; z-index: 20; }
+        .page.page-cover .cover-extra-texts { position: absolute; bottom: 6.25%; left: 0; right: 0; text-align: center; padding: 0 16px; z-index: 20; }
+        .page.page-cover .cover-extra-texts span { display: block; color: rgba(255,255,255,0.9); font-size: 0.75rem; text-shadow: 0 1px 3px rgba(0,0,0,0.8); margin-top: 4px; }
         .page.page-cover h2 { text-align: center; padding-top: 50%; font-size: 210%; }
-        .page.page-cover-top { box-shadow: inset 0px 0 30px 0px rgba(36, 10, 3, 0.5), -2px 0 5px 2px rgba(0, 0, 0, 0.4); }
-        .page.page-cover-bottom { box-shadow: inset 0px 0 30px 0px rgba(36, 10, 3, 0.5), 10px 0 8px 0px rgba(0, 0, 0, 0.4); }
+        .page.page-cover-top { box-shadow: 0 0 15px rgba(0,0,0,0.3); }
+        .page.page-cover-bottom { box-shadow: 0 0 15px rgba(0,0,0,0.3); }
 
-        .vb-controls { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; padding-bottom: 0.5rem;}
-        .vb-controls button { padding: 0.5rem 1.25rem; background: #0d9488; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: background 0.2s; }
-        .vb-controls button:hover { background: #0f766e; }
+        /* Gutter / Spine Shadow Effect */
+        .page.--left::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to left, rgba(0,0,0,0.2), transparent);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .page.--right::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+            pointer-events: none;
+            z-index: 10;
+        }
+        /* Hide gutter in single view */
+        body.single-view-active .page.--left::after,
+        body.single-view-active .page.--right::after {
+            display: none;
+        }
+
+        .vb-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; padding-bottom: 1rem; }
+        .vb-controls button { padding: 0.6rem 1.25rem; background: #0d9488; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; box-shadow: 0 2px 4px rgba(13, 148, 136, 0.2); }
+        .vb-controls button:hover { background: #0f766e; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(13, 148, 136, 0.3); }
+        .vb-controls button:active { transform: translateY(0); }
+
+        .vb-search { display: flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.25rem 0.5rem; margin-left: 0.5rem; }
+        .vb-search input { width: 60px; border: none; outline: none; font-size: 0.9rem; text-align: center; padding: 0.2rem; font-weight: 600; color: #111827; }
+        .vb-search button { padding: 0.3rem 0.75rem; font-size: 0.8rem; background: #f3f4f6; color: #4b5563; box-shadow: none; }
+        .vb-search button:hover { background: #e5e7eb; color: #111827; transform: none; box-shadow: none; }
         .vb-state-info { display: none; }
 
         /* View mode toggle (double / single page) */
@@ -157,7 +192,39 @@
         .vb-view-toggle button.active { background: #0d9488; color: #fff; }
         .vb-view-toggle button.active:hover { background: #0f766e; color: #fff; }
         .vb-view-toggle svg { width: 16px; height: 16px; }
+
+        /* PDF loading overlay */
+        #pdfLoadingOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+        .pdf-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #0d9488;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
+    @if($book->pdf_path)
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script>
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        </script>
+    @endif
 </head>
 <body>
 
@@ -191,42 +258,50 @@
         @endphp
 
         <div class="flip-book-wrapper">
+            @if($book->pdf_path)
+                <div id="pdfLoadingOverlay">
+                    <div class="pdf-spinner"></div>
+                    <p class="text-sm text-gray-600 font-medium">Memuat PDF...</p>
+                    <p id="pdfProgress" class="text-xs text-gray-400 mt-1">0%</p>
+                </div>
+            @endif
             <div class="flip-book" id="{{ $bookId }}">
                 {{-- Front Cover --}}
-                @php
-                    $titlePos = $book->title_position ?? [];
-                    $titleTx = ($titlePos['x'] ?? 0) * $coverScaleFactor;
-                    $titleTy = ($titlePos['y'] ?? 0) * $coverScaleFactor;
-                    $coverTexts = $book->cover_texts ?? [];
-                @endphp
-                <div class="page page-cover page-cover-top" data-density="hard">
-                    <div class="page-content">
-                        <div class="page-cover-inner">
-                            <div class="cover-spine"></div>
-                            @if($book->cover_image)
-                            <div class="cover-image-container">
-                                <img src="{{ asset('storage/' . $book->cover_image) }}" style="transform: translate({{ ($book->cover_position['x'] ?? 0) * $coverScaleFactor }}px, {{ ($book->cover_position['y'] ?? 0) * $coverScaleFactor }}px) scale({{ $book->cover_scale ?? 1 }});">
+                @if($book->cover_image)
+                    @php
+                        $titlePos = $book->title_position ?? [];
+                        $titleTx = ($titlePos['x'] ?? 0) * $coverScaleFactor;
+                        $titleTy = ($titlePos['y'] ?? 0) * $coverScaleFactor;
+                        $coverTexts = $book->cover_texts ?? [];
+                    @endphp
+                    <div class="page page-cover page-cover-top" data-density="hard">
+                        <div class="page-content">
+                            <div class="page-cover-inner">
+                                <div class="cover-spine"></div>
+                                <div class="cover-image-container">
+                                    <img src="{{ asset('storage/' . $book->cover_image) }}" style="transform: translate({{ ($book->cover_position['x'] ?? 0) * $coverScaleFactor }}px, {{ ($book->cover_position['y'] ?? 0) * $coverScaleFactor }}px) scale({{ $book->cover_scale ?? 1 }});">
+                                </div>
+                                <div class="cover-title" style="transform: translate({{ $titleTx }}px, {{ $titleTy }}px);">
+                                    {{ $book->translated_title }}
+                                </div>
+                                @if(count($coverTexts) > 0)
+                                <div class="cover-extra-texts">
+                                    @foreach($coverTexts as $ct)
+                                        @php
+                                            $ctPos = $ct['position'] ?? [];
+                                            $ctTx = ($ctPos['x'] ?? 0) * $coverScaleFactor;
+                                            $ctTy = ($ctPos['y'] ?? 0) * $coverScaleFactor;
+                                        @endphp
+                                        <span style="transform: translate({{ $ctTx }}px, {{ $ctTy }}px);">{{ $ct['text'] ?? '' }}</span>
+                                    @endforeach
+                                </div>
+                                @endif
                             </div>
-                            @endif
-                            <div class="cover-title" style="transform: translate({{ $titleTx }}px, {{ $titleTy }}px);">
-                                {{ $book->translated_title }}
-                            </div>
-                            @if(count($coverTexts) > 0)
-                            <div class="cover-extra-texts">
-                                @foreach($coverTexts as $ct)
-                                    @php
-                                        $ctPos = $ct['position'] ?? [];
-                                        $ctTx = ($ctPos['x'] ?? 0) * $coverScaleFactor;
-                                        $ctTy = ($ctPos['y'] ?? 0) * $coverScaleFactor;
-                                    @endphp
-                                    <span style="transform: translate({{ $ctTx }}px, {{ $ctTy }}px);">{{ $ct['text'] ?? '' }}</span>
-                                @endforeach
-                            </div>
-                            @endif
                         </div>
                     </div>
-                </div>
+                @endif
 
+                @if(!$book->pdf_path)
                 {{-- Pages --}}
                 @foreach($bookPages as $pageIndex => $page)
                     @php
@@ -263,6 +338,7 @@
 
                 @if($bookPages->count() % 2 !== 0)
                     <div class="page"><div class="page-content"></div></div>
+                @endif
                 @endif
 
                 {{-- Back Cover --}}
@@ -309,8 +385,15 @@
 
         <div class="vb-controls" data-book="{{ $bookId }}">
             <button type="button" class="btn-prev">{{ app()->getLocale() === 'en' ? 'Previous page' : 'Halaman sebelumnya' }}</button>
-            <span class="page-info" style="color:#4b5563">[<span class="page-current">1</span> {{ app()->getLocale() === 'en' ? 'of' : 'dari' }} <span class="page-total">-</span>]</span>
+            <span class="page-info" style="color:#4b5563; font-weight: 500; font-size: 0.95rem;">
+                <span class="page-current">1</span> {{ app()->getLocale() === 'en' ? 'of' : 'dari' }} <span class="page-total">-</span>
+            </span>
             <button type="button" class="btn-next">{{ app()->getLocale() === 'en' ? 'Next page' : 'Halaman selanjutnya' }}</button>
+
+            <div class="vb-search">
+                <input type="number" id="pageSearchInput" min="1" placeholder="No.">
+                <button type="button" id="btnSearchPage">{{ app()->getLocale() === 'en' ? 'Go' : 'Cari' }}</button>
+            </div>
         </div>
         <div class="vb-state-info" data-book="{{ $bookId }}">
             State: <i class="page-state">read</i>, orientation: <i class="page-orientation">landscape</i>
@@ -319,6 +402,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            var appLocale = '{{ app()->getLocale() }}';
             var bookId = '{{ $bookId }}';
             var bookEl = document.getElementById(bookId);
             var wrapperEl = bookEl.parentElement; // .flip-book-wrapper
@@ -376,14 +460,42 @@
                 var stateInfo = document.querySelector('.vb-state-info');
 
                 if (controls) {
-                    controls.querySelector('.page-total').innerText = pageFlip.getPageCount();
+                    var totalPages = pageFlip.getPageCount();
+                    controls.querySelector('.page-total').innerText = totalPages;
                     controls.querySelector('.page-current').innerText = 1;
+
+                    var searchInput = document.getElementById('pageSearchInput');
+                    if (searchInput) searchInput.setAttribute('max', totalPages);
+
                     controls.querySelector('.btn-prev').addEventListener('click', function() { pageFlip.flipPrev(); });
                     controls.querySelector('.btn-next').addEventListener('click', function() { pageFlip.flipNext(); });
                     pageFlip.on('flip', function(e) {
                         currentPageIndex = e.data;
                         controls.querySelector('.page-current').innerText = e.data + 1;
                         updateCoverMode();
+                    });
+                }
+
+                // Page Search Functionality
+                var searchInput = document.getElementById('pageSearchInput');
+                var searchBtn = document.getElementById('btnSearchPage');
+
+                function jumpToPage() {
+                    var pageNum = parseInt(searchInput.value);
+                    if (isNaN(pageNum)) return;
+
+                    var total = pageFlip.getPageCount();
+                    if (pageNum >= 1 && pageNum <= total) {
+                        pageFlip.flip(pageNum - 1);
+                    } else {
+                        alert(appLocale === 'en' ? 'Page not found' : 'Halaman tidak ditemukan');
+                    }
+                }
+
+                if (searchBtn) searchBtn.addEventListener('click', jumpToPage);
+                if (searchInput) {
+                    searchInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') jumpToPage();
                     });
                 }
 
@@ -430,7 +542,204 @@
             if (btnDouble) btnDouble.addEventListener('click', function() { setViewMode('double'); });
             if (btnSingle) btnSingle.addEventListener('click', function() { setViewMode('single'); });
 
+            // PDF Integration
+            @if($book->pdf_path)
+            var pdfUrl = '{{ asset("storage/" . $book->pdf_path) }}';
+            var pdfDoc = null;
+            
+            async function loadPdf() {
+                var loadingOverlay = document.getElementById('pdfLoadingOverlay');
+                var progressText = document.getElementById('pdfProgress');
+                
+                try {
+                    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                    loadingTask.onProgress = function(progress) {
+                        if (progress.total > 0) {
+                            var pct = Math.round((progress.loaded / progress.total) * 100);
+                            progressText.innerText = `Mengunduh PDF: ${pct}%`;
+                        }
+                    };
+                    
+                    pdfDoc = await loadingTask.promise;
+                    const hasCmsFrontCover = bookEl.querySelector('.page-cover-top') !== null;
+                    const hasCmsBackCover = bookEl.querySelector('.page-cover-bottom') !== null;
+                    const startPage = hasCmsFrontCover ? 2 : 1;
+                    
+                    // 1. Create blank placeholders for ALL pages immediately
+                    const backCover = bookEl.querySelector('.page-cover-bottom');
+                    for (let i = startPage; i <= pdfDoc.numPages; i++) {
+                        const pageDiv = document.createElement('div');
+                        pageDiv.className = 'page fullbleed-page pdf-page-placeholder';
+                        pageDiv.id = `pdf-page-${i}`;
+                        
+                        if (!hasCmsFrontCover && i === 1) pageDiv.setAttribute('data-density', 'hard');
+                        if (!hasCmsBackCover && i === pdfDoc.numPages) pageDiv.setAttribute('data-density', 'hard');
+                        
+                        pageDiv.innerHTML = `
+                            <div class="page-content fullbleed">
+                                <div class="page-inner">
+                                    <div class="page-image" style="background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                        <div class="pdf-spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                                    </div>
+                                </div>
+                                <div class="page-footer">${hasCmsFrontCover ? i - 1 : i}</div>
+                            </div>
+                        `;
+                        
+                        if (backCover) {
+                            bookEl.insertBefore(pageDiv, backCover);
+                        } else {
+                            bookEl.appendChild(pageDiv);
+                        }
+                    }
+
+                    // 2. Add empty page if needed for even count
+                    const totalPages = bookEl.querySelectorAll('.page').length;
+                    if (totalPages % 2 !== 0) {
+                        const emptyPage = document.createElement('div');
+                        emptyPage.className = 'page';
+                        emptyPage.innerHTML = '<div class="page-content"></div>';
+                        if (backCover) bookEl.insertBefore(emptyPage, backCover);
+                        else bookEl.appendChild(emptyPage);
+                    }
+                    
+                    // 3. Open the book immediately!
+                    loadingOverlay.style.display = 'none';
+                    initBook();
+                    
+                    // 4. Start rendering images incrementally in the background
+                    renderPagesIncremental(startPage);
+                    
+                } catch (error) {
+                    console.error('Error loading PDF:', error);
+                    progressText.innerText = 'Gagal memuat PDF.';
+                    progressText.classList.add('text-red-500');
+                }
+            }
+
+            async function renderPagesIncremental(startPage) {
+                const hasCmsFrontCover = bookEl.querySelector('.page-cover-top') !== null;
+                
+                for (let i = startPage; i <= pdfDoc.numPages; i++) {
+                    try {
+                        const page = await pdfDoc.getPage(i);
+                        const viewport = page.getViewport({ scale: 2 });
+                        
+                        let canvas, context;
+                        if (typeof OffscreenCanvas !== 'undefined') {
+                            canvas = new OffscreenCanvas(viewport.width, viewport.height);
+                            context = canvas.getContext('2d');
+                        } else {
+                            canvas = document.createElement('canvas');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            context = canvas.getContext('2d');
+                        }
+                        
+                        await page.render({ canvasContext: context, viewport: viewport }).promise;
+                        
+                        let dataUrl;
+                        if (typeof OffscreenCanvas !== 'undefined' && canvas.convertToBlob) {
+                            const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.8 });
+                            dataUrl = await new Promise(resolve => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                            });
+                        } else {
+                            dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        }
+                        
+                        // Update the placeholder
+                        const pageDiv = document.getElementById(`pdf-page-${i}`);
+                        if (pageDiv) {
+                            const imgDiv = pageDiv.querySelector('.page-image');
+                            imgDiv.style.backgroundImage = `url(${dataUrl})`;
+                            imgDiv.style.backgroundColor = 'transparent';
+                            imgDiv.style.backgroundSize = '100% 100%';
+                            imgDiv.innerHTML = ''; // Remove spinner
+                        }
+                        
+                        // Small yield to keep UI smooth
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    } catch (e) {
+                        console.warn(`Failed to render page ${i}:`, e);
+                    }
+                }
+            }
+
+            async function renderPdfPage(num, isOffset = false) {
+                const page = await pdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: 2 });
+                
+                let canvas, context;
+                if (typeof OffscreenCanvas !== 'undefined') {
+                    canvas = new OffscreenCanvas(viewport.width, viewport.height);
+                    context = canvas.getContext('2d');
+                } else {
+                    canvas = document.createElement('canvas');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    context = canvas.getContext('2d');
+                }
+                
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                
+                let dataUrl;
+                if (typeof OffscreenCanvas !== 'undefined' && canvas.convertToBlob) {
+                    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.8 });
+                    dataUrl = await new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                } else {
+                    dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                }
+                
+                // Create the flipbook page element
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page fullbleed-page';
+                
+                // If it's a PDF-only book (no CMS covers), make first/last hard
+                const hasCmsFrontCover = bookEl.querySelector('.page-cover-top') !== null;
+                const hasCmsBackCover = bookEl.querySelector('.page-cover-bottom') !== null;
+                
+                if (!hasCmsFrontCover && num === 1) pageDiv.setAttribute('data-density', 'hard');
+                if (!hasCmsBackCover && num === pdfDoc.numPages) pageDiv.setAttribute('data-density', 'hard');
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'page-content fullbleed';
+                
+                const innerDiv = document.createElement('div');
+                innerDiv.className = 'page-inner';
+                
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'page-image';
+                imgDiv.style.backgroundImage = `url(${dataUrl})`;
+                imgDiv.style.left = '0';
+                imgDiv.style.top = '0';
+                imgDiv.style.width = '100%';
+                imgDiv.style.height = '100%';
+                imgDiv.style.backgroundSize = '100% 100%';
+                
+                const footerDiv = document.createElement('div');
+                footerDiv.className = 'page-footer';
+                // Adjust page number display if skipping first page
+                footerDiv.innerText = isOffset ? num - 1 : num;
+                
+                innerDiv.appendChild(imgDiv);
+                contentDiv.appendChild(innerDiv);
+                contentDiv.appendChild(footerDiv);
+                pageDiv.appendChild(contentDiv);
+                
+                return pageDiv;
+            }
+
+            loadPdf();
+            @else
             initBook();
+            @endif
         });
     </script>
     {{-- Login required modal --}}

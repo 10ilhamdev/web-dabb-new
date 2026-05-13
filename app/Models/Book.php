@@ -31,6 +31,7 @@ class Book extends Model
         'back_title_position',
         'back_cover_texts',
         'thumbnail',
+        'pdf_path',
         'order',
     ];
 

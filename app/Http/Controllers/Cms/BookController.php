@@ -64,6 +64,7 @@ class BookController extends Controller
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'generated_thumbnail' => 'nullable|string',
             'order' => 'required|integer|min:0',
+            'pdf_path' => 'nullable|file|mimes:pdf|max:51200', // max 50MB
         ]);
 
         $validated['feature_id'] = $feature->id;
@@ -134,7 +135,16 @@ class BookController extends Controller
             }
         }
 
-        $book = Book::create($validated);
+        // Handle PDF upload
+        if ($request->hasFile('pdf_path')) {
+            $path = $request->file('pdf_path')->store('features/virtual-books/pdfs', 'public');
+            $validated['pdf_path'] = $path;
+            
+            // Auto-count pages from PDF and overwrite
+            $validated['total_pages'] = $this->countPdfPages($path);
+        }
+
+        $book = $this->insertAndShiftOrder(Book::class, (int) $validated['order'], ['feature_id' => $feature->id], $validated);
 
         // Translate and save title_en for public display
         if (!empty($validated['title'])) {
@@ -187,7 +197,9 @@ class BookController extends Controller
             'remove_cover_image' => 'boolean',
             'remove_thumbnail' => 'boolean',
             'remove_back_cover_image' => 'boolean',
+            'remove_pdf' => 'boolean',
             'order' => 'required|integer|min:0',
+            'pdf_path' => 'nullable|file|mimes:pdf|max:51200', // max 50MB
         ]);
 
         // Handle cover image
@@ -284,6 +296,23 @@ class BookController extends Controller
             $validated['thumbnail'] = null;
         }
 
+        // Handle PDF upload
+        if ($request->hasFile('pdf_path')) {
+            if ($book->pdf_path) {
+                Storage::disk('public')->delete($book->pdf_path);
+            }
+            $path = $request->file('pdf_path')->store('features/virtual-books/pdfs', 'public');
+            $validated['pdf_path'] = $path;
+            
+            // Auto-count pages
+            $validated['total_pages'] = $this->countPdfPages($path);
+        } elseif ($request->boolean('remove_pdf')) {
+            if ($book->pdf_path) {
+                Storage::disk('public')->delete($book->pdf_path);
+            }
+            $validated['pdf_path'] = null;
+        }
+
         $this->swapOrder($book, (int) $validated['order'], (int) $book->order, ['feature_id' => $book->feature_id]);
         $book->update($validated);
 
@@ -316,6 +345,11 @@ class BookController extends Controller
             Storage::disk('public')->delete($book->thumbnail);
         }
 
+        // Delete PDF
+        if ($book->pdf_path) {
+            Storage::disk('public')->delete($book->pdf_path);
+        }
+
         // Delete associated pages
         foreach ($book->pages as $page) {
             $images = $page->page_images ?? [];
@@ -340,5 +374,37 @@ class BookController extends Controller
         $book->load('pages');
 
         return view('cms.features.virtual_books.pages.index', compact('feature', 'book'));
+    }
+    /**
+     * Helper to count PDF pages.
+     */
+    private function countPdfPages($path)
+    {
+        try {
+            $filePath = Storage::disk('public')->path($path);
+            if (!file_exists($filePath)) return 0;
+
+            $content = file_get_contents($filePath);
+            
+            // More robust regex for PDF page counts (searching for /Type /Pages /Count X)
+            // or just /Count X in the trailer/catalog
+            if (preg_match('/\/Type\s*\/Pages\s*\/Count\s+(\d+)/', $content, $m)) {
+                return (int)$m[1];
+            }
+            
+            // Fallback to searching for all /Page tags (less accurate but better than nothing)
+            if (preg_match_all('/\/Type\s*\/Page\b/', $content, $m)) {
+                return count($m[0]);
+            }
+
+            // Simple fallback
+            if (preg_match('/\/Count\s+(\d+)/', $content, $m)) {
+                return (int)$m[1];
+            }
+            
+            return 0;
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 }

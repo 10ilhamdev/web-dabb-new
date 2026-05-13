@@ -171,7 +171,15 @@
                     <tr>
                         <td class="metadata-label">{{ app()->getLocale() === 'en' ? 'Total Pages' : 'Jumlah Halaman' }}</td>
                         <td class="metadata-separator">:</td>
-                        <td class="metadata-value">{{ $book->total_pages ?: '-' }}</td>
+                        <td class="metadata-value">
+                            @php
+                                $detailPages = (!empty($book->pdf_path) && !empty($book->total_pages)) 
+                                    ? $book->total_pages 
+                                    : $book->pages()->count();
+                                $detailPages = preg_replace('/(\s*halaman|\s*pages)/i', '', $detailPages);
+                            @endphp
+                            {{ $detailPages }} {{ app()->getLocale() === 'en' ? 'Pages' : 'Halaman' }}
+                        </td>
                     </tr>
                     <tr>
                         <td class="metadata-label">{{ app()->getLocale() === 'en' ? 'Weight' : 'Berat' }}</td>

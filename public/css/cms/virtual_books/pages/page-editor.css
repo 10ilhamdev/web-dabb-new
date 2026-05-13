@@ -174,6 +174,15 @@
     background: transparent;
 }
 
+/* Hide editor guides during capture */
+.book-preview.is-capturing .draggable-element {
+    outline: none !important;
+}
+
+.book-preview.is-capturing .resize-handle {
+    display: none !important;
+}
+
 /* Contained mode: keep contain for proper fit within content area */
 .draggable-image {
     background-size: contain;

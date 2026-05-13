@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 trait SwapsOrder
 {
@@ -47,25 +48,14 @@ trait SwapsOrder
             }
         }
 
-        // Case 1: Same order - resolve duplicates by pushing others at that order forward
-        if ($newOrder === $oldOrder) {
-            // Shift all items that are >= newOrder forward by 1 (fills gaps, no duplicates)
-            foreach ($ordered as $item) {
-                if ((int) $item->order >= $newOrder) {
-                    \DB::table($table)->where('id', $item->id)->update(['order' => (int) $item->order + 1]);
-                }
-            }
-            return;
-        }
-
-        // Case 2: Different order - splice-based reorder
+        // Case 2: Splice-based reorder
         // Insert current item at new position in the list
         $insertAt = max(0, $newOrder - 1);
         array_splice($ordered, $insertAt, 0, [$currentItem]);
 
         // Update all items sequentially (1, 2, 3, ...) - this fills any gaps automatically
         foreach ($ordered as $index => $item) {
-            \DB::table($table)->where('id', $item->id)->update(['order' => $index + 1]);
+            DB::table($table)->where('id', $item->id)->update(['order' => $index + 1]);
         }
     }
 

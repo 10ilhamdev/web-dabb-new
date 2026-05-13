@@ -34,6 +34,7 @@ return new class extends Migration
             $table->json('back_title_position')->nullable();
             $table->json('back_cover_texts')->nullable();
             $table->string('thumbnail')->nullable();
+            $table->string('pdf_path')->nullable();
             $table->integer('order')->default(0);
             $table->timestamps();
         });

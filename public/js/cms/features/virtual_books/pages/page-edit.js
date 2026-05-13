@@ -302,13 +302,30 @@ document.addEventListener('DOMContentLoaded', function() {
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generating...';
 
+            bookPreview.classList.add('is-capturing');
+
             const canvas = await html2canvas(bookPreview, {
                 backgroundColor: null,
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
-                logging: false
+                logging: false,
+                onclone: function(clonedDoc) {
+                    const clonedPreview = clonedDoc.getElementById('bookPreview');
+                    if (clonedPreview) {
+                        const guides = clonedPreview.querySelectorAll('.resize-handle');
+                        guides.forEach(g => g.style.setProperty('display', 'none', 'important'));
+
+                        clonedPreview.querySelectorAll('.draggable-element').forEach(el => {
+                            el.style.setProperty('outline', 'none', 'important');
+                            el.style.setProperty('box-shadow', 'none', 'important');
+                            el.style.setProperty('border', 'none', 'important');
+                        });
+                    }
+                }
             });
+
+            bookPreview.classList.remove('is-capturing');
 
             const dataUrl = canvas.toDataURL('image/png');
             generatedInput.value = dataUrl;

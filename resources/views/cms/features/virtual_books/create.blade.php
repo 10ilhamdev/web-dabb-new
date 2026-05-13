@@ -15,7 +15,7 @@
             <a href="{{ url('/cms/features/' . $grandparent->id . '/') }}"
                 class="text-gray-400 hover:text-gray-600 transition-colors">{{ $grandparent->name }}</a>
         @endif
- 
+
         <span class="text-gray-300">/</span>
         <a href="{{ url('/cms/features/' . $feature->parent->id . '/') }}"
             class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
@@ -163,6 +163,28 @@
                     </div>
 
                     <div class="pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3">File PDF (Opsional)</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload PDF</label>
+                                <input type="file" name="pdf_path" id="pdfInput" accept="application/pdf"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer">
+                                
+                                <div id="pdfInfo" class="mt-2 hidden">
+                                    <p class="text-xs text-blue-600 flex items-center gap-1">
+                                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Menghitung halaman PDF...
+                                    </p>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1.5">Jika diupload, buku akan menggunakan PDF ini sebagai isi flipbook.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
                         <h4 class="text-sm font-semibold text-gray-800 mb-3">Informasi Buku</h4>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -177,7 +199,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Halaman</label>
-                                <input type="text" name="total_pages" value="{{ old('total_pages') }}"
+                                <input type="text" name="total_pages" id="totalPagesInput" value="{{ old('total_pages') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
@@ -400,6 +422,36 @@
                 backTitleY: 0,
                 backAdditionalTexts: []
             };
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script>
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+            document.getElementById('pdfInput').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file || file.type !== 'application/pdf') return;
+
+                const info = document.getElementById('pdfInfo');
+                const totalInput = document.getElementById('totalPagesInput');
+                
+                info.classList.remove('hidden');
+                
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                    totalInput.value = pdf.numPages;
+                    
+                    // Show success feedback
+                    const infoText = info.querySelector('p');
+                    infoText.classList.remove('text-blue-600');
+                    infoText.classList.add('text-green-600');
+                    infoText.innerHTML = `<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Berhasil mendeteksi ${pdf.numPages} halaman`;
+                } catch (err) {
+                    console.error('PDF error:', err);
+                    info.querySelector('p').innerText = 'Gagal membaca halaman PDF';
+                    info.querySelector('p').classList.add('text-red-600');
+                }
+            });
         </script>
         <script src="{{ asset('js/cms/features/virtual_books/book-cover-editor.js') }}"></script>
     @endpush
