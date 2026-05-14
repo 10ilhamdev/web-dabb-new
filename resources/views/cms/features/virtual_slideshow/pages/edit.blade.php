@@ -23,15 +23,70 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.show', $feature) }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
-    <span class="text-gray-300">/</span>
-    <a href="{{ route('cms.features.slideshow.pages.slides.index', [$feature, $page]) }}"
-        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $page->title }}</a>
+    @if(isset($page))
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.slideshow.pages.slides.index', [$feature, $page]) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $page->title }}</a>
+    @endif
 @endsection
 @section('breadcrumb_active', __('cms.virtual_slideshow.edit_slide_title'))
 
 @push('styles')
     {{-- RTE CSS loaded globally via layouts/app.blade.php --}}
     <link rel="stylesheet" href="{{ asset('css/cms/virtual_slideshow/pages/edit.css') }}">
+    <style>
+        /* Force RTE toolbar into a single scrollable row for captions */
+        .rte-compact-container .rte-toolbar,
+        .rte-compact-container .rte-tb-top,
+        .rte-compact-container .rte-tb-bottom {
+            white-space: nowrap !important;
+            overflow-x: auto !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            padding: 0 !important;
+            background: #f8fafc !important;
+            height: 34px !important;
+            min-height: 34px !important;
+        }
+        .rte-compact-container .rte-tb-top {
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+        }
+        .rte-compact-container .rte-tb-btn {
+            transform: scale(0.7) !important;
+            margin: 0 !important;
+            width: 24px !important;
+            height: 24px !important;
+            flex-shrink: 0 !important;
+        }
+        .rte-compact-container .richtexteditor {
+            height: 125px;
+            min-height: 125px !important;
+            border-radius: 4px !important;
+            overflow: hidden !important;
+            border: 1px solid #e2e8f0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        .rte-compact-container .rte-content-wrap {
+            flex: 1 1 auto !important;
+            height: auto;
+            min-height: 40px !important;
+            overflow-y: auto !important;
+        }
+        .rte-compact-container .rte-statusbar {
+            height: 24px !important;
+            min-height: 24px !important;
+            padding: 0 8px !important;
+            font-size: 10px !important;
+            background: #f8fafc !important;
+            border-top: 1px solid #e2e8f0 !important;
+            display: flex !important;
+        }
+        .rte-compact-container .rte-statusbar * {
+            font-size: 10px !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -118,7 +173,7 @@
                     <label class="form-label">{{ __('cms.virtual_slideshow.slide_desc_label') }} <span
                             class="text-gray-400 text-xs">({{ __('cms.virtual_slideshow.optional') }} -
                             {{ __('cms.virtual_slideshow.desc_toolbar_hint') }})</span></label>
-                    <div id="div_editor1" style="min-width:100%;">{!! old('description', $slide->description) !!}</div>
+                    <div id="div_editor1" style="min-width:100%; min-height: 500px;">{!! old('description', $slide->description) !!}</div>
                     <input type="hidden" name="description" id="hiddenDescription">
                 </div>
 
@@ -826,7 +881,41 @@
 @push('scripts')
     <script type="text/javascript" src="{{ asset('cms_rte/rte.js') }}"></script>
     <script type="text/javascript" src="{{ asset('cms_rte/all_plugins.js') }}"></script>
+    <style>
+        /* Force RTE toolbar into a single scrollable row for captions */
+        .rte-caption-container div[class*='rte-commandbar'] {
+            white-space: nowrap !important;
+            overflow-x: auto !important;
+            display: none !important; /* Hide by default */
+            flex-wrap: nowrap !important;
+            padding: 0 !important;
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            height: 34px !important;
+            min-height: 34px !important;
+        }
+        .rte-caption-container:focus-within div[class*='rte-commandbar'] {
+            display: flex !important;
+        }
+        .rte-caption-container div[class*='rte-commandbar'] > div {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            height: 100% !important;
+        }
+        .rte-caption-container div[class*='rte-toolbar-item'] {
+            transform: scale(0.7) !important;
+            margin: -4px !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+        .rte-caption-container .rte-modern-editor {
+            height: 80px !important;
+            min-height: 80px !important;
+        }
+    </style>
     <script>
+        window.allRteInstances = [];
         var __t = {
             upload_images_first: '{{ __('cms.virtual_slideshow.upload_images_first') }}',
             add_videos_first: '{{ __('cms.virtual_slideshow.add_videos_first') }}',
@@ -889,12 +978,43 @@
             singleDiv.style.display = existingMode === 'single' ? 'block' : 'none';
             var singleInput = document.createElement('textarea');
             singleInput.name = singleName;
-            singleInput.className = 'form-input';
+            singleInput.className = 'form-input rte-caption-editor';
             singleInput.placeholder = singlePlaceholder;
             singleInput.rows = 3;
             singleInput.value = existingSingle;
             singleDiv.appendChild(singleInput);
             containerEl.appendChild(singleDiv);
+
+            // Function to safely initialize RTE on an element
+            function attachRTE(el) {
+                if (typeof RichTextEditor === 'undefined') {
+                    setTimeout(function() { attachRTE(el); }, 200);
+                    return;
+                }
+                
+                // Wrap in a compact container to force size via CSS
+                var wrap = document.createElement('div');
+                wrap.className = 'rte-compact-container';
+                el.parentNode.insertBefore(wrap, el);
+                wrap.appendChild(el);
+                
+                var editor = new RichTextEditor(el, {
+                    base_url: '/cms_rte',
+                    editorBodyCssClass: 'rte-content-body',
+                    height: 100,
+                    showStatusBar: false,
+                    toolbar: "bold,italic,underline,|,forecolor,backcolor,|,justifyleft,justifycenter,|,insertorderedlist,insertunorderedlist,|,link,insertimage,|,undo,redo,codeview"
+                });
+                if (!window.allRteInstances) window.allRteInstances = [];
+                window.allRteInstances.push(editor);
+                return editor;
+            }
+
+            // Initialize RTE for single input if visible
+            var singleEditor = null;
+            if (existingMode === 'single') {
+                singleEditor = attachRTE(singleInput);
+            }
 
             var multiDiv = document.createElement('div');
             multiDiv.className = 'caption-multi-section';
@@ -907,7 +1027,6 @@
             var qaCounter = {
                 value: 0
             };
-
             function addQaPair(q, a) {
                 var idx = qaCounter.value++;
                 var pair = document.createElement('div');
@@ -922,9 +1041,13 @@
                     (q || '').replace(/"/g, '&quot;') + '">' +
                     '<label style="font-size:0.75rem;color:#6b7280;margin:6px 0 2px;display:block;">' + __t.answer +
                     '</label>' +
-                    '<textarea name="' + qaBaseName + '[answer]" placeholder="' + __t.answer + '...">' + (a || '').replace(
+                    '<textarea name="' + qaBaseName + '[answer]" placeholder="' + __t.answer + '..." class="rte-caption-editor">' + (a || '').replace(
                         /</g, '&lt;') + '</textarea>';
                 qaList.appendChild(pair);
+
+                // Attach RTE to answer textarea
+                var aTextarea = pair.querySelector('textarea[name$="[answer]"]');
+                if (aTextarea) attachRTE(aTextarea);
             }
 
             if (existingQa.length > 0) {
@@ -954,6 +1077,9 @@
                 } else {
                     singleDiv.style.display = 'block';
                     multiDiv.style.display = 'none';
+                    if (!singleEditor) {
+                        singleEditor = attachRTE(singleInput);
+                    }
                 }
             });
 
@@ -2809,8 +2935,10 @@
                 try {
                     editor1 = new RichTextEditor("#div_editor1", {
                         base_url: '/cms_rte',
-                        editorBodyCssClass: 'rte-content-body'
+                        editorBodyCssClass: 'rte-content-body',
+                        height: 500
                     });
+                    editor1.setHeight(500);
                     // Restore saved description content with multiple attempts
                     // The RTE iframe may not be ready immediately after construction
                     setRTEContent(editor1, initialDescriptionHtml);
@@ -2923,6 +3051,19 @@
                             console.error('RTE getHTML error:', e2);
                         }
                     }
+                }
+
+                // Sync all caption RTE instances
+                if (window.allRteInstances && window.allRteInstances.length > 0) {
+                    window.allRteInstances.forEach(function(editor) {
+                        try {
+                            if (document.body.contains(editor.getTargetElement())) {
+                                editor.save();
+                            }
+                        } catch (err) {
+                            console.warn('Caption RTE sync error:', err);
+                        }
+                    });
                 }
                 // Fallback: if hiddenDescription is still empty but we had saved content, preserve it
                 if (!descField.value && initialDescriptionHtml && initialDescriptionHtml.trim() !== '') {

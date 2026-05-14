@@ -68,9 +68,12 @@
         margin-bottom: 2rem;
     }
     .vss-rooms-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+        max-width: 100%;
+        margin: 0 auto;
     }
     .vss-room-card {
         background: white;
@@ -82,6 +85,8 @@
         text-decoration: none;
         color: inherit;
         display: block;
+        width: 340px; /* Normal size */
+        flex-shrink: 0;
     }
     .vss-room-card:hover {
         transform: translateY(-4px);

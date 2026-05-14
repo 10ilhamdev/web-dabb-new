@@ -59,7 +59,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.virtual_slideshow.page_order_label') }} <span class="text-red-500">*</span></label>
-                <input type="number" name="order" min="0" value="1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                <input type="number" name="order" min="0" value="{{ $nextOrder ?? 1 }}" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                 <p class="text-xs text-gray-500 mt-1">{{ __('cms.virtual_slideshow.page_order_help') }}</p>
             </div>
 

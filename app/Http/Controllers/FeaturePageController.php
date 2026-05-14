@@ -47,7 +47,8 @@ class FeaturePageController extends Controller
 
         // Use different view based on page_type
         if ($feature->page_type === 'slideshow') {
-            return view('cms.features.virtual_slideshow.create', compact('feature'));
+            $nextOrder = VirtualSlideshowPage::where('feature_id', $feature->id)->max('order') + 1;
+            return view('cms.features.virtual_slideshow.create', compact('feature', 'nextOrder'));
         }
 
         return view('cms.features.pages.create', compact('feature'));

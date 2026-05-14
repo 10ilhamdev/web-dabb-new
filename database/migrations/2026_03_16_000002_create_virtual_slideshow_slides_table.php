@@ -12,9 +12,9 @@ return new class extends Migration
         Schema::create('virtual_slideshow_slides', function (Blueprint $table) {
             $table->id();
             $table->foreignId('feature_id')->constrained('features')->onDelete('cascade');
-            $table->foreignId('feature_page_id')
-                ->nullable()
-                ->constrained('feature_pages')
+            $table->foreign('feature_page_id')
+                ->references('id')
+                ->on('virtual_slideshow_pages')
                 ->onDelete('cascade');
             $table->enum('slide_type', ['hero', 'text', 'carousel', 'video', 'text_carousel'])->default('text');
             $table->string('title')->nullable();

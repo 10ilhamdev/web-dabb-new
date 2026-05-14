@@ -23,40 +23,48 @@ trait SwapsOrder
     protected function swapOrder($model, int $newOrder, int $oldOrder, array $scopeConditions): void
     {
         $modelClass = get_class($model);
-        $modelId = $model->id;
         $table = $model->getTable();
 
-        // Fetch all items in scope, sorted by order then by id (stable sort)
-        $itemsQuery = $modelClass::query();
-        foreach ($scopeConditions as $column => $value) {
-            if ($value === null) {
-                $itemsQuery->whereNull($column);
-            } else {
-                $itemsQuery->where($column, $value);
+        DB::transaction(function () use ($model, $newOrder, $oldOrder, $scopeConditions, $modelClass, $table) {
+            // 1. Move the current item to a temporary negative position to clear its current 'order' slot
+            // This prevents unique constraint violations during the subsequent range shift.
+            $tempOrder = -($model->id);
+            DB::table($table)->where('id', $model->id)->update(['order' => $tempOrder]);
+
+            // 2. Perform the range shift for other items
+            if ($newOrder < $oldOrder) {
+                // Moving forward (e.g. 3 -> 1): Shift items in range [new, old-1] forward by 1
+                $query = $modelClass::query();
+                foreach ($scopeConditions as $column => $value) {
+                    if ($value === null) {
+                        $query->whereNull($column);
+                    } else {
+                        $query->where($column, $value);
+                    }
+                }
+                $query->where('order', '>=', $newOrder)
+                    ->where('order', '<', $oldOrder)
+                    ->orderBy('order', 'desc')
+                    ->increment('order');
+            } elseif ($newOrder > $oldOrder) {
+                // Moving backward (e.g. 1 -> 3): Shift items in range [old+1, new] backward by 1
+                $query = $modelClass::query();
+                foreach ($scopeConditions as $column => $value) {
+                    if ($value === null) {
+                        $query->whereNull($column);
+                    } else {
+                        $query->where($column, $value);
+                    }
+                }
+                $query->where('order', '>', $oldOrder)
+                    ->where('order', '<=', $newOrder)
+                    ->orderBy('order', 'asc')
+                    ->decrement('order');
             }
-        }
-        $allItems = $itemsQuery->orderBy('order')->orderBy('id')->get();
 
-        // Build ordered array, remove current item first
-        $ordered = [];
-        $currentItem = null;
-        foreach ($allItems as $item) {
-            if ($item->id === $modelId) {
-                $currentItem = $item;
-            } else {
-                $ordered[] = $item;
-            }
-        }
-
-        // Case 2: Splice-based reorder
-        // Insert current item at new position in the list
-        $insertAt = max(0, $newOrder - 1);
-        array_splice($ordered, $insertAt, 0, [$currentItem]);
-
-        // Update all items sequentially (1, 2, 3, ...) - this fills any gaps automatically
-        foreach ($ordered as $index => $item) {
-            DB::table($table)->where('id', $item->id)->update(['order' => $index + 1]);
-        }
+            // 3. Finally, move the current item from the temporary position to its final newOrder
+            DB::table($table)->where('id', $model->id)->update(['order' => $newOrder]);
+        });
     }
 
     /**
@@ -90,7 +98,10 @@ trait SwapsOrder
         }
 
         // Shift all items at or after the target order forward by 1
-        $query->where('order', '>=', $insertOrder)->increment('order');
+        // We MUST use orderBy('order', 'desc') to avoid temporary unique constraint violations
+        $query->where('order', '>=', $insertOrder)
+            ->orderBy('order', 'desc')
+            ->increment('order');
 
         // Create new item at target order
         return $modelClass::create(array_merge($scopeConditions, $extraAttributes, ['order' => $insertOrder]));

@@ -23,15 +23,70 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.show', $feature) }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
-    <span class="text-gray-300">/</span>
-    <a href="{{ route('cms.features.slideshow.pages.slides.index', [$feature, $page]) }}"
-        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $page->title }}</a>
+    @if(isset($page))
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.slideshow.pages.slides.index', [$feature, $page]) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $page->title }}</a>
+    @endif
 @endsection
 @section('breadcrumb_active', __('cms.virtual_slideshow.add_slide'))
 
 @push('styles')
     {{-- RTE CSS loaded globally via layouts/app.blade.php --}}
     <link rel="stylesheet" href="{{ asset('css/cms/virtual_slideshow/pages/create.css') }}">
+    <style>
+        /* Force RTE toolbar into a single scrollable row for captions */
+        .rte-compact-container .rte-toolbar,
+        .rte-compact-container .rte-tb-top,
+        .rte-compact-container .rte-tb-bottom {
+            white-space: nowrap !important;
+            overflow-x: auto !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            padding: 0 !important;
+            background: #f8fafc !important;
+            height: 34px !important;
+            min-height: 34px !important;
+        }
+        .rte-compact-container .rte-tb-top {
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+        }
+        .rte-compact-container .rte-tb-btn {
+            transform: scale(0.7) !important;
+            margin: 0 !important;
+            width: 24px !important;
+            height: 24px !important;
+            flex-shrink: 0 !important;
+        }
+        .rte-compact-container .richtexteditor {
+            height: 125px;
+            min-height: 125px !important;
+            border-radius: 4px !important;
+            overflow: hidden !important;
+            border: 1px solid #e2e8f0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        .rte-compact-container .rte-content-wrap {
+            flex: 1 1 auto !important;
+            height: auto;
+            min-height: 40px !important;
+            overflow-y: auto !important;
+        }
+        .rte-compact-container .rte-statusbar {
+            height: 24px !important;
+            min-height: 24px !important;
+            padding: 0 8px !important;
+            font-size: 10px !important;
+            background: #f8fafc !important;
+            border-top: 1px solid #e2e8f0 !important;
+            display: flex !important;
+        }
+        .rte-compact-container .rte-statusbar * {
+            font-size: 10px !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -58,12 +113,17 @@
 
         <form
             action="{{ isset($page) ? route('cms.features.slideshow.pages.slides.store', [$feature, $page]) : route('cms.features.slideshow.store', $feature) }}"
-            method="POST" enctype="multipart/form-data" id="slideForm"
+            method="POST" enctype="multipart/form-data" id="slideForm" class="space-y-6"
             data-redirect="{{ isset($page) ? route('cms.features.slideshow.pages.slides.index', [$feature, $page]) : route('cms.features.slideshow.index', $feature) }}">
-            @csrf
+            <div class="hidden">
+                @csrf
+                @if (isset($page))
+                    <input type="hidden" name="feature_page_id" value="{{ $page->id }}">
+                @endif
+            </div>
 
             @if ($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                     <div class="font-semibold">{{ __('cms.virtual_slideshow.errors_found') }}</div>
                     <ul class="list-disc list-inside mt-1 text-sm">
                         @foreach ($errors->all() as $error)
@@ -71,10 +131,6 @@
                         @endforeach
                     </ul>
                 </div>
-            @endif
-
-            @if (isset($page))
-                <input type="hidden" name="feature_page_id" value="{{ $page->id }}">
             @endif
 
             {{-- Step 1: Tipe Slide --}}
@@ -132,7 +188,7 @@
                 <div class="rte-wrapper">
                     <label class="form-label">{{ __('cms.virtual_slideshow.slide_desc_label') }} <span
                             class="text-gray-400 text-xs">({{ __('cms.virtual_slideshow.desc_toolbar_hint') }})</span></label>
-                    <div id="div_editor1" style="min-width:100%;">{!! old('description') !!}</div>
+                    <div id="div_editor1" style="min-width:100%; min-height: 500px;">{!! old('description') !!}</div>
                     <input type="hidden" name="description" id="hiddenDescription">
                 </div>
 
@@ -167,7 +223,7 @@
                     </div>
                     <div>
                         <label class="form-label">{{ __('cms.virtual_slideshow.order_label') }}</label>
-                        <input type="number" name="order" min="0" value="{{ old('order', 1) }}"
+                        <input type="number" name="order" min="0" value="{{ old('order', $nextOrder ?? 1) }}"
                             class="form-input" required>
                     </div>
                 </div>
@@ -420,7 +476,9 @@
 @push('scripts')
     <script type="text/javascript" src="{{ asset('cms_rte/rte.js') }}"></script>
     <script type="text/javascript" src="{{ asset('cms_rte/all_plugins.js') }}"></script>
+    </style>
     <script>
+        window.allRteInstances = [];
         // Translation strings for JS
         var __t = {
             upload_images_first: '{{ __('cms.virtual_slideshow.upload_images_first') }}',
@@ -483,12 +541,44 @@
             singleDiv.style.display = existingMode === 'single' ? 'block' : 'none';
             var singleInput = document.createElement('textarea');
             singleInput.name = singleName;
-            singleInput.className = 'form-input';
+            singleInput.className = 'form-input rte-caption-editor';
             singleInput.placeholder = singlePlaceholder;
             singleInput.rows = 3;
             singleInput.value = existingSingle;
             singleDiv.appendChild(singleInput);
             containerEl.appendChild(singleDiv);
+
+            // Function to safely initialize RTE on an element
+            function attachRTE(el) {
+                if (typeof RichTextEditor === 'undefined') {
+                    setTimeout(function() { attachRTE(el); }, 200);
+                    return;
+                }
+                
+                // Wrap in a compact container to force size via CSS
+                var wrap = document.createElement('div');
+                wrap.className = 'rte-compact-container';
+                el.parentNode.insertBefore(wrap, el);
+                wrap.appendChild(el);
+                
+                var editor = new RichTextEditor(el, {
+                    base_url: '/cms_rte',
+                    editorBodyCssClass: 'rte-content-body',
+                    height: 100,
+                    showStatusBar: false,
+                    toolbar: "bold,italic,underline,|,forecolor,backcolor,|,justifyleft,justifycenter,|,insertorderedlist,insertunorderedlist,|,link,insertimage,|,undo,redo,codeview"
+                });
+                
+                if (!window.allRteInstances) window.allRteInstances = [];
+                window.allRteInstances.push(editor);
+                return editor;
+            }
+
+            // Initialize RTE for single input if visible
+            var singleEditor = null;
+            if (existingMode === 'single') {
+                singleEditor = attachRTE(singleInput);
+            }
 
             // Multi Q&A section
             var multiDiv = document.createElement('div');
@@ -534,6 +624,7 @@
 
                 var aTextarea = document.createElement('textarea');
                 aTextarea.name = qaBaseName + '[answer]';
+                aTextarea.className = 'rte-caption-editor';
                 aTextarea.placeholder = 'Jawaban...';
                 aTextarea.textContent = a || '';
 
@@ -543,6 +634,9 @@
                 pair.appendChild(aLabel);
                 pair.appendChild(aTextarea);
                 qaList.appendChild(pair);
+
+                // Attach RTE to answer textarea
+                attachRTE(aTextarea);
             }
 
             // Pre-populate existing Q&A items
@@ -574,6 +668,9 @@
                 } else {
                     singleDiv.style.display = 'block';
                     multiDiv.style.display = 'none';
+                    if (!singleEditor) {
+                        singleEditor = attachRTE(singleInput);
+                    }
                 }
             });
 
@@ -1917,8 +2014,10 @@
                 try {
                     editor1 = new RichTextEditor("#div_editor1", {
                         base_url: '/cms_rte',
-                        editorBodyCssClass: 'rte-content-body'
+                        editorBodyCssClass: 'rte-content-body',
+                        height: 500
                     });
+                    editor1.setHeight(500);
                 } catch (e) {
                     console.error('RTE init error:', e);
                 }
@@ -1959,6 +2058,20 @@
                             console.error('RTE getHTML error:', e2);
                         }
                     }
+                }
+
+                // Sync all caption RTE instances
+                if (window.allRteInstances && window.allRteInstances.length > 0) {
+                    window.allRteInstances.forEach(function(editor) {
+                        try {
+                            // Check if editor is still in DOM (attached to an element that's in DOM)
+                            if (document.body.contains(editor.getTargetElement())) {
+                                editor.save(); // Built-in method to sync back to textarea
+                            }
+                        } catch (err) {
+                            console.warn('Caption RTE sync error:', err);
+                        }
+                    });
                 }
 
                 var form = document.getElementById('slideForm');

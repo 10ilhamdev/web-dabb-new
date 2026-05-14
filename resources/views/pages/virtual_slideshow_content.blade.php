@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
 <link rel="stylesheet" href="{{ asset('css/virtual_slideshow.css') }}">
+<link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css') }}">
 <style>
     /* Back button for slideshow view */
     .vss-back-btn {
@@ -24,6 +25,16 @@
     .vss-back-btn:hover {
         background: rgba(255,255,255,0.25);
         color: white;
+    }
+    .vsshow-hero-subtitle {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    /* Ensure RTE styles are preserved and not overridden by guest defaults */
+    .rte-content-body {
+        color: inherit !important;
+    }
+    .rte-content-body [style*="color"] {
+        color: unset !important; /* Allow inline style to win */
     }
 </style>
 @endpush
@@ -129,28 +140,40 @@
     }
 
     function vssProcessImageUrl($url) {
+        $url = trim($url ?? '');
         if (empty($url)) return null;
 
-        // Check if it's a Google Drive URL
-        if (strpos($url, 'drive.google.com') !== false) {
-            $patterns = [
-                '/\/file\/d\/([a-zA-Z0-9_-]+)/',
-                '/id=([a-zA-Z0-9_-]+)/',
-                '/\/open\?id=([a-zA-Z0-9_-]+)/'
-            ];
-            foreach ($patterns as $pattern) {
-                if (preg_match($pattern, $url, $matches)) {
-                    return 'https://lh3.googleusercontent.com/d/' . $matches[1];
+        // If it's already an absolute URL (starts with http://, https://, or //)
+        if (preg_match('/^(https?:\/\/|\/\/)/i', $url)) {
+            // Handle Google Drive transformation
+            if (str_contains($url, 'drive.google.com')) {
+                $patterns = [
+                    '/\/file\/d\/([a-zA-Z0-9_-]+)/',
+                    '/id=([a-zA-Z0-9_-]+)/',
+                    '/\/open\?id=([a-zA-Z0-9_-]+)/'
+                ];
+                foreach ($patterns as $pattern) {
+                    if (preg_match($pattern, $url, $matches)) {
+                        $url = 'https://lh3.googleusercontent.com/d/' . $matches[1];
+                        break;
+                    }
                 }
             }
+            // Handle Wikimedia
+            elseif (preg_match('/commons\.wikimedia\.org\/wiki\/File:(.+)/', $url, $matches)) {
+                $url = 'https://commons.wikimedia.org/wiki/Special:FilePath/' . $matches[1];
+            }
+            
+            // Use local proxy for external domains to bypass CORS/Blocking
+            if (str_contains($url, 'pemanfaatan.anri.go.id') || str_contains($url, 'wikimedia.org') || str_contains($url, 'magnific.com')) {
+                return route('vss.image.proxy', ['url' => $url]);
+            }
+
+            return $url;
         }
 
-        // Wikimedia Commons: /wiki/File:NAME → Special:FilePath/NAME
-        if (preg_match('/commons\.wikimedia\.org\/wiki\/File:(.+)/', $url, $matches)) {
-            return 'https://commons.wikimedia.org/wiki/Special:FilePath/' . $matches[1];
-        }
-
-        return $url;
+        // Otherwise assume it's a relative path in storage
+        return asset('storage/' . ltrim($url, '/'));
     }
 @endphp
 
@@ -184,17 +207,12 @@
         $heroUploadedCount = count($heroImages);
     @endphp
     @if(count($heroAllImages) > 0)
-    <div style="position:absolute;inset:0;z-index:0;">
         @php
             $heroImg = $heroAllImages[0];
-            $isHeroUploaded = $heroUploadedCount > 0;
-            $heroImgSrc = $isHeroUploaded ? asset('storage/'.$heroImg) : vssProcessImageUrl($heroImg);
+            $heroImgSrc = vssProcessImageUrl($heroImg);
         @endphp
-        <img src="{{ $heroImgSrc }}"
-            alt="{{ $heroSlide->translated_title }}"
-            style="width:100%;height:100%;object-fit:cover;opacity:0.25;"
-            onerror="this.style.display='none';">
-    </div>
+        <div style="position:absolute;inset:0;z-index:0;background-image:url('{{ $heroImgSrc }}');background-size:cover;background-position:center;opacity:0.25;">
+        </div>
     @endif
 
     <div class="vsshow-hero-content vsshow-hero-anim">
@@ -224,7 +242,7 @@
 
     <div class="vsshow-hero-scroll-hint vsshow-enter" data-enter-delay="5">
         <div class="vsshow-hero-scroll-line"></div>
-        Scroll
+        {{ __('home.virtual_slideshow.scroll') }}
     </div>
 </section>
 @else
@@ -242,7 +260,7 @@
     </div>
     <div class="vsshow-hero-scroll-hint vsshow-enter" data-enter-delay="5">
         <div class="vsshow-hero-scroll-line"></div>
-        Scroll
+        {{ __('home.virtual_slideshow.scroll') }}
     </div>
 </section>
 @endif
@@ -277,7 +295,7 @@
                 <p class="vsshow-section-subtitle vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="3">{{ $subtitle }}</p>
             @endif
             @if($desc)
-                <div class="vsshow-section-desc vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4">{!! $desc !!}</div>
+                <div class="vsshow-section-desc vsshow-enter rte-content-body" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4">{!! $desc !!}</div>
             @endif
         </div>
 
@@ -312,7 +330,7 @@
                                     $idx = $orderItem['uploadIndex'] ?? 0;
                                     $imgPath = $images[$idx] ?? null;
                                     if ($imgPath) {
-                                        $imgSrc = asset('storage/'.$imgPath);
+                                        $imgSrc = vssProcessImageUrl($imgPath);
                                         $itemCaption = $popup[(string)$carouselRenderIdx] ?? '';
                                     }
                                 } elseif ($itemType === 'url') {
@@ -326,12 +344,12 @@
                             @endphp
                             @if($imgSrc)
                             <div class="vsshow-carousel-slide">
-                                <img src="{{ $imgSrc }}" alt="{{ $title }} — gambar {{ $carouselRenderIdx+1 }}" loading="lazy" style="width:100%;height:100%;object-fit:contain;">
+                                <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
                                 @if(!empty($itemCaption))
                                 <button class="vsshow-info-btn"
                                     data-popup="{{ vssPopupData($itemCaption) }}"
                                     data-img-src="{{ $imgSrc }}"
-                                    title="Info">?</button>
+                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                 @endif
                             </div>
                             @php $carouselRenderIdx++; @endphp
@@ -344,15 +362,14 @@
                         @foreach($allImages as $imgIdx => $imgPath)
                         <div class="vsshow-carousel-slide">
                             @php
-                                $isUploadedImage = $imgIdx < $uploadedCount;
-                                $imgSrc = $isUploadedImage ? asset('storage/'.$imgPath) : vssProcessImageUrl($imgPath);
+                                $imgSrc = vssProcessImageUrl($imgPath);
                             @endphp
-                            <img src="{{ $imgSrc }}" alt="{{ $title }} — gambar {{ $imgIdx+1 }}" loading="lazy" style="width:100%;height:100%;object-fit:contain;">
+                            <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
                             @if(!empty($popup[$imgIdx]) || !empty($popup[(string)$imgIdx]))
                             <button class="vsshow-info-btn"
                                 data-popup="{{ vssPopupData($popup[$imgIdx] ?? $popup[(string)$imgIdx] ?? '') }}"
                                 data-img-src="{{ $imgSrc }}"
-                                title="Info">?</button>
+                                title="{{ __('home.virtual_slideshow.info') }}">?</button>
                             @endif
                         </div>
                         @endforeach
@@ -360,13 +377,13 @@
                 </div>
 
                 @if(count($allImages) > 1)
-                <button class="vsshow-carousel-btn prev" aria-label="Previous">
+                <button class="vsshow-carousel-btn prev" aria-label="{{ __('home.virtual_slideshow.prev') }}">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button class="vsshow-carousel-btn next" aria-label="Next">
+                <button class="vsshow-carousel-btn next" aria-label="{{ __('home.virtual_slideshow.next') }}">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
-                <button class="vsshow-carousel-btn pause-play" id="carousel-pause-btn" aria-label="Pause">
+                <button class="vsshow-carousel-btn pause-play" id="carousel-pause-btn" aria-label="{{ __('home.virtual_slideshow.pause') }}">
                     <svg class="pause-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <svg class="play-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </button>
@@ -382,7 +399,7 @@
             @endif
 
             @if($desc)
-            <div class="vsshow-section-desc vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4" style="text-align:center;margin:2rem auto 0;max-width:680px;display:block;">{!! $desc !!}</div>
+            <div class="vsshow-section-desc vsshow-enter rte-content-body" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4" style="text-align:center;margin:2rem auto 0;max-width:680px;display:block;">{!! $desc !!}</div>
             @endif
         </div>
 
@@ -395,7 +412,7 @@
                 <h2 class="vsshow-section-title vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="1">{{ $title }}</h2>
                 <div class="vsshow-divider vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="2"></div>
                 @if($subtitle)<p class="vsshow-section-subtitle vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="3">{{ $subtitle }}</p>@endif
-                @if($desc)<div class="vsshow-section-desc vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4">{!! $desc !!}</div>@endif
+                @if($desc)<div class="vsshow-section-desc vsshow-enter rte-content-body" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4">{!! $desc !!}</div>@endif
             </div>
             @endif
 
@@ -404,14 +421,14 @@
                 @if(!empty($popup['video']) || (!empty($popup['video_url']) && $slide->video_url))
                 <button class="vsshow-info-btn vsshow-video-info-btn"
                     data-popup="{{ vssPopupData($popup['video'] ?? $popup['video_url'] ?? '') }}"
-                    title="Info Video">?</button>
+                    title="{{ __('home.virtual_slideshow.info_video') }}">?</button>
                 @endif
 
                 @if($slide->video_file)
                 {{-- Video dari upload file --}}
                 <video controls style="width:100%;max-height:480px;display:block;background:#000;">
                     <source src="{{ asset('storage/' . $slide->video_file) }}" type="video/mp4">
-                    Browser Anda tidak mendukung video.
+                    {{ __('home.virtual_slideshow.video_unsupported') }}
                 </video>
                 @elseif($slide->video_url)
                     @php $vidType = vssVideoUrlType($slide->video_url); @endphp
@@ -427,8 +444,8 @@
                     </video>
                     <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
                         <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        <p style="margin:0;">Video tidak dapat diputar langsung.</p>
-                        <a href="{{ $slide->video_url }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">Buka di Google Drive</a>
+                        <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
+                        <a href="{{ $slide->video_url }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
                     </div>
                     @elseif($vidType === 'direct_video')
                     <video controls style="width:100%;max-height:480px;display:block;background:#000;">
@@ -476,7 +493,7 @@
                 <p class="vsshow-section-subtitle vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="3" style="text-align:left;">{{ $subtitle }}</p>
                 @endif
                 @if($desc)
-                <div class="vsshow-section-desc vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4" style="text-align:left;">{!! $desc !!}</div>
+                <div class="vsshow-section-desc vsshow-enter rte-content-body" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4" style="text-align:left;">{!! $desc !!}</div>
                 @endif
             </div>
 
@@ -515,16 +532,12 @@
                                 @endphp
                                 @if($imgSrc)
                                 <div class="vsshow-carousel-slide">
-                                    <img src="{{ $imgSrc }}"
-                                        alt="{{ $title }} — gambar {{ $carouselRenderIdx+1 }}"
-                                        loading="lazy"
-                                        style="width:100%;height:100%;object-fit:contain;"
-                                    >
+                                    <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
                                     @if(!empty($itemCaption))
                                     <button class="vsshow-info-btn"
                                         data-popup="{{ vssPopupData($itemCaption) }}"
                                         data-img-src="{{ $imgSrc }}"
-                                        title="Info">?</button>
+                                        title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                     @endif
                                 </div>
                                 @php $carouselRenderIdx++; @endphp
@@ -538,18 +551,14 @@
                             <div class="vsshow-carousel-slide">
                                 @php
                                     $isUploadedImage = $imgIdx < $uploadedCount;
-                                    $imgSrc = $isUploadedImage ? asset('storage/'.$imgPath) : vssProcessImageUrl($imgPath);
+                                    $imgSrc = vssProcessImageUrl($imgPath);
                                 @endphp
-                                <img src="{{ $imgSrc }}"
-                                    alt="{{ $title }} — gambar {{ $imgIdx+1 }}"
-                                    loading="lazy"
-                                    style="width:100%;height:100%;object-fit:contain;"
-                                >
+                                <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
                                 @if(!empty($popup[$imgIdx]) || !empty($popup[(string)$imgIdx]))
                                 <button class="vsshow-info-btn"
                                     data-popup="{{ vssPopupData($popup[$imgIdx] ?? $popup[(string)$imgIdx] ?? '') }}"
                                     data-img-src="{{ $imgSrc }}"
-                                    title="Info">?</button>
+                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                 @endif
                             </div>
                             @endforeach
@@ -557,13 +566,13 @@
                     </div>
 
                     @if(count($allImages) > 1)
-                    <button class="vsshow-carousel-btn prev" aria-label="Previous">
+                    <button class="vsshow-carousel-btn prev" aria-label="{{ __('home.virtual_slideshow.prev') }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </button>
-                    <button class="vsshow-carousel-btn next" aria-label="Next">
+                    <button class="vsshow-carousel-btn next" aria-label="{{ __('home.virtual_slideshow.next') }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
-                    <button class="vsshow-carousel-btn pause-play" aria-label="Pause">
+                    <button class="vsshow-carousel-btn pause-play" aria-label="{{ __('home.virtual_slideshow.pause') }}">
                         <svg class="pause-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <svg class="play-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </button>
@@ -615,13 +624,13 @@
                                             </video>
                                             <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
                                                 <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                                <p style="margin:0;">Video tidak dapat diputar langsung.</p>
-                                                <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">Buka di Google Drive</a>
+                                                <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
+                                                <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
                                             </div>
                                             @elseif($vidUrlType === 'direct_video')
                                             <video controls style="width:100%;max-height:420px;display:block;background:#000;">
                                                 <source src="{{ $vidUrl }}" type="video/mp4">
-                                                Browser Anda tidak mendukung video.
+                                                {{ __('home.virtual_slideshow.video_unsupported') }}
                                             </video>
                                             @else
                                             {{-- Generic URL - embed via iframe --}}
@@ -633,7 +642,7 @@
                                             @if(!empty($itemCaption))
                                             <button class="vsshow-info-btn"
                                                 data-popup="{{ vssPopupData($itemCaption) }}"
-                                                title="Info">?</button>
+                                                title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                             @endif
                                         </div>
                                         @php $carouselRenderIdx++; @endphp
@@ -648,12 +657,12 @@
                                         <div class="vsshow-carousel-slide">
                                             <video controls style="width:100%;max-height:300px;display:block;background:#000;">
                                                 <source src="{{ asset('storage/' . $vidFile) }}" type="video/mp4">
-                                                Browser Anda tidak mendukung video.
+                                                {{ __('home.virtual_slideshow.video_unsupported') }}
                                             </video>
                                             @if(!empty($itemCaption))
                                             <button class="vsshow-info-btn"
                                                 data-popup="{{ vssPopupData($itemCaption) }}"
-                                                title="Info">?</button>
+                                                title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                             @endif
                                         </div>
                                         @php $carouselRenderIdx++; @endphp
@@ -680,13 +689,13 @@
                                 </video>
                                 <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
                                     <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                    <p style="margin:0;">Video tidak dapat diputar langsung.</p>
-                                    <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">Buka di Google Drive</a>
+                                    <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
+                                    <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
                                 </div>
                                 @elseif($vidUrlType === 'direct_video')
                                 <video controls style="width:100%;max-height:420px;display:block;background:#000;">
                                     <source src="{{ $vidUrl }}" type="video/mp4">
-                                    Browser Anda tidak mendukung video.
+                                    {{ __('home.virtual_slideshow.video_unsupported') }}
                                 </video>
                                 @else
                                 <div class="vsshow-video-iframe-wrap">
@@ -697,7 +706,7 @@
                                 @if(!empty($carouselVideoCaptions['url_' . $vidIdx]))
                                 <button class="vsshow-info-btn"
                                     data-popup="{{ vssPopupData($carouselVideoCaptions['url_' . $vidIdx]) }}"
-                                    title="Info">?</button>
+                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                 @endif
                             </div>
                             @endforeach
@@ -705,12 +714,12 @@
                             <div class="vsshow-carousel-slide">
                                 <video controls style="width:100%;max-height:300px;display:block;background:#000;">
                                     <source src="{{ asset('storage/' . $vidFile) }}" type="video/mp4">
-                                    Browser Anda tidak mendukung video.
+                                    {{ __('home.virtual_slideshow.video_unsupported') }}
                                 </video>
                                 @if(!empty($carouselVideoCaptions['upload_' . $vidIdx]))
                                 <button class="vsshow-info-btn"
                                     data-popup="{{ vssPopupData($carouselVideoCaptions['upload_' . $vidIdx]) }}"
-                                    title="Info">?</button>
+                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                 @endif
                             </div>
                             @endforeach
@@ -724,13 +733,13 @@
                     @endphp
 
                     @if($totalCarouselVideos > 1)
-                    <button class="vsshow-carousel-btn prev" aria-label="Previous">
+                    <button class="vsshow-carousel-btn prev" aria-label="{{ __('home.virtual_slideshow.prev') }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </button>
-                    <button class="vsshow-carousel-btn next" aria-label="Next">
+                    <button class="vsshow-carousel-btn next" aria-label="{{ __('home.virtual_slideshow.next') }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
-                    <button class="vsshow-carousel-btn pause-play" aria-label="Pause">
+                    <button class="vsshow-carousel-btn pause-play" aria-label="{{ __('home.virtual_slideshow.pause') }}">
                         <svg class="pause-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <svg class="play-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </button>
@@ -752,25 +761,27 @@
 @endforeach
 
 {{-- Empty state --}}
-@if($slides->isEmpty())
+@if($contentSlides->isEmpty())
 <section class="vsshow-section" style="min-height:60vh;display:flex;align-items:center;justify-content:center;">
     <div class="vsshow-text-section">
         <div style="font-size:4rem;margin-bottom:1rem;">🎞</div>
-        <h2 class="vsshow-section-title" style="color:#94a3b8;">Konten sedang disiapkan</h2>
-        <p class="vsshow-section-desc">Halaman ini belum memiliki slide. Silakan kembali lagi nanti.</p>
+        <h2 class="vsshow-section-title" style="color:#94a3b8;">{{ __('home.virtual_slideshow.preparing_title') }}</h2>
+        <p class="vsshow-section-desc">{{ __('home.virtual_slideshow.preparing_desc') }}</p>
     </div>
 </section>
 @endif
 
 {{-- ======== INFO POPUP MODAL ======== --}}
 <div id="vss-popup-overlay" class="vsshow-popup-overlay"></div>
-<div id="vss-popup-card" class="vsshow-popup-card" role="dialog" aria-modal="true" aria-labelledby="vss-popup-title">
+<div id="vss-popup-card" class="vsshow-popup-card" role="dialog" aria-modal="true">
     <div class="vsshow-popup-header">
         <div class="vsshow-popup-icon">?</div>
-        <button id="vss-popup-close" class="vsshow-popup-close" aria-label="Tutup">✕</button>
+        <button id="vss-popup-close" class="vsshow-popup-close" aria-label="{{ __('home.virtual_slideshow.close') }}">✕</button>
     </div>
-    <img id="vss-popup-img" class="vsshow-popup-img" src="" alt="" style="display:none;">
-    <div id="vss-popup-body" class="vsshow-popup-body"></div>
+    <div id="vss-popup-content" class="vsshow-popup-content">
+        <img id="vss-popup-img" class="vsshow-popup-img" src="" alt="" style="display:none;">
+        <div id="vss-popup-text" class="vsshow-popup-text rte-content-body"></div>
+    </div>
 </div>
 
 @endsection

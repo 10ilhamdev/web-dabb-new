@@ -28,15 +28,13 @@
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const el = entry.target;
-                // Force animation restart: remove class, force reflow, then re-add
-                el.classList.remove('vsshow-visible');
-                void el.offsetWidth;
                 el.classList.add('vsshow-visible');
             } else {
+                // Remove to allow re-animation when scrolling back
                 entry.target.classList.remove('vsshow-visible');
             }
         });
-    }, { threshold: 0.18, rootMargin: '0px 0px -80px 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
     animEls.forEach(el => observer.observe(el));
 
@@ -118,16 +116,29 @@
             }
         }
 
-        // Pause on hover
-        carousel.addEventListener('mouseenter', () => {
-            if (isPlaying) clearInterval(autoTimer);
-        });
-        carousel.addEventListener('mouseleave', () => {
-            if (isPlaying) startAuto();
-        });
+        // Visibility-aware auto-play
+        const carouselObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (isPlaying) startAuto();
+                } else {
+                    clearInterval(autoTimer);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        carouselObserver.observe(carousel);
+
+        // Individual tab visibility sync
+        const handleVisibility = () => {
+            if (document.hidden) clearInterval(autoTimer);
+            else if (isPlaying && carousel.getBoundingClientRect().top < window.innerHeight) {
+                startAuto();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
 
         goTo(0);
-        startAuto();
     });
 
     /* ========================================================
@@ -136,6 +147,7 @@
     let popupOverlay  = document.getElementById('vss-popup-overlay');
     let popupCard     = document.getElementById('vss-popup-card');
     let popupBody     = document.getElementById('vss-popup-body');
+    let popupText     = document.getElementById('vss-popup-text');
     let popupImgEl    = document.getElementById('vss-popup-img');
     let popupCloseBtn = document.getElementById('vss-popup-close');
 
@@ -155,7 +167,7 @@
                         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>' +
                     '</svg>' +
                 '</button>' +
-                '<div class="vsshow-qa-answer">' + escapeHtml(item.answer || '') + '</div>' +
+                '<div class="vsshow-qa-answer">' + (item.answer || '') + '</div>' +
             '</div>';
         });
         html += '</div>';
@@ -172,16 +184,16 @@
         }
 
         if (parsed && parsed.type === 'multi' && Array.isArray(parsed.items) && parsed.items.length > 0) {
-            popupBody.innerHTML = renderQaAccordion(parsed.items);
+            popupText.innerHTML = renderQaAccordion(parsed.items);
             // Bind accordion toggle
-            popupBody.querySelectorAll('.vsshow-qa-question').forEach(function(btn) {
+            popupText.querySelectorAll('.vsshow-qa-question').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var qaItem = btn.closest('.vsshow-qa-item');
                     qaItem.classList.toggle('open');
                 });
             });
         } else {
-            popupBody.textContent = text || '';
+            popupText.innerHTML = text || '';
         }
 
         if (imgSrc && popupImgEl) {
@@ -206,7 +218,7 @@
         popupOverlay.classList.remove('active');
         setTimeout(() => {
             popupCard.style.display = 'none';
-            if (popupBody) popupBody.innerHTML = '';
+            if (popupText) popupText.innerHTML = '';
         }, 300);
         document.body.style.overflow = '';
     }

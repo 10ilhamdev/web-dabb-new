@@ -67,7 +67,9 @@ class VirtualSlideshowController extends Controller
             ->where('slide_type', 'hero')
             ->exists();
 
-        return view('cms.features.virtual_slideshow.pages.create', compact('feature', 'page', 'hasHeroSlide'));
+        $nextOrder = VirtualSlideshowSlide::where('feature_page_id', $page->id)->max('order') + 1;
+
+        return view('cms.features.virtual_slideshow.pages.create', compact('feature', 'page', 'hasHeroSlide', 'nextOrder'));
     }
 
     /**
@@ -107,7 +109,7 @@ class VirtualSlideshowController extends Controller
     private function storeSlideData(Request $request, Feature $feature, ?VirtualSlideshowPage $page, TranslationService $translationService)
     {
         $validated = $request->validate([
-            'feature_page_id' => 'nullable|exists:feature_pages,id',
+            'feature_page_id' => 'nullable|exists:virtual_slideshow_pages,id',
             'slide_type'  => 'required|in:hero,text,carousel,video,text_carousel',
             'carousel_media_type' => 'nullable|in:images,videos',
             'title'       => 'nullable|string|max:255',
@@ -582,7 +584,7 @@ class VirtualSlideshowController extends Controller
     private function updateSlideData(Request $request, Feature $feature, VirtualSlideshowSlide $slide, TranslationService $translationService, ?VirtualSlideshowPage $page = null)
     {
         $validated = $request->validate([
-            'feature_page_id' => 'nullable|exists:feature_pages,id',
+            'feature_page_id' => 'nullable|exists:virtual_slideshow_pages,id',
             'slide_type'  => 'required|in:hero,text,carousel,video,text_carousel',
             'title'       => 'nullable|string|max:255',
             'subtitle'    => 'nullable|string|max:255',

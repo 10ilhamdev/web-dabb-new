@@ -24,6 +24,25 @@ Route::get('/gdrive-stream/{fileId}', [App\Http\Controllers\GoogleDriveStreamCon
     ->name('gdrive.stream');
 Route::get('/lang/{locale}', [HomeController::class, 'switchLocale'])->name('locale.switch');
 Route::post('/api/chat', [ChatController::class, 'getBotResponse'])->name('api.chat');
+Route::get('/vss-image-proxy', function(\Illuminate\Http\Request $request) {
+    $url = $request->get('url');
+    if (!$url) abort(404);
+    if (str_contains($url, 'storage/')) {
+         $url = str_replace(' ', '%20', $url);
+    }
+    if (strpos($url, '//') === 0) $url = 'https:' . $url;
+    try {
+        $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->get($url);
+        if ($response->successful()) {
+            return response($response->body(), 200, [
+                'Content-Type' => $response->header('Content-Type') ?? 'image/png',
+                'Cache-Control' => 'public, max-age=86400',
+                'Access-Control-Allow-Origin' => '*',
+            ]);
+        }
+    } catch (\Exception $e) {}
+    return redirect($url);
+})->name('vss.image.proxy');
 
 // Static pages
 Route::get('/disclaimer', [SettingController::class, 'showDisclaimer'])->name('disclaimer');

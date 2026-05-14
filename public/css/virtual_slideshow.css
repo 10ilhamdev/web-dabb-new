@@ -465,16 +465,18 @@
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 30px 80px rgba(0,0,0,0.25);
-    width: 90%;
-    max-width: 480px;
-    padding: 2rem;
+    width: 92%;
+    max-width: 520px;
+    max-height: 90vh;
     display: none;
+    flex-direction: column;
+    overflow: hidden;
     transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
     opacity: 0;
 }
 
 .vsshow-popup-card.active {
-    display: block;
+    display: flex;
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
 }
@@ -483,7 +485,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    padding: 1.25rem 1.5rem;
+    flex: 0 0 auto;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
 }
 
 .vsshow-popup-card .vsshow-popup-icon {
@@ -516,18 +521,44 @@
 
 .vsshow-popup-close:hover { background: #e2e8f0; color: #1e293b; }
 
-.vsshow-popup-body {
-    font-size: 0.97rem;
-    color: var(--vsshow-text);
-    line-height: 1.75;
+.vsshow-popup-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    max-height: calc(90vh - 70px); /* Total card height minus header */
+    padding: 1.5rem 2rem 2.5rem;
+    overscroll-behavior: contain;
+    min-height: 0;
+}
+
+/* Scrollbar styling */
+.vsshow-popup-content::-webkit-scrollbar {
+    width: 6px;
+}
+.vsshow-popup-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.vsshow-popup-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
 }
 
 .vsshow-popup-img {
-    width: 100%;
+    display: block;
+    max-width: 100%;
+    height: auto;
+    max-height: 280px;
+    margin: 0.5rem auto 1.5rem;
     border-radius: 12px;
-    margin-bottom: 1rem;
-    max-height: 200px;
-    object-fit: cover;
+    object-fit: contain;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    background: #fff;
+}
+
+.vsshow-popup-text {
+    font-size: 1rem;
+    color: var(--vsshow-text);
+    line-height: 1.8;
+    text-align: left;
 }
 
 /* ---- Video Section ---- */

@@ -73,7 +73,7 @@ class VirtualSlideshowSlide extends Model
 
     public function featurePage()
     {
-        return $this->belongsTo(FeaturePage::class);
+        return $this->belongsTo(VirtualSlideshowPage::class);
     }
 
     public function slideshowPage()

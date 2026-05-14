@@ -19,8 +19,14 @@
     position: static;
     width: 100%;
     max-width: 100%;
-    height: 100%;
     min-height: 500px;
+}
+.rte-compact .richtexteditor,
+.rte-compact.richtexteditor {
+    min-height: 80px !important;
+}
+#div_editor1 {
+    min-height: 500px !important;
 }
 
 .richtexteditor *,
@@ -292,6 +298,9 @@
     min-height: 200px;
     flex-shrink: 1;
     align-self: stretch;
+}
+.rte-compact .rte-content-wrap {
+    min-height: 40px !important;
 }
 
 .rte-content-wrap::-webkit-scrollbar { width: 10px; height: 10px; }
