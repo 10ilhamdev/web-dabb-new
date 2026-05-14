@@ -14,7 +14,7 @@ class VirtualRoomController extends Controller
     public function index(Feature $feature)
     {
         $rooms = $feature->virtualRooms()->withCount('hotspots')->latest()->get();
-        
+
         $totalRooms = $rooms->count();
         $totalHotspots = $rooms->sum('hotspots_count');
         $avgHotspots = $totalRooms > 0 ? round($totalHotspots / $totalRooms, 1) : 0;
@@ -41,6 +41,7 @@ class VirtualRoomController extends Controller
             'hotspots.*.pitch' => 'required|numeric',
             'hotspots.*.text_tooltip' => 'required|string|max:255',
             'hotspots.*.target_room_id' => 'required|exists:virtual_rooms,id',
+            'hotspots.*.type' => 'nullable|string|in:floor,door',
         ]);
 
         $room = new VirtualRoom();
@@ -88,6 +89,7 @@ class VirtualRoomController extends Controller
             'hotspots.*.pitch' => 'required|numeric',
             'hotspots.*.text_tooltip' => 'required|string|max:255',
             'hotspots.*.target_room_id' => 'required|exists:virtual_rooms,id',
+            'hotspots.*.type' => 'nullable|string|in:floor,door',
         ]);
 
         $room->name = $validated['name'];
@@ -122,6 +124,7 @@ class VirtualRoomController extends Controller
                         'pitch' => $hotspotData['pitch'],
                         'text_tooltip' => $hotspotData['text_tooltip'],
                         'target_room_id' => $hotspotData['target_room_id'],
+                        'type' => $hotspotData['type'] ?? 'floor',
                     ]);
                 } else {
                     $room->hotspots()->create($hotspotData);
@@ -141,7 +144,7 @@ class VirtualRoomController extends Controller
         if ($room->image_360_path) {
             Storage::disk('public')->delete($room->image_360_path);
         }
-        
+
         $room->delete();
 
         return redirect()->route('cms.features.virtual_rooms.index', $feature)

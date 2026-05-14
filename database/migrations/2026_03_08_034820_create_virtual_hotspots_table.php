@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('virtual_room_id');
             $table->unsignedBigInteger('target_room_id')->nullable();
+            $table->string('type', 20)->default('floor');
             $table->double('yaw');
             $table->double('pitch');
             $table->string('text_tooltip', 255);

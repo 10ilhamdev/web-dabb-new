@@ -114,18 +114,27 @@
     text-align: center;
     pointer-events: auto; /* Re-enable clicks for title */
 }
-.vt-modal-close {
+.vt-modal-actions {
     position: absolute;
     right: 1.25rem;
     top: 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+    pointer-events: auto;
+}
+.vt-modal-eye, .vt-modal-close {
     width: 40px; height: 40px; border-radius: 50%;
     background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
     border: 1px solid rgba(255,255,255,0.3);
-    color: white; font-size: 1.2rem; line-height: 1;
+    color: white; 
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.2s;
-    pointer-events: auto; /* Re-enable clicks for close button */
 }
+.vt-modal-eye:hover, .vt-modal-close:hover { 
+    background: rgba(255,255,255,0.35); 
+    transform: scale(1.05);
+}
+.vt-modal-close { font-size: 1.2rem; line-height: 1; }
 .vt-modal-close:hover { background: rgba(255,255,255,0.35); }
 /* ── Hotspot in viewer (public) ─────────────── */
 .vt-hotspot {
@@ -177,27 +186,149 @@
 .vt-hotspot svg { pointer-events: none; }
 .vt-hotspot-label {
     position: absolute;
-    bottom: calc(100% + 10px);
+    bottom: calc(100% + 15px);
     left: 50%;
     transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.92);
     color: white;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     white-space: nowrap;
-    padding: 5px 10px;
-    border-radius: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
     z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 .vt-hotspot-label::after {
     content: '';
     position: absolute;
     top: 100%; left: 50%; transform: translateX(-50%);
-    border: 5px solid transparent;
+    border: 6px solid transparent;
     border-top-color: rgba(15, 23, 42, 0.92);
 }
-.vt-hotspot:hover .vt-hotspot-label { opacity: 1; }
+.vt-hotspot:hover .vt-hotspot-label { 
+    opacity: 1; 
+    bottom: calc(100% + 20px);
+}
+
 #vt-panorama { width: 100%; flex: 1; min-height: 0; position: relative; }
+
+/* ── Panorama List Popup ─── */
+.vt-list-popup {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.vt-list-popup.active { opacity: 1; pointer-events: all; }
+
+.vt-list-content {
+    background: white;
+    width: 90%; max-width: 900px;
+    max-height: 85%;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+.vt-list-popup.active .vt-list-content { transform: translateY(0); }
+
+.vt-list-header {
+    padding: 2rem 3rem;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 1px solid #f3f4f6;
+}
+.vt-list-title-wrap { position: relative; }
+.vt-list-decoration {
+    width: 32px; height: 3px; background: #0ea5e9;
+    margin-bottom: 0.75rem;
+}
+.vt-list-title {
+    font-family: serif; font-size: 2rem; font-weight: 400; color: #1f2937;
+    margin: 0;
+}
+.vt-list-close {
+    background: #0ea5e9; color: white;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none;
+    transition: background 0.2s;
+}
+.vt-list-close:hover { background: #0284c7; }
+
+.vt-list-grid {
+    padding: 2rem 3rem 4rem;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2rem;
+    background: #f9fafb;
+}
+
+.vt-list-item {
+    cursor: pointer;
+    text-align: center;
+}
+.vt-list-thumb-wrap {
+    aspect-ratio: 16/9;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.vt-list-item:hover .vt-list-thumb-wrap {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+}
+.vt-list-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.vt-list-item-name {
+    font-size: 0.85rem; color: #6b7280; font-weight: 500;
+    transition: color 0.2s;
+}
+.vt-list-item.active .vt-list-item-name { color: #0ea5e9; font-weight: 700; }
+
+@media (max-width: 640px) {
+    .vt-list-header { padding: 1.5rem; }
+    .vt-list-grid { padding: 1.5rem; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .vt-list-title { font-size: 1.5rem; }
+}
+
+/* ── Door Hotspot (Vertical) ── */
+.vt-hotspot-door {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: vt-hotspot-pulse-radial 2s infinite;
+}
+
+.vt-hotspot:hover .vt-hotspot-door {
+    transform: scale(1.1);
+    background: #ffffff;
+}
+
+@keyframes vt-hotspot-pulse-radial {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7), 0 4px 15px rgba(0,0,0,0.25);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(255, 255, 255, 0), 0 4px 15px rgba(0,0,0,0.25);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 4px 15px rgba(0,0,0,0.25);
+    }
+}

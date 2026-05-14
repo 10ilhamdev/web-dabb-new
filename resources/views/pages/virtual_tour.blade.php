@@ -85,9 +85,37 @@
     <div class="vt-modal-inner">
         <div class="vt-modal-header">
             <span class="vt-modal-title" id="vtModalTitle">{{ __('home.virtual_tour.room_title') }}</span>
-            <button class="vt-modal-close" onclick="closeTour()">&#x2715;</button>
+            <div class="vt-modal-actions">
+                <button class="vt-modal-eye" id="vtListBtn" title="Daftar Ruangan">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+                <button class="vt-modal-close" onclick="closeTour()">&#x2715;</button>
+            </div>
         </div>
         <div id="vt-panorama"></div>
+
+        {{-- Panorama List Popup --}}
+        <div class="vt-list-popup" id="vtListPopup">
+            <div class="vt-list-content">
+                <div class="vt-list-header">
+                    <div class="vt-list-title-wrap">
+                        <div class="vt-list-decoration"></div>
+                        <h2 class="vt-list-title">Panorama list:</h2>
+                    </div>
+                    <button class="vt-list-close" id="vtListClose">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="vt-list-grid" id="vtListGrid">
+                    {{-- Rooms will be injected by JS --}}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -110,9 +138,11 @@
         return [
             'id'       => (string) $room->id,
             'name'     => $room->translated_name,
-            'imageUrl' => $room->image_360_path ? asset('storage/'.$room->image_360_path) : '',
-            'hotspots' => $room->hotspots->map(function($h) {
+            'imageUrl'     => $room->image_360_path ? asset('storage/'.$room->image_360_path) : '',
+            'thumbnailUrl' => $room->thumbnail_path ? asset('storage/'.$room->thumbnail_path) : '',
+            'hotspots'     => $room->hotspots->map(function($h) {
                 return [
+                    'type'           => $h->type,
                     'pitch'          => (float) $h->pitch,
                     'yaw'            => (float) $h->yaw,
                     'text_tooltip'   => $h->translated_text_tooltip,

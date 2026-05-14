@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Init existing ─────────────────────────────────────────
     if (window.existingHotspots && window.existingHotspots.length > 0) {
         window.existingHotspots.forEach(hs => {
-            addHotspotRow(hs.id, hs.yaw, hs.pitch, hs.text_tooltip, hs.target_room_id);
+            addHotspotRow(hs.id, hs.yaw, hs.pitch, hs.text_tooltip, hs.target_room_id, hs.type);
         });
     }
     if (existUrlInput && existUrlInput.value) {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (addBtn) {
-        addBtn.addEventListener('click', () => addHotspotRow(null, 0, 0, '', ''));
+        addBtn.addEventListener('click', () => addHotspotRow(null, 0, 0, '', '', 'floor'));
     }
     if (imgInput) {
         imgInput.addEventListener('change', function(e) {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ─── Add hotspot row ───────────────────────────────────────
-    function addHotspotRow(id, yaw, pitch, tooltip, targetId) {
+    function addHotspotRow(id, yaw, pitch, tooltip, targetId, targetType) {
         noMsg.style.display = 'none';
         const index = hotspotCount++;
         const row = document.createElement('div');
@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 roomOpts += `<option value="${r.id}" ${parseInt(targetId) === r.id ? 'selected' : ''}>${r.name}</option>`;
             });
         }
+
+        const type = targetType || 'floor';
 
         row.innerHTML = `
             <div class="flex items-center justify-between mb-3">
@@ -74,15 +76,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Tipe Hotspot</label>
+                        <select name="hotspots[${index}][type]" class="input-type w-full px-2.5 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500">
+                            <option value="floor" ${type === 'floor' ? 'selected' : ''}>Lantai (3D Datar)</option>
+                            <option value="door" ${type === 'door' ? 'selected' : ''}>Pintu (Vertikal)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">${L.target_label || 'Target Ruangan'} <span class="text-red-500">*</span></label>
+                        <select name="hotspots[${index}][target_room_id]" class="w-full px-2.5 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500" required>
+                            ${roomOpts}
+                        </select>
+                    </div>
+                </div>
                 <div>
                     <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">${L.tooltip_label || 'Teks Tooltip'} <span class="text-red-500">*</span></label>
                     <input type="text" name="hotspots[${index}][text_tooltip]" value="${tooltip}" class="input-text w-full px-2.5 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500" required>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">${L.target_label || 'Target Ruangan'} <span class="text-red-500">*</span></label>
-                    <select name="hotspots[${index}][target_room_id]" class="w-full px-2.5 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500" required>
-                        ${roomOpts}
-                    </select>
                 </div>
             </div>
         `;
@@ -91,8 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
         selectRow(row, index);
 
         row.addEventListener('click', () => selectRow(row, index));
-        row.querySelectorAll('.input-yaw, .input-pitch, .input-text').forEach(inp => {
+        row.querySelectorAll('.input-yaw, .input-pitch, .input-text, .input-type').forEach(inp => {
             inp.addEventListener('input', updateViewerHotspots);
+            if (inp.tagName === 'SELECT') inp.addEventListener('change', updateViewerHotspots);
         });
         row.querySelector('.btn-remove').addEventListener('click', function(e) {
             e.stopPropagation();
@@ -250,22 +262,29 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => { tip.style.opacity = '0'; setTimeout(() => tip.remove(), 300); }, 2500);
     }
 
-    // ─── Arrow icon SVG (Dark chevron arrow) ─────────
-    const ARROW_SVG = `<div class="vt-hotspot-floor">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-            fill="none" stroke="#4b5563" stroke-width="3.5"
-            stroke-linecap="round" stroke-linejoin="round"
-            style="width:22px;height:22px;display:block;pointer-events:none;">
-            <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-    </div>`;
+    // ─── Hotspot SVGs ──────────────────────────────────────────
+    const ARROW_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+        fill="none" stroke="#4b5563" stroke-width="3.5"
+        stroke-linecap="round" stroke-linejoin="round"
+        style="width:22px;height:22px;display:block;pointer-events:none;">
+        <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>`;
+
+    const DOOR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
+        fill="white" style="width:22px;height:22px;display:block;pointer-events:none;">
+        <path d="M224,48V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM192,48H64V208H192V48Zm-32,80a12,12,0,1,1,12-12A12,12,0,0,1,160,128Z"></path>
+    </svg>`;
 
     // ─── Custom hotspot tooltip builder ───────────────────────
     window.hotspotTooltipFunction = function(hotSpotDiv, args) {
         hotSpotDiv.classList.add('custom-tooltip');
+        
+        const type = args.type || 'floor';
+        const innerHTML = type === 'floor' 
+            ? `<div class="vt-hotspot-floor">${ARROW_SVG}</div>`
+            : `<div class="vt-hotspot-door">${DOOR_SVG}</div>`;
 
-        // Arrow icon inside the circle
-        hotSpotDiv.innerHTML = ARROW_SVG;
+        hotSpotDiv.innerHTML = innerHTML;
 
         // Tooltip text label
         const span = document.createElement('span');
@@ -293,15 +312,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const yaw       = parseFloat(row.querySelector('.input-yaw').value)   || 0;
             const pitch     = parseFloat(row.querySelector('.input-pitch').value)  || 0;
             const text      = row.querySelector('.input-text').value || 'Hotspot ' + (rawIndex + 1);
+            const type      = row.querySelector('.input-type').value || 'floor';
             const hsIndex   = parseInt(row.dataset.index);
             const hotspotId = 'hs_' + rawIndex + '_' + Date.now();
 
             viewer.addHotSpot({
                 id: hotspotId,
                 pitch, yaw,
-                cssClass: 'custom-hotspot',
+                cssClass: 'custom-hotspot ' + (type === 'floor' ? 'hs-type-floor' : 'hs-type-door'),
                 createTooltipFunc: window.hotspotTooltipFunction,
-                createTooltipArgs: { text, index: rawIndex + 1, hotspotIndex: hsIndex }
+                createTooltipArgs: { text, index: rawIndex + 1, hotspotIndex: hsIndex, type }
             });
 
             renderedHotspotIds.push(hotspotId);

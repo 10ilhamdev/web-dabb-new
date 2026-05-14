@@ -10,6 +10,7 @@ class VirtualHotspot extends Model
     protected $fillable = [
         'virtual_room_id',
         'target_room_id',
+        'type',
         'yaw',
         'pitch',
         'text_tooltip',
