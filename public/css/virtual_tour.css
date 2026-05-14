@@ -99,41 +99,80 @@
 }
 .vt-modal-header {
     position: absolute; top: 0; left: 0; right: 0;
-    display: flex; align-items: center; justify-between: center;
-    gap: 1rem; padding: 1rem 1.25rem;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
-    z-index: 10;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: center;
+    gap: 1rem; padding: 1.25rem;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+    z-index: 100;
+    pointer-events: none; /* Allow clicks to pass through to panorama controls */
 }
-.vt-modal-title { color: white; font-size: 1.1rem; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+.vt-modal-title { 
+    color: white; 
+    font-size: 1.2rem; 
+    font-weight: 700; 
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    max-width: 60%;
+    text-align: center;
+    pointer-events: auto; /* Re-enable clicks for title */
+}
 .vt-modal-close {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);
+    position: absolute;
+    right: 1.25rem;
+    top: 1.25rem;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
     border: 1px solid rgba(255,255,255,0.3);
     color: white; font-size: 1.2rem; line-height: 1;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.2s;
+    cursor: pointer; transition: all 0.2s;
+    pointer-events: auto; /* Re-enable clicks for close button */
 }
 .vt-modal-close:hover { background: rgba(255,255,255,0.35); }
 /* ── Hotspot in viewer (public) ─────────────── */
 .vt-hotspot {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(23, 78, 147, 0.9);
-    border: 3px solid rgba(255,255,255,0.9);
-    box-shadow: 0 0 0 2px rgba(23,78,147,0.4), 0 4px 12px rgba(0,0,0,0.4);
+    width: 60px;
+    height: 60px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    animation: vt-pulse 2.5s ease-in-out infinite;
+    transition: transform 0.2s;
 }
-.vt-hotspot:hover { transform: scale(1.2); background: rgba(29, 78, 216, 1); }
-@keyframes vt-pulse {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(23,78,147,0.4), 0 4px 12px rgba(0,0,0,0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(23,78,147,0.15), 0 4px 12px rgba(0,0,0,0.4); }
+
+.vt-hotspot-floor {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255,255,255,1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: perspective(300px) rotateX(65deg);
+    animation: vt-hotspot-pulse-flat 2s infinite;
+}
+
+.vt-hotspot:hover .vt-hotspot-floor {
+    transform: perspective(300px) rotateX(60deg) scale(1.1);
+    background: #ffffff;
+}
+
+@keyframes vt-hotspot-pulse-flat {
+    0% {
+        transform: perspective(300px) rotateX(65deg) scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8), 0 10px 20px rgba(0,0,0,0.2);
+    }
+    70% {
+        transform: perspective(300px) rotateX(65deg) scale(1.15);
+        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 10px 20px rgba(0,0,0,0.2);
+    }
+    100% {
+        transform: perspective(300px) rotateX(65deg) scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 10px 20px rgba(0,0,0,0.2);
+    }
 }
 .vt-hotspot svg { pointer-events: none; }
 .vt-hotspot-label {

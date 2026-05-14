@@ -250,22 +250,22 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => { tip.style.opacity = '0'; setTimeout(() => tip.remove(), 300); }, 2500);
     }
 
-    // ─── Door icon SVG (inline) ────────────────────────────────
-    const DOOR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-        fill="none" stroke="white" stroke-width="1.8"
-        stroke-linecap="round" stroke-linejoin="round"
-        style="width:18px;height:18px;display:block;pointer-events:none;">
-        <rect x="3" y="2" width="18" height="20" rx="1"/>
-        <path d="M8 2v20"/>
-        <circle cx="6" cy="12" r="0.8" fill="white" stroke="none"/>
-    </svg>`;
+    // ─── Arrow icon SVG (Dark chevron arrow) ─────────
+    const ARROW_SVG = `<div class="vt-hotspot-floor">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+            fill="none" stroke="#4b5563" stroke-width="3.5"
+            stroke-linecap="round" stroke-linejoin="round"
+            style="width:22px;height:22px;display:block;pointer-events:none;">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </div>`;
 
     // ─── Custom hotspot tooltip builder ───────────────────────
     window.hotspotTooltipFunction = function(hotSpotDiv, args) {
         hotSpotDiv.classList.add('custom-tooltip');
 
-        // Door icon inside the circle
-        hotSpotDiv.innerHTML = DOOR_SVG;
+        // Arrow icon inside the circle
+        hotSpotDiv.innerHTML = ARROW_SVG;
 
         // Tooltip text label
         const span = document.createElement('span');

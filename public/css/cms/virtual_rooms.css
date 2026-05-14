@@ -6,32 +6,62 @@
 }
 
 .custom-hotspot {
-    height: 38px;
-    width: 38px;
-    border-radius: 50%;
-    background-color: rgba(29, 78, 216, 0.9); /* blue-700 */
-    border: 3px solid white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    height: 60px;
+    width: 60px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: grab;
-    transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s;
     user-select: none;
 }
 
-.custom-hotspot:hover {
-    transform: scale(1.15);
-    background-color: rgba(37, 99, 235, 1); /* blue-600 */
-    box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.3), 0 4px 10px rgba(0,0,0,0.4);
+.vt-hotspot-floor {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: perspective(300px) rotateX(65deg);
+    animation: vt-hotspot-pulse-flat 2s infinite;
+}
+
+@keyframes vt-hotspot-pulse-flat {
+    0% {
+        transform: perspective(300px) rotateX(65deg) scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8), 0 10px 20px rgba(0,0,0,0.2);
+    }
+    70% {
+        transform: perspective(300px) rotateX(65deg) scale(1.15);
+        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 10px 20px rgba(0,0,0,0.2);
+    }
+    100% {
+        transform: perspective(300px) rotateX(65deg) scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 10px 20px rgba(0,0,0,0.2);
+    }
+}
+
+.custom-hotspot:hover .vt-hotspot-floor {
+    transform: perspective(300px) rotateX(60deg) scale(1.1);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .custom-hotspot:active,
 .custom-hotspot.dragging {
     cursor: grabbing !important;
-    transform: scale(1.2);
-    background-color: rgba(234, 88, 12, 0.9); /* orange while dragging */
-    box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.3), 0 6px 16px rgba(0,0,0,0.5);
+}
+
+.custom-hotspot:active .vt-hotspot-floor,
+.custom-hotspot.dragging .vt-hotspot-floor {
+    transform: perspective(300px) rotateX(65deg) scale(1.2);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.3), 0 12px 24px rgba(0,0,0,0.4);
 }
 
 /* Door icon wrapper - let SVG take full space */
