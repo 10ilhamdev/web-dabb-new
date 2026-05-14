@@ -160,11 +160,11 @@
                                         </a>
                                         <form
                                             action="{{ route('cms.features.virtual_3d_rooms.destroy', [$feature, $room]) }}"
-                                            method="POST" data-confirm="{{ __('cms.virtual_3d_rooms.delete_confirm') }}"
-                                            onsubmit="return confirm(this.dataset.confirm);">
+                                            method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
+                                            <button type="button"
+                                                onclick="confirmDelete(this.closest('form'), '{{ $room->name }}')"
                                                 class="inline-flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -193,6 +193,30 @@
 
 @push('scripts')
     <script>
+        function confirmDelete(form, name) {
+            Swal.fire({
+                title: '{{ __("cms.features.delete.title") }}',
+                html: `{{ __("cms.virtual_3d_rooms.delete_confirm") }}<br><strong class="text-gray-700">${name}</strong>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '{{ __("cms.features.delete.yes") }}',
+                cancelButtonText: '{{ __("cms.common.cancel") }}',
+                reverseButtons: true,
+                borderRadius: '12px',
+                customClass: {
+                    confirmButton: 'px-5 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors',
+                    cancelButton: 'px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors mr-3'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+
         $(document).ready(function() {
             $.fn.dataTable.ext.errMode = 'none';
             $('#tableVirtual3dRooms').DataTable({

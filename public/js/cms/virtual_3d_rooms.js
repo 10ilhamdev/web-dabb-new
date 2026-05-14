@@ -397,6 +397,9 @@ function selectItem(id) {
         document.getElementById('propY').value = activeItem.position_y;
         document.getElementById('propW').value = activeItem.width;
         document.getElementById('propH').value = activeItem.height;
+        if (document.getElementById('propDescription')) {
+            document.getElementById('propDescription').value = activeItem.description || '';
+        }
     }
 }
 
@@ -431,6 +434,9 @@ function updatePropertiesFromInput() {
     activeItem.position_y = parseFloat(document.getElementById('propY').value);
     activeItem.width      = parseFloat(document.getElementById('propW').value);
     activeItem.height     = parseFloat(document.getElementById('propH').value);
+    if (document.getElementById('propDescription')) {
+        activeItem.description = document.getElementById('propDescription').value;
+    }
 
     el.style.left   = activeItem.position_x + '%';
     el.style.top    = activeItem.position_y + '%';
@@ -492,7 +498,8 @@ async function saveActiveMedia() {
                 position_x: activeItem.position_x,
                 position_y: activeItem.position_y,
                 width: activeItem.width,
-                height: activeItem.height
+                height: activeItem.height,
+                description: activeItem.description
             })
         });
 

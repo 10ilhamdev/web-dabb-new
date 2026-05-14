@@ -278,9 +278,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Custom hotspot tooltip builder ───────────────────────
     window.hotspotTooltipFunction = function(hotSpotDiv, args) {
         hotSpotDiv.classList.add('custom-tooltip');
-        
+
         const type = args.type || 'floor';
-        const innerHTML = type === 'floor' 
+        const innerHTML = type === 'floor'
             ? `<div class="vt-hotspot-floor">${ARROW_SVG}</div>`
             : `<div class="vt-hotspot-door">${DOOR_SVG}</div>`;
 

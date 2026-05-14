@@ -331,6 +331,9 @@ return [
         'label_tooltip' => 'Tooltip Text',
         'label_target_room' => 'Target Room',
         'label_delete_confirm' => 'Delete this hotspot?',
+        'label_hotspot_type' => 'Hotspot Type',
+        'type_floor' => 'Floor (Flat 3D)',
+        'type_door' => 'Door (Vertical)',
 
         'preview_title' => '360° Panorama Preview',
         'preview_desc' => 'Click a target point on the panorama to get Yaw/Pitch, or drag to look around',
@@ -480,6 +483,13 @@ return [
         'editor_props_title' => 'Selected Media Properties',
         'editor_props_delete' => 'Delete',
         'editor_props_save' => 'Save Position',
+        'media_desc_label' => 'Caption / Description',
+        'media_desc_placeholder' => 'Enter detailed caption (HTML supported)...',
+        'caption_single' => 'Single Text',
+        'caption_multi_qa' => 'Questions & Answers (Q&A)',
+        'question' => 'Question',
+        'answer' => 'Answer',
+        'add_qa' => 'Add Q&A',
 
         'btn_cancel' => 'Cancel',
         'btn_save_create' => 'Save Room',

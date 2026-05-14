@@ -20,6 +20,17 @@ class Virtual3dMedia extends Model
         'width',
         'height',
     ];
+    protected $casts = [
+        'description' => 'array',
+    ];
+
+    public function getDescriptionAttribute($value)
+    {
+        if (is_array($value)) return $value;
+        if (is_null($value) || $value === '' || $value === 'null') return '';
+        $decoded = json_decode($value, true);
+        return json_last_error() === JSON_ERROR_NONE ? $decoded : $value;
+    }
 
     public function room()
     {

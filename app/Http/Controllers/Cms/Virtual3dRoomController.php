@@ -285,6 +285,7 @@ class Virtual3dRoomController extends Controller
             'wall' => 'required|in:front,back,left,right',
             'file' => 'required|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:20480',
             'type' => 'required|in:image,video',
+            'description' => 'nullable',
             'position_x' => 'required|numeric',
             'position_y' => 'required|numeric',
             'width' => 'required|numeric',
@@ -293,10 +294,19 @@ class Virtual3dRoomController extends Controller
 
         $path = $request->file('file')->store('virtual_3d_rooms/media', 'public');
 
+        $desc = $validated['description'];
+        if (is_string($desc) && (str_starts_with($desc, '{') || str_starts_with($desc, '['))) {
+            $decoded = json_decode($desc, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $desc = $decoded;
+            }
+        }
+
         $media = new Virtual3dMedia();
         $media->virtual3d_room_id = $room->id;
         $media->wall = $validated['wall'];
         $media->type = $validated['type'];
+        $media->description = $desc;
         $media->file_path = $path;
         $media->position_x = $validated['position_x'];
         $media->position_y = $validated['position_y'];
@@ -318,10 +328,31 @@ class Virtual3dRoomController extends Controller
             'position_y' => 'required|numeric',
             'width' => 'required|numeric',
             'height' => 'required|numeric',
+            'description' => 'nullable',
         ]);
 
-        $media->update($validated);
-        return response()->json(['success' => true]);
+        $desc = $request->input('description');
+        $debug_type = gettype($desc);
+        
+        if (is_string($desc)) {
+            // Clean up possible HTML encoding from middleware
+            $desc = html_entity_decode($desc);
+            if (str_starts_with($desc, '{') || str_starts_with($desc, '[')) {
+                $decoded = json_decode($desc, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $desc = $decoded;
+                }
+            }
+        }
+
+        $media->position_x = $validated['position_x'];
+        $media->position_y = $validated['position_y'];
+        $media->width = $validated['width'];
+        $media->height = $validated['height'];
+        $media->description = $desc;
+        $media->save();
+
+        return response()->json(['success' => true, 'media' => $media]);
     }
 
     public function deleteMedia(Feature $feature, Virtual3dRoom $room, Virtual3dMedia $media)

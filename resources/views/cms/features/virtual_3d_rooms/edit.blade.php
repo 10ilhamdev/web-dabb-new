@@ -3,6 +3,96 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/cms/virtual_3d_rooms.css') }}">
     <link rel="stylesheet" href="{{ asset('css/cms/virtual_3d_rooms_form.css') }}">
+    <style>
+        /* Force RTE toolbar into a single scrollable row for captions */
+        .rte-caption-container div[class*='rte-commandbar'] {
+            white-space: nowrap !important;
+            overflow-x: auto !important;
+            display: none !important; /* Hide by default */
+            flex-wrap: nowrap !important;
+            padding: 0 !important;
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            height: 34px !important;
+            min-height: 34px !important;
+        }
+        .rte-caption-container:focus-within div[class*='rte-commandbar'] {
+            display: flex !important;
+        }
+        .rte-caption-container div[class*='rte-commandbar'] > div {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            height: 100% !important;
+        }
+        .rte-caption-container div[class*='rte-toolbar-item'] {
+            transform: scale(0.7) !important;
+            margin: -4px !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+        .rte-caption-container .rte-modern-editor {
+            height: 80px !important;
+            min-height: 80px !important;
+        }
+        .caption-widget-mode select {
+            width: 100%;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+            background-color: #f8fafc;
+        }
+        .caption-qa-pair {
+            position: relative;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .caption-qa-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .caption-qa-pair input {
+            width: 100%;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+        .caption-qa-add {
+            width: 100%;
+            padding: 6px;
+            font-size: 0.75rem;
+            color: #2563eb;
+            background: #eff6ff;
+            border: 1px dashed #bfdbfe;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .rte-compact-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+    </style>
 @endpush
 
 @section('breadcrumb_items')
@@ -261,6 +351,7 @@
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                                     accept="image/*,video/mp4,video/webm">
                             </div>
+
                         </div>
 
                         <button type="button" onclick="uploadNewMedia()"
@@ -440,7 +531,12 @@
                                     onchange="updatePropertiesFromInput()">
                             </div>
                         </div>
-                        <button type="button" onclick="saveActiveMedia()"
+                        <div class="mt-3">
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('cms.virtual_3d_rooms.media_desc_label') }}</label>
+                            <div id="propCaptionWidget" class="caption-widget-container"></div>
+                            <input type="hidden" id="propDescription">
+                        </div>
+                        <button type="button" onclick="saveV3DActiveMedia()"
                             class="mt-3 w-full text-sm font-semibold text-white px-3 py-2 rounded-lg transition-colors"
                             style="background-color:#1d4ed8;">{{ __('cms.virtual_3d_rooms.editor_props_save') }}</button>
                     </div>
@@ -474,13 +570,254 @@
 
 @push('scripts')
     {{-- Blade data passed as JSON (not linted as JS by IDE) --}}
-    <script type="application/json" id="v3dConfig">{"csrf":"{{ csrf_token() }}","routes":{"upload":"{{ route('cms.features.virtual_3d_rooms.media.store', [$feature, $room]) }}","updateMedia":"{{ route('cms.features.virtual_3d_rooms.media.update', [$feature, $room, '__MEDIA_ID__']) }}","deleteMedia":"{{ route('cms.features.virtual_3d_rooms.media.destroy', [$feature, $room, '__MEDIA_ID__']) }}"},"translations":{"uploadChoose":"{{ __('cms.virtual_3d_rooms.media_upload_choose') }}","uploadSuccess":"{{ __('cms.virtual_3d_rooms.media_upload_success') }}"},"wallColor":"{{ $room->wall_color }}","labels":{"wall":{"front":{"big":"{{ __('cms.virtual_3d_rooms.editor_wall_title_front') }}","small":"{{ __('cms.virtual_3d_rooms.editor_wall_front') }}","preview":"{{ __('cms.virtual_3d_rooms.editor_wall_front') }}"},"left":{"big":"{{ __('cms.virtual_3d_rooms.editor_wall_title_left') }}","small":"{{ __('cms.virtual_3d_rooms.editor_wall_left') }}","preview":"{{ __('cms.virtual_3d_rooms.editor_wall_left') }}"},"right":{"big":"{{ __('cms.virtual_3d_rooms.editor_wall_title_right') }}","small":"{{ __('cms.virtual_3d_rooms.editor_wall_right') }}","preview":"{{ __('cms.virtual_3d_rooms.editor_wall_right') }}"},"back":{"big":"{{ __('cms.virtual_3d_rooms.editor_wall_title_back') }}","small":"{{ __('cms.virtual_3d_rooms.editor_wall_back') }}","preview":"{{ __('cms.virtual_3d_rooms.editor_wall_back') }}"}}},"messages":{"mediaEmpty":"{{ __('cms.virtual_3d_rooms.media_empty') }}","selectFile":"{{ __('cms.virtual_3d_rooms.media_upload_choose') }}","uploadSuccess":"{{ __('cms.virtual_3d_rooms.media_upload_success') }}","uploadFailed":"{{ __('cms.virtual_3d_rooms.media_upload_failed') }}","saveSuccess":"{{ __('cms.virtual_3d_rooms.media_save_success') }}","saveFailed":"{{ __('cms.virtual_3d_rooms.media_save_failed') }}","deleteConfirm":"{{ __('cms.virtual_3d_rooms.media_delete_confirm') }}","deleteSuccess":"{{ __('cms.virtual_3d_rooms.media_delete_success') }}","deleteFailed":"{{ __('cms.virtual_3d_rooms.media_delete_failed') }}"},"badgeSuffix":"{{ __('cms.virtual_3d_rooms.media_count') }}","doorLabel":"{{ __('cms.virtual_3d_rooms.door_label_placeholder') }}","deleteBtn":"{{ __('cms.virtual_3d_rooms.media_delete') }}"}</script>
+    <script type="application/json" id="v3dConfig">{!! json_encode([
+        'csrf' => csrf_token(),
+        'routes' => [
+            'upload' => route('cms.features.virtual_3d_rooms.media.store', [$feature, $room]),
+            'updateMedia' => route('cms.features.virtual_3d_rooms.media.update', [$feature, $room, '__MEDIA_ID__']),
+            'deleteMedia' => route('cms.features.virtual_3d_rooms.media.destroy', [$feature, $room, '__MEDIA_ID__']),
+        ],
+        'translations' => [
+            'uploadChoose' => __('cms.virtual_3d_rooms.media_upload_choose'),
+            'uploadSuccess' => __('cms.virtual_3d_rooms.media_upload_success'),
+        ],
+        'wallColor' => $room->wall_color,
+        'labels' => [
+            'wall' => [
+                'front' => ['big' => __('cms.virtual_3d_rooms.editor_wall_title_front'), 'small' => __('cms.virtual_3d_rooms.editor_wall_front'), 'preview' => __('cms.virtual_3d_rooms.editor_wall_front')],
+                'left'  => ['big' => __('cms.virtual_3d_rooms.editor_wall_title_left'),  'small' => __('cms.virtual_3d_rooms.editor_wall_left'),  'preview' => __('cms.virtual_3d_rooms.editor_wall_left')],
+                'right' => ['big' => __('cms.virtual_3d_rooms.editor_wall_title_right'), 'small' => __('cms.virtual_3d_rooms.editor_wall_right'), 'preview' => __('cms.virtual_3d_rooms.editor_wall_right')],
+                'back'  => ['big' => __('cms.virtual_3d_rooms.editor_wall_title_back'),  'small' => __('cms.virtual_3d_rooms.editor_wall_back'),  'preview' => __('cms.virtual_3d_rooms.editor_wall_back')],
+            ]
+        ],
+        'messages' => [
+            'mediaEmpty' => __('cms.virtual_3d_rooms.media_empty'),
+            'selectFile' => __('cms.virtual_3d_rooms.media_upload_choose'),
+            'uploadSuccess' => __('cms.virtual_3d_rooms.media_upload_success'),
+            'uploadFailed' => __('cms.virtual_3d_rooms.media_upload_failed'),
+            'saveSuccess' => __('cms.virtual_3d_rooms.media_save_success'),
+            'saveFailed' => __('cms.virtual_3d_rooms.media_save_failed'),
+            'deleteConfirm' => __('cms.virtual_3d_rooms.media_delete_confirm'),
+            'deleteSuccess' => __('cms.virtual_3d_rooms.media_delete_success'),
+            'deleteFailed' => __('cms.virtual_3d_rooms.media_delete_failed'),
+            'doorLabel' => __('cms.virtual_3d_rooms.door_label_placeholder'),
+        ],
+        'badgeSuffix' => __('cms.virtual_3d_rooms.media_count'),
+        'deleteBtn' => __('cms.virtual_3d_rooms.media_delete')
+    ]) !!}</script>
     {{-- Load external JS first so functions are available --}}
     <script src="{{ asset('js/cms/virtual_3d_rooms.js') }}"></script>
     <script src="{{ asset('js/cms/virtual_3d_rooms_edit.js') }}"></script>
     <script>
+        var __t = {
+            caption_single: '{{ __('cms.virtual_3d_rooms.caption_single') }}',
+            caption_multi_qa: '{{ __('cms.virtual_3d_rooms.caption_multi_qa') }}',
+            question: '{{ __('cms.virtual_3d_rooms.question') }}',
+            answer: '{{ __('cms.virtual_3d_rooms.answer') }}',
+            add_qa: '{{ __('cms.virtual_3d_rooms.add_qa') }}',
+        };
+
+        window.allRteInstances = [];
+
+        function createCaptionWidget(containerEl, namePrefix, captionIndex, existingData, options) {
+            options = options || {};
+            var singlePlaceholder = options.singlePlaceholder || '{{ __('cms.virtual_3d_rooms.media_desc_placeholder') }}';
+            
+            var existingMode = 'single';
+            var existingSingle = '';
+            var existingQa = [];
+            
+            if (existingData) {
+                if (typeof existingData === 'object' && existingData.type === 'multi') {
+                    existingMode = 'multi';
+                    existingQa = existingData.items || [];
+                } else if (typeof existingData === 'string' && (existingData.startsWith('{') || existingData.startsWith('['))) {
+                    try {
+                        var parsed = JSON.parse(existingData);
+                        if (parsed.type === 'multi') {
+                            existingMode = 'multi';
+                            existingQa = parsed.items || [];
+                        } else if (Array.isArray(parsed)) {
+                            existingMode = 'multi';
+                            existingQa = parsed;
+                        } else {
+                            existingSingle = existingData;
+                        }
+                    } catch(e) {
+                        existingSingle = existingData;
+                    }
+                } else if (typeof existingData === 'string') {
+                    existingSingle = existingData;
+                } else if (Array.isArray(existingData)) {
+                    existingMode = 'multi';
+                    existingQa = existingData;
+                }
+            }
+
+            // Cleanup old editors in this container before clearing
+            containerEl.querySelectorAll('.rte-caption-editor').forEach(el => {
+                if (el.__rte_instance) {
+                    try { el.__rte_instance.destroy(); } catch(e) {}
+                    if (window.allRteInstances) {
+                        window.allRteInstances = window.allRteInstances.filter(ed => ed !== el.__rte_instance);
+                    }
+                    delete el.__rte_instance;
+                }
+            });
+
+            containerEl.innerHTML = '';
+
+            var modeDiv = document.createElement('div');
+            modeDiv.className = 'caption-widget-mode';
+            var modeSelect = document.createElement('select');
+            modeSelect.innerHTML = '<option value="single"' + (existingMode === 'single' ? ' selected' : '') + '>' + __t.caption_single + '</option>' +
+                                  '<option value="multi"' + (existingMode === 'multi' ? ' selected' : '') + '>' + __t.caption_multi_qa + '</option>';
+            modeDiv.appendChild(modeSelect);
+            containerEl.appendChild(modeDiv);
+
+            var singleDiv = document.createElement('div');
+            singleDiv.className = 'caption-single-section';
+            singleDiv.style.display = existingMode === 'single' ? 'block' : 'none';
+            var singleInput = document.createElement('textarea');
+            singleInput.className = 'form-input rte-caption-editor';
+            singleInput.placeholder = singlePlaceholder;
+            singleInput.rows = 3;
+            singleInput.value = existingSingle;
+            singleDiv.appendChild(singleInput);
+            containerEl.appendChild(singleDiv);
+
+            function attachRTE(el, initialVal) {
+                if (typeof RichTextEditor === 'undefined') {
+                    setTimeout(function() { attachRTE(el, initialVal); }, 200);
+                    return;
+                }
+                
+                var editor = new RichTextEditor(el, {
+                    base_url: '/cms_rte',
+                    editorBodyCssClass: 'rte-content-body',
+                    height: 80,
+                    showStatusBar: false,
+                    toolbar: "bold,italic,underline,|,forecolor,backcolor,|,justifyleft,justifycenter,|,insertorderedlist,insertunorderedlist,|,link,|,undo,redo,codeview"
+                });
+                
+                if (initialVal) {
+                    try { editor.setHTMLCode(initialVal); } catch(e) {}
+                }
+                
+                // Store instance on the element for easy retrieval
+                el.__rte_instance = editor;
+                
+                if (!window.allRteInstances) window.allRteInstances = [];
+                window.allRteInstances.push(editor);
+                return editor;
+            }
+
+            var singleEditor = null;
+            if (existingMode === 'single') {
+                singleEditor = attachRTE(singleInput, existingSingle);
+            }
+
+            var multiDiv = document.createElement('div');
+            multiDiv.className = 'caption-multi-section';
+            multiDiv.style.display = existingMode === 'multi' ? 'block' : 'none';
+
+            var qaList = document.createElement('div');
+            qaList.className = 'caption-qa-list';
+            multiDiv.appendChild(qaList);
+
+            var qaCounter = { value: 0 };
+            function addQaPair(q, a) {
+                var idx = qaCounter.value++;
+                var pair = document.createElement('div');
+                pair.className = 'caption-qa-pair';
+                pair.innerHTML = '<button type="button" class="caption-qa-remove" onclick="this.parentElement.remove()">✕</button>' +
+                                '<label style="font-size:0.65rem;color:#6b7280;margin-bottom:2px;display:block;">' + __t.question + '</label>' +
+                                '<input type="text" class="qa-q" placeholder="' + __t.question + '..." value="' + (q || '').replace(/"/g, '&quot;') + '">' +
+                                '<label style="font-size:0.65rem;color:#6b7280;margin:4px 0 2px;display:block;">' + __t.answer + '</label>' +
+                                '<textarea class="qa-a rte-caption-editor">' + (a || '').replace(/</g, '&lt;') + '</textarea>';
+                qaList.appendChild(pair);
+                var aTextarea = pair.querySelector('.qa-a');
+                if (aTextarea) attachRTE(aTextarea, a);
+            }
+
+            if (existingQa.length > 0) {
+                existingQa.forEach(function(item) { addQaPair(item.question || '', item.answer || ''); });
+            } else if (existingMode === 'multi') {
+                addQaPair('', '');
+            }
+
+            var addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'caption-qa-add';
+            addBtn.innerHTML = '+ ' + __t.add_qa;
+            addBtn.addEventListener('click', function() { addQaPair('', ''); });
+            multiDiv.appendChild(addBtn);
+            containerEl.appendChild(multiDiv);
+
+            modeSelect.addEventListener('change', function() {
+                if (this.value === 'multi') {
+                    singleDiv.style.display = 'none';
+                    multiDiv.style.display = 'block';
+                    if (qaList.children.length === 0) addQaPair('', '');
+                } else {
+                    singleDiv.style.display = 'block';
+                    multiDiv.style.display = 'none';
+                    if (!singleEditor) singleEditor = attachRTE(singleInput, existingSingle);
+                }
+            });
+
+            return {
+                getData: function() {
+                    try {
+                        if (modeSelect.value === 'single') {
+                            let content = '';
+                            const sInput = containerEl.querySelector('.rte-caption-editor:not(.qa-a)');
+                            if (sInput && sInput.__rte_instance) {
+                                try {
+                                    content = sInput.__rte_instance.getHTMLCode() || sInput.__rte_instance.getHTML() || (sInput.__rte_instance.content ? sInput.__rte_instance.content.innerHTML : '');
+                                    sInput.value = content; // Sync
+                                } catch(e) {
+                                    content = sInput.value;
+                                }
+                            } else if (sInput) {
+                                content = sInput.value;
+                            }
+                            return content || '';
+                        } else {
+                            var items = [];
+                            const pairs = qaList.querySelectorAll('.caption-qa-pair');
+                            pairs.forEach(function(pair, i) {
+                                var qInput = pair.querySelector('.qa-q');
+                                var q = qInput ? qInput.value : '';
+                                var a = '';
+                                var aTextarea = pair.querySelector('.qa-a');
+                                if (aTextarea && aTextarea.__rte_instance) {
+                                    try { 
+                                        const inst = aTextarea.__rte_instance;
+                                        a = inst.getHTMLCode() || inst.getHTML() || (inst.content ? inst.content.innerHTML : '');
+                                        aTextarea.value = a; // Sync
+                                    } catch(e) { 
+                                        a = aTextarea.value; 
+                                    }
+                                } else if (aTextarea) {
+                                    a = aTextarea.value;
+                                }
+                                items.push({ question: q || '', answer: a || '' });
+                            });
+                            return { type: 'multi', items: items };
+                        }
+                    } catch (err) {
+                        console.error('Error in getData:', err);
+                        return modeSelect.value === 'single' ? '' : { type: 'multi', items: [] };
+                    }
+                }
+            };
+        }
+
+        var uploadWidget = null;
+        var propWidget = null;
+
         (function() {
-            // Wait for external scripts to load
             var cfg = JSON.parse(document.getElementById('v3dConfig').textContent);
             window.v3dCsrf = cfg.csrf;
             window.v3dRoutes = cfg.routes;
@@ -488,6 +825,68 @@
 
             var wallEl = document.getElementById('wallEditor');
             if (wallEl) wallEl.style.backgroundColor = cfg.wallColor;
+
+
+            // Override selectItem and saveActiveMedia
+            var originalSelectItem = window.selectItem;
+            window.selectItem = function(id) {
+                originalSelectItem(id);
+                var item = mediaItems.find(m => m.id == id);
+                if (item) {
+                    var propContainer = document.getElementById('propCaptionWidget');
+                    if (propContainer) {
+                        propWidget = createCaptionWidget(propContainer, 'prop_caption', id, item.description || '', {});
+                    }
+                }
+            };
+
+            window.saveV3DActiveMedia = async function() {
+                if (!activeMediaId || !activeItem) return;
+                
+                try {
+                    const descriptionData = propWidget ? propWidget.getData() : '';
+                    const finalDescription = typeof descriptionData === 'object' ? JSON.stringify(descriptionData) : descriptionData;
+                    console.log('Final description to save:', finalDescription);
+
+                    const url = window.v3dRoutes.updateMedia.replace('__MEDIA_ID__', activeItem.id);
+
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': window.v3dCsrf
+                        },
+                        body: JSON.stringify({
+                            position_x: activeItem.position_x,
+                            position_y: activeItem.position_y,
+                            width: activeItem.width,
+                            height: activeItem.height,
+                            description: finalDescription
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        activeItem.description = data.media.description;
+                        
+                        // Robust toast message retrieval
+                        let successMsg = 'Saved!';
+                        try {
+                            if (window.v3dConfig && window.v3dConfig.translations && window.v3dConfig.translations.messages) {
+                                successMsg = window.v3dConfig.translations.messages.saveSuccess || successMsg;
+                            }
+                        } catch(e) {}
+                        showToast(successMsg);
+                    } else {
+                        alert('Save failed: ' + (data.message || 'Unknown error from server'));
+                    }
+                } catch (error) {
+                    console.error('Save error details:', error);
+                    alert('Error while saving: ' + error.message);
+                }
+            };
 
             window.uploadNewMedia = async function() {
                 try {
@@ -504,12 +903,12 @@
                     formData.append('position_y', 50);
                     formData.append('width', 30);
                     formData.append('height', 40);
+                    
+                    formData.append('description', '');
 
                     const response = await fetch(window.v3dRoutes.upload, {
                         method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': window.v3dCsrf
-                        },
+                        headers: { 'X-CSRF-TOKEN': window.v3dCsrf },
                         body: formData
                     });
                     const data = await response.json();
@@ -518,6 +917,8 @@
                         renderWallItems();
                         selectItem(data.media.id);
                         fileInput.value = '';
+                        
+                        
                         addMediaToList(data.media);
                         showToast(cfg.translations.uploadSuccess);
                     } else {
@@ -525,7 +926,7 @@
                     }
                 } catch (error) {
                     console.error('Upload error:', error);
-                    alert('Error uploading media: ' + error.message);
+                    alert('Error: ' + error.message);
                 }
             };
         })();

@@ -258,6 +258,19 @@
     <div id="vt3d-hint">{{ __('home.virtual_3d_tour.hint') }}</div>
 </div>
 
+{{-- ======== INFO POPUP MODAL (Same as Slideshow) ======== --}}
+<div id="vss-popup-overlay" class="vsshow-popup-overlay" style="z-index: 100000;"></div>
+<div id="vss-popup-card" class="vsshow-popup-card" role="dialog" aria-modal="true" style="z-index: 100001;">
+    <div class="vsshow-popup-header">
+        <div class="vsshow-popup-icon">?</div>
+        <button id="vss-popup-close" class="vsshow-popup-close" aria-label="{{ __('home.virtual_slideshow.close') }}">✕</button>
+    </div>
+    <div id="vss-popup-content" class="vsshow-popup-content">
+        <img id="vss-popup-img" class="vsshow-popup-img" src="" alt="" style="display:none;">
+        <div id="vss-popup-text" class="vsshow-popup-text rte-content-body"></div>
+    </div>
+</div>
+
 <div id="imageModal" class="feature-image-modal" onclick="closeImageModal()">
     <span class="close-modal">&times;</span>
     <img class="modal-content" id="modalImg">
@@ -287,7 +300,8 @@
                     'position_x' => (float) $m->position_x,
                     'position_y' => (float) $m->position_y,
                     'width'      => (float) $m->width,
-                    'height'     => (float) $m->height
+                    'height'     => (float) $m->height,
+                    'description' => $m->description
                 ];
             })->values()
         ];

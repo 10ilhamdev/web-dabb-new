@@ -1,3 +1,87 @@
+// --- Info Popup Modal Logic (Global Scope) ---
+const closePopup = () => {
+    const overlay = document.getElementById('vss-popup-overlay');
+    const card = document.getElementById('vsshow-popup-card') || document.getElementById('vss-popup-card');
+    if (overlay) overlay.classList.remove('active');
+    if (card) card.classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+window.openV3DInfo = function(description, mediaUrl, type) {
+    
+    const textContainer = document.getElementById('vss-popup-text');
+    const imgPreview = document.getElementById('vss-popup-img');
+    const overlay = document.getElementById('vss-popup-overlay');
+    const card = document.getElementById('vss-popup-card') || document.getElementById('vsshow-popup-card');
+
+    if (!textContainer || !overlay || !card) {
+        return;
+    }
+
+    let html = '';
+    let data = null;
+
+    if (description && typeof description === 'string') {
+        const trimmed = description.trim();
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            try {
+                data = JSON.parse(trimmed);
+            } catch(e) {
+                html = description;
+            }
+        } else {
+            html = description;
+        }
+    } else if (description && typeof description === 'object') {
+        data = description;
+    } else {
+        html = description || '';
+    }
+
+    if (data) {
+        if (data.type === 'multi' && Array.isArray(data.items)) {
+            html = '<div class="vsshow-qa-list">';
+            data.items.forEach(item => {
+                html += `
+                    <div class="vsshow-qa-item">
+                        <div class="vsshow-qa-q">${item.question || ''}</div>
+                        <div class="vsshow-qa-a rte-content-body">${item.answer || ''}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        } else if (Array.isArray(data)) {
+             html = '<div class="vsshow-qa-list">';
+             data.forEach(item => {
+                 html += `
+                     <div class="vsshow-qa-item">
+                         <div class="vsshow-qa-q">${item.question || ''}</div>
+                         <div class="vsshow-qa-a rte-content-body">${item.answer || ''}</div>
+                     </div>
+                 `;
+             });
+             html += '</div>';
+        } else {
+            html = typeof description === 'string' ? description : JSON.stringify(description);
+        }
+    }
+
+    textContainer.innerHTML = html;
+    
+    if (imgPreview) {
+        if (type === 'image' && mediaUrl) {
+            imgPreview.src = mediaUrl;
+            imgPreview.style.display = 'block';
+        } else {
+            imgPreview.style.display = 'none';
+        }
+    }
+
+    overlay.classList.add('active');
+    card.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
 let currentRoom = null;
 let currentView = 'front';
 let currentRotationX = 0;
@@ -16,8 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setView(v);
         });
     });
-
-    // Removed redundant door event listener.
 
     // --- Drag to rotate logic ---
     const wrapper = document.getElementById('vt3d-scene-wrapper');
@@ -60,18 +142,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 wrapper.style.cursor = 'grab';
                 scene.style.transition = 'transform 0.4s ease-out';
 
-                // Robust manual 2D hit-test for the door avoiding CSS 3D shielding bugs
                 const dist = Math.hypot(e.clientX - dragStartPos.x, e.clientY - dragStartPos.y);
                 if (dist < 5) {
-                    // Find all active door slots
+                    // 1. Check for Info Buttons (Manual Hit-Test)
+                    const infoBtns = document.querySelectorAll('.vsshow-info-btn');
+                    let clickedInfo = false;
+                    infoBtns.forEach(btn => {
+                        const rect = btn.getBoundingClientRect();
+                        if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                            e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                            clickedInfo = true;
+                            btn.click();
+                        }
+                    });
+                    if (clickedInfo) return;
+
+                    // 2. Check for Doors
                     const activeDoors = document.querySelectorAll('.vt3d-door-slot[style*="display: block"], .vt3d-door-slot[style*="display:block"]');
                     activeDoors.forEach(activeDoor => {
                         const rect = activeDoor.getBoundingClientRect();
-                        // Check if click is inside door's 2D screen bounding box
                         if (e.clientX >= rect.left && e.clientX <= rect.right &&
                             e.clientY >= rect.top && e.clientY <= rect.bottom) {
                             
-                            // Check if the door's wall is actually facing the camera
                             const doorWall = activeDoor.dataset.wall;
                             let rotY = ((currentRotationY % 360) + 360) % 360;
                             let isFacing = false;
@@ -137,6 +229,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const touch = e.changedTouches[0];
                     const dist = Math.hypot(touch.clientX - dragStartPos.x, touch.clientY - dragStartPos.y);
                     if (dist < 10) {
+                        // 1. Check for Info Buttons
+                        const infoBtns = document.querySelectorAll('.vsshow-info-btn');
+                        let clickedInfo = false;
+                        infoBtns.forEach(btn => {
+                            const rect = btn.getBoundingClientRect();
+                            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                                clickedInfo = true;
+                                btn.click();
+                            }
+                        });
+                        if (clickedInfo) return;
+
+                        // 2. Check for Doors
                         const activeDoors = document.querySelectorAll('.vt3d-door-slot[style*="display: block"], .vt3d-door-slot[style*="display:block"]');
                         activeDoors.forEach(activeDoor => {
                             const rect = activeDoor.getBoundingClientRect();
@@ -161,6 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const closeBtn = document.getElementById('vss-popup-close');
+    const popupOverlay = document.getElementById('vss-popup-overlay');
+    if (closeBtn) closeBtn.onclick = closePopup;
+    if (popupOverlay) popupOverlay.onclick = closePopup;
 });
 
 function openRoom3D(roomId) {
@@ -281,6 +392,32 @@ function renderRoomMedia() {
             vid.style.height = '100%';
             vid.style.objectFit = 'contain';
             wrapper.appendChild(vid);
+        }
+
+        // Add Info Button if description exists
+        const hasDescription = m.description && (
+            (typeof m.description === 'string' && m.description.trim() !== '') ||
+            (typeof m.description === 'object' && Object.keys(m.description).length > 0)
+        );
+        if (hasDescription) {
+            const infoBtn = document.createElement('button');
+            infoBtn.className = 'vsshow-info-btn';
+            infoBtn.innerHTML = '?';
+            infoBtn.title = 'More Info';
+            
+            // Stop events from bubbling to prevent 3D scene dragging
+            const stopProp = (e) => { e.stopPropagation(); };
+            infoBtn.onmousedown = stopProp;
+            infoBtn.ontouchstart = stopProp;
+            
+            infoBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof window.openV3DInfo === 'function') {
+                    window.openV3DInfo(m.description, m.file_path, m.type);
+                }
+            });
+            wrapper.appendChild(infoBtn);
         }
 
         layer.appendChild(wrapper);
