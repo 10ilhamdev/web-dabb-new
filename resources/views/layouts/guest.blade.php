@@ -76,6 +76,57 @@
         </script>
     @endif
 
+    {{-- Media Carousel Runtime Logic --}}
+    <script>
+        window.addEventListener('load', function() {
+            var carousels = document.querySelectorAll('.rte-carousel-container');
+            carousels.forEach(function(container) {
+                var slides = container.querySelectorAll('.rte-carousel-slide');
+                var dots = container.querySelectorAll('.rte-carousel-dot');
+                var current = 0;
+                var total = slides.length;
+                var autoplay = container.getAttribute('data-autoplay') === 'true';
+                var interval = parseInt(container.getAttribute('data-interval') || '3000', 10);
+                var timer = null;
+
+                function showSlide(idx) {
+                    if (idx < 0) idx = total - 1;
+                    if (idx >= total) idx = 0;
+                    slides.forEach(function(s, i) {
+                        if (i === idx) s.classList.add('active');
+                        else s.classList.remove('active');
+                    });
+                    dots.forEach(function(d, i) {
+                        if (i === idx) d.classList.add('active');
+                        else d.classList.remove('active');
+                    });
+                    current = idx;
+                }
+
+                container._next = function() { showSlide(current + 1); resetTimer(); };
+                container._prev = function() { showSlide(current - 1); resetTimer(); };
+                container._goTo = function(idx) { showSlide(idx); resetTimer(); };
+
+                function startTimer() {
+                    if (autoplay && total > 1) {
+                        timer = setInterval(function() { showSlide(current + 1); }, interval);
+                    }
+                }
+                function resetTimer() {
+                    if (timer) clearInterval(timer);
+                    startTimer();
+                }
+
+                startTimer();
+                
+                // Allow interaction with videos
+                container.querySelectorAll('video').forEach(function(v) {
+                    v.addEventListener('play', function() { if(timer) clearInterval(timer); });
+                });
+            });
+        });
+    </script>
+
     {{-- Auto-expand RTE containers to fit Free Canvas Mode absolute media & prevent horizontal spill --}}
     <script>
         window.addEventListener('load', function() {

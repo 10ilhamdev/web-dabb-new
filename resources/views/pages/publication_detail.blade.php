@@ -318,7 +318,8 @@
 
                             <div class="footer-meta !mt-6 flex flex-col gap-1.5">
                                 <div class="text-[13px] text-gray-600 font-medium">{{ $locale === 'en' ? 'Views :' : 'Dilihat :' }} {{ $publication->views }}</div>
-                                <div class="text-[13px] text-gray-600 font-medium">{{ $locale === 'en' ? 'Shares :' : 'Jumlah Shares :' }} <span id="share-count">{{ $publication->shares }}</span></div>
+                                <div class="text-[13px] text-gray-600 font-medium">{{ $locale === 'en' ? 'Views :' : 'Dilihat :' }} {{ $publication->views }}</div>
+                                <div class="text-[13px] text-gray-600 font-medium">{{ $locale === 'en' ? 'Shares :' : 'Dibagikan :' }} <span id="share-count">{{ $publication->shares }}</span></div>
                                 <div class="text-[13px] text-gray-600 font-medium">{{ $locale === 'en' ? 'Published on :' : 'Diterbitkan pada :' }} {{ $date }}</div>
                                 <div class="text-[13px] text-gray-600 font-medium">{{ $locale === 'en' ? 'Last updated :' : 'Terakhir diperbarui :' }} {{ ($publication->updated_at ?? $publication->created_at)->translatedFormat('d F Y') }}</div>
                             </div>
@@ -333,24 +334,28 @@
 @push('scripts')
 <script>
     function copyToClipboard() {
-        const el = document.createElement('textarea');
-        el.value = window.location.href;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        
-        trackShare();
-        
-        Swal.fire({
-            icon: 'success',
-            title: '{{ $locale === 'en' ? 'Link Copied!' : 'Tautan Disalin!' }}',
-            text: '{{ $locale === 'en' ? 'The article link has been copied to your clipboard.' : 'Tautan artikel telah berhasil disalin.' }}',
-            timer: 2000,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end',
-            timerProgressBar: true
+        var url = window.location.href;
+        navigator.clipboard.writeText(url).then(function() {
+            Swal.fire({
+                icon: 'success',
+                title: '{{ $locale === 'en' ? 'Link Copied!' : 'Tautan Disalin!' }}',
+                text: '{{ $locale === 'en' ? 'The article link has been copied to your clipboard.' : 'Tautan artikel telah berhasil disalin.' }}',
+                timer: 2000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true
+            });
+            trackShare();
+        }).catch(function(err) {
+            // Fallback
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            trackShare();
         });
     }
 
@@ -361,7 +366,8 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({})
         })
         .then(response => response.json())
         .then(data => {

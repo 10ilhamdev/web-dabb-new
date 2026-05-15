@@ -607,6 +607,72 @@
     <script src="{{ asset('cms_rte/rte.js') }}"></script>
     <script src="{{ asset('cms_rte/all_plugins.js') }}"></script>
 
+    {{-- Media Carousel Runtime Logic (shared with guest) --}}
+    <script>
+        window.addEventListener('load', function() {
+            function initCarousels() {
+                var carousels = document.querySelectorAll('.rte-carousel-container');
+                carousels.forEach(function(container) {
+                    if (container._carouselInit) return;
+                    var slides = container.querySelectorAll('.rte-carousel-slide');
+                    var dots = container.querySelectorAll('.rte-carousel-dot');
+                    var current = 0;
+                    var total = slides.length;
+                    var autoplay = container.getAttribute('data-autoplay') === 'true';
+                    var interval = parseInt(container.getAttribute('data-interval') || '3000', 10);
+                    var timer = null;
+
+                    function showSlide(idx) {
+                        if (idx < 0) idx = total - 1;
+                        if (idx >= total) idx = 0;
+                        slides.forEach(function(s, i) {
+                            if (i === idx) s.classList.add('active');
+                            else s.classList.remove('active');
+                        });
+                        dots.forEach(function(d, i) {
+                            if (i === idx) d.classList.add('active');
+                            else d.classList.remove('active');
+                        });
+                        current = idx;
+                    }
+
+                    container._next = function() { showSlide(current + 1); resetTimer(); };
+                    container._prev = function() { showSlide(current - 1); resetTimer(); };
+                    container._goTo = function(idx) { showSlide(idx); resetTimer(); };
+
+                    function startTimer() {
+                        if (autoplay && total > 1) {
+                            timer = setInterval(function() {
+                                // Pause if any media is being edited (resize overlay or popup is visible)
+                                if (document.querySelector('.rte-img-overlay') || 
+                                    document.querySelector('.rte-img-toolbar')) {
+                                    return; 
+                                }
+                                showSlide(current + 1);
+                            }, interval);
+                        }
+                    }
+                    function resetTimer() {
+                        if (timer) clearInterval(timer);
+                        startTimer();
+                    }
+
+                    startTimer();
+                    container._carouselInit = true;
+
+                    container.querySelectorAll('video').forEach(function(v) {
+                        v.addEventListener('play', function() { if(timer) clearInterval(timer); });
+                    });
+                });
+            }
+
+            initCarousels();
+            // In CMS, content can be inserted dynamically, so we poll or use an observer.
+            // Simplified: re-init on intervals or after editor actions.
+            setInterval(initCarousels, 1500);
+        });
+    </script>
+
     @stack('rte-scripts')
 
     <!-- DataTables JS -->

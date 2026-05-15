@@ -150,6 +150,7 @@
         tableCellHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="9" y="9" width="6" height="6" fill="currentColor" stroke="none"/></svg>',
         tableRowHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="3" y="9" width="18" height="6" fill="currentColor" stroke="none"/></svg>',
         tableColHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="9" y="3" width="6" height="18" fill="currentColor" stroke="none"/></svg>',
+        carousel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 13v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M7 12h10"/></svg>',
     };
 
     // ---------------------------------------------------------------------
@@ -259,6 +260,7 @@
             { kind: 'btn', name: 'unlink', icon: ICON.unlink, title: 'Remove link', cmd: 'unlink' },
             { kind: 'btn', name: 'image', icon: ICON.image, title: 'Insert image', custom: 'image' },
             { kind: 'btn', name: 'video', icon: ICON.video, title: 'Insert video', custom: 'video' },
+            { kind: 'btn', name: 'carousel', icon: ICON.carousel, title: 'Insert Carousel', custom: 'carousel' },
             { kind: 'btn', name: 'document', icon: ICON.document, title: 'Insert Document', custom: 'document' },
             { kind: 'btn', name: 'table', icon: ICON.table, title: 'Insert table', custom: 'table' },
             { kind: 'btn', name: 'hr', icon: ICON.hr, title: 'Horizontal line', custom: 'hr' },
@@ -856,6 +858,7 @@
             case 'link': return this._dialogLink();
             case 'image': return this._dialogImage();
             case 'video': return this._dialogVideo();
+            case 'carousel': return this._dialogCarousel();
             case 'table': return this._dialogTable();
             case 'hr': return this._insertHTML('<hr>');
             case 'blockquote': return this.exec('formatBlock', 'blockquote');
@@ -1140,6 +1143,231 @@
         }
         return '<iframe width="' + w + '" height="' + h + '" src="' + escapeHtml(url) + '" frameborder="0" allowfullscreen></iframe>';
     };
+    RichTextEditor.prototype._dialogCarousel = function (existingCarousel) {
+        var self = this;
+        var mediaList = [];
+        
+        // If editing, extract items from DOM
+        if (existingCarousel) {
+            var slides = existingCarousel.querySelectorAll('.rte-carousel-slide');
+            slides.forEach(function(slide) {
+                var img = slide.querySelector('img');
+                var vid = slide.querySelector('video');
+                var cap = slide.querySelector('.rte-carousel-caption');
+                var type = vid ? 'video' : 'image';
+                var url = vid ? vid.src : (img ? img.src : '');
+                if (url) {
+                    mediaList.push({
+                        url: url,
+                        type: type,
+                        caption: cap ? cap.textContent : '',
+                        id: 'm' + Math.random().toString(36).substr(2, 9)
+                    });
+                }
+            });
+        }
+
+        var body = el('div', { class: 'rte-form' }, [
+            el('div', { class: 'rte-carousel-dialog-header', style: 'margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;' }, [
+                el('h4', { style: 'margin:0; font-size:14px; color:#555;', text: existingCarousel ? 'Edit Media Carousel' : 'Media Carousel' }),
+                el('button', {
+                    type: 'button', class: 'rte-btn rte-btn-secondary rte-btn-sm', text: '+ Add Media',
+                    onclick: function () {
+                        var inp = el('input', { type: 'file', accept: 'image/*,video/*', multiple: true });
+                        inp.onchange = function () {
+                            if (!inp.files.length) return;
+                            Array.from(inp.files).forEach(function (f) {
+                                var item = { file: f, caption: '', id: 'm' + Date.now() + Math.random().toString(36).substr(2, 5) };
+                                mediaList.push(item);
+                                renderItem(item);
+                            });
+                        };
+                        inp.click();
+                    }
+                })
+            ]),
+            el('div', { id: 'rte-carousel-items-list', style: 'max-height:300px; overflow-y:auto; border:1px solid #eee; border-radius:8px; padding:10px; background:#fafafa;' }),
+            el('div', { style: 'margin-top:15px; border-top:1px solid #eee; padding-top:10px;' }, [
+                el('label', { class: 'rte-form-row' }, [
+                    el('input', { type: 'checkbox', name: 'autoplay', checked: existingCarousel ? (existingCarousel.getAttribute('data-autoplay') !== 'false') : true }),
+                    el('span', { text: ' Autoplay' }),
+                ]),
+                el('label', { class: 'rte-form-row', style: 'margin-top:8px;' }, [
+                    el('span', { text: 'Interval (ms): ', style: 'font-size:12px; color:#666;' }),
+                    el('input', { type: 'number', name: 'interval', value: existingCarousel ? (existingCarousel.getAttribute('data-interval') || '3000') : '3000', step: '500', min: '500', style: 'width:80px; padding:2px 5px; border:1px solid #ddd; border-radius:4px;' }),
+                ])
+            ])
+        ]);
+
+        var listEl = body.querySelector('#rte-carousel-items-list');
+
+        function moveItem(item, delta) {
+            var idx = mediaList.indexOf(item);
+            var newIdx = idx + delta;
+            if (newIdx < 0 || newIdx >= mediaList.length) return;
+
+            // Swap in array
+            var temp = mediaList[idx];
+            mediaList[idx] = mediaList[newIdx];
+            mediaList[newIdx] = temp;
+
+            var row = body.querySelector('#' + item.id);
+            if (delta === -1) {
+                listEl.insertBefore(row, row.previousSibling);
+            } else {
+                listEl.insertBefore(row.nextSibling, row);
+            }
+        }
+
+        function renderItem(item) {
+            var isVideo = item.type === 'video' || (item.file && item.file.type.startsWith('video/'));
+            var preview = el('div', { class: 'rte-carousel-item-preview', style: 'width:60px; height:60px; background:#eee; border-radius:4px; overflow:hidden; flex-shrink:0;' });
+            
+            if (item.file) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    if (isVideo) {
+                        var v = el('video', { src: reader.result, style: 'width:100%; height:100%; object-fit:cover;' });
+                        preview.appendChild(v);
+                    } else {
+                        var img = el('img', { src: reader.result, style: 'width:100%; height:100%; object-fit:cover;' });
+                        preview.appendChild(img);
+                    }
+                };
+                reader.readAsDataURL(item.file);
+            } else if (item.url) {
+                if (isVideo) {
+                    preview.appendChild(el('video', { src: item.url, style: 'width:100%; height:100%; object-fit:cover;' }));
+                } else {
+                    preview.appendChild(el('img', { src: item.url, style: 'width:100%; height:100%; object-fit:cover;' }));
+                }
+            }
+
+            var row = el('div', {
+                id: item.id,
+                style: 'display:flex; gap:10px; margin-bottom:10px; padding:8px; background:white; border:1px solid #e0e0e0; border-radius:6px; align-items:center;'
+            }, [
+                // Reorder handles
+                el('div', { style: 'display:flex; flex-direction:column; gap:2px;' }, [
+                    el('button', {
+                        type: 'button', style: 'background:none; border:none; cursor:pointer; padding:2px; font-size:12px; color:#999; line-height:1;',
+                        html: '▲', title: 'Move Up',
+                        onclick: function() { moveItem(item, -1); }
+                    }),
+                    el('button', {
+                        type: 'button', style: 'background:none; border:none; cursor:pointer; padding:2px; font-size:12px; color:#999; line-height:1;',
+                        html: '▼', title: 'Move Down',
+                        onclick: function() { moveItem(item, 1); }
+                    })
+                ]),
+                preview,
+                el('div', { style: 'flex-grow:1;' }, [
+                    el('input', {
+                        type: 'text', placeholder: 'Enter caption...', value: item.caption,
+                        style: 'width:100%; padding:5px 8px; border:1px solid #ddd; border-radius:4px; font-size:12px;',
+                        oninput: function(e) { item.caption = e.target.value; }
+                    })
+                ]),
+                el('button', {
+                    type: 'button', style: 'color:#d32f2f; background:none; border:none; cursor:pointer; padding:5px;',
+                    html: '&times;',
+                    onclick: function () {
+                        mediaList = mediaList.filter(function (m) { return m !== item; });
+                        row.parentNode.removeChild(row);
+                    }
+                })
+            ]);
+            listEl.appendChild(row);
+        }
+
+        // Initial render for existing items
+        mediaList.forEach(function(m) { renderItem(m); });
+
+        openModal({
+            title: existingCarousel ? 'Edit Media Carousel' : 'Insert Media Carousel',
+            body: body,
+            wide: true,
+            confirmLabel: existingCarousel ? 'Save Changes' : 'Insert Carousel',
+            onConfirm: function () {
+                if (!mediaList.length) return false;
+                self.showLoading();
+                var autoplay = body.querySelector('[name=autoplay]').checked;
+                var interval = body.querySelector('[name=interval]').value || '3000';
+                
+                var results = [];
+                var itemsProcessed = 0;
+
+                function checkDone() {
+                    itemsProcessed++;
+                    if (itemsProcessed === mediaList.length) {
+                        self.hideLoading();
+                        insertFinal(results);
+                    }
+                }
+
+                function insertFinal(items) {
+                    var cid = existingCarousel ? existingCarousel.id : ('carousel_' + Math.random().toString(36).substr(2, 9));
+                    var html = '<div class="rte-carousel-container" contenteditable="false" data-autoplay="' + autoplay + '" data-interval="' + interval + '" id="' + cid + '" style="width:100%; aspect-ratio:16/9; margin:1rem auto; display:block;';
+                    // Preserve existing style if any (width, alignment, etc)
+                    if (existingCarousel) html += existingCarousel.getAttribute('style') || '';
+                    html += '">';
+                    html += '<div class="rte-carousel-inner">';
+                    items.forEach(function (it, idx) {
+                        if (!it) return;
+                        html += '<div class="rte-carousel-slide' + (idx === 0 ? ' active' : '') + '">';
+                        if (it.type === 'video') {
+                            html += '<video src="' + escapeHtml(it.url) + '" controls></video>';
+                        } else {
+                            html += '<img src="' + escapeHtml(it.url) + '" alt="' + escapeHtml(it.caption) + '">';
+                        }
+                        if (it.caption) {
+                            html += '<div class="rte-carousel-caption">' + escapeHtml(it.caption) + '</div>';
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                    if (items.length > 1) {
+                        html += '<button class="rte-carousel-prev" type="button" onclick="this.closest(\'.rte-carousel-container\')._prev()">&#10094;</button>';
+                        html += '<button class="rte-carousel-next" type="button" onclick="this.closest(\'.rte-carousel-container\')._next()">&#10095;</button>';
+                        html += '<div class="rte-carousel-dots">';
+                        items.forEach(function (_, idx) {
+                            html += '<span class="rte-carousel-dot' + (idx === 0 ? ' active' : '') + '" onclick="this.closest(\'.rte-carousel-container\')._goTo(' + idx + ')"></span>';
+                        });
+                        html += '</div>';
+                    }
+                    html += '</div><p><br></p>';
+                    
+                    if (existingCarousel) {
+                        // Replace existing
+                        var range = document.createRange();
+                        range.selectNode(existingCarousel);
+                        var frag = range.createContextualFragment(html);
+                        existingCarousel.parentNode.replaceChild(frag, existingCarousel);
+                        self._syncSource();
+                    } else {
+                        self._insertHTML(html);
+                    }
+                }
+
+                mediaList.forEach(function (item, idx) {
+                    if (item.file) {
+                        var isVideo = item.file.type.startsWith('video/');
+                        var uploadFn = isVideo ? self._uploadVideo : self._uploadImage;
+                        uploadFn.call(self, item.file, function (url) {
+                            results[idx] = { url: url, type: isVideo ? 'video' : 'image', caption: item.caption };
+                            checkDone();
+                        }, function() { checkDone(); });
+                    } else {
+                        // Already uploaded
+                        results[idx] = { url: item.url, type: item.type, caption: item.caption };
+                        checkDone();
+                    }
+                });
+                return true;
+            }
+        });
+    };
+
 
     RichTextEditor.prototype._dialogTable = function () {
         var self = this;
@@ -1465,6 +1693,7 @@
         var self = this;
         this._closeVideoPopup();
         this._closeImagePopup();
+        this._closeCarouselPopup();
         this._attachMediaResizeHandle(img);
 
         var toolbar = el('div', { class: 'rte-img-toolbar' });
@@ -1818,6 +2047,7 @@
                     if (dir.indexOf('n') > -1) nh = Math.max(20, startH - dy);
                     media.style.width = nw + 'px';
                     if (dir.indexOf('n') > -1 || dir.indexOf('s') > -1) media.style.height = nh + 'px';
+                    if (media.classList.contains('rte-carousel-container')) media.style.aspectRatio = 'auto';
                     self._updatePopupPositions();
                 }
                 function onUp() {
@@ -1866,6 +2096,7 @@
         var self = this;
         this._closeImagePopup();
         this._closeVideoPopup();
+        this._closeCarouselPopup();
         this._videoTarget = media;
         this._attachMediaResizeHandle(media);
 
@@ -2056,6 +2287,121 @@
             this._videoPopupCloseHandler = null;
         }
         this._videoTarget = null;
+    };
+
+    RichTextEditor.prototype._showCarouselEditorPopup = function (carousel) {
+        var self = this;
+        this._closeImagePopup();
+        this._closeVideoPopup();
+        this._closeCarouselPopup();
+        this._attachMediaResizeHandle(carousel);
+
+        var toolbar = el('div', { class: 'rte-img-toolbar' });
+        var activeMenu = null;
+        function closeMenus() { if (activeMenu) { activeMenu.style.display = 'none'; activeMenu = null; } }
+
+        function mkBtn(svgHtml, title, onclick) {
+            var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            b.innerHTML = svgHtml;
+            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            return b;
+        }
+        function mkDrop(svgHtml, title, items, onOpen) {
+            var wrap = el('div', { style: 'position:relative;display:inline-block;' });
+            var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+            var menu = el('div', { class: 'rte-img-tb-menu' });
+            items.forEach(function(item) {
+                if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
+                var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                menu.appendChild(mi);
+            });
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = menu.style.display === 'block';
+                closeMenus();
+                if (!open) { menu.style.display = 'block'; activeMenu = menu; if (onOpen) onOpen(menu); }
+            });
+            wrap.appendChild(btn); wrap.appendChild(menu);
+            return wrap;
+        }
+
+        // 0. Edit Media (List)
+        var ICON_LIST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_LIST, 'Edit Media Carousel', function() {
+            self._dialogCarousel(carousel);
+        }));
+
+        // 1. Set Size
+        var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
+        toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', [
+            { label: 'Set Size\u2026', action: function() {
+                Swal.fire({ title: 'Set Carousel Size', html:
+                    '<div style="display:flex;gap:8px;justify-content:center">' +
+                    '<label style="font-size:13px">W: <input id="swal-car-w" type="number" value="' + (carousel.offsetWidth||800) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '<label style="font-size:13px">H: <input id="swal-car-h" type="number" value="' + (carousel.offsetHeight||450) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '</div>',
+                    showCancelButton: true, confirmButtonText: 'Apply'
+                }).then(function(r) { if (r.isConfirmed) {
+                    var w = parseInt(document.getElementById('swal-car-w').value, 10);
+                    var h = parseInt(document.getElementById('swal-car-h').value, 10);
+                    if (w > 0) { carousel.style.width = w + 'px'; carousel.style.aspectRatio = 'auto'; }
+                    if (h > 0) { carousel.style.height = h + 'px'; carousel.style.aspectRatio = 'auto'; }
+                    self._syncSource();
+                    setTimeout(function(){self._updatePopupPositions();}, 10);
+                }});
+            }},
+            '-',
+            { label: 'Auto size (16:9)', action: function() { carousel.style.width=''; carousel.style.height=''; carousel.style.aspectRatio='16/9'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '100% width', action: function() { carousel.style.width='100%'; carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '75% width',  action: function() { carousel.style.width='75%';  carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '50% width',  action: function() { carousel.style.width='50%';  carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '25% width',  action: function() { carousel.style.width='25%';  carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+        ]));
+
+        // 2. Justify
+        var ICON_JUSTIFY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+        function setJustify(float, mL, mR) {
+            carousel.style.float = float;
+            carousel.style.marginLeft = mL;
+            carousel.style.marginRight = mR;
+            carousel.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
+            self._syncSource();
+            setTimeout(function(){self._updatePopupPositions();}, 10);
+        }
+        toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', [
+            { label: 'Justify Left',   action: function() { setJustify('none', '0', 'auto'); }},
+            { label: 'Justify Center', action: function() { setJustify('none', 'auto', 'auto'); }},
+            { label: 'Justify Right',  action: function() { setJustify('none', 'auto', '0'); }},
+            '-',
+            { label: 'Float Left',  action: function() { setJustify('left', '0', '15px'); }},
+            { label: 'Float Right', action: function() { setJustify('right', '15px', '0'); }},
+        ]));
+
+        // 3. Delete
+        var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Carousel', function() {
+            self._removeMediaResizeHandle();
+            if (carousel.parentNode) carousel.parentNode.removeChild(carousel);
+            self._closeCarouselPopup();
+            self._syncSource();
+        }));
+
+        // Position toolbar above carousel
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
+        this._carouselPopup = toolbar;
+
+        this._updatePopupPositions();
+    };
+
+    RichTextEditor.prototype._closeCarouselPopup = function () {
+        if (this._carouselPopup) {
+            if (this._carouselPopup.parentNode) this._carouselPopup.parentNode.removeChild(this._carouselPopup);
+            this._carouselPopup = null;
+        }
     };
 
     // -------- Line Height --------
@@ -2538,6 +2884,15 @@
             if (topV < 4) topV = rectV.bottom + 4;
             this._videoPopup.style.left = leftV + 'px';
             this._videoPopup.style.top = topV + 'px';
+        }
+        if (this._carouselPopup && this._mediaResizeTarget) {
+            var rectC = this._mediaResizeTarget.getBoundingClientRect();
+            var tbWC = this._carouselPopup.offsetWidth || 180;
+            var leftC = Math.min(Math.max(rectC.left + rectC.width/2 - tbWC/2, 4), window.innerWidth - tbWC - 4);
+            var topC = rectC.top - 44;
+            if (topC < 4) topC = rectC.bottom + 4;
+            this._carouselPopup.style.left = leftC + 'px';
+            this._carouselPopup.style.top = topC + 'px';
         }
     };
 
@@ -3818,19 +4173,29 @@
                     break;
                 }
             }
+
+            var carousel = target.closest('.rte-carousel-container');
+
             if (clickedMedia) {
                 clickedMedia.draggable = true;
                 self._showVideoEditorPopup(clickedMedia);
             } else if (target.tagName === 'IMG') {
                 self._closeVideoPopup();
+                self._closeCarouselPopup();
                 self._showImageEditorPopup(target);
             } else if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') {
                 self._closeImagePopup();
+                self._closeCarouselPopup();
                 target.draggable = true; // ensure it can be dragged
                 self._showVideoEditorPopup(target);
+            } else if (carousel) {
+                self._closeImagePopup();
+                self._closeVideoPopup();
+                self._showCarouselEditorPopup(carousel);
             } else if (target.tagName !== 'TD' && target.tagName !== 'TH' && !target.closest('.rte-img-overlay')) {
                 self._closeImagePopup();
                 self._closeVideoPopup();
+                self._closeCarouselPopup();
                 self._removeMediaResizeHandle();
             }
         });
