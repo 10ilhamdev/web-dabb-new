@@ -43,6 +43,11 @@ class Feature extends Model
         return $this->hasMany(Profile::class)->orderBy('order');
     }
 
+    public function publications()
+    {
+        return $this->hasMany(Publication::class)->orderBy('order');
+    }
+
     public function virtualRooms()
     {
         return $this->hasMany(VirtualRoom::class);

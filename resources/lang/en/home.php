@@ -199,4 +199,13 @@ Disclaimer | #',
         'background_path' => '',
         'background_type' => '',
     ],
+    'publication' => [
+        'col_no' => 'No',
+        'col_title' => 'Announcement Title',
+        'col_date' => 'Date',
+        'col_link' => 'Link',
+        'view_pdf' => 'View PDF',
+        'read_more' => 'Read More',
+        'empty' => 'No publication content yet.',
+    ],
 ];

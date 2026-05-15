@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Feature;
 use App\Models\FeaturePage;
 use App\Models\FeaturePageSection;
+use App\Models\Publication;
 use App\Models\VirtualSlideshowPage;
 use App\Services\TranslationService;
 use Illuminate\Http\Request;
@@ -405,6 +406,33 @@ class FeaturePageController extends Controller
 
             return view('pages.profile', compact(
                 'feature', 'allProfilePages', 'locale', 'totalPages', 'currentPage', 'currentPageIndex', 'isEven'
+            ));
+        }
+
+        // Publication page type
+        if ($feature->page_type === 'publication') {
+            $perPage = 10;
+            $query = $feature->publications()
+                ->where('is_active', true);
+
+            // Server-side search
+            if ($search = request('search')) {
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                      ->orWhere('title_en', 'like', "%{$search}%")
+                      ->orWhere('published_at', 'like', "%{$search}%");
+                });
+            }
+
+            $allPages = $query->orderBy('order')->paginate($perPage)->withQueryString();
+
+            $locale = app()->getLocale();
+            // We use the first item to determine the layout type if needed, 
+            // but usually a feature has one type for all its pages.
+            $currentPage = $allPages->first(); 
+
+            return view('pages.publication', compact(
+                'feature', 'allPages', 'locale', 'currentPage'
             ));
         }
 

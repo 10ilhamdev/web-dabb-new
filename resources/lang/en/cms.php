@@ -27,6 +27,8 @@ return [
 
         // Buttons
         'detail' => 'Detail',
+        'hide' => 'Hide',
+        'show_label' => 'Show',
 
         // Empty state
         'empty' => 'No features yet. Click "+ Add Feature" to create one.',
@@ -1337,4 +1339,86 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CMS — Publications
+    |--------------------------------------------------------------------------
+    */
+    'publication' => [
+        'title' => 'Publication Management: :name',
+        'desc' => 'Manage Announcements, News, and Gallery for this menu',
+        'list_title' => 'Publication Content List',
+        'list_desc' => 'Order determines the display position on the public page',
+        'add_button' => 'Add Content',
+        'back' => 'Back',
+        
+        // Table columns
+        'col_no' => 'No',
+        'col_title' => 'Title',
+        'col_type' => 'Type',
+        'col_date' => 'Date',
+        'col_order' => 'Order',
+        'col_action' => 'Action',
+
+        // Types
+        'type_announcement' => 'Announcement',
+        'type_news' => 'News/Article',
+        'type_gallery' => 'Gallery',
+
+        // Form
+        'create_title' => 'Add Publication Content',
+        'edit_title' => 'Edit Publication Content',
+        'label_type' => 'Type',
+        'label_title' => 'Title',
+        'placeholder_title' => 'Enter content title...',
+        'label_description' => 'Description / Content',
+        'label_gallery' => 'Gallery Media (Photo/Video)',
+        'hint_gallery' => 'Click or drag media here',
+        'hint_gallery_sub' => 'Supports image and video formats',
+        'label_pdf' => 'Document File (PDF)',
+        'hint_pdf' => 'PDF format max 5MB',
+        'hint_pdf_edit' => 'Upload to replace existing file',
+        'current_doc' => 'Current Document',
+        'view_pdf' => 'View PDF File',
+        
+        'sidebar_title' => 'Page Settings',
+        'label_order' => 'Order',
+        'label_date' => 'Date',
+        'label_subtitle' => 'Sub-title / Summary',
+        'placeholder_subtitle' => 'Brief summary of news...',
+        
+        'btn_save' => 'Save Content',
+        'btn_update' => 'Update Content',
+        'btn_cancel' => 'Cancel',
+
+        // Delete modal
+        'delete_title' => 'Delete Content?',
+        'delete_confirm' => 'Are you sure you want to delete :name?',
+        'delete_yes' => 'Delete',
+        'delete_no' => 'Cancel',
+
+        // Empty state
+        'empty' => 'No publication content yet. Click "Add Content" to add one.',
+
+        // Flash
+        'flash' => [
+            'added' => 'Publication content added successfully.',
+            'updated' => 'Publication content updated successfully.',
+            'deleted' => 'Publication content deleted successfully.',
+        ],
+    ],
+
+    'datatable' => [
+        'info' => 'Showing _START_ to _END_ of _TOTAL_ entries',
+        'info_empty' => 'No entries',
+        'info_filtered' => '(filtered from _MAX_ total entries)',
+        'zero_records' => 'No matching records found',
+        'search_placeholder' => 'Search...',
+        'paginate' => [
+            'first' => 'First',
+            'last' => 'Last',
+            'next' => 'Next',
+            'previous' => 'Previous',
+        ],
+    ],
 ];

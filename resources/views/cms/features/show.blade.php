@@ -93,7 +93,7 @@
                                     @method('PATCH')
                                     <button type="submit"
                                         class="inline-flex items-center justify-center w-8 h-8 {{ $sub->is_active ? 'bg-gray-500 hover:bg-gray-600' : 'bg-gray-400 hover:bg-gray-500' }} text-white rounded-md transition-colors"
-                                        title="{{ $sub->is_active ? 'Sembunyikan' : 'Tampilkan' }}">
+                                        title="{{ $sub->is_active ? __('cms.features.hide') : __('cms.features.show_label') }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             @if($sub->is_active)
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -263,6 +263,7 @@
                         <option value="book">{{ __('cms.page_types.book') }}</option>
                         <option value="slideshow">{{ __('cms.page_types.slideshow') }}</option>
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
+                        <option value="publication">{{ __('cms.page_types.publication') }}</option>
                     </select>
                 </div>
                 <div>
@@ -335,6 +336,7 @@
                         <option value="book">{{ __('cms.page_types.book') }}</option>
                         <option value="slideshow">{{ __('cms.page_types.slideshow') }}</option>
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
+                        <option value="publication">{{ __('cms.page_types.publication') }}</option>
                     </select>
                 </div>
                 <div>
@@ -414,6 +416,20 @@ $(document).ready(function() {
     $('#tableSubFeatures').DataTable({
         columnDefs: [{ orderable: false, targets: [4] }],
         order: [[0, 'asc']],
+        language: {
+            info: "{{ __('cms.datatable.info') }}",
+            infoEmpty: "{{ __('cms.datatable.info_empty') }}",
+            infoFiltered: "{{ __('cms.datatable.info_filtered') }}",
+            zeroRecords: "{{ __('cms.datatable.zero_records') }}",
+            search: "_INPUT_",
+            searchPlaceholder: "{{ __('cms.datatable.search_placeholder') }}",
+            paginate: {
+                first: "{{ __('cms.datatable.paginate.first') }}",
+                last: "{{ __('cms.datatable.paginate.last') }}",
+                next: "{{ __('cms.datatable.paginate.next') }}",
+                previous: "{{ __('cms.datatable.paginate.previous') }}",
+            }
+        }
     });
 });
 </script>

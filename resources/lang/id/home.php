@@ -199,4 +199,13 @@ Disclaimer | #',
         'background_path' => 'home/hero/cnIRep64BueQFLotwMiKfPfvG16pV1KX0rI6dUmV.mp4',
         'background_type' => 'video',
     ],
+    'publication' => [
+        'col_no' => 'No',
+        'col_title' => 'Judul Pengumuman',
+        'col_date' => 'Tanggal',
+        'col_link' => 'Tautan',
+        'view_pdf' => 'Lihat PDF',
+        'read_more' => 'Selengkapnya',
+        'empty' => 'Belum ada konten publikasi.',
+    ],
 ];

@@ -196,6 +196,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feature}/profile/{sub}/{page}/sections/{section}', [CmsProfileController::class, 'updateSection'])->name('profile.sections.update');
         Route::delete('/{feature}/profile/{sub}/{page}/sections/{section}', [CmsProfileController::class, 'destroySection'])->name('profile.sections.destroy');
 
+        // Publication Page (Pengumuman, Berita, Galeri)
+        Route::get('/{feature}/publication', [\App\Http\Controllers\Cms\PublicationController::class, 'index'])->name('publication.index');
+        Route::get('/{feature}/publication/create', [\App\Http\Controllers\Cms\PublicationController::class, 'create'])->name('publication.pages.create');
+        Route::post('/{feature}/publication', [\App\Http\Controllers\Cms\PublicationController::class, 'store'])->name('publication.pages.store');
+        Route::get('/{feature}/publication/{publication}/edit', [\App\Http\Controllers\Cms\PublicationController::class, 'edit'])->name('publication.pages.edit');
+        Route::put('/{feature}/publication/{publication}', [\App\Http\Controllers\Cms\PublicationController::class, 'update'])->name('publication.pages.update');
+        Route::delete('/{feature}/publication/{publication}', [\App\Http\Controllers\Cms\PublicationController::class, 'destroy'])->name('publication.pages.destroy');
+
         // Legacy routes - redirect to new structure
         Route::get('/{feature}/virtual-book-pages', function($feature) {
             return redirect()->route('cms.features.virtual_books.index', $feature);

@@ -27,6 +27,8 @@ return [
 
         // Buttons
         'detail' => 'Detail',
+        'hide' => 'Sembunyikan',
+        'show_label' => 'Tampilkan',
 
         // Empty state
         'empty' => 'Belum ada fitur. Klik "+ Tambah Fitur" untuk menambahkan.',
@@ -725,6 +727,7 @@ return [
         'book' => 'Pameran Arsip Virtual Buku',
         'slideshow' => 'Pameran Arsip Virtual SlideShow',
         'profile' => 'Profil',
+        'publication' => 'Publikasi',
     ],
 
     /*
@@ -1343,4 +1346,86 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CMS — Publikasi
+    |--------------------------------------------------------------------------
+    */
+    'publication' => [
+        'title' => 'Manajemen Publikasi: :name',
+        'desc' => 'Kelola Pengumuman, Berita, dan Galeri untuk menu ini',
+        'list_title' => 'Daftar Konten Publikasi',
+        'list_desc' => 'Urutan akan menentukan posisi tampilan di halaman publik',
+        'add_button' => 'Tambah Konten',
+        'back' => 'Kembali',
+        
+        // Table columns
+        'col_no' => 'No',
+        'col_title' => 'Judul',
+        'col_type' => 'Tipe',
+        'col_date' => 'Tanggal',
+        'col_order' => 'Urutan',
+        'col_action' => 'Aksi',
+
+        // Types
+        'type_announcement' => 'Pengumuman',
+        'type_news' => 'Berita/Artikel',
+        'type_gallery' => 'Galeri',
+
+        // Form
+        'create_title' => 'Tambah Konten Publikasi',
+        'edit_title' => 'Edit Konten Publikasi',
+        'label_type' => 'Tipe',
+        'label_title' => 'Judul',
+        'placeholder_title' => 'Masukkan judul konten...',
+        'label_description' => 'Deskripsi / Isi Konten',
+        'label_gallery' => 'Media Galeri (Foto/Video)',
+        'hint_gallery' => 'Klik atau drag media ke sini',
+        'hint_gallery_sub' => 'Mendukung format gambar dan video',
+        'label_pdf' => 'File Dokumen (PDF)',
+        'hint_pdf' => 'Format PDF maks 5MB',
+        'hint_pdf_edit' => 'Unggah untuk mengganti file lama',
+        'current_doc' => 'Dokumen Saat Ini',
+        'view_pdf' => 'Lihat File PDF',
+        
+        'sidebar_title' => 'Pengaturan Halaman',
+        'label_order' => 'Urutan',
+        'label_date' => 'Tanggal',
+        'label_subtitle' => 'Sub-judul / Ringkasan',
+        'placeholder_subtitle' => 'Ringkasan singkat berita...',
+        
+        'btn_save' => 'Simpan Konten',
+        'btn_update' => 'Perbarui Konten',
+        'btn_cancel' => 'Batal',
+
+        // Delete modal
+        'delete_title' => 'Hapus Konten?',
+        'delete_confirm' => 'Anda yakin ingin menghapus :name?',
+        'delete_yes' => 'Hapus',
+        'delete_no' => 'Batal',
+
+        // Empty state
+        'empty' => 'Belum ada konten publikasi. Klik "Tambah Konten" untuk menambahkan.',
+
+        // Flash
+        'flash' => [
+            'added' => 'Konten publikasi berhasil ditambahkan.',
+            'updated' => 'Konten publikasi berhasil diperbarui.',
+            'deleted' => 'Konten publikasi berhasil dihapus.',
+        ],
+    ],
+
+    'datatable' => [
+        'info' => 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+        'info_empty' => 'Tidak ada data',
+        'info_filtered' => '(difilter dari _MAX_ total data)',
+        'zero_records' => 'Tidak ada data ditemukan',
+        'search_placeholder' => 'Cari...',
+        'paginate' => [
+            'first' => 'Pertama',
+            'last' => 'Terakhir',
+            'next' => 'Selanjutnya',
+            'previous' => 'Sebelumnya',
+        ],
+    ],
 ];

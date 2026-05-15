@@ -178,6 +178,7 @@
                         <option value="book">{{ __('cms.page_types.book') }}</option>
                         <option value="slideshow">{{ __('cms.page_types.slideshow') }}</option>
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
+                        <option value="publication">{{ __('cms.page_types.publication') }}</option>
                     </select>
                 </div>
 
@@ -255,6 +256,7 @@
                         <option value="book">{{ __('cms.page_types.book') }}</option>
                         <option value="slideshow">{{ __('cms.page_types.slideshow') }}</option>
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
+                        <option value="publication">{{ __('cms.page_types.publication') }}</option>
                     </select>
                 </div>
 
