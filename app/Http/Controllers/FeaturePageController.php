@@ -424,14 +424,9 @@ class FeaturePageController extends Controller
                 });
             }
 
-            // For news, we usually want newest first. 
-            // We check the first active publication type to determine global sorting if it's a news feature
-            $firstPub = $feature->publications()->where('is_active', true)->first();
-            if ($firstPub && $firstPub->type === 'berita') {
-                $query->orderBy('published_at', 'desc');
-            } else {
-                $query->orderBy('order');
-            }
+            // For news/publications, we want newest first (by published_at)
+            // Using reorder() to clear the default 'order' from the relationship
+            $query->reorder('published_at', 'desc')->orderBy('created_at', 'desc');
 
             $allPages = $query->paginate($perPage)->withQueryString();
             $locale = app()->getLocale();
@@ -443,7 +438,7 @@ class FeaturePageController extends Controller
                 $popularNews = $feature->publications()
                     ->where('type', 'berita')
                     ->where('is_active', true)
-                    ->orderBy('views', 'desc')
+                    ->reorder('views', 'desc')
                     ->limit(5)
                     ->get();
             }
@@ -690,7 +685,7 @@ class FeaturePageController extends Controller
         $popularNews = $feature->publications()
             ->where('type', 'berita')
             ->where('is_active', true)
-            ->orderBy('views', 'desc')
+            ->reorder('views', 'desc')
             ->limit(5)
             ->get();
 

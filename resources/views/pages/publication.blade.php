@@ -147,6 +147,21 @@
             display: grid;
             grid-template-columns: 1fr 320px;
             gap: 2.5rem;
+            align-items: start;
+        }
+
+        .news-sidebar {
+            grid-column: 2;
+            position: sticky;
+            top: 140px;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .news-sidebar::-webkit-scrollbar {
+            display: none;
         }
         .sidebar-title {
             font-size: 1.1rem;
