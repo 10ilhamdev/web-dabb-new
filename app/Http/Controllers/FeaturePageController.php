@@ -443,8 +443,13 @@ class FeaturePageController extends Controller
                     ->get();
             }
 
+            $allGalleryMedia = [];
+            if ($currentPage && $currentPage->type === 'galeri') {
+                $allGalleryMedia = $this->getAllSystemMedia($currentPage->images ?? []);
+            }
+
             return view('pages.publication', compact(
-                'feature', 'allPages', 'locale', 'currentPage', 'popularNews'
+                'feature', 'allPages', 'locale', 'currentPage', 'popularNews', 'allGalleryMedia'
             ));
         }
 
@@ -731,6 +736,63 @@ class FeaturePageController extends Controller
         }
 
         return [];
+    }
+
+    private function getAllSystemMedia(array $manualMedia = [])
+    {
+        $allMedia = collect($manualMedia);
+
+        $models = [
+            [\App\Models\Publication::class, 'images'],
+            [\App\Models\FeaturePageSection::class, 'images'],
+            [\App\Models\VirtualSlideshowPage::class, 'thumbnail_path'],
+            [\App\Models\VirtualSlideshowSlide::class, 'images'],
+            [\App\Models\VirtualSlideshowSlide::class, 'video_file'],
+            [\App\Models\Profile::class, 'images'],
+            [\App\Models\ProfileSection::class, 'images'],
+            [\App\Models\Virtual3dRoom::class, 'thumbnail_path'],
+            [\App\Models\Virtual3dMedia::class, 'path'],
+            [\App\Models\VirtualRoom::class, 'thumbnail_path'],
+            [\App\Models\VirtualRoom::class, 'image_360_path'],
+            [\App\Models\Book::class, 'thumbnail'],
+            [\App\Models\Book::class, 'cover_image'],
+            [\App\Models\VirtualBookPage::class, 'image_path'],
+        ];
+
+        foreach ($models as [$class, $column]) {
+            try {
+                $class::whereNotNull($column)->select($column)->cursor()->each(function($row) use ($column, &$allMedia) {
+                    $val = $row->{$column};
+                    if (is_array($val)) {
+                        foreach ($val as $v) if ($v) $allMedia->push($v);
+                    } elseif ($val) {
+                        $allMedia->push($val);
+                    }
+                });
+            } catch (\Exception $e) {
+                // Skip if model or column doesn't exist
+                continue;
+            }
+        }
+
+        // Filter for images and videos only, and verify existence if local
+        return $allMedia->filter(function($path) {
+            // Check extension
+            if (!preg_match('/\.(jpg|jpeg|png|webp|gif|mp4|webm|ogg)$/i', $path)) {
+                return false;
+            }
+            
+            // If it's a full URL, keep it
+            if (preg_match('/^https?:\/\//', $path)) {
+                return true;
+            }
+
+            // Check existence if local
+            $cleanPath = preg_replace('/^storage\//', '', $path);
+            $fullDiskPath = storage_path('app/public/' . $cleanPath);
+            
+            return is_file($fullDiskPath);
+        })->unique()->values()->toArray();
     }
 
     private function deleteSectionImages(FeaturePageSection $section): void

@@ -526,21 +526,70 @@
 
             {{-- Galeri Layout --}}
             @if($currentPage->type === 'galeri')
-                <div class="gallery-grid">
-                    @if($currentPage->images)
-                        @foreach($currentPage->images as $img)
-                        <div class="gallery-item">
-                            @if(Str::endsWith($img, ['.mp4', '.webm', '.ogg']))
-                                <video src="{{ asset('storage/' . $img) }}" controls></video>
-                            @else
-                                <img src="{{ asset('storage/' . $img) }}" alt="Gallery Image">
-                            @endif
-                            <div class="gallery-overlay">
-                                <span class="gallery-title">{{ $locale === 'en' ? $currentPage->title_en ?? $currentPage->title : $currentPage->title }}</span>
+                <div x-data="{ lightbox: false, lightboxUrl: '', lightboxType: 'image' }">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">{{ $locale === 'en' ? 'Gallery List' : 'Daftar Galeri' }}</h2>
+                    </div>
+
+                    <div class="bg-[#F8F9FA] rounded-xl p-6 mb-8 border border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $locale === 'en' ? 'Welcome to Gallery Portal,' : 'Selamat datang di portal Galeri,' }}</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            {{ $locale === 'en' ? 'Through this lens, we invite you to trace the steps of the Bandung Sustainable Archives Depot (DABB). This page presents a visual recording of archive preservation technical activities to the public services that we dedicate to caring for the collective memory of the nation.' : 'Melalui lensa kamera, kami mengajak Anda menelusuri jejak langkah Depot Arsip Berkelanjutan Bandung (DABB). Halaman ini menyajikan rekaman visual dari aktivitas teknis pelestarian arsip hingga layanan publik yang kami dedikasikan untuk merawat memori kolektif bangsa.' }}
+                        </p>
+                    </div>
+
+                    <div class="gallery-grid">
+                        @if(isset($allGalleryMedia) && count($allGalleryMedia) > 0)
+                            @foreach($allGalleryMedia as $img)
+                            @php
+                                $isVid = Str::endsWith($img, ['.mp4', '.webm', '.ogg']);
+                                // Handle full URLs vs storage paths
+                                $fullUrl = (Str::startsWith($img, ['http://', 'https://'])) ? $img : asset('storage/' . str_replace('storage/', '', $img));
+                            @endphp
+                            <div class="gallery-item" @click="lightbox = true; lightboxUrl = '{{ $fullUrl }}'; lightboxType = '{{ $isVid ? 'video' : 'image' }}'">
+                                @if($isVid)
+                                    <video src="{{ $fullUrl }}"></video>
+                                    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 shadow-lg">
+                                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.333-5.89a1.5 1.5 0 000-2.538L6.3 2.841z" /></svg>
+                                        </div>
+                                    </div>
+                                @else
+                                    <img src="{{ $fullUrl }}" alt="Gallery Image">
+                                @endif
+                                <div class="gallery-overlay">
+                                    <span class="gallery-title">{{ $locale === 'en' ? $currentPage->title_en ?? $currentPage->title : $currentPage->title }}</span>
+                                </div>
                             </div>
+                            @endforeach
+                        @endif
+                    </div>
+
+                    {{-- Lightbox Modal --}}
+                    <div x-show="lightbox" 
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 p-4"
+                        @keydown.escape.window="lightbox = false"
+                        x-cloak>
+                        
+                        <button @click="lightbox = false" class="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors z-[1000] p-2 bg-black/50 rounded-full">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+
+                        <div class="max-w-6xl w-full h-full flex items-center justify-center" @click.away="lightbox = false">
+                            <template x-if="lightboxType === 'image'">
+                                <img :src="lightboxUrl" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg">
+                            </template>
+                            <template x-if="lightboxType === 'video'">
+                                <video :src="lightboxUrl" controls autoplay class="max-w-full max-h-full shadow-2xl rounded-lg"></video>
+                            </template>
                         </div>
-                        @endforeach
-                    @endif
+                    </div>
                 </div>
             @endif
 

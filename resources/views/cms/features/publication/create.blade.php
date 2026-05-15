@@ -66,6 +66,10 @@
                 {{-- Gallery Section (x-show="type === 'galeri' || type === 'berita'") --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6" x-show="type === 'galeri' || type === 'berita'" x-transition>
                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.publication.label_gallery') }}</label>
+                    <div x-show="type === 'galeri'" class="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-700">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Halaman Galeri akan secara otomatis mengumpulkan seluruh media gambar dan video dari sistem. Media yang Anda tambahkan di bawah ini akan muncul sebagai prioritas di urutan awal.
+                    </div>
                     <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative group">
                         <input type="file" name="images[]" multiple accept="image/*,video/*"
                             class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
