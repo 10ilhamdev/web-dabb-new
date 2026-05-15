@@ -210,7 +210,6 @@
                                 <select name="type" x-model="pageType" @change="onTypeChange()"
                                     class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     <option value="tugas_fungsi">Tugas dan Fungsi</option>
-                                    <option value="struktur_image">Struktur Organisasi</option>
                                     <option value="sdm_chart">SDM (Grafik)</option>
                                 </select>
                                 <p class="mt-1 text-xs text-gray-400">Pilih tipe sesuai konten yang akan ditampilkan</p>
@@ -368,27 +367,6 @@
                         </div>
                     </div>
 
-                    {{-- Logo (Struktur Organisasi) --}}
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
-                        x-show="pageType === 'struktur_image'" x-transition>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-4">Logo / Gambar</h3>
-                        <div id="logo-upload-area" class="image-upload-box"
-                            onclick="document.getElementById('logo_input').click()">
-                            <input type="file" name="logo" id="logo_input" accept="image/png,image/webp"
-                                class="hidden" onchange="previewLogo(this)">
-                            <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <p class="text-xs text-gray-500">Klik untuk upload logo (PNG atau WebP)</p>
-                        </div>
-                        <div id="logo_preview" class="hidden image-upload-box mt-3">
-                            <img id="logo_preview_img" src="" class="max-h-24 mx-auto">
-                            <button type="button" onclick="removeLogo()"
-                                class="mt-2 text-xs text-red-500 hover:text-red-700">Hapus Logo</button>
-                        </div>
-                    </div>
 
                     {{-- Images (Gambar section) - Disamakan struktur formnya dengan Edit --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
