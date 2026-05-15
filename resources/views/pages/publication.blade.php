@@ -94,22 +94,24 @@
         /* News Layout (Berita) */
         .news-card {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
             background: white;
-            border-radius: 1.25rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
             border: 1px solid #edf2f7;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            transition: transform 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
         }
         .news-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-color: #174E93;
         }
         .news-img-wrap {
-            flex: 0 0 300px;
-            height: 200px;
-            border-radius: 1rem;
+            flex: 0 0 240px;
+            height: 160px;
+            border-radius: 0.75rem;
             overflow: hidden;
         }
         .news-img-wrap img {
@@ -119,28 +121,98 @@
         }
         .news-content {
             flex: 1;
-        }
-        .news-date {
-            font-size: 0.8rem;
-            color: #a0aec0;
-            margin-bottom: 0.5rem;
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
         .news-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #1a202c;
-            margin-bottom: 1rem;
-            line-height: 1.3;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
         }
         .news-desc {
-            color: #4a5568;
+            color: #718096;
             line-height: 1.6;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            margin-bottom: auto;
+        }
+
+        /* Sidebar & Popular News */
+        .pub-container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 2.5rem;
+        }
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #174E93;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #174E93;
+            text-transform: uppercase;
+        }
+        .popular-news-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .popular-news-img {
+            flex: 0 0 80px;
+            height: 60px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .popular-news-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .popular-news-info {
+            flex: 1;
+        }
+        .popular-news-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .popular-news-date {
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+        .meta-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .meta-item svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        @media (max-width: 1024px) {
+            .pub-container { grid-template-columns: 1fr; }
         }
 
         /* Gallery Grid (Galeri) */
@@ -310,29 +382,130 @@
 
             {{-- Berita Layout --}}
             @if($currentPage->type === 'berita')
-                <div class="news-list">
-                    <div class="news-card">
-                        @php
-                            $newsImg = $currentPage->images ? $currentPage->images[0] : null;
-                        @endphp
-                        @if($newsImg)
-                        <div class="news-img-wrap">
-                            <img src="{{ asset('storage/' . $newsImg) }}" alt="{{ $locale === 'en' ? $currentPage->title_en ?? $currentPage->title : $currentPage->title }}">
+                <div class="pub-container">
+                    {{-- Main Content: News List --}}
+                    <div class="news-main">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">{{ $locale === 'en' ? 'Latest News' : 'Berita Terkini' }}</h2>
+                            {{-- Search Field --}}
+                            <form action="{{ request()->url() }}" method="GET" class="flex items-center gap-2">
+                                <div class="relative">
+                                    <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('cms.datatable.search_placeholder') }}"
+                                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                        @endif
-                        <div class="news-content">
-                            <span class="news-date">{{ ($currentPage->published_at ?? $currentPage->created_at)->translatedFormat('d F Y') }}</span>
-                            <h2 class="news-title">{{ $locale === 'en' ? $currentPage->title_en ?? $currentPage->title : $currentPage->title }}</h2>
-                            <div class="news-desc richtext-guest-view">
-                                {!! $locale === 'en' ? $currentPage->description_en ?? $currentPage->description : $currentPage->description !!}
-                            </div>
-                            @if($currentPage->link_url)
-                                <a href="{{ $currentPage->link_url }}" class="page-link-btn" style="margin-top: 1rem;">
-                                    {{ $currentPage->link_text ?? __('home.publication.read_more') }}
-                                </a>
-                            @endif
+
+                        <div class="bg-[#F8F9FA] rounded-xl p-6 mb-8 border border-gray-100">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $locale === 'en' ? 'Welcome to News Portal,' : 'Selamat datang di portal Berita,' }}</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                {{ $locale === 'en' ? 'Get the latest information by following our official social media channels. Find various interesting insights about sustainable archive management, archive literacy, activity agendas, and our latest public services.' : 'Dapatkan informasi terkini dengan mengikuti kanal media sosial resmi Depot Arsip Berkelanjutan Bandung (DABB). Temukan berbagai wawasan menarik mengenai pengelolaan arsip berkelanjutan, edukasi kearsipan, agenda kegiatan, serta layanan publik terbaru dari kami.' }}
+                            </p>
+                        </div>
+
+                        <div class="news-list">
+                            @forelse($allPages as $p)
+                                @php
+                                    $pDate = ($p->published_at ?? $p->created_at)->translatedFormat('d F Y');
+                                    $pTitle = $locale === 'en' ? $p->title_en ?? $p->title : $p->title;
+                                    $pImg = $p->images ? $p->images[0] : null;
+                                @endphp
+                                <div class="news-card">
+                                    <div class="news-img-wrap">
+                                        @if($pImg)
+                                            <img src="{{ asset('storage/' . $pImg) }}" alt="{{ $pTitle }}">
+                                        @else
+                                            <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="news-content">
+                                        <div class="meta-info !mb-3">
+                                            <div class="meta-item">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                <span>{{ $pDate }}</span>
+                                            </div>
+                                            <div class="meta-item">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                                <span>Tim DABB</span>
+                                            </div>
+                                        </div>
+                                        <h3 class="news-title">
+                                            <a href="{{ route('publication.detail', ['path' => ltrim($feature->path, '/'), 'id' => $p->id]) }}" class="hover:text-[#174E93] transition-colors">
+                                                {{ $pTitle }}
+                                            </a>
+                                        </h3>
+                                        <div class="news-desc">
+                                            {{ $locale === 'en' ? ($p->subtitle_en ?? $p->subtitle) : $p->subtitle }}
+                                        </div>
+                                        <div class="flex items-center justify-between mt-4">
+                                            <a href="{{ route('publication.detail', ['path' => ltrim($feature->path, '/'), 'id' => $p->id]) }}" class="text-[#174E93] font-bold text-sm hover:underline">
+                                                {{ $locale === 'en' ? 'Read More' : 'Selengkapnya' }} →
+                                            </a>
+                                            <div class="meta-info !mb-0">
+                                                <div class="meta-item">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                    <span>{{ $p->views }}</span>
+                                                </div>
+                                                <div class="meta-item">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                                    <span>{{ $p->shares }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-center py-10 text-gray-500">{{ __('cms.publication.empty') }}</p>
+                            @endforelse
                         </div>
                     </div>
+
+                    {{-- Sidebar --}}
+                    <aside class="news-sidebar">
+                        <div class="sidebar-block mb-10">
+                            <h2 class="sidebar-title">{{ $locale === 'en' ? 'Popular News' : 'Berita Populer' }}</h2>
+                            <div class="popular-news-list">
+                                @foreach($popularNews as $pn)
+                                    @php
+                                        $pnTitle = $locale === 'en' ? $pn->title_en ?? $pn->title : $pn->title;
+                                        $pnImg = $pn->images ? $pn->images[0] : null;
+                                    @endphp
+                                    <a href="{{ route('publication.detail', ['path' => ltrim($feature->path, '/'), 'id' => $pn->id]) }}" class="popular-news-item">
+                                        <div class="popular-news-img">
+                                            @if($pnImg)
+                                                <img src="{{ asset('storage/' . $pnImg) }}" alt="{{ $pnTitle }}">
+                                            @else
+                                                <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                    <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="popular-news-info">
+                                            <h4 class="popular-news-title">{{ $pnTitle }}</h4>
+                                            <div class="flex items-center gap-3">
+                                                <span class="popular-news-date">{{ ($pn->published_at ?? $pn->created_at)->translatedFormat('d M Y') }}</span>
+                                                <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                                                    <div class="flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                        <span>{{ $pn->views }}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                                        <span>{{ $pn->shares }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             @endif
 

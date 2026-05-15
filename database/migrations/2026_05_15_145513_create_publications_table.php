@@ -28,6 +28,8 @@ return new class extends Migration
             $table->json('extra_data')->nullable(); // For PDF file path etc
             $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('views')->default(0);
+            $table->unsignedBigInteger('shares')->default(0);
             $table->timestamps();
 
             $table->foreign('feature_id')->references('id')->on('features')->onDelete('cascade');

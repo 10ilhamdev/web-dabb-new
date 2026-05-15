@@ -257,9 +257,15 @@ Route::get('/storage/{path}', function($path) {
 ->where('path', '.+');
 require __DIR__.'/auth.php';
 
-// Public feature pages by path (e.g., /pameran/tetap) - must be last
-// Exclude 'storage/*' so Laravel's built-in storage.public route (see FilesystemServiceProvider)
-// can serve files from the public disk. Without this exclusion, the catch-all swallows /storage/* URLs.
+Route::get('/{path}/detail/{id}', [FeaturePageController::class, 'publicShowPublicationDetail'])
+    ->where('path', '.+')
+    ->where('id', '[0-9]+')
+    ->name('publication.detail');
+
+Route::post('/publication/{id}/share', [FeaturePageController::class, 'publicIncrementShares'])
+    ->where('id', '[0-9]+')
+    ->name('publication.share.increment');
+
 Route::get('/{path}', [FeaturePageController::class, 'publicShowByPath'])
     ->where('path', '^(?!storage/|cms/|api/|dashboard|profile|auth).+')
     ->name('feature.path');

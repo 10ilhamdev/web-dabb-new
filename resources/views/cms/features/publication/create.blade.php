@@ -63,8 +63,8 @@
                     <input type="hidden" name="description" id="description_input">
                 </div>
 
-                {{-- Gallery Section (x-show="type === 'galeri'") --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6" x-show="type === 'galeri'" x-transition>
+                {{-- Gallery Section (x-show="type === 'galeri' || type === 'berita'") --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6" x-show="type === 'galeri' || type === 'berita'" x-transition>
                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.publication.label_gallery') }}</label>
                     <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative group">
                         <input type="file" name="images[]" multiple accept="image/*,video/*"

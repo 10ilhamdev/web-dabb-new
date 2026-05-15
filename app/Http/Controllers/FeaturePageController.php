@@ -424,15 +424,32 @@ class FeaturePageController extends Controller
                 });
             }
 
-            $allPages = $query->orderBy('order')->paginate($perPage)->withQueryString();
+            // For news, we usually want newest first. 
+            // We check the first active publication type to determine global sorting if it's a news feature
+            $firstPub = $feature->publications()->where('is_active', true)->first();
+            if ($firstPub && $firstPub->type === 'berita') {
+                $query->orderBy('published_at', 'desc');
+            } else {
+                $query->orderBy('order');
+            }
 
+            $allPages = $query->paginate($perPage)->withQueryString();
             $locale = app()->getLocale();
-            // We use the first item to determine the layout type if needed, 
-            // but usually a feature has one type for all its pages.
             $currentPage = $allPages->first(); 
 
+            // Sidebar data for news: Popular news
+            $popularNews = collect();
+            if ($currentPage && $currentPage->type === 'berita') {
+                $popularNews = $feature->publications()
+                    ->where('type', 'berita')
+                    ->where('is_active', true)
+                    ->orderBy('views', 'desc')
+                    ->limit(5)
+                    ->get();
+            }
+
             return view('pages.publication', compact(
-                'feature', 'allPages', 'locale', 'currentPage'
+                'feature', 'allPages', 'locale', 'currentPage', 'popularNews'
             ));
         }
 
@@ -659,6 +676,52 @@ class FeaturePageController extends Controller
     /**
      * Load beranda content from language files.
      */
+    public function publicShowPublicationDetail(Request $request, $path, $id)
+    {
+        $fullPath = '/' . $path;
+        $feature = Feature::where('path', $fullPath)->firstOrFail();
+        $publication = $feature->publications()->where('id', $id)->where('is_active', true)->firstOrFail();
+        $locale = app()->getLocale();
+
+        // Increment views
+        $publication->increment('views');
+
+        // Popular news for sidebar
+        $popularNews = $feature->publications()
+            ->where('type', 'berita')
+            ->where('is_active', true)
+            ->orderBy('views', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('pages.publication_detail', compact(
+            'feature', 'publication', 'locale', 'popularNews'
+        ));
+    }
+
+    public function publicIncrementShares(Request $request, $id)
+    {
+        $publication = Publication::findOrFail($id);
+        $publication->increment('shares');
+        return response()->json(['success' => true, 'shares' => $publication->shares]);
+    }
+
+    private function getFeatureTranslations($featureId, $locale): array
+    {
+        // For feature ID 1, use original home.php
+        if ($featureId == 1) {
+            $path = resource_path("lang/{$locale}/home.php");
+        } else {
+            $path = resource_path("lang/{$locale}/home_{$featureId}.php");
+        }
+
+        if (File::exists($path)) {
+            return include $path;
+        }
+
+        return [];
+    }
+
     private function loadBerandaContent(int $featureId, string $locale): array
     {
         // For feature ID 1, use original home.php

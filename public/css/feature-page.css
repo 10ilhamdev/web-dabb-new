@@ -10,6 +10,7 @@
 .feature-breadcrumb .container {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 6px;
     padding: 0 5%;
 }

@@ -63,6 +63,9 @@
     <!-- ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @stack('scripts')
 
     {{-- Login required modal (shown for protected public pages when guest) --}}
@@ -77,7 +80,7 @@
     <script>
         window.addEventListener('load', function() {
             var rteContainers = document.querySelectorAll('.rte-content, .rte-content-body, .profile-section-desc, .vsshow-hero-subtitle, .vsshow-section-desc');
-            
+
             function getRelativeOffset(el, ancestor, prop) {
                 var offset = 0;
                 while (el && el !== ancestor && el !== document.body) {
@@ -91,7 +94,7 @@
                 var maxBottom = 0;
                 var cw = container.clientWidth;
                 var children = container.querySelectorAll('*');
-                
+
                 for (var i = 0; i < children.length; i++) {
                     var child = children[i];
                     var compStyle = window.getComputedStyle(child);
@@ -100,7 +103,7 @@
                         var absLeft = getRelativeOffset(child, container, 'offsetLeft');
                         var cWidth = child.offsetWidth;
                         var cHeight = child.offsetHeight;
-                        
+
                         // Prevent horizontal spill
                         if (absLeft + cWidth > cw) {
                             var newLeft = Math.max(0, cw - cWidth);
@@ -111,14 +114,14 @@
                                 child.style.left = '0px';
                             }
                         }
-                        
+
                         var bottom = absTop + cHeight;
                         if (bottom > maxBottom) {
                             maxBottom = bottom;
                         }
                     }
                 }
-                
+
                 if (maxBottom > 0) {
                     var currentHeight = container.offsetHeight;
                     if (maxBottom > currentHeight) {

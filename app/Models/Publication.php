@@ -21,6 +21,8 @@ class Publication extends Model
         'extra_data',
         'order',
         'is_active',
+        'views',
+        'shares',
     ];
 
     protected $casts = [
@@ -28,6 +30,8 @@ class Publication extends Model
         'extra_data' => 'array',
         'is_active' => 'boolean',
         'published_at' => 'date',
+        'views' => 'integer',
+        'shares' => 'integer',
     ];
 
     public function feature()
