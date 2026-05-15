@@ -75,8 +75,8 @@
 table[style*="border-collapse"] {
     border-collapse: collapse !important;
     margin: 1rem 0 !important;
-    width: 100% !important;
-    border: 1px solid #d0d4da !important;
+    max-width: 100% !important;
+    border: 1px solid #000000 !important;
 }
 
 .rte-content table th,
@@ -84,12 +84,10 @@ table[style*="border-collapse"] {
 .profile-section-desc table th,
 .vsshow-section-desc table th,
 table th {
-    background-color: #1e1e1e !important;
-    color: #ffffff !important;
     font-weight: 700 !important;
     text-align: center !important;
-    padding: 0.75rem !important;
-    border: 1px solid #d0d4da !important;
+    padding: 6px 8px !important;
+    border: 1px solid #000000 !important;
 }
 
 .rte-content table td,
@@ -97,12 +95,10 @@ table th {
 .profile-section-desc table td,
 .vsshow-section-desc table td,
 table td {
-    border: 1px solid #d0d4da !important;
-    padding: 0.75rem !important;
+    border: 1px solid #000000 !important;
+    padding: 6px 8px !important;
     vertical-align: top !important;
     word-wrap: break-word !important;
-    background-color: #ffffff !important;
-    color: #414141 !important;
 }
 
 /* ── 5. Figure & Figcaption ── */
@@ -178,6 +174,6 @@ table td {
 .profile-section-desc h4, .vsshow-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
 .profile-section-desc h5, .vsshow-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
 .profile-section-desc h6, .vsshow-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-.profile-section-desc table, .vsshow-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
+.profile-section-desc table, .vsshow-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
 .profile-section-desc table td, .vsshow-section-desc table td,
-.profile-section-desc table th, .vsshow-section-desc table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+.profile-section-desc table th, .vsshow-section-desc table th { padding: 6px 8px !important; border: 1px solid #000000 !important; }

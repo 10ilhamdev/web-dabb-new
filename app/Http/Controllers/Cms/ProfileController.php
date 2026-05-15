@@ -202,7 +202,7 @@ class ProfileController extends Controller
                 : null,
             'link_text' => $validated['link_text'] ?? null,
             'link_url' => $validated['link_url'] ?? null,
-            'chart_data' => $validated['chart_data'] ?? null,
+            'chart_data' => $validated['chart_data'] ? json_decode($validated['chart_data'], true) : null,
             'images' => $imagePaths ?: null,
             'image_positions' => $imagePositions ?: null,
             'order' => $validated['order'],
@@ -290,7 +290,7 @@ class ProfileController extends Controller
             'subtitle_en' => ! empty($validated['subtitle']) ? $this->translationService->translate($validated['subtitle']) : null,
             'link_text' => $validated['link_text'] ?? null,
             'link_url' => $validated['link_url'] ?? null,
-            'chart_data' => $validated['chart_data'] ?? null,
+            'chart_data' => $validated['chart_data'] ? json_decode($validated['chart_data'], true) : null,
             'images' => $imagePaths ?: null,
             'image_positions' => $imagePositions ?: null,
         ];
@@ -431,42 +431,30 @@ class ProfileController extends Controller
      * Get available data fields from admin and pegawai tables.
      * Returns fields that can be used for chart generation.
      */
-    public function getDataFields()
+    public function getDataFields(Feature $feature)
     {
-        // Columns that can be charted (excluding timestamps and relations)
-        $excludeFields = ['user_id', 'created_at', 'updated_at'];
+        // Columns to exclude (technical or sensitive)
+        $excludeFields = ['user_id', 'id', 'created_at', 'updated_at', 'password', 'remember_token', 'email_verified_at', 'google_id', 'photo', 'kartu_identitas', 'nomor_kartu_identitas'];
 
-        // Get column names from both models
-        $adminColumns = \Illuminate\Support\Facades\Schema::getColumnListing('user_admins');
-        $pegawaiColumns = \Illuminate\Support\Facades\Schema::getColumnListing('user_pegawais');
+        // Fetch distinct column names and labels from all roles
+        $fields = \App\Models\RoleColumn::whereNotIn('column_name', $excludeFields)
+            ->select('column_name', 'column_label')
+            ->distinct()
+            ->get();
 
-        // Combine and unique
-        $allColumns = array_unique(array_merge($adminColumns, $pegawaiColumns));
-
-        // Filter out excluded fields
-        $availableFields = array_filter($allColumns, fn($col) => !in_array($col, $excludeFields));
-
-        // Map field names to display labels
-        $fieldLabels = [
-            'nip' => 'NIP',
-            'jenis_kelamin' => 'Jenis Kelamin',
-            'tempat_lahir' => 'Tempat Lahir',
-            'tanggal_lahir' => 'Usia (dari Tanggal Lahir)',
-            'kartu_identitas' => 'Kartu Identitas',
-            'nomor_kartu_identitas' => 'Nomor Kartu Identitas',
-            'alamat' => 'Alamat',
-            'nomor_whatsapp' => 'Nomor WhatsApp',
-            'agama' => 'Agama',
-            'jabatan' => 'Jabatan',
-            'pangkat_golongan' => 'Pangkat/Golongan',
-        ];
-
-        $fields = [];
-        foreach ($availableFields as $field) {
-            $fields[$field] = $fieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field));
+        $result = [];
+        foreach ($fields as $field) {
+            // Use label from DB, or fallback to pretty name
+            $result[$field->column_name] = $field->column_label ?: ucwords(str_replace('_', ' ', $field->column_name));
         }
 
-        return response()->json($fields);
+        // Add role field manually as it's a base field in users table
+        $result['role'] = 'Role / Grup User';
+
+        // Sort by label
+        asort($result);
+
+        return response()->json($result);
     }
 
     /**
@@ -478,14 +466,31 @@ class ProfileController extends Controller
     {
         $config = $request->input('config', '{}');
         $configData = json_decode($config, true);
+        $rolesParam = $request->input('roles', '[]');
+        $selectedRoles = json_decode($rolesParam, true);
 
         if (empty($configData)) {
             return response()->json([]);
         }
 
-        $adminUsers = UserAdmin::all();
-        $pegawaiUsers = UserPegawai::all();
-        $allUsers = $adminUsers->concat($pegawaiUsers);
+        $rolesQuery = \App\Models\Role::whereNotNull('relation_name');
+        if (!empty($selectedRoles) && is_array($selectedRoles)) {
+            $rolesQuery->whereIn('name', $selectedRoles);
+        }
+        $roles = $rolesQuery->get();
+        $allUsers = collect();
+        foreach ($roles as $role) {
+            $relation = $role->relation_name;
+            $modelClass = 'App\\Models\\' . ucfirst($relation);
+            if (class_exists($modelClass)) {
+                try {
+                    $roleUsers = $modelClass::all();
+                    // Inject role label for grouping
+                    foreach ($roleUsers as $u) { $u->role = $role->label; }
+                    $allUsers = $allUsers->concat($roleUsers);
+                } catch (\Exception $e) { /* skip if table missing */ }
+            }
+        }
 
         $result = [];
 
@@ -531,20 +536,12 @@ class ProfileController extends Controller
      */
     private function generateChartDataForField($users, string $field): array
     {
-        // Field labels
-        $fieldLabels = [
-            'nip' => 'NIP',
-            'jenis_kelamin' => 'Jenis Kelamin',
-            'tempat_lahir' => 'Tempat Lahir',
-            'tanggal_lahir' => 'Usia',
-            'kartu_identitas' => 'Kartu Identitas',
-            'nomor_kartu_identitas' => 'Nomor Kartu Identitas',
-            'alamat' => 'Alamat',
-            'nomor_whatsapp' => 'Nomor WhatsApp',
-            'agama' => 'Agama',
-            'jabatan' => 'Jabatan',
-            'pangkat_golongan' => 'Pangkat/Golongan',
-        ];
+        // Field labels (fallback to dynamic lookup)
+        $label = \App\Models\RoleColumn::where('column_name', $field)->value('column_label');
+        if (!$label) {
+            if ($field === 'role') $label = 'Role / Grup User';
+            else $label = ucwords(str_replace('_', ' ', $field));
+        }
 
         // Special handling for tanggal_lahir (age groups)
         if ($field === 'tanggal_lahir') {
@@ -572,7 +569,7 @@ class ProfileController extends Controller
             }
 
             return [
-                'title' => $fieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field)),
+                'title' => $label,
                 'labels' => array_keys($ageGroups),
                 'data' => array_values($ageGroups),
             ];
@@ -589,7 +586,7 @@ class ProfileController extends Controller
         arsort($counts);
 
         return [
-            'title' => $fieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field)),
+            'title' => $label,
             'labels' => array_keys($counts),
             'data' => array_values($counts),
         ];
@@ -597,7 +594,7 @@ class ProfileController extends Controller
 
     private function generateColors(int $count): array
     {
-        $palette = ['#3B82F6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#6366F1', '#84CC16', '#A855F7'];
+        $palette = ['#36c5f0', '#0a0b1e', '#85d7ff', '#2eb67d', '#174e93', '#10b981', '#06b6d4', '#6366f1'];
         $colors = [];
         for ($i = 0; $i < $count; $i++) {
             $colors[] = $palette[$i % count($palette)];

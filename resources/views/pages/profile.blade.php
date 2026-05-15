@@ -33,6 +33,11 @@
             background: transparent !important;
         }
 
+        /* Match CMS Preview container width for layout parity */
+        .profile-section .container {
+            max-width: 1170px !important;
+        }
+
         .profile-section-bg {
             background: #f8f9fa;
         }
@@ -51,9 +56,9 @@
             margin-bottom: 1.5rem;
         }
 
-        .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100% !important; }
-        .profile-section-desc table th { background-color: #1e1e1e !important; color: #ffffff !important; font-weight: 700 !important; text-align: center !important; padding: 0.75rem !important; border: 1px solid #d0d4da !important; }
-        .profile-section-desc table td { padding: 0.75rem !important; border: 1px solid #d0d4da !important; background-color: #ffffff !important; color: #414141 !important; vertical-align: top !important; }
+        .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
+        .profile-section-desc table th { font-weight: 700 !important; text-align: center !important; padding: 6px 8px !important; border: 1px solid #000000 !important; }
+        .profile-section-desc table td { padding: 6px 8px !important; border: 1px solid #000000 !important; vertical-align: top !important; }
         .profile-section-desc img { max-width: 100%; height: auto !important; border-radius: 2px; }
         
         /* Figure & Figcaption Parity */
@@ -182,28 +187,43 @@
 
         @media (min-width: 768px) {
             .sdm-layout {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
             }
         }
 
         .chart-card {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid #e2e8f0;
+            border-radius: 0;
+            padding: 3rem 2rem;
+            transition: background 0.2s ease;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .chart-card:last-child {
+            border-bottom: none;
         }
 
         .chart-card h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 2.5rem;
             text-align: center;
         }
 
         .chart-card canvas {
-            max-height: 250px;
+            max-height: 400px;
+        }
+
+        .sdm-container-box {
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-top: 2rem;
         }
 
         .profile-divider {
@@ -670,25 +690,33 @@
 
                     {{-- Charts Section (below description/images) --}}
                     @if ($hasCharts)
-                        <div class="sdm-layout" style="max-width:64rem;margin:0 auto;" id="sdm-charts-container">
-                            @php
-                                $chartIndex = 0;
-                            @endphp
-                            @foreach ($chartData as $chartKey => $chart)
-                                @if (isset($chart['labels']) && is_array($chart['labels']) && count($chart['labels']) > 0)
-                                    <div class="chart-card" data-chart-key="{{ $chartKey }}"
-                                        data-chart-type="{{ $chart['type'] ?? 'bar' }}">
-                                        <h4>{{ $chart['title'] ?? ucwords(str_replace('_', ' ', $chart['field'] ?? $chartKey)) }}
-                                        </h4>
-                                        <div style="height:250px;position:relative">
-                                            <canvas id="chart-{{ $page->id }}-{{ $chartIndex }}"></canvas>
+                        <div class="sdm-container-box" style="max-width:64rem;margin:2rem auto;">
+                            <div style="padding: 1.5rem 2rem; border-bottom: 2px solid #000;">
+                                <h3 style="font-size: 1.75rem; font-weight: 800; color: #000; margin: 0; text-transform: uppercase; letter-spacing: -0.025em;">
+                                    {{ $locale === 'en' ? $page->subtitle_en ?? $page->subtitle : $page->subtitle ?? 'SUMBER DAYA MANUSIA' }}
+                                </h3>
+                            </div>
+                            
+                            <div class="sdm-layout" id="sdm-charts-container">
+                                @php
+                                    $chartIndex = 0;
+                                @endphp
+                                @foreach ($chartData as $chartKey => $chart)
+                                    @if (isset($chart['labels']) && is_array($chart['labels']) && count($chart['labels']) > 0)
+                                        <div class="chart-card" data-chart-key="{{ $chartKey }}"
+                                            data-chart-type="{{ $chart['type'] ?? 'bar' }}">
+                                            <h4>Grafik {{ $chart['title'] ?? ucwords(str_replace('_', ' ', $chart['field'] ?? $chartKey)) }}
+                                            </h4>
+                                            <div style="height:350px;position:relative">
+                                                <canvas id="chart-{{ $page->id }}-{{ $chartIndex }}"></canvas>
+                                            </div>
                                         </div>
-                                    </div>
-                                    @php
-                                        $chartIndex++;
-                                    @endphp
-                                @endif
-                            @endforeach
+                                        @php
+                                            $chartIndex++;
+                                        @endphp
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -728,26 +756,45 @@
         @php
             $chartData = $currentPage->chart_data;
             $chartColors = [
-                '#3B82F6',
-                '#06B6D4',
-                '#10B981',
-                '#F59E0B',
-                '#EF4444',
-                '#8B5CF6',
-                '#EC4899',
-                '#14B8A6',
-                '#F97316',
-                '#6366F1',
+                '#36c5f0',
+                '#0a0b1e',
+                '#85d7ff',
+                '#2eb67d',
+                '#174e93',
+                '#10b981',
+                '#06b6d4',
+                '#6366f1',
             ];
             $chartDataJson = json_encode($chartData);
         @endphp
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const chartData = {!! $chartDataJson !!};
-                const chartColors = ['#3B82F6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899',
-                    '#14B8A6', '#F97316', '#6366F1'
-                ];
+                const chartColors = ['#36c5f0', '#0a0b1e', '#85d7ff', '#2eb67d', '#174e93', '#10b981', '#06b6d4', '#6366f1'];
                 const pageId = '{{ $currentPage->id }}';
+
+                // Plugin to draw total in center of doughnut
+                const centerTextPlugin = {
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        if (chart.config.type !== 'doughnut') return;
+                        const width = chart.width,
+                            height = chart.height,
+                            ctx = chart.ctx;
+                        ctx.restore();
+                        const fontSize = (height / 160).toFixed(2);
+                        ctx.font = "bold " + fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        const text = chart.data.datasets[0].data.reduce((a, b) => a + b, 0).toString();
+                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                        const textY = height / 2;
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                };
+                Chart.register(centerTextPlugin);
 
                 let chartIndex = 0;
                 Object.keys(chartData).forEach(function(key) {
@@ -758,40 +805,44 @@
                     const canvas = document.getElementById(canvasId);
                     if (!canvas) return;
 
-                    const isPie = chart.type === 'pie';
-                    const colors = chart.colors || chartColors.slice(0, chart.labels.length);
+                    const isDoughnut = chart.type === 'pie' || chart.type === 'doughnut';
+                    const colors = chartColors;
 
-                    if (isPie) {
+                    if (isDoughnut) {
                         new Chart(canvas.getContext('2d'), {
-                            type: 'pie',
+                            type: 'doughnut',
                             data: {
                                 labels: chart.labels,
                                 datasets: [{
                                     data: chart.data,
                                     backgroundColor: colors,
-                                    borderWidth: 2,
+                                    borderWidth: 4,
                                     borderColor: '#ffffff',
+                                    hoverOffset: 10
                                 }]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                cutout: '70%',
                                 plugins: {
                                     legend: {
                                         position: 'bottom',
                                         labels: {
-                                            font: {
-                                                size: 12
-                                            },
-                                            padding: 12
+                                            usePointStyle: true,
+                                            padding: 20,
+                                            font: { size: 12, weight: '500' },
+                                            color: '#64748b'
                                         }
                                     },
                                     tooltip: {
-                                        backgroundColor: 'white',
-                                        titleColor: '#1f2937',
-                                        bodyColor: '#4b5563',
-                                        borderColor: '#e5e7eb',
-                                        borderWidth: 1}
+                                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                        padding: 12,
+                                        cornerRadius: 8,
+                                        displayColors: true
+                                    }
+                                }
+                            }
                         });
                     } else {
                         new Chart(canvas.getContext('2d'), {
@@ -801,49 +852,34 @@
                                 datasets: [{
                                     label: 'Jumlah',
                                     data: chart.data,
-                                    backgroundColor: colors,
-                                    borderRadius: 6,
+                                    backgroundColor: '#36c5f0',
+                                    borderRadius: 8,
                                     borderSkipped: false,
+                                    barThickness: 40
                                 }]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 plugins: {
-                                    legend: {
-                                        display: false
-                                    },
+                                    legend: { display: false },
                                     tooltip: {
-                                        backgroundColor: 'white',
-                                        titleColor: '#1f2937',
-                                        bodyColor: '#4b5563',
-                                        borderColor: '#e5e7eb',
-                                        borderWidth: 1
+                                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                        padding: 12,
+                                        cornerRadius: 8
                                     }
                                 },
                                 scales: {
                                     y: {
                                         beginAtZero: true,
-                                        ticks: {
-                                            stepSize: 1,
-                                            font: {
-                                                size: 11
-                                            },
-                                            color: '#6b7280'
-                                        },
-                                        grid: {
-                                            color: '#f1f5f9'
-                                        }
+                                        ticks: { stepSize: 1, color: '#94a3b8', font: { size: 10 } },
+                                        grid: { color: '#e2e8f0', borderDash: [5, 5], drawBorder: false }
                                     },
                                     x: {
-                                        ticks: {
-                                            font: {
-                                                size: 11
-                                            },
-                                            color: '#6b7280'
-                                        },
-                                        grid: {
-                                            display: false}
+                                        ticks: { color: '#94a3b8', font: { size: 10 } },
+                                        grid: { display: false, drawBorder: false }
+                                    }
+                                }
                             }
                         });
                     }
@@ -853,17 +889,3 @@
         </script>
     @endif
 @endpush
-
-
-
-
-
-
-
-
-
-
-
-
-
-

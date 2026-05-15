@@ -22,6 +22,7 @@ class UserAdmin extends Model
         'agama',
         'jabatan',
         'pangkat_golongan',
+        'pendidikan',
         'created_at',
         'updated_at'
     ];

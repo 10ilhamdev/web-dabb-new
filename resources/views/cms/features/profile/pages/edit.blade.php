@@ -39,9 +39,9 @@
         #preview-container h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
         #preview-container h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
         #preview-container h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-        #preview-container table { border-collapse: collapse !important; margin: 1rem 0 !important; width: 100%; }
-        #preview-container table td,
-        #preview-container table th { padding: 0.75rem !important; border: 1px solid #e5e7eb !important; }
+        #preview-container table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
+        #preview-container table td { padding: 6px 8px !important; border: 1px solid #000000 !important; vertical-align: top !important; }
+        #preview-container table th { font-weight: 700 !important; text-align: center !important; padding: 6px 8px !important; border: 1px solid #000000 !important; }
         #preview-container img { max-width: 100%; height: auto !important; border-radius: 2px; }
 
         /* Figure & Figcaption Parity */
@@ -298,6 +298,23 @@
                             </div>
                         </div>
 
+                        {{-- Role Selection --}}
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Role User yang Akan
+                                Dihitung:</label>
+                            <div class="grid grid-cols-2 gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50/50">
+                                <template x-for="(label, name) in availableRoles" :key="name">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" :value="name" x-model="selectedRoles"
+                                            class="rounded border-gray-300 text-[#174E93] focus:ring-[#174E93] transition-all">
+                                        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition-colors"
+                                            x-text="label"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1.5 italic">* Kosongkan untuk menyertakan semua role</p>
+                        </div>
+
                         {{-- Field Selection --}}
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Data yang Akan
@@ -353,8 +370,8 @@
                         <input type="hidden" name="chart_data" id="chart_data_input"
                             value="{{ $page->chart_data ? json_encode($page->chart_data) : '' }}">
                         <div id="chart_preview"
-                            class="chart-preview-box min-h-[150px] flex items-center justify-center mt-4">
-                            <p class="text-xs text-gray-400">Pilih field data dan tipe grafik, lalu klik "Generate Grafik"
+                            class="chart-preview-box min-h-[150px] mt-4">
+                            <p class="text-xs text-gray-400 text-center py-8">Pilih field data dan tipe grafik, lalu klik "Generate Grafik"
                             </p>
                         </div>
                     </div>
@@ -833,9 +850,11 @@
         window.pageLinkUrl = @json($page->link_url ?? '');
         window.pageSubtitle = @json($page->subtitle ?? '');
         window.pageDescription = @json($page->description ?? '');
+        window.availableRoles = @json(\App\Models\Role::pluck('label', 'name')->toArray());
         window.sectionDeleteUrl =
             '{{ route('cms.features.profile.sections.destroy', [$feature, $sub, $page, '__SECTION_ID__']) }}';
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script
         src="{{ asset('js/cms/features/profile/edit.js?v=' . md5_file(public_path('js/cms/features/profile/edit.js'))) }}">
     </script>

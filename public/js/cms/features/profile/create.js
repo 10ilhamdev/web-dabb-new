@@ -154,9 +154,29 @@
         container.appendChild(grid);
     }
 
-    const chartColors = [
-        "#3B82F6", "#06B6D4", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316", "#6366F1"
-    ];
+    const chartColors = ['#36c5f0', '#0a0b1e', '#85d7ff', '#2eb67d', '#174e93', '#10b981', '#06b6d4', '#6366f1'];
+
+    // Plugin to draw total in center of doughnut
+    const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw: function(chart) {
+            if (chart.config.type !== 'doughnut') return;
+            const width = chart.width,
+                height = chart.height,
+                ctx = chart.ctx;
+            ctx.restore();
+            const fontSize = (height / 160).toFixed(2);
+            ctx.font = "bold " + fontSize + "em sans-serif";
+            ctx.textBaseline = "middle";
+            const text = chart.data.datasets[0].data.reduce((a, b) => a + b, 0).toString();
+            const textX = Math.round((width - ctx.measureText(text).width) / 2);
+            const textY = height / 2;
+            ctx.fillStyle = '#1e293b';
+            ctx.fillText(text, textX, textY);
+            ctx.save();
+        }
+    };
+    Chart.register(centerTextPlugin);
 
     function renderChartPreview(data) {
         const container = document.getElementById("chart_preview");
@@ -173,10 +193,27 @@
         let html = '<div class="chart-preview-container">';
         Object.keys(data).forEach(key => {
             const chart = data[key];
+            
+            // Safety: only render if in config
+            if (!chart.field || !chart.type) {
+                const parts = key.split("-");
+                if (parts.length >= 2) {
+                    chart.field = chart.field || parts[0];
+                    chart.type = chart.type || parts[1];
+                }
+            }
+            if (!_chartConfig[chart.field] || !_chartConfig[chart.field].includes(chart.type)) return;
+
             if (!chart.labels || !chart.data) return;
             const chartId = "chart-" + key;
-            const isPie = chart.type === "pie";
-            html += `<div class="chart-card"><p class="chart-card-title">${chart.title || key}${isPie ? ' (Pie)' : ' (Bar)'}</p><div style="height:${isPie ? '250px' : '200px'};position:relative"><canvas id="${chartId}"></canvas></div></div>`;
+            const isDoughnut = chart.type === "pie" || chart.type === "doughnut";
+            html += `<div class="chart-card">
+                <button type="button" class="chart-card-remove" onclick="removeChartFromPreview('${chart.field}', '${chart.type}')" title="Hapus grafik ini">
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <p class="chart-card-title">${chart.title || key}${isDoughnut ? ' (Pie/Doughnut)' : ' (Bar)'}</p>
+                <div style="height:300px;position:relative"><canvas id="${chartId}"></canvas></div>
+            </div>`;
         });
         html += "</div>";
         container.innerHTML = html;
@@ -187,31 +224,116 @@
             const canvasEl = document.getElementById("chart-" + key);
             if (!canvasEl) return;
 
-            if (chart.type === "pie") {
+            if (chart.type === "pie" || chart.type === "doughnut") {
                 _chartInstances.push(new Chart(canvasEl.getContext("2d"), {
-                    type: "pie",
+                    type: "doughnut",
                     data: {
                         labels: chart.labels,
                         datasets: [{
                             data: chart.data,
-                            backgroundColor: chart.colors || chartColors.slice(0, chart.labels.length),
+                            backgroundColor: chartColors,
                             borderWidth: 2,
                             borderColor: "#fff",
+                            hoverOffset: 8
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 11 }, padding: 8 } } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        cutout: '70%',
+                        plugins: { 
+                            legend: { 
+                                position: "bottom", 
+                                labels: { usePointStyle: true, font: { size: 10 }, padding: 12 } 
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                padding: 10,
+                                cornerRadius: 6
+                            }
+                        } 
+                    }
                 }));
             } else {
                 _chartInstances.push(new Chart(canvasEl.getContext("2d"), {
                     type: "bar",
                     data: {
                         labels: chart.labels,
-                        datasets: [{ label: "Jumlah", data: chart.data, backgroundColor: chart.colors || chartColors.slice(0, chart.labels.length), borderRadius: 4 }]
+                        datasets: [{ 
+                            label: "Jumlah", 
+                            data: chart.data, 
+                            backgroundColor: '#36c5f0', 
+                            borderRadius: 6,
+                            borderSkipped: false,
+                            barThickness: 30
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, x: { ticks: { font: { size: 9 } } } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                padding: 10,
+                                cornerRadius: 6
+                            }
+                        }, 
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { stepSize: 1, color: '#94a3b8', font: { size: 9 } },
+                                grid: { color: '#f1f5f9', drawBorder: false }
+                            }, 
+                            x: { 
+                                ticks: { color: '#94a3b8', font: { size: 9 } },
+                                grid: { display: false, drawBorder: false }
+                            } 
+                        } 
+                    }
                 }));
             }
         });
+    }
+    function removeChartFromPreview(field, type) {
+        console.log("[CHART DELETE] Target:", field, type);
+        if (!_chartConfig[field]) {
+            console.warn("[CHART DELETE] Field not in _chartConfig:", field);
+        } else {
+            const idx = _chartConfig[field].indexOf(type);
+            if (idx > -1) {
+                _chartConfig[field].splice(idx, 1);
+                if (_chartConfig[field].length === 0) delete _chartConfig[field];
+            }
+        }
+        renderChartConfigList();
+        const input = document.getElementById("chart_data_input");
+        const currentDataRaw = input ? input.value : null;
+        if (currentDataRaw) {
+            try {
+                const data = JSON.parse(currentDataRaw);
+                const targetKey = field + "-" + type;
+                console.log("[CHART DELETE] Current keys:", Object.keys(data));
+                
+                let deleted = false;
+                if (data[targetKey]) {
+                    delete data[targetKey];
+                    deleted = true;
+                } else {
+                    const foundKey = Object.keys(data).find(k => k.trim() === targetKey.trim());
+                    if (foundKey) {
+                        delete data[foundKey];
+                        deleted = true;
+                    }
+                }
+                
+                if (deleted) {
+                    input.value = JSON.stringify(data);
+                    console.log("[CHART DELETE] Deleted successfully. New size:", Object.keys(data).length);
+                }
+                renderChartPreview(data);
+            } catch (e) { console.error("[CHART DELETE] Error:", e); }
+        }
     }
 
     function addFieldToConfig(field, types) {
@@ -388,7 +510,8 @@
 
     function profilePageForm() {
         return {
-            pageType: "tugas_fungsi", title: "", linkText: "", linkUrl: "", subtitle: "", isGeneratingChart: false, selectedField: "", availableFields: {},
+            pageType: "tugas_fungsi", title: "", linkText: "", linkUrl: "", subtitle: "", isGeneratingChart: false, 
+            selectedField: "", availableFields: {}, availableRoles: window.availableRoles || {}, selectedRoles: [],
             async init() {
                 try {
                     const response = await fetch(window.dataFieldsUrl);
@@ -396,6 +519,35 @@
                     this.availableFields = data; _availableFields = data;
                 } catch (e) { console.error("Failed to load data fields:", e); }
                 setTimeout(renderPagePreview, 500);
+
+                // Restore existing chart data if available (e.g. after validation error)
+                const chartDataInput = document.getElementById("chart_data_input");
+                if (chartDataInput && chartDataInput.value) {
+                    try {
+                        const chartData = JSON.parse(chartDataInput.value);
+                        Object.keys(chartData).forEach((key) => {
+                            const chart = chartData[key];
+                            // Handle both key formats for field/type inference
+                            if (!chart.field || !chart.type) {
+                                const parts = key.includes('_') ? key.split('_') : key.split('-');
+                                if (parts.length >= 2) {
+                                    chart.field = chart.field || parts[0];
+                                    chart.type = chart.type || parts[1];
+                                }
+                            }
+                            if (chart.field) {
+                                const type = chart.type === "pie" ? "pie" : "bar";
+                                if (!_chartConfig[chart.field]) _chartConfig[chart.field] = [];
+                                if (!_chartConfig[chart.field].includes(type)) _chartConfig[chart.field].push(type);
+                                if (chart.roles && Array.isArray(chart.roles)) {
+                                    this.selectedRoles = Array.from(new Set([...this.selectedRoles, ...chart.roles]));
+                                }
+                            }
+                        });
+                        renderChartConfigList();
+                        setTimeout(() => { renderChartPreview(chartData); }, 500);
+                    } catch (e) { console.error("Error parsing existing chart data:", e); }
+                }
             },
             onTypeChange() { },
             async handleGambarChange(event) {
@@ -417,8 +569,12 @@
                 if (Object.keys(config).length === 0) { alert("Pilih minimal satu field data dan tipe grafik"); return; }
                 this.isGeneratingChart = true;
                 try {
-                    const url = `${window.chartGenerateUrl}?config=${encodeURIComponent(JSON.stringify(config))}`;
-                    const response = await fetch(url); const data = await response.json();
+                    const roles = JSON.stringify(this.selectedRoles);
+                    const url = `${window.chartGenerateUrl}?config=${encodeURIComponent(JSON.stringify(config))}&roles=${encodeURIComponent(roles)}`;
+                    const response = await fetch(url); 
+                    const data = await response.json();
+                    // Add roles info for persistence
+                    Object.keys(data).forEach(key => { data[key].roles = this.selectedRoles; });
                     document.getElementById("chart_data_input").value = JSON.stringify(data);
                     renderChartPreview(data);
                 } catch (e) { alert("Gagal generate grafik: " + e.message); } finally { this.isGeneratingChart = false; }
@@ -529,6 +685,9 @@
 
     window.profilePageForm = profilePageForm;
     window.addFieldToConfig = addFieldToConfig;
+    window.renderChartConfigList = renderChartConfigList;
+    window.renderChartPreview = renderChartPreview;
+    window.removeChartFromPreview = removeChartFromPreview;
     window.removeFieldFromConfig = removeFieldFromConfig;
     window.toggleChartTypeForField = toggleChartTypeForField;
 

@@ -402,8 +402,43 @@
 }
 
 .rte-content table th {
-    background: #f1f3f6;
+    background: #1e1e1e;
+    color: #ffffff;
     font-weight: 700;
+}
+
+/* Table Column Resizer (Overlay based) */
+.rte-table-col-resizer {
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.rte-table-col-resizer:hover,
+.rte-resizing-col .rte-table-col-resizer {
+    background: rgba(55, 125, 255, 0.5);
+}
+
+.rte-table-col-resizer::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(55, 125, 255, 0.3);
+    pointer-events: none;
+}
+
+.rte-table-col-resizer:hover::after,
+.rte-resizing-col .rte-table-col-resizer::after {
+    background: #377dff;
+    width: 2px;
+}
+
+body.rte-resizing-col,
+body.rte-resizing-col * {
+    cursor: col-resize !important;
+    user-select: none !important;
 }
 
 .rte-content hr {

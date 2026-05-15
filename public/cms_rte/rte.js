@@ -2279,9 +2279,8 @@
     RichTextEditor.prototype._showTableSelection = function (table) {
         var self = this;
 
-        // Guard: if same table already selected AND we're not refreshing, skip
-        // NOTE: _refreshTableSelection will null out _selectedTable before calling this
-        if (this._selectedTable === table && this._tableOverlay) return;
+        // Hide table selection if clicking elsewhere
+        this._hideTableSelection();
 
         // Destroy existing overlay + toolbar cleanly
         this._hideTableSelection();
@@ -2300,7 +2299,8 @@
                 'top:' + (tblRect.top - wrapRect.top + cWrap.scrollTop) + 'px',
                 'width:' + tblRect.width + 'px',
                 'height:' + tblRect.height + 'px',
-                'pointer-events:none',  // let clicks pass through to content below
+                'pointer-events:none',
+                'overflow:visible',
             ].join(';')
         });
 
@@ -2323,6 +2323,9 @@
         this.content.parentElement.appendChild(overlay);
         this._tableOverlay = overlay;
         this._selectedTable = table;
+
+        // ---- Column Resizers (vertical handles on borders) ----
+        this._buildTableColumnResizers(table, overlay);
 
         // ---- Move table by dragging the handle ----
         var moveStartX, moveStartY, tblOrigLeft, tblOrigTop;
@@ -2424,7 +2427,72 @@
         this._showFloatTableToolbar(table);
     };
 
+    RichTextEditor.prototype._buildTableColumnResizers = function (table, overlay) {
+        var self = this;
+        var rows = table.rows;
+        if (!rows.length) return;
+        var cells = rows[0].cells;
+        var tblRect = table.getBoundingClientRect();
+        
+        // Clear existing column resizers from overlay
+        Array.from(overlay.querySelectorAll('.rte-table-col-resizer')).forEach(function(r) { r.parentNode.removeChild(r); });
+
+        for (var i = 0; i < cells.length; i++) {
+            (function (idx) {
+                var cell = cells[idx];
+                var cellRect = cell.getBoundingClientRect();
+                var right = cellRect.right - tblRect.left;
+
+                // Create a vertical line at the right border of the cell
+                var resizer = el('div', {
+                    class: 'rte-table-col-resizer',
+                    style: 'left:' + right + 'px; top:0; bottom:0; width:6px; margin-left:-3px; cursor:col-resize; position:absolute; pointer-events:all; z-index:10;'
+                });
+                overlay.appendChild(resizer);
+
+                var startX, startW;
+
+                function onColResizeStart(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    self._isResizingOrMoving = true;
+                    startX = e.touches ? e.touches[0].clientX : e.clientX;
+                    startW = cell.offsetWidth;
+
+                    document.addEventListener('mousemove', onColResizeMove);
+                    document.addEventListener('mouseup', onColResizeEnd);
+                    document.body.classList.add('rte-resizing-col');
+                }
+
+                function onColResizeMove(e) {
+                    var cx = e.touches ? e.touches[0].clientX : e.clientX;
+                    var dx = cx - startX;
+                    var newW = Math.max(30, startW + dx);
+                    
+                    table.style.tableLayout = 'fixed';
+                    cell.style.width = newW + 'px';
+                    
+                    self._updateTableOverlayPosition();
+                }
+
+                function onColResizeEnd() {
+                    self._isResizingOrMoving = false;
+                    document.removeEventListener('mousemove', onColResizeMove);
+                    document.removeEventListener('mouseup', onColResizeEnd);
+                    document.body.classList.remove('rte-resizing-col');
+                    self._syncSource();
+                }
+
+                resizer.addEventListener('mousedown', onColResizeStart);
+                resizer.addEventListener('touchstart', onColResizeStart, { passive: false });
+            })(i);
+        }
+    };
+
     RichTextEditor.prototype._hideTableSelection = function () {
+        if (this._selectedTable) {
+            Array.from(this._selectedTable.querySelectorAll('.rte-col-resizer')).forEach(function(r) { r.parentNode.removeChild(r); });
+        }
         if (this._tableOverlay) {
             if (this._tableOverlay.parentNode) this._tableOverlay.parentNode.removeChild(this._tableOverlay);
             this._tableOverlay = null;
@@ -2444,6 +2512,10 @@
         overlay.style.top = (tblRect.top - wrapRect.top + cWrap.scrollTop) + 'px';
         overlay.style.width = tblRect.width + 'px';
         overlay.style.height = tblRect.height + 'px';
+
+        // Refresh column resizers
+        this._buildTableColumnResizers(table, overlay);
+
         // Also reposition the float toolbar that follows the table
         this._repositionFloatTableToolbar(table);
     };
@@ -2600,10 +2672,29 @@
 
         // 5. Table
         toolbar.appendChild(createDropdown(ICON.table, 'Table', [
-            { label: 'Auto size', icon: ICON.tableColWidth, action: function() { tbl.style.width = ''; self._updateTableOverlayPosition(); self._syncSource(); } },
-            { label: '100% width', icon: ICON.tableColWidth, action: function() { tbl.style.width = '100%'; self._updateTableOverlayPosition(); self._syncSource(); } },
-            { label: '75% width', icon: ICON.tableColWidth, action: function() { tbl.style.width = '75%'; self._updateTableOverlayPosition(); self._syncSource(); } },
-            { label: '50% width', icon: ICON.tableColWidth, action: function() { tbl.style.width = '50%'; self._updateTableOverlayPosition(); self._syncSource(); } },
+            { label: 'AutoFit Contents', icon: ICON.tableColWidth, action: function() { 
+                tbl.style.width = 'auto'; 
+                tbl.style.tableLayout = 'auto'; 
+                Array.from(tbl.querySelectorAll('td, th')).forEach(function(c) { c.style.width = ''; });
+                self._updateTableOverlayPosition(); 
+                self._syncSource(); 
+            } },
+            { label: 'AutoFit Window', icon: ICON.tableColWidth, action: function() { 
+                tbl.style.width = '100%'; 
+                tbl.style.tableLayout = 'auto'; 
+                Array.from(tbl.querySelectorAll('td, th')).forEach(function(c) { c.style.width = ''; });
+                self._updateTableOverlayPosition(); 
+                self._syncSource(); 
+            } },
+            { label: 'Fixed Column Width', icon: ICON.tableColWidth, action: function() { 
+                tbl.style.tableLayout = 'fixed'; 
+                // Ensure all cells have a set width based on current size
+                Array.from(tbl.rows[0].cells).forEach(function(c) {
+                    if (!c.style.width) c.style.width = c.offsetWidth + 'px';
+                });
+                self._updateTableOverlayPosition(); 
+                self._syncSource(); 
+            } },
             'sep',
             { label: 'Delete Table', icon: ICON.tableDelete, action: function() { 
                 Swal.fire({ title: 'Hapus Tabel?', text: 'Tindakan ini tidak dapat dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(function (res) {
@@ -2923,9 +3014,6 @@
         }
     };
 
-    // ===================================================================
-    // TABLE COLUMN/RESIZE (per-cell border drag)
-    // ===================================================================
     RichTextEditor.prototype._initTableResize = function (table) {
         var self = this;
         table.style.tableLayout = 'fixed';
@@ -3626,12 +3714,14 @@
     };
 
     RichTextEditor.prototype._syncSource = function () {
+        var html = this.content.innerHTML;
+        
         // Mirror to underlying textarea if any
         if (this._target.tagName === 'TEXTAREA') {
-            this._target.value = this.content.innerHTML;
+            this._target.value = html;
         }
         // Push current content to undo history (step-by-step)
-        this._historyPush(this.content.innerHTML);
+        this._historyPush(html);
     };
 
     RichTextEditor.prototype._updateState = function () {
