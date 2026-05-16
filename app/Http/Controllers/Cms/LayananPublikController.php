@@ -75,6 +75,18 @@ class LayananPublikController extends Controller
         if ($request->hasFile('extra_data_statis_indirect_pdf')) {
             $extraData['statis_indirect_pdf'] = $request->file('extra_data_statis_indirect_pdf')->store('features/layanan_publik/files', 'public');
         }
+        if ($request->hasFile('extra_data_lib_pdf')) {
+            $extraData['lib_pdf'] = $request->file('extra_data_lib_pdf')->store('features/layanan_publik/files', 'public');
+        }
+        if ($request->hasFile('extra_data_lib_photos')) {
+            $libPhotos = [];
+            foreach ($request->file('extra_data_lib_photos') as $photo) {
+                $libPhotos[] = $photo->store('features/layanan_publik/photos', 'public');
+            }
+            if (!empty($libPhotos)) {
+                $extraData['lib_photos'] = $libPhotos;
+            }
+        }
 
         if ($validated['type'] === 'laraska') {
             if (!isset($extraData['laraska_steps'])) {
@@ -133,6 +145,69 @@ class LayananPublikController extends Controller
                     }
                 }
             }
+        } elseif ($validated['type'] === 'konsultasi') {
+            $konsultasiFields = [
+                'consultation_desc', 'consultation_form_title', 'consultation_form_send', 'consultation_success'
+            ];
+            foreach ($konsultasiFields as $kf) {
+                if (!empty($extraData[$kf])) {
+                    $extraData[$kf . '_en'] = $this->translationService->translate($extraData[$kf]);
+                }
+            }
+        } elseif ($validated['type'] === 'perpustakaan') {
+            $libFields = [
+                'lib_obj1', 'lib_obj2', 'lib_obj3', 'lib_visit_btn',
+                'lib_card1_title', 'lib_card1_desc', 'lib_card2_title', 'lib_card2_desc', 'lib_card3_title', 'lib_card3_desc',
+                'lib_hours', 'lib_rule1', 'lib_rule2', 'lib_rule3',
+                'lib_proc_title', 'lib_proc1_title', 'lib_proc1_desc', 'lib_proc2_title', 'lib_proc2_desc', 'lib_proc3_title', 'lib_proc3_desc', 'lib_proc4_title', 'lib_proc4_desc'
+            ];
+            foreach ($libFields as $lf) {
+                if (!empty($extraData[$lf])) {
+                    $extraData[$lf . '_en'] = $this->translationService->translate($extraData[$lf]);
+                }
+            }
+            if (!isset($extraData['lib_objs'])) {
+                $extraData['lib_objs'] = [];
+            } elseif (is_array($extraData['lib_objs'])) {
+                foreach ($extraData['lib_objs'] as $k => $v) {
+                    if (!empty($v['text'])) {
+                        $extraData['lib_objs'][$k]['text_en'] = $this->translationService->translate($v['text']);
+                    }
+                }
+            }
+            if (!isset($extraData['lib_cards'])) {
+                $extraData['lib_cards'] = [];
+            } elseif (is_array($extraData['lib_cards'])) {
+                foreach ($extraData['lib_cards'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['lib_cards'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['lib_cards'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
+            if (!isset($extraData['lib_rules'])) {
+                $extraData['lib_rules'] = [];
+            } elseif (is_array($extraData['lib_rules'])) {
+                foreach ($extraData['lib_rules'] as $k => $v) {
+                    if (!empty($v['text'])) {
+                        $extraData['lib_rules'][$k]['text_en'] = $this->translationService->translate($v['text']);
+                    }
+                }
+            }
+            if (!isset($extraData['lib_procs'])) {
+                $extraData['lib_procs'] = [];
+            } elseif (is_array($extraData['lib_procs'])) {
+                foreach ($extraData['lib_procs'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['lib_procs'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['lib_procs'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
         }
 
         if (!empty($extraData['jadwal_kunjungan'])) {
@@ -179,6 +254,19 @@ class LayananPublikController extends Controller
                 }
             }
         }
+        if (!empty($extraData['consultation_form_fields']) && is_array($extraData['consultation_form_fields'])) {
+            foreach ($extraData['consultation_form_fields'] as $k => $v) {
+                if (!empty($v['label'])) {
+                    $extraData['consultation_form_fields'][$k]['label_en'] = $this->translationService->translate($v['label']);
+                }
+                if (!empty($v['options'])) {
+                    $extraData['consultation_form_fields'][$k]['options_en'] = $this->translationService->translate($v['options']);
+                }
+                if (!empty($v['placeholder'])) {
+                    $extraData['consultation_form_fields'][$k]['placeholder_en'] = $this->translationService->translate($v['placeholder']);
+                }
+            }
+        }
 
         if (!empty($extraData['title_jadwal'])) {
             $extraData['title_jadwal_en'] = $this->translationService->translate($extraData['title_jadwal']);
@@ -197,6 +285,9 @@ class LayananPublikController extends Controller
         }
         if (isset($extraData['show_form'])) {
             $extraData['show_form'] = (int) $extraData['show_form'];
+        }
+        if (isset($extraData['show_consultation_form'])) {
+            $extraData['show_consultation_form'] = (int) $extraData['show_consultation_form'];
         }
         if (isset($extraData['auto_today_date'])) {
             $extraData['auto_today_date'] = (int) $extraData['auto_today_date'];
@@ -309,6 +400,54 @@ class LayananPublikController extends Controller
             unset($extraData['statis_indirect_pdf']);
         }
 
+        if ($request->hasFile('extra_data_lib_pdf')) {
+            if (isset($layananPublik->extra_data['lib_pdf'])) {
+                Storage::disk('public')->delete($layananPublik->extra_data['lib_pdf']);
+            }
+            $extraData['lib_pdf'] = $request->file('extra_data_lib_pdf')->store('features/layanan_publik/files', 'public');
+        } elseif ($request->has('extra_data.lib_pdf')) {
+            $extraData['lib_pdf'] = $request->input('extra_data.lib_pdf');
+        } elseif (isset($layananPublik->extra_data['lib_pdf'])) {
+            Storage::disk('public')->delete($layananPublik->extra_data['lib_pdf']);
+            unset($extraData['lib_pdf']);
+        }
+
+        $oldLibPhotos = $layananPublik->extra_data['lib_photos'] ?? [];
+        if (!is_array($oldLibPhotos)) {
+            $oldLibPhotos = [];
+        }
+        if (isset($layananPublik->extra_data['lib_photo1']) && !in_array($layananPublik->extra_data['lib_photo1'], $oldLibPhotos)) {
+            $oldLibPhotos[] = $layananPublik->extra_data['lib_photo1'];
+        }
+        if (isset($layananPublik->extra_data['lib_photo2']) && !in_array($layananPublik->extra_data['lib_photo2'], $oldLibPhotos)) {
+            $oldLibPhotos[] = $layananPublik->extra_data['lib_photo2'];
+        }
+
+        $existingLibPhotos = $request->input('extra_data.existing_lib_photos', []);
+        if (!is_array($existingLibPhotos)) {
+            $existingLibPhotos = [];
+        }
+
+        foreach ($oldLibPhotos as $oldPhoto) {
+            if (!in_array($oldPhoto, $existingLibPhotos)) {
+                Storage::disk('public')->delete($oldPhoto);
+            }
+        }
+
+        $libPhotos = $existingLibPhotos;
+        if ($request->hasFile('extra_data_lib_photos')) {
+            foreach ($request->file('extra_data_lib_photos') as $photo) {
+                $libPhotos[] = $photo->store('features/layanan_publik/photos', 'public');
+            }
+        }
+
+        if (!empty($libPhotos)) {
+            $extraData['lib_photos'] = $libPhotos;
+        } else {
+            unset($extraData['lib_photos']);
+        }
+        unset($extraData['lib_photo1'], $extraData['lib_photo2']);
+
         if ($validated['type'] === 'laraska') {
             if (!isset($extraData['laraska_steps'])) {
                 $extraData['laraska_steps'] = [];
@@ -366,6 +505,69 @@ class LayananPublikController extends Controller
                     }
                 }
             }
+        } elseif ($validated['type'] === 'konsultasi') {
+            $konsultasiFields = [
+                'consultation_desc', 'consultation_form_title', 'consultation_form_send', 'consultation_success'
+            ];
+            foreach ($konsultasiFields as $kf) {
+                if (!empty($extraData[$kf])) {
+                    $extraData[$kf . '_en'] = $this->translationService->translate($extraData[$kf]);
+                }
+            }
+        } elseif ($validated['type'] === 'perpustakaan') {
+            $libFields = [
+                'lib_obj1', 'lib_obj2', 'lib_obj3', 'lib_visit_btn',
+                'lib_card1_title', 'lib_card1_desc', 'lib_card2_title', 'lib_card2_desc', 'lib_card3_title', 'lib_card3_desc',
+                'lib_hours', 'lib_rule1', 'lib_rule2', 'lib_rule3',
+                'lib_proc_title', 'lib_proc1_title', 'lib_proc1_desc', 'lib_proc2_title', 'lib_proc2_desc', 'lib_proc3_title', 'lib_proc3_desc', 'lib_proc4_title', 'lib_proc4_desc'
+            ];
+            foreach ($libFields as $lf) {
+                if (!empty($extraData[$lf])) {
+                    $extraData[$lf . '_en'] = $this->translationService->translate($extraData[$lf]);
+                }
+            }
+            if (!isset($extraData['lib_objs'])) {
+                $extraData['lib_objs'] = [];
+            } elseif (is_array($extraData['lib_objs'])) {
+                foreach ($extraData['lib_objs'] as $k => $v) {
+                    if (!empty($v['text'])) {
+                        $extraData['lib_objs'][$k]['text_en'] = $this->translationService->translate($v['text']);
+                    }
+                }
+            }
+            if (!isset($extraData['lib_cards'])) {
+                $extraData['lib_cards'] = [];
+            } elseif (is_array($extraData['lib_cards'])) {
+                foreach ($extraData['lib_cards'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['lib_cards'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['lib_cards'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
+            if (!isset($extraData['lib_rules'])) {
+                $extraData['lib_rules'] = [];
+            } elseif (is_array($extraData['lib_rules'])) {
+                foreach ($extraData['lib_rules'] as $k => $v) {
+                    if (!empty($v['text'])) {
+                        $extraData['lib_rules'][$k]['text_en'] = $this->translationService->translate($v['text']);
+                    }
+                }
+            }
+            if (!isset($extraData['lib_procs'])) {
+                $extraData['lib_procs'] = [];
+            } elseif (is_array($extraData['lib_procs'])) {
+                foreach ($extraData['lib_procs'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['lib_procs'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['lib_procs'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
         }
 
         if (!empty($extraData['jadwal_kunjungan'])) {
@@ -412,6 +614,19 @@ class LayananPublikController extends Controller
                 }
             }
         }
+        if (!empty($extraData['consultation_form_fields']) && is_array($extraData['consultation_form_fields'])) {
+            foreach ($extraData['consultation_form_fields'] as $k => $v) {
+                if (!empty($v['label'])) {
+                    $extraData['consultation_form_fields'][$k]['label_en'] = $this->translationService->translate($v['label']);
+                }
+                if (!empty($v['options'])) {
+                    $extraData['consultation_form_fields'][$k]['options_en'] = $this->translationService->translate($v['options']);
+                }
+                if (!empty($v['placeholder'])) {
+                    $extraData['consultation_form_fields'][$k]['placeholder_en'] = $this->translationService->translate($v['placeholder']);
+                }
+            }
+        }
 
         if (!empty($extraData['title_jadwal'])) {
             $extraData['title_jadwal_en'] = $this->translationService->translate($extraData['title_jadwal']);
@@ -430,6 +645,9 @@ class LayananPublikController extends Controller
         }
         if (isset($extraData['show_form'])) {
             $extraData['show_form'] = (int) $extraData['show_form'];
+        }
+        if (isset($extraData['show_consultation_form'])) {
+            $extraData['show_consultation_form'] = (int) $extraData['show_consultation_form'];
         }
         if (isset($extraData['auto_today_date'])) {
             $extraData['auto_today_date'] = (int) $extraData['auto_today_date'];
@@ -470,8 +688,16 @@ class LayananPublikController extends Controller
             }
         }
 
-        if (isset($layananPublik->extra_data['file'])) {
-            Storage::disk('public')->delete($layananPublik->extra_data['file']);
+        $fileKeys = ['file', 'statis_direct_pdf', 'statis_indirect_pdf', 'lib_pdf', 'lib_photo1', 'lib_photo2'];
+        foreach ($fileKeys as $fk) {
+            if (isset($layananPublik->extra_data[$fk])) {
+                Storage::disk('public')->delete($layananPublik->extra_data[$fk]);
+            }
+        }
+        if (isset($layananPublik->extra_data['lib_photos']) && is_array($layananPublik->extra_data['lib_photos'])) {
+            foreach ($layananPublik->extra_data['lib_photos'] as $lp) {
+                Storage::disk('public')->delete($lp);
+            }
         }
 
         $this->deleteAndShiftOrder($layananPublik, ['feature_id' => $feature->id]);

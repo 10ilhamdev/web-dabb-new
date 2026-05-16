@@ -69,6 +69,61 @@ function layananPublikForm(initialType = 'kunjungan', initialExtraData = null) {
             { id: 'visit_purpose', label: 'Tujuan Kunjungan', type: 'select', required: true, options: 'Edukasi,Penelitian,Kunjungan Kerja,Lainnya' },
             { id: 'req_letter', label: 'Surat Permohonan', type: 'file', required: false, options: 'Format: pdf/doc, max 2MB' }
         ],
+        consultation_desc: initialExtraData?.consultation_desc || "Kami melayani berbagai jenis konsultasi kearsipan, meliputi: Konsultasi Pengelolaan Arsip Dinamis (Penciptaan, Penggunaan, Pemeliharaan, dan Penyusutan), Konsultasi Pengolahan Arsip Statis, serta Konsultasi Alih Media dan Digitalisasi Arsip.",
+        show_consultation_form: initialExtraData?.show_consultation_form ?? 1,
+        consultation_form_title: initialExtraData?.consultation_form_title || "Formulir Konsultasi Kearsipan",
+        consultation_form_send: initialExtraData?.consultation_form_send || "Kirim Permintaan Konsultasi",
+        consultation_success: initialExtraData?.consultation_success || "Permintaan konsultasi Anda telah terkirim. Petugas kami akan menghubungi Anda melalui email yang dicantumkan.",
+        consultation_form_fields: initialExtraData?.consultation_form_fields || [
+            { id: 'name', label: 'Nama Lengkap', type: 'text', required: true, options: '', placeholder: '' },
+            { id: 'institution', label: 'Instansi / Lembaga / Pribadi', type: 'text', required: true, options: '', placeholder: '' },
+            { id: 'email', label: 'Alamat Email', type: 'email', required: true, options: '', placeholder: '' },
+            { id: 'detail', label: 'Rincian Konsultasi', type: 'textarea', required: true, options: '', placeholder: 'Tuliskan rincian atau topik konsultasi yang ingin Anda tanyakan...' }
+        ],
+        lib_objs: initialExtraData?.lib_objs || (initialExtraData?.lib_obj1 !== undefined ? [
+            { text: initialExtraData.lib_obj1 },
+            { text: initialExtraData.lib_obj2 || '' },
+            { text: initialExtraData.lib_obj3 || '' }
+        ].filter(o => o.text !== '') : [
+            { text: "1. Mempermudah akses informasi terkait arsip dan sejarah." },
+            { text: "2. Mendukung kegiatan penelitian dan penulisan ilmiah." },
+            { text: "3. Menjadi sumber referensi dalam pengelolaan dan pelestarian arsip." }
+        ]),
+        lib_visit_btn: initialExtraData?.lib_visit_btn ?? "Kunjungi Website Perpustakaan",
+        lib_redirect_url: initialExtraData?.lib_redirect_url ?? "",
+        lib_cards: initialExtraData?.lib_cards || (initialExtraData?.lib_card1_title !== undefined ? [
+            { title: initialExtraData.lib_card1_title, desc: initialExtraData.lib_card1_desc || '' },
+            { title: initialExtraData.lib_card2_title || '', desc: initialExtraData.lib_card2_desc || '' },
+            { title: initialExtraData.lib_card3_title || '', desc: initialExtraData.lib_card3_desc || '' }
+        ].filter(c => c.title !== '' || c.desc !== '') : [
+            { title: "Koleksi Buku", desc: "Tersedia ribuan koleksi buku kearsipan, sejarah, dan literatur umum." },
+            { title: "Akses Digital", desc: "Akses e-book, jurnal ilmiah, dan artikel digital terintegrasi." },
+            { title: "Ruang Baca dan Belajar", desc: "Ruang ber-AC yang nyaman dengan WiFi gratis untuk pemustaka." }
+        ]),
+        lib_hours: initialExtraData?.lib_hours ?? "Senin - Kamis : 08:30 - 15:00 WIB\nJumat : 08:30 - 15:30 WIB",
+        lib_rules: initialExtraData?.lib_rules || (initialExtraData?.lib_rule1 !== undefined ? [
+            { text: initialExtraData.lib_rule1 },
+            { text: initialExtraData.lib_rule2 || '' },
+            { text: initialExtraData.lib_rule3 || '' }
+        ].filter(r => r.text !== '') : [
+            { text: "1. Dilarang membawa makanan/minuman ke dalam ruang baca." },
+            { text: "2. Tidak membawa tas ke meja baca (tersedia loker penyimpanan)." },
+            { text: "3. Wajib menjaga ketenangan dan kebersihan perpustakaan." }
+        ]),
+        lib_proc_title: initialExtraData?.lib_proc_title ?? "PROSEDUR LAYANAN PERPUSTAKAAN",
+        lib_procs: initialExtraData?.lib_procs || (initialExtraData?.lib_proc1_title !== undefined ? [
+            { title: initialExtraData.lib_proc1_title, desc: initialExtraData.lib_proc1_desc || '' },
+            { title: initialExtraData.lib_proc2_title || '', desc: initialExtraData.lib_proc2_desc || '' },
+            { title: initialExtraData.lib_proc3_title || '', desc: initialExtraData.lib_proc3_desc || '' },
+            { title: initialExtraData.lib_proc4_title || '', desc: initialExtraData.lib_proc4_desc || '' }
+        ].filter(p => p.title !== '' || p.desc !== '') : [
+            { title: "1. Registrasi / Login Akun", desc: "Pengunjung melakukan pendaftaran atau masuk menggunakan akun layanan." },
+            { title: "2. Mengisi Buku Tamu", desc: "Pengunjung wajib mengisi buku tamu sebagai data administrasi pemustaka." },
+            { title: "3. Menelusuri Katalog", desc: "Pengunjung dapat mencari dan memilih koleksi yang dibutuhkan melalui katalog." },
+            { title: "4. Membaca di Ruang Baca", desc: "Koleksi yang terpilih dapat dibaca di ruang baca yang telah disediakan." }
+        ]),
+        lib_pdf_name: initialExtraData?.lib_pdf_name || "",
+        lib_photos_names: initialExtraData?.lib_photos_names || "",
 
         toggleShow(field) {
             this[field] = this[field] == 1 ? 0 : 1;
@@ -132,6 +187,36 @@ function layananPublikForm(initialType = 'kunjungan', initialExtraData = null) {
         },
         removeFormField(index) {
             this.form_fields.splice(index, 1);
+        },
+        addConsultationFormField() {
+            this.consultation_form_fields.push({ id: 'field_' + Date.now(), label: 'Label Baru', type: 'text', required: false, options: '', placeholder: '' });
+        },
+        removeConsultationFormField(index) {
+            this.consultation_form_fields.splice(index, 1);
+        },
+        addLibObj() {
+            this.lib_objs.push({ text: `${this.lib_objs.length + 1}. Poin Tujuan Baru` });
+        },
+        removeLibObj(index) {
+            this.lib_objs.splice(index, 1);
+        },
+        addLibCard() {
+            this.lib_cards.push({ title: `Judul Fasilitas ${this.lib_cards.length + 1}`, desc: '' });
+        },
+        removeLibCard(index) {
+            this.lib_cards.splice(index, 1);
+        },
+        addLibRule() {
+            this.lib_rules.push({ text: `${this.lib_rules.length + 1}. Aturan Baru` });
+        },
+        removeLibRule(index) {
+            this.lib_rules.splice(index, 1);
+        },
+        addLibProc() {
+            this.lib_procs.push({ title: `${this.lib_procs.length + 1}. Prosedur Baru`, desc: '' });
+        },
+        removeLibProc(index) {
+            this.lib_procs.splice(index, 1);
         },
 
         handleFiles(event) {

@@ -521,6 +521,270 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- KONSULTASI Settings (Only visible when type === 'konsultasi') --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'konsultasi'">
+                    <div class="border-b border-gray-100 pb-4 mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Pengaturan Konsultasi Kearsipan</h2>
+                        <p class="text-xs text-gray-500">Atur deskripsi layanan dan konfigurasi formulir konsultasi kearsipan yang ditampilkan di halaman guest.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-1">Deskripsi Layanan Konsultasi</label>
+                        <textarea name="extra_data[consultation_desc]" x-model="consultation_desc" rows="4" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <h3 class="text-sm font-bold text-gray-800">Pengaturan Umum Formulir Konsultasi</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Judul Formulir</label>
+                                <input type="text" name="extra_data[consultation_form_title]" x-model="consultation_form_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Label Tombol Kirim</label>
+                                <input type="text" name="extra_data[consultation_form_send]" x-model="consultation_form_send" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Pesan Sukses (setelah submit)</label>
+                                <input type="text" name="extra_data[consultation_success]" x-model="consultation_success" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Pengaturan Daftar Kolom Formulir Konsultasi --}}
+                    <div class="pt-6 border-t border-gray-100">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-4">
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-sm font-bold text-gray-800">Pengaturan Daftar Kolom Formulir Konsultasi</h3>
+                                <input type="hidden" name="extra_data[show_consultation_form]" :value="show_consultation_form">
+                                <button type="button" @click="toggleShow('show_consultation_form')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors" :class="show_consultation_form == 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'" :title="show_consultation_form == 1 ? '{{ __('cms.layanan_publik.btn_hide_guest') }}' : '{{ __('cms.layanan_publik.btn_show_guest') }}'">
+                                    <template x-if="show_consultation_form == 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </template>
+                                    <template x-if="show_consultation_form != 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                                    </template>
+                                    <span x-text="show_consultation_form == 1 ? '{{ __('cms.layanan_publik.status_show') }}' : '{{ __('cms.layanan_publik.status_hide') }}'"></span>
+                                </button>
+                            </div>
+                            <button type="button" @click="addConsultationFormField()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                {{ __('cms.layanan_publik.btn_add_form_field') }}
+                            </button>
+                        </div>
+
+                        <template x-for="(item, index) in consultation_form_fields" :key="index">
+                            <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 relative group">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_field_id') }}</label>
+                                        <input type="text" :name="`extra_data[consultation_form_fields][${index}][id]`" x-model="item.id" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-mono bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_field_label') }}</label>
+                                        <input type="text" :name="`extra_data[consultation_form_fields][${index}][label]`" x-model="item.label" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_field_type') }}</label>
+                                        <select :name="`extra_data[consultation_form_fields][${index}][type]`" x-model="item.type" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                            <option value="text">{{ __('cms.layanan_publik.type_text') }}</option>
+                                            <option value="email">{{ __('cms.layanan_publik.type_email') }}</option>
+                                            <option value="number">{{ __('cms.layanan_publik.type_number') }}</option>
+                                            <option value="date">{{ __('cms.layanan_publik.type_date') }}</option>
+                                            <option value="select">{{ __('cms.layanan_publik.type_select') }}</option>
+                                            <option value="file">{{ __('cms.layanan_publik.type_file') }}</option>
+                                            <option value="textarea">{{ __('cms.layanan_publik.type_textarea') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-6">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" :name="`extra_data[consultation_form_fields][${index}][required]`" value="1" x-model="item.required" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
+                                            <span class="ml-2 text-sm text-gray-700 font-medium">{{ __('cms.layanan_publik.label_required') }}</span>
+                                        </label>
+                                        <button type="button" @click="removeConsultationFormField(index)" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-sm font-medium transition-colors">{{ __('cms.layanan_publik.btn_delete') }}</button>
+                                    </div>
+                                </div>
+                                <div class="mt-3" x-show="item.type === 'select' || item.type === 'file'">
+                                    <label class="block text-xs text-gray-500 mb-1" x-text="item.type === 'select' ? '{{ __('cms.layanan_publik.label_options_select') }}' : '{{ __('cms.layanan_publik.label_options_file') }}'"></label>
+                                    <input type="text" :name="`extra_data[consultation_form_fields][${index}][options]`" x-model="item.options" :placeholder="item.type === 'select' ? '{{ __('cms.layanan_publik.placeholder_options_select') }}' : '{{ __('cms.layanan_publik.placeholder_options_file') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                </div>
+                                <div class="mt-3" x-show="item.type === 'text' || item.type === 'textarea' || item.type === 'email' || item.type === 'number'">
+                                    <label class="block text-xs text-gray-500 mb-1">Placeholder</label>
+                                    <input type="text" :name="`extra_data[consultation_form_fields][${index}][placeholder]`" x-model="item.placeholder" placeholder="Contoh isian..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                {{-- PERPUSTAKAAN Settings (Only visible when type === 'perpustakaan') --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'perpustakaan'">
+                    <div class="border-b border-gray-100 pb-4 mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Pengaturan Layanan Perpustakaan</h2>
+                        <p class="text-xs text-gray-500">Atur tujuan, fasilitas, waktu pelayanan, tata tertib, prosedur, serta file panduan perpustakaan.</p>
+                    </div>
+
+                    {{-- 1. Tujuan --}}
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-gray-800">Tujuan Perpustakaan</h3>
+                            <button type="button" @click="addLibObj()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Tambah Poin Tujuan
+                            </button>
+                        </div>
+                        <div class="space-y-3">
+                            <template x-for="(obj, index) in lib_objs" :key="index">
+                                <div class="flex items-start gap-2">
+                                    <textarea :name="'extra_data[lib_objs]['+index+'][text]'" x-model="obj.text" rows="2" placeholder="Tulis poin tujuan..." class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                    <button type="button" @click="removeLibObj(index)" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors mt-0.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- 2. Tombol Kunjungan Website --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-3">
+                        <h3 class="text-sm font-bold text-gray-800">Tombol Kunjungi Website Perpustakaan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Label Tombol</label>
+                                <input type="text" name="extra_data[lib_visit_btn]" x-model="lib_visit_btn" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">URL Website Perpustakaan (opsional)</label>
+                                <input type="text" name="extra_data[lib_redirect_url]" x-model="lib_redirect_url" placeholder="https://..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <span class="text-[10px] text-gray-500 block mt-0.5">Jika kosong, akan memunculkan popup info default.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 3. Fasilitas / Layanan (Cards) --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-gray-800">Fasilitas & Layanan Perpustakaan (Cards)</h3>
+                            <button type="button" @click="addLibCard()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Tambah Fasilitas
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="(card, index) in lib_cards" :key="index">
+                                <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'Fasilitas ' + (index + 1)"></label>
+                                        <button type="button" @click="removeLibCard(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Fasilitas</label>
+                                        <input type="text" :name="'extra_data[lib_cards]['+index+'][title]'" x-model="card.title" placeholder="Judul..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi Fasilitas</label>
+                                        <textarea :name="'extra_data[lib_cards]['+index+'][desc]'" x-model="card.desc" rows="2" placeholder="Deskripsi..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- 4. Waktu Pelayanan & Tata Tertib --}}
+                    <div class="pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">Waktu Pelayanan</label>
+                            <textarea name="extra_data[lib_hours]" x-model="lib_hours" rows="4" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-bold text-gray-800">Tata Tertib (Poin-poin)</label>
+                                <button type="button" @click="addLibRule()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    Tambah Aturan
+                                </button>
+                            </div>
+                            <div class="space-y-2.5">
+                                <template x-for="(rule, index) in lib_rules" :key="index">
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" :name="'extra_data[lib_rules]['+index+'][text]'" x-model="rule.text" placeholder="Aturan..." class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <button type="button" @click="removeLibRule(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 5. Foto Perpustakaan --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <h3 class="text-sm font-bold text-gray-800">Foto Fasilitas Perpustakaan</h3>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Pilih Beberapa Foto (Bisa lebih dari 1)</label>
+                            <div class="flex items-center gap-2">
+                                <div class="relative overflow-hidden shrink-0">
+                                    <input type="file" name="extra_data_lib_photos[]" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="lib_photos_names = Array.from($event.target.files).map(f => f.name).join(', ')">
+                                    <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
+                                        Choose Images
+                                    </button>
+                                </div>
+                                <input type="text" name="extra_data[lib_photos_names]" x-model="lib_photos_names" placeholder="Nama file (otomatis)" readonly class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-600 truncate">
+                            </div>
+                            <span class="text-[10px] text-gray-500 block mt-1">Anda dapat memilih banyak foto sekaligus saat jendela pemilihan file terbuka.</span>
+                        </div>
+                    </div>
+
+                    {{-- 6. Prosedur Infographic --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-sm font-bold text-gray-800">Judul Alur Prosedur & Tahapan</label>
+                            <button type="button" @click="addLibProc()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Tambah Prosedur
+                            </button>
+                        </div>
+                        <div>
+                            <input type="text" name="extra_data[lib_proc_title]" x-model="lib_proc_title" placeholder="Judul utama prosedur..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mb-4">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="(proc, index) in lib_procs" :key="index">
+                                <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'Prosedur ' + (index + 1)"></label>
+                                        <button type="button" @click="removeLibProc(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Prosedur</label>
+                                        <input type="text" :name="'extra_data[lib_procs]['+index+'][title]'" x-model="proc.title" placeholder="Judul..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi Prosedur</label>
+                                        <textarea :name="'extra_data[lib_procs]['+index+'][desc]'" x-model="proc.desc" rows="2" placeholder="Deskripsi..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- 7. File Panduan PDF Perpustakaan --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <label class="block text-xs text-gray-500 mb-1">File Panduan PDF Perpustakaan</label>
+                        <div class="flex items-center gap-2">
+                            <div class="relative overflow-hidden shrink-0">
+                                <input type="file" name="extra_data_lib_pdf" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="lib_pdf_name = $event.target.files[0] ? $event.target.files[0].name : lib_pdf_name">
+                                <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
+                                    Choose File
+                                </button>
+                            </div>
+                            <input type="text" name="extra_data[lib_pdf_name]" x-model="lib_pdf_name" placeholder="Nama file (otomatis)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- Right: Sidebar Info --}}

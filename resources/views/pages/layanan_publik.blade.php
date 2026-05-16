@@ -936,7 +936,7 @@
                                 </a>
                             @endif
 
-                        @elseif (str_contains($matchTitle, 'statis') || str_contains($matchTitle, 'arsip'))
+                        @elseif (str_contains($matchTitle, 'statis') || (str_contains($matchTitle, 'arsip') && !str_contains($matchTitle, 'konsultasi')))
                             {{-- Layout 3: Layanan Arsip Statis --}}
                             <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
                             <div class="service-box">
@@ -1105,118 +1105,347 @@
                             {{-- Layout 4: Konsultasi Kearsipan --}}
                             <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_types') }}</h3>
                             <div class="service-box">
-                                <p>{{ __('home.layanan_publik.consultation_desc') }}</p>
+                                @if($currentPage && is_array($currentPage->extra_data) && (array_key_exists('consultation_desc', $currentPage->extra_data) || array_key_exists('consultation_desc_en', $currentPage->extra_data)))
+                                    {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_desc_en'] ?? $currentPage->extra_data['consultation_desc'] ?? '') : ($currentPage->extra_data['consultation_desc'] ?? ''))) !!}
+                                @else
+                                    <p>{{ __('home.layanan_publik.consultation_desc') }}</p>
+                                @endif
                             </div>
 
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_form') }}</h3>
-                            <form action="#" method="POST" class="service-form" onsubmit="event.preventDefault(); Swal.fire({ title: 'Berhasil!', text: '{{ __('home.layanan_publik.consultation_success') }}', icon: 'success', confirmButtonColor: '#174E93' });">
-                                <div class="form-group">
-                                    <label class="form-label">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
-                                    <input type="text" class="form-input" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
-                                    <input type="text" class="form-input" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
-                                    <input type="email" class="form-input" required>
-                                </div>
-                                <div class="form-group" style="align-items: start;">
-                                    <label class="form-label">{{ __('home.layanan_publik.consultation_form_detail') }} <span class="required">*</span></label>
-                                    <textarea class="form-textarea" required placeholder="{{ __('home.layanan_publik.consultation_form_placeholder') }}"></textarea>
-                                </div>
-                                <button type="submit" class="btn-submit">{{ __('home.layanan_publik.consultation_form_send') }}</button>
-                            </form>
+                            @if(!isset($currentPage->extra_data['show_consultation_form']) || $currentPage->extra_data['show_consultation_form'] == 1)
+                                @php
+                                    $formTitle = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['consultation_form_title'])
+                                        ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_form_title_en'] ?? $currentPage->extra_data['consultation_form_title']) : $currentPage->extra_data['consultation_form_title'])
+                                        : __('home.layanan_publik.consultation_form');
+
+                                    $formSend = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['consultation_form_send'])
+                                        ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_form_send_en'] ?? $currentPage->extra_data['consultation_form_send']) : $currentPage->extra_data['consultation_form_send'])
+                                        : __('home.layanan_publik.consultation_form_send');
+
+                                    $formSuccess = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['consultation_success'])
+                                        ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_success_en'] ?? $currentPage->extra_data['consultation_success']) : $currentPage->extra_data['consultation_success'])
+                                        : __('home.layanan_publik.consultation_success');
+                                @endphp
+
+                                <h3 class="service-subtitle">{{ $formTitle }}</h3>
+                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); Swal.fire({ title: '{{ app()->getLocale() == 'en' ? 'Success!' : 'Berhasil!' }}', text: '{{ addslashes($formSuccess) }}', icon: 'success', confirmButtonColor: '#174E93' });">
+                                    @if(!empty($currentPage->extra_data['consultation_form_fields']) && is_array($currentPage->extra_data['consultation_form_fields']))
+                                        @foreach($currentPage->extra_data['consultation_form_fields'] as $field)
+                                            @php
+                                                $fieldId = 'consult_' . ($field['id'] ?? uniqid());
+                                                $fieldLabel = app()->getLocale() === 'en' && !empty($field['label_en']) ? $field['label_en'] : ($field['label'] ?? '');
+                                                $fieldType = $field['type'] ?? 'text';
+                                                $isRequired = !empty($field['required']) && $field['required'] !== 'false' && $field['required'] !== false && $field['required'] != 0;
+                                                $placeholder = app()->getLocale() === 'en' && !empty($field['placeholder_en']) ? $field['placeholder_en'] : ($field['placeholder'] ?? '');
+                                            @endphp
+                                            <div class="form-group" @if($fieldType === 'textarea') style="align-items: start;" @endif>
+                                                <label class="form-label" for="{{ $fieldId }}">{{ $fieldLabel }} @if($isRequired)<span class="required">*</span>@endif</label>
+                                                @if($fieldType === 'textarea')
+                                                    <textarea id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-textarea" rows="3" @if($isRequired) required @endif placeholder="{{ $placeholder }}"></textarea>
+                                                @elseif($fieldType === 'select')
+                                                    @php
+                                                        $optionsStr = app()->getLocale() === 'en' && !empty($field['options_en']) ? $field['options_en'] : ($field['options'] ?? '');
+                                                        $optionsArr = array_filter(array_map('trim', explode(',', $optionsStr)));
+                                                    @endphp
+                                                    <select id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-select" @if($isRequired) required @endif>
+                                                        <option value="">{{ __('home.layanan_publik.form_select') }}</option>
+                                                        @foreach($optionsArr as $opt)
+                                                            <option value="{{ $opt }}">{{ $opt }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @elseif($fieldType === 'file')
+                                                    <div>
+                                                        <div class="form-file-wrap">
+                                                            <button type="button" class="btn-choose-file" onclick="document.getElementById('{{ $fieldId }}').click()">{{ __('home.layanan_publik.choose_file') }}</button>
+                                                            <span id="{{ $fieldId }}_text">{{ __('home.layanan_publik.no_file') }}</span>
+                                                            <input type="file" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="hidden" onchange="document.getElementById('{{ $fieldId }}_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'" @if($isRequired) required @endif>
+                                                        </div>
+                                                        @if(!empty($field['options']))
+                                                            <div class="file-hint">{{ app()->getLocale() === 'en' && !empty($field['options_en']) ? $field['options_en'] : $field['options'] }}</div>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <input type="{{ $fieldType }}" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" @if($isRequired) required @endif @if($fieldType === 'number') min="1" @endif placeholder="{{ $placeholder }}">
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        {{-- Fallback to default static form if no dynamic fields configured --}}
+                                        <div class="form-group">
+                                            <label class="form-label">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
+                                            <input type="text" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
+                                            <input type="text" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
+                                            <input type="email" class="form-input" required>
+                                        </div>
+                                        <div class="form-group" style="align-items: start;">
+                                            <label class="form-label">{{ __('home.layanan_publik.consultation_form_detail') }} <span class="required">*</span></label>
+                                            <textarea class="form-textarea" required placeholder="{{ __('home.layanan_publik.consultation_form_placeholder') }}"></textarea>
+                                        </div>
+                                    @endif
+                                    <button type="submit" class="btn-submit">{{ $formSend }}</button>
+                                </form>
+                            @endif
 
                         @else
                             {{-- Layout 5: Perpustakaan --}}
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.objectives') }}</h3>
-                            <div class="service-box">
-                                <p>{{ __('home.layanan_publik.lib_obj1') }}</p>
-                                <p>{{ __('home.layanan_publik.lib_obj2') }}</p>
-                                <p>{{ __('home.layanan_publik.lib_obj3') }}</p>
-                            </div>
+                            @php
+                                $hasLibData = $currentPage && is_array($currentPage->extra_data) && (array_key_exists('lib_obj1', $currentPage->extra_data) || array_key_exists('lib_objs', $currentPage->extra_data));
+                                $libObjs = [];
+                                if ($currentPage && is_array($currentPage->extra_data)) {
+                                    if (!empty($currentPage->extra_data['lib_objs']) && is_array($currentPage->extra_data['lib_objs'])) {
+                                        foreach ($currentPage->extra_data['lib_objs'] as $obj) {
+                                            $text = app()->getLocale() == 'en' ? ($obj['text_en'] ?? $obj['text'] ?? '') : ($obj['text'] ?? '');
+                                            if (!empty($text)) {
+                                                $libObjs[] = $text;
+                                            }
+                                        }
+                                    } else {
+                                        $o1 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_obj1_en'] ?? $currentPage->extra_data['lib_obj1'] ?? '') : ($currentPage->extra_data['lib_obj1'] ?? '');
+                                        $o2 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_obj2_en'] ?? $currentPage->extra_data['lib_obj2'] ?? '') : ($currentPage->extra_data['lib_obj2'] ?? '');
+                                        $o3 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_obj3_en'] ?? $currentPage->extra_data['lib_obj3'] ?? '') : ($currentPage->extra_data['lib_obj3'] ?? '');
+                                        if ($o1) $libObjs[] = $o1;
+                                        if ($o2) $libObjs[] = $o2;
+                                        if ($o3) $libObjs[] = $o3;
+                                    }
+                                }
+                                if (empty($libObjs) && !$hasLibData) {
+                                    $libObjs = [__('home.layanan_publik.lib_obj1'), __('home.layanan_publik.lib_obj2'), __('home.layanan_publik.lib_obj3')];
+                                }
+                            @endphp
+                            @if(!empty($libObjs))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.objectives') }}</h3>
+                                <div class="service-box">
+                                    @foreach($libObjs as $objText)
+                                        <p>{{ $objText }}</p>
+                                    @endforeach
+                                </div>
+                            @endif
 
                             <div class="mb-8">
-                                <a href="#" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider" onclick="event.preventDefault(); Swal.fire({ title: 'Informasi', text: '{{ __('home.layanan_publik.lib_redirect') }}', icon: 'info', confirmButtonColor: '#174E93' });">{{ __('home.layanan_publik.lib_visit_btn') }}</a>
+                                @php
+                                    $libBtn = $hasLibData ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_visit_btn_en'] ?? $currentPage->extra_data['lib_visit_btn'] ?? '') : ($currentPage->extra_data['lib_visit_btn'] ?? '')) : __('home.layanan_publik.lib_visit_btn');
+                                    $libUrl = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['lib_redirect_url']) ? $currentPage->extra_data['lib_redirect_url'] : '';
+                                @endphp
+                                @if($libBtn !== '')
+                                    @if(!empty($libUrl))
+                                        <a href="{{ $libUrl }}" target="_blank" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider">{{ $libBtn }}</a>
+                                    @else
+                                        <a href="#" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider" onclick="event.preventDefault(); Swal.fire({ title: 'Informasi', text: '{{ __('home.layanan_publik.lib_redirect') }}', icon: 'info', confirmButtonColor: '#174E93' });">{{ $libBtn }}</a>
+                                    @endif
+                                @endif
                             </div>
 
+                            @php
+                                $libCards = [];
+                                if ($currentPage && is_array($currentPage->extra_data)) {
+                                    if (!empty($currentPage->extra_data['lib_cards']) && is_array($currentPage->extra_data['lib_cards'])) {
+                                        foreach ($currentPage->extra_data['lib_cards'] as $card) {
+                                            $cTitle = app()->getLocale() == 'en' ? ($card['title_en'] ?? $card['title'] ?? '') : ($card['title'] ?? '');
+                                            $cDesc = app()->getLocale() == 'en' ? ($card['desc_en'] ?? $card['desc'] ?? '') : ($card['desc'] ?? '');
+                                            if (!empty($cTitle) || !empty($cDesc)) {
+                                                $libCards[] = ['title' => $cTitle, 'desc' => $cDesc];
+                                            }
+                                        }
+                                    } else {
+                                        $c1Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_card1_title_en'] ?? $currentPage->extra_data['lib_card1_title'] ?? '') : ($currentPage->extra_data['lib_card1_title'] ?? '');
+                                        $c1Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_card1_desc_en'] ?? $currentPage->extra_data['lib_card1_desc'] ?? '') : ($currentPage->extra_data['lib_card1_desc'] ?? '');
+                                        $c2Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_card2_title_en'] ?? $currentPage->extra_data['lib_card2_title'] ?? '') : ($currentPage->extra_data['lib_card2_title'] ?? '');
+                                        $c2Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_card2_desc_en'] ?? $currentPage->extra_data['lib_card2_desc'] ?? '') : ($currentPage->extra_data['lib_card2_desc'] ?? '');
+                                        $c3Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_card3_title_en'] ?? $currentPage->extra_data['lib_card3_title'] ?? '') : ($currentPage->extra_data['lib_card3_title'] ?? '');
+                                        $c3Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_card3_desc_en'] ?? $currentPage->extra_data['lib_card3_desc'] ?? '') : ($currentPage->extra_data['lib_card3_desc'] ?? '');
+                                        if ($c1Title || $c1Desc) $libCards[] = ['title' => $c1Title, 'desc' => $c1Desc];
+                                        if ($c2Title || $c2Desc) $libCards[] = ['title' => $c2Title, 'desc' => $c2Desc];
+                                        if ($c3Title || $c3Desc) $libCards[] = ['title' => $c3Title, 'desc' => $c3Desc];
+                                    }
+                                }
+                                if (empty($libCards) && !$hasLibData) {
+                                    $libCards = [
+                                        ['title' => __('home.layanan_publik.lib_card1_title'), 'desc' => __('home.layanan_publik.lib_card1_desc')],
+                                        ['title' => __('home.layanan_publik.lib_card2_title'), 'desc' => __('home.layanan_publik.lib_card2_desc')],
+                                        ['title' => __('home.layanan_publik.lib_card3_title'), 'desc' => __('home.layanan_publik.lib_card3_desc')],
+                                    ];
+                                }
+                                // Icons array for variety
+                                $cardIcons = [
+                                    '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',
+                                    '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13.5h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
+                                    '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>'
+                                ];
+                            @endphp
                             {{-- Cards Grid --}}
-                            <div class="cards-grid">
-                                <div class="service-card">
-                                    <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
-                                    <div class="card-info">
-                                        <h4>{{ __('home.layanan_publik.lib_card1_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_card1_desc') }}</p>
-                                    </div>
+                            @if(!empty($libCards))
+                                <div class="cards-grid">
+                                    @foreach($libCards as $index => $card)
+                                        @php $icon = $cardIcons[$index % count($cardIcons)]; @endphp
+                                        <div class="service-card">
+                                            <div class="card-icon">{!! $icon !!}</div>
+                                            <div class="card-info">
+                                                <h4>{{ $card['title'] }}</h4>
+                                                <p>{{ $card['desc'] }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <div class="service-card">
-                                    <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-                                    <div class="card-info">
-                                        <h4>{{ __('home.layanan_publik.lib_card2_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_card2_desc') }}</p>
-                                    </div>
-                                </div>
-                                <div class="service-card">
-                                    <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
-                                    <div class="card-info">
-                                        <h4>{{ __('home.layanan_publik.lib_card3_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_card3_desc') }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                            @endif
 
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
-                            <div class="service-box">
-                                {!! __('home.layanan_publik.statis_hours') !!}
-                            </div>
+                            @php
+                                $libHours = $hasLibData ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_hours_en'] ?? $currentPage->extra_data['lib_hours'] ?? '') : ($currentPage->extra_data['lib_hours'] ?? '')) : __('home.layanan_publik.statis_hours');
+                            @endphp
+                            @if($libHours !== '')
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
+                                <div class="service-box">
+                                    {!! nl2br(e($libHours)) !!}
+                                </div>
+                            @endif
 
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.rules') }}</h3>
-                            <div class="service-box">
-                                <p>{{ __('home.layanan_publik.lib_rule1') }}</p>
-                                <p>{{ __('home.layanan_publik.lib_rule2') }}</p>
-                                <p>{{ __('home.layanan_publik.lib_rule3') }}</p>
-                            </div>
+                            @php
+                                $libRules = [];
+                                if ($currentPage && is_array($currentPage->extra_data)) {
+                                    if (!empty($currentPage->extra_data['lib_rules']) && is_array($currentPage->extra_data['lib_rules'])) {
+                                        foreach ($currentPage->extra_data['lib_rules'] as $rule) {
+                                            $text = app()->getLocale() == 'en' ? ($rule['text_en'] ?? $rule['text'] ?? '') : ($rule['text'] ?? '');
+                                            if (!empty($text)) {
+                                                $libRules[] = $text;
+                                            }
+                                        }
+                                    } else {
+                                        $r1 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_rule1_en'] ?? $currentPage->extra_data['lib_rule1'] ?? '') : ($currentPage->extra_data['lib_rule1'] ?? '');
+                                        $r2 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_rule2_en'] ?? $currentPage->extra_data['lib_rule2'] ?? '') : ($currentPage->extra_data['lib_rule2'] ?? '');
+                                        $r3 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_rule3_en'] ?? $currentPage->extra_data['lib_rule3'] ?? '') : ($currentPage->extra_data['lib_rule3'] ?? '');
+                                        if ($r1) $libRules[] = $r1;
+                                        if ($r2) $libRules[] = $r2;
+                                        if ($r3) $libRules[] = $r3;
+                                    }
+                                }
+                                if (empty($libRules) && !$hasLibData) {
+                                    $libRules = [__('home.layanan_publik.lib_rule1'), __('home.layanan_publik.lib_rule2'), __('home.layanan_publik.lib_rule3')];
+                                }
+                            @endphp
+                            @if(!empty($libRules))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.rules') }}</h3>
+                                <div class="service-box">
+                                    @foreach($libRules as $ruleText)
+                                        <p>{{ $ruleText }}</p>
+                                    @endforeach
+                                </div>
+                            @endif
 
                             {{-- Photos Grid --}}
-                            <div class="grid grid-cols-2 gap-6 my-8">
-                                <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
-                                    <img src="/image/background.png" alt="{{ __('home.layanan_publik.lib_photo1') }}" class="w-full h-full object-cover">
-                                </div>
-                                <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
-                                    <img src="/image/background.png" alt="{{ __('home.layanan_publik.lib_photo2') }}" class="w-full h-full object-cover">
-                                </div>
-                            </div>
+                            @php
+                                $displayLibPhotos = [];
+                                if ($currentPage && is_array($currentPage->extra_data)) {
+                                    if (!empty($currentPage->extra_data['lib_photos']) && is_array($currentPage->extra_data['lib_photos'])) {
+                                        $displayLibPhotos = $currentPage->extra_data['lib_photos'];
+                                    } else {
+                                        if (!empty($currentPage->extra_data['lib_photo1'])) {
+                                            $displayLibPhotos[] = $currentPage->extra_data['lib_photo1'];
+                                        }
+                                        if (!empty($currentPage->extra_data['lib_photo2'])) {
+                                            $displayLibPhotos[] = $currentPage->extra_data['lib_photo2'];
+                                        }
+                                    }
+                                }
+                            @endphp
 
-                            {{-- Prosedur Infographic --}}
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.procedures') }}</h3>
-                            <div class="flowchart-box mb-4">
-                                <div class="flowchart-title">{{ __('home.layanan_publik.lib_proc_title') }}</div>
-                                <div class="flowchart-steps">
-                                    <div class="flow-step">
-                                        <h4>{{ __('home.layanan_publik.lib_proc1_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_proc1_desc') }}</p>
-                                    </div>
-                                    <div class="flow-step">
-                                        <h4>{{ __('home.layanan_publik.lib_proc2_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_proc2_desc') }}</p>
-                                    </div>
-                                    <div class="flow-step">
-                                        <h4>{{ __('home.layanan_publik.lib_proc3_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_proc3_desc') }}</p>
-                                    </div>
-                                    <div class="flow-step">
-                                        <h4>{{ __('home.layanan_publik.lib_proc4_title') }}</h4>
-                                        <p>{{ __('home.layanan_publik.lib_proc4_desc') }}</p>
+                            @if(!$hasLibData || !empty($displayLibPhotos))
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                                    @if(!empty($displayLibPhotos))
+                                        @php $totalPhotos = count($displayLibPhotos); @endphp
+                                        @foreach($displayLibPhotos as $photoPath)
+                                            <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100 group relative {{ $totalPhotos == 1 ? 'md:col-span-2' : '' }}">
+                                                <img src="{{ asset('storage/' . $photoPath) }}" alt="Fasilitas Perpustakaan" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
+                                            <img src="/image/background.png" alt="Fasilitas Perpustakaan" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
+                                            <img src="/image/background.png" alt="Fasilitas Perpustakaan" class="w-full h-full object-cover">
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @php
+                                $libProcTitle = $hasLibData ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc_title_en'] ?? $currentPage->extra_data['lib_proc_title'] ?? '') : ($currentPage->extra_data['lib_proc_title'] ?? '')) : __('home.layanan_publik.lib_proc_title');
+                                $libProcs = [];
+                                if ($currentPage && is_array($currentPage->extra_data)) {
+                                    if (!empty($currentPage->extra_data['lib_procs']) && is_array($currentPage->extra_data['lib_procs'])) {
+                                        foreach ($currentPage->extra_data['lib_procs'] as $proc) {
+                                            $pTitle = app()->getLocale() == 'en' ? ($proc['title_en'] ?? $proc['title'] ?? '') : ($proc['title'] ?? '');
+                                            $pDesc = app()->getLocale() == 'en' ? ($proc['desc_en'] ?? $proc['desc'] ?? '') : ($proc['desc'] ?? '');
+                                            if (!empty($pTitle) || !empty($pDesc)) {
+                                                $libProcs[] = ['title' => $pTitle, 'desc' => $pDesc];
+                                            }
+                                        }
+                                    } else {
+                                        $p1Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc1_title_en'] ?? $currentPage->extra_data['lib_proc1_title'] ?? '') : ($currentPage->extra_data['lib_proc1_title'] ?? '');
+                                        $p1Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc1_desc_en'] ?? $currentPage->extra_data['lib_proc1_desc'] ?? '') : ($currentPage->extra_data['lib_proc1_desc'] ?? '');
+                                        $p2Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc2_title_en'] ?? $currentPage->extra_data['lib_proc2_title'] ?? '') : ($currentPage->extra_data['lib_proc2_title'] ?? '');
+                                        $p2Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc2_desc_en'] ?? $currentPage->extra_data['lib_proc2_desc'] ?? '') : ($currentPage->extra_data['lib_proc2_desc'] ?? '');
+                                        $p3Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc3_title_en'] ?? $currentPage->extra_data['lib_proc3_title'] ?? '') : ($currentPage->extra_data['lib_proc3_title'] ?? '');
+                                        $p3Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc3_desc_en'] ?? $currentPage->extra_data['lib_proc3_desc'] ?? '') : ($currentPage->extra_data['lib_proc3_desc'] ?? '');
+                                        $p4Title = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc4_title_en'] ?? $currentPage->extra_data['lib_proc4_title'] ?? '') : ($currentPage->extra_data['lib_proc4_title'] ?? '');
+                                        $p4Desc = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc4_desc_en'] ?? $currentPage->extra_data['lib_proc4_desc'] ?? '') : ($currentPage->extra_data['lib_proc4_desc'] ?? '');
+                                        if ($p1Title || $p1Desc) $libProcs[] = ['title' => $p1Title, 'desc' => $p1Desc];
+                                        if ($p2Title || $p2Desc) $libProcs[] = ['title' => $p2Title, 'desc' => $p2Desc];
+                                        if ($p3Title || $p3Desc) $libProcs[] = ['title' => $p3Title, 'desc' => $p3Desc];
+                                        if ($p4Title || $p4Desc) $libProcs[] = ['title' => $p4Title, 'desc' => $p4Desc];
+                                    }
+                                }
+                                if (empty($libProcs) && !$hasLibData) {
+                                    $libProcs = [
+                                        ['title' => __('home.layanan_publik.lib_proc1_title'), 'desc' => __('home.layanan_publik.lib_proc1_desc')],
+                                        ['title' => __('home.layanan_publik.lib_proc2_title'), 'desc' => __('home.layanan_publik.lib_proc2_desc')],
+                                        ['title' => __('home.layanan_publik.lib_proc3_title'), 'desc' => __('home.layanan_publik.lib_proc3_desc')],
+                                        ['title' => __('home.layanan_publik.lib_proc4_title'), 'desc' => __('home.layanan_publik.lib_proc4_desc')],
+                                    ];
+                                }
+                            @endphp
+                            @if($libProcTitle !== '' || !empty($libProcs))
+                                {{-- Prosedur Infographic --}}
+                                @if($libProcTitle !== '')
+                                    <h3 class="service-subtitle">{{ $libProcTitle }}</h3>
+                                @endif
+                                <div class="flowchart-box mb-4">
+                                    @if($libProcTitle !== '')
+                                        <div class="flowchart-title">{{ $libProcTitle }}</div>
+                                    @endif
+                                    <div class="flowchart-steps">
+                                        @foreach($libProcs as $proc)
+                                            <div class="flow-step">
+                                                <h4>{{ $proc['title'] }}</h4>
+                                                <p>{{ $proc['desc'] }}</p>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
-                            </div>
+                            @endif
 
-                            <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.lib_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                                <span>{{ __('home.layanan_publik.lib_pdf') }}</span>
-                            </a>
+                            @if($currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['lib_pdf']))
+                                @php
+                                    $libPdfPath = $currentPage->extra_data['lib_pdf'];
+                                    $libPdfSizeBytes = Storage::disk('public')->exists($libPdfPath) ? Storage::disk('public')->size($libPdfPath) : 0;
+                                    $libPdfSizeStr = $libPdfSizeBytes > 1048576 ? round($libPdfSizeBytes / 1048576, 2) . ' MB' : ($libPdfSizeBytes > 0 ? round($libPdfSizeBytes / 1024, 0) . ' KB' : '0 KB');
+                                    $libPdfName = !empty($currentPage->extra_data['lib_pdf_name']) ? $currentPage->extra_data['lib_pdf_name'] : basename($libPdfPath);
+                                @endphp
+                                <a href="{{ asset('storage/' . $libPdfPath) }}" target="_blank" class="btn-download-pdf">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                    <span>{{ $libPdfName }} ({{ $libPdfSizeStr }})</span>
+                                </a>
+                            @elseif(!$hasLibData)
+                                <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.lib_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                    <span>{{ __('home.layanan_publik.lib_pdf') }}</span>
+                                </a>
+                            @endif
 
                         @endif
                     @else
