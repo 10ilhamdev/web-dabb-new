@@ -342,7 +342,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_laraska_mech_title') }}</label>
-                                <input type="text" name="extra_data[laraska_mech_title]" x-model="laraska_mech_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <input type="text" name="extra_data[laraska_mech_title]" x-model="laraska_mech_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-50 bg-white">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_pdf') }}</label>
@@ -350,10 +350,10 @@
                                     <div class="relative overflow-hidden shrink-0">
                                         <input type="file" name="extra_data_file_upload" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="file_name = $event.target.files[0] ? $event.target.files[0].name : file_name">
                                         <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
-                                            Choose File
+                                            {{ __('cms.layanan_publik.btn_choose_file') }}
                                         </button>
                                     </div>
-                                    <input type="text" name="extra_data[file_name]" x-model="file_name" placeholder="Nama file (otomatis terisi saat upload)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <input type="text" name="extra_data[file_name]" x-model="file_name" :placeholder="'{{ __('cms.layanan_publik.placeholder_auto_file') }}'" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 </div>
                             </div>
                         </div>
@@ -362,16 +362,16 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <template x-for="(step, index) in laraska_steps" :key="index">
                                     <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
-                                        <button type="button" @click="removeLaraskaStep(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Langkah">
+                                        <button type="button" @click="removeLaraskaStep(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" :title="'{{ __('cms.layanan_publik.btn_delete_step') }}'">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            Hapus
+                                            {{ __('cms.layanan_publik.btn_delete') }}
                                         </button>
                                         <div>
-                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Judul Langkah ' + (index + 1)"></label>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'{{ __('cms.layanan_publik.label_statis_step_title_direct') }}' + ' ' + (index + 1)"></label>
                                             <input type="text" :name="'extra_data[laraska_steps]['+index+'][title]'" x-model="step.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         </div>
                                         <div>
-                                            <label class="block text-xs text-gray-500 mb-1" x-text="'Deskripsi Langkah ' + (index + 1)"></label>
+                                            <label class="block text-xs text-gray-500 mb-1" x-text="'{{ __('cms.layanan_publik.label_statis_step_desc') }}' + ' ' + (index + 1)"></label>
                                             <textarea :name="'extra_data[laraska_steps]['+index+'][desc]'" x-model="step.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                         </div>
                                     </div>
@@ -379,7 +379,7 @@
                             </div>
                             <button type="button" @click="addLaraskaStep()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Tambah Langkah Mekanisme
+                                {{ __('cms.layanan_publik.btn_add_laraska_step') }}
                             </button>
                         </div>
                     </div>
@@ -388,35 +388,35 @@
                 {{-- STATIS Settings (Only visible when type === 'statis') --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'statis'">
                     <div class="border-b border-gray-100 pb-4 mb-4">
-                        <h2 class="text-lg font-bold text-gray-800">Pengaturan Layanan Arsip Statis</h2>
-                        <p class="text-xs text-gray-500">Atur waktu layanan, tahapan penelusuran, serta mekanisme dan file panduan untuk layanan arsip statis.</p>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.layanan_publik.statis_settings_title') }}</h2>
+                        <p class="text-xs text-gray-500">{{ __('cms.layanan_publik.statis_settings_desc') }}</p>
                     </div>
 
                     {{-- 1. Waktu Pelayanan & Pemesanan --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-1">Waktu Pelayanan</label>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">{{ __('cms.layanan_publik.label_statis_hours') }}</label>
                             <textarea name="extra_data[statis_hours]" x-model="statis_hours" rows="3" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-1">Waktu Pemesanan Arsip</label>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">{{ __('cms.layanan_publik.label_statis_order_hours') }}</label>
                             <textarea name="extra_data[statis_order_hours]" x-model="statis_order_hours" rows="3" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                         </div>
                     </div>
 
                     {{-- 2. Tahapan Penelusuran Arsip (Lingkaran Alur) --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
-                        <h3 class="text-sm font-bold text-gray-800">Tahapan Penelusuran Arsip (Lingkaran Alur)</h3>
+                        <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.statis_stages_title') }}</h3>
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <template x-for="(stage, index) in statis_stages" :key="index">
                                     <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
-                                        <button type="button" @click="removeStatisStage(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Tahap">
+                                        <button type="button" @click="removeStatisStage(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" :title="'{{ __('cms.layanan_publik.btn_delete_stage') }}'">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            Hapus
+                                            {{ __('cms.layanan_publik.btn_delete') }}
                                         </button>
                                         <div>
-                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Nama Tahap ' + (index + 1)"></label>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'{{ __('cms.layanan_publik.label_stage_name') }}' + ' ' + (index + 1)"></label>
                                             <input type="text" :name="'extra_data[statis_stages]['+index+'][title]'" x-model="stage.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         </div>
                                     </div>
@@ -424,7 +424,7 @@
                             </div>
                             <button type="button" @click="addStatisStage()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Tambah Tahapan Alur
+                                {{ __('cms.layanan_publik.btn_add_statis_stage') }}
                             </button>
                         </div>
                     </div>
@@ -433,19 +433,19 @@
                     <div class="pt-6 border-t border-gray-100 space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Judul Mekanisme Langsung</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">{{ __('cms.layanan_publik.label_statis_mech1_title') }}</label>
                                 <input type="text" name="extra_data[statis_mech1_title]" x-model="statis_mech1_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">File Panduan PDF (Mekanisme Langsung)</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_statis_direct_pdf') }}</label>
                                 <div class="flex items-center gap-2">
                                     <div class="relative overflow-hidden shrink-0">
                                         <input type="file" name="extra_data_statis_direct_pdf" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="statis_direct_pdf_name = $event.target.files[0] ? $event.target.files[0].name : statis_direct_pdf_name">
                                         <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
-                                            Choose File
+                                            {{ __('cms.layanan_publik.btn_choose_file') }}
                                         </button>
                                     </div>
-                                    <input type="text" name="extra_data[statis_direct_pdf_name]" x-model="statis_direct_pdf_name" placeholder="Nama file (otomatis terisi saat upload)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <input type="text" name="extra_data[statis_direct_pdf_name]" x-model="statis_direct_pdf_name" :placeholder="'{{ __('cms.layanan_publik.placeholder_auto_file') }}'" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 </div>
                             </div>
                         </div>
@@ -453,16 +453,16 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <template x-for="(step, index) in statis_mech1_steps" :key="index">
                                     <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
-                                        <button type="button" @click="removeStatisMech1Step(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Langkah">
+                                        <button type="button" @click="removeStatisMech1Step(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" :title="'{{ __('cms.layanan_publik.btn_delete_step') }}'">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            Hapus
+                                            {{ __('cms.layanan_publik.btn_delete') }}
                                         </button>
                                         <div>
-                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Judul Langkah ' + (index + 1) + ' (Langsung)'"></label>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'{{ __('cms.layanan_publik.label_statis_step_title_direct') }}' + ' ' + (index + 1) + ' (Langsung)'"></label>
                                             <input type="text" :name="'extra_data[statis_mech1_steps]['+index+'][title]'" x-model="step.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         </div>
                                         <div>
-                                            <label class="block text-xs text-gray-500 mb-1" x-text="'Deskripsi Langkah ' + (index + 1)"></label>
+                                            <label class="block text-xs text-gray-500 mb-1" x-text="'{{ __('cms.layanan_publik.label_statis_step_desc') }}' + ' ' + (index + 1)"></label>
                                             <textarea :name="'extra_data[statis_mech1_steps]['+index+'][desc]'" x-model="step.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                         </div>
                                     </div>
@@ -470,7 +470,7 @@
                             </div>
                             <button type="button" @click="addStatisMech1Step()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Tambah Langkah Mekanisme Langsung
+                                {{ __('cms.layanan_publik.btn_add_statis_mech1_step') }}
                             </button>
                         </div>
                     </div>
@@ -479,19 +479,19 @@
                     <div class="pt-6 border-t border-gray-100 space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Judul Mekanisme Tidak Langsung</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">{{ __('cms.layanan_publik.label_statis_mech2_title') }}</label>
                                 <input type="text" name="extra_data[statis_mech2_title]" x-model="statis_mech2_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">File Panduan PDF (Mekanisme Tidak Langsung)</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_statis_indirect_pdf') }}</label>
                                 <div class="flex items-center gap-2">
                                     <div class="relative overflow-hidden shrink-0">
                                         <input type="file" name="extra_data_statis_indirect_pdf" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="statis_indirect_pdf_name = $event.target.files[0] ? $event.target.files[0].name : statis_indirect_pdf_name">
                                         <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
-                                            Choose File
+                                            {{ __('cms.layanan_publik.btn_choose_file') }}
                                         </button>
                                     </div>
-                                    <input type="text" name="extra_data[statis_indirect_pdf_name]" x-model="statis_indirect_pdf_name" placeholder="Nama file (otomatis terisi saat upload)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <input type="text" name="extra_data[statis_indirect_pdf_name]" x-model="statis_indirect_pdf_name" :placeholder="'{{ __('cms.layanan_publik.placeholder_auto_file') }}'" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 </div>
                             </div>
                         </div>
@@ -499,16 +499,16 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <template x-for="(step, index) in statis_mech2_steps" :key="index">
                                     <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
-                                        <button type="button" @click="removeStatisMech2Step(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Langkah">
+                                        <button type="button" @click="removeStatisMech2Step(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" :title="'{{ __('cms.layanan_publik.btn_delete_step') }}'">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            Hapus
+                                            {{ __('cms.layanan_publik.btn_delete') }}
                                         </button>
                                         <div>
-                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Judul Langkah ' + (index + 1) + ' (Tidak Langsung)'"></label>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'{{ __('cms.layanan_publik.label_statis_step_title_indirect') }}' + ' ' + (index + 1) + ' (Tidak Langsung)'"></label>
                                             <input type="text" :name="'extra_data[statis_mech2_steps]['+index+'][title]'" x-model="step.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         </div>
                                         <div>
-                                            <label class="block text-xs text-gray-500 mb-1" x-text="'Deskripsi Langkah ' + (index + 1)"></label>
+                                            <label class="block text-xs text-gray-500 mb-1" x-text="'{{ __('cms.layanan_publik.label_statis_step_desc') }}' + ' ' + (index + 1)"></label>
                                             <textarea :name="'extra_data[statis_mech2_steps]['+index+'][desc]'" x-model="step.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                         </div>
                                     </div>
@@ -516,7 +516,7 @@
                             </div>
                             <button type="button" @click="addStatisMech2Step()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Tambah Langkah Mekanisme Tidak Langsung
+                                {{ __('cms.layanan_publik.btn_add_statis_mech2_step') }}
                             </button>
                         </div>
                     </div>
@@ -525,27 +525,27 @@
                 {{-- KONSULTASI Settings (Only visible when type === 'konsultasi') --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'konsultasi'">
                     <div class="border-b border-gray-100 pb-4 mb-4">
-                        <h2 class="text-lg font-bold text-gray-800">Pengaturan Konsultasi Kearsipan</h2>
-                        <p class="text-xs text-gray-500">Atur deskripsi layanan dan konfigurasi formulir konsultasi kearsipan yang ditampilkan di halaman guest.</p>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.layanan_publik.konsultasi_settings_title') }}</h2>
+                        <p class="text-xs text-gray-500">{{ __('cms.layanan_publik.konsultasi_settings_desc') }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-800 mb-1">Deskripsi Layanan Konsultasi</label>
+                        <label class="block text-sm font-bold text-gray-800 mb-1">{{ __('cms.layanan_publik.label_consultation_desc') }}</label>
                         <textarea name="extra_data[consultation_desc]" x-model="consultation_desc" rows="4" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                     </div>
 
                     <div class="pt-6 border-t border-gray-100 space-y-4">
-                        <h3 class="text-sm font-bold text-gray-800">Pengaturan Umum Formulir Konsultasi</h3>
+                        <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.consultation_form_general_title') }}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">Judul Formulir</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_consultation_form_title') }}</label>
                                 <input type="text" name="extra_data[consultation_form_title]" x-model="consultation_form_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">Label Tombol Kirim</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_consultation_form_send') }}</label>
                                 <input type="text" name="extra_data[consultation_form_send]" x-model="consultation_form_send" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">Pesan Sukses (setelah submit)</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_consultation_success') }}</label>
                                 <input type="text" name="extra_data[consultation_success]" x-model="consultation_success" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                         </div>
@@ -555,7 +555,7 @@
                     <div class="pt-6 border-t border-gray-100">
                         <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-4">
                             <div class="flex items-center gap-3">
-                                <h3 class="text-sm font-bold text-gray-800">Pengaturan Daftar Kolom Formulir Konsultasi</h3>
+                                <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.consultation_form_fields_title') }}</h3>
                                 <input type="hidden" name="extra_data[show_consultation_form]" :value="show_consultation_form">
                                 <button type="button" @click="toggleShow('show_consultation_form')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors" :class="show_consultation_form == 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'" :title="show_consultation_form == 1 ? '{{ __('cms.layanan_publik.btn_hide_guest') }}' : '{{ __('cms.layanan_publik.btn_show_guest') }}'">
                                     <template x-if="show_consultation_form == 1">
@@ -609,8 +609,8 @@
                                     <input type="text" :name="`extra_data[consultation_form_fields][${index}][options]`" x-model="item.options" :placeholder="item.type === 'select' ? '{{ __('cms.layanan_publik.placeholder_options_select') }}' : '{{ __('cms.layanan_publik.placeholder_options_file') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
                                 </div>
                                 <div class="mt-3" x-show="item.type === 'text' || item.type === 'textarea' || item.type === 'email' || item.type === 'number'">
-                                    <label class="block text-xs text-gray-500 mb-1">Placeholder</label>
-                                    <input type="text" :name="`extra_data[consultation_form_fields][${index}][placeholder]`" x-model="item.placeholder" placeholder="Contoh isian..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_placeholder') }}</label>
+                                    <input type="text" :name="`extra_data[consultation_form_fields][${index}][placeholder]`" x-model="item.placeholder" :placeholder="'{{ __('cms.layanan_publik.placeholder_placeholder') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
                                 </div>
                             </div>
                         </template>
@@ -620,23 +620,23 @@
                 {{-- PERPUSTAKAAN Settings (Only visible when type === 'perpustakaan') --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'perpustakaan'">
                     <div class="border-b border-gray-100 pb-4 mb-4">
-                        <h2 class="text-lg font-bold text-gray-800">Pengaturan Layanan Perpustakaan</h2>
-                        <p class="text-xs text-gray-500">Atur tujuan, fasilitas, waktu pelayanan, tata tertib, prosedur, serta file panduan perpustakaan.</p>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.layanan_publik.perpustakaan_settings_title') }}</h2>
+                        <p class="text-xs text-gray-500">{{ __('cms.layanan_publik.perpustakaan_settings_desc') }}</p>
                     </div>
 
                     {{-- 1. Tujuan --}}
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-sm font-bold text-gray-800">Tujuan Perpustakaan</h3>
+                            <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.lib_objs_title') }}</h3>
                             <button type="button" @click="addLibObj()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                Tambah Poin Tujuan
+                                {{ __('cms.layanan_publik.btn_add_lib_obj') }}
                             </button>
                         </div>
                         <div class="space-y-3">
                             <template x-for="(obj, index) in lib_objs" :key="index">
                                 <div class="flex items-start gap-2">
-                                    <textarea :name="'extra_data[lib_objs]['+index+'][text]'" x-model="obj.text" rows="2" placeholder="Tulis poin tujuan..." class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                    <textarea :name="'extra_data[lib_objs]['+index+'][text]'" x-model="obj.text" rows="2" :placeholder="'{{ __('cms.layanan_publik.placeholder_lib_obj') }}'" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     <button type="button" @click="removeLibObj(index)" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors mt-0.5">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -647,16 +647,16 @@
 
                     {{-- 2. Tombol Kunjungan Website --}}
                     <div class="pt-6 border-t border-gray-100 space-y-3">
-                        <h3 class="text-sm font-bold text-gray-800">Tombol Kunjungi Website Perpustakaan</h3>
+                        <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.lib_visit_btn_title') }}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">Label Tombol</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_visit_btn') }}</label>
                                 <input type="text" name="extra_data[lib_visit_btn]" x-model="lib_visit_btn" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">URL Website Perpustakaan (opsional)</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_redirect_url') }}</label>
                                 <input type="text" name="extra_data[lib_redirect_url]" x-model="lib_redirect_url" placeholder="https://..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                <span class="text-[10px] text-gray-500 block mt-0.5">Jika kosong, akan memunculkan popup info default.</span>
+                                <span class="text-[10px] text-gray-500 block mt-0.5">{{ __('cms.layanan_publik.hint_lib_redirect_url') }}</span>
                             </div>
                         </div>
                     </div>
@@ -664,28 +664,28 @@
                     {{-- 3. Fasilitas / Layanan (Cards) --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-sm font-bold text-gray-800">Fasilitas & Layanan Perpustakaan (Cards)</h3>
+                            <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.lib_cards_title') }}</h3>
                             <button type="button" @click="addLibCard()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                Tambah Fasilitas
+                                {{ __('cms.layanan_publik.btn_add_lib_card') }}
                             </button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="(card, index) in lib_cards" :key="index">
                                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                     <div class="flex items-center justify-between gap-2">
-                                        <label class="block text-xs font-bold text-gray-700" x-text="'Fasilitas ' + (index + 1)"></label>
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.layanan_publik.label_lib_card') }}' + ' ' + (index + 1)"></label>
                                         <button type="button" @click="removeLibCard(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Fasilitas</label>
-                                        <input type="text" :name="'extra_data[lib_cards]['+index+'][title]'" x-model="card.title" placeholder="Judul..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_card_title') }}</label>
+                                        <input type="text" :name="'extra_data[lib_cards]['+index+'][title]'" x-model="card.title" :placeholder="'{{ __('cms.layanan_publik.placeholder_title_general') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi Fasilitas</label>
-                                        <textarea :name="'extra_data[lib_cards]['+index+'][desc]'" x-model="card.desc" rows="2" placeholder="Deskripsi..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_card_desc') }}</label>
+                                        <textarea :name="'extra_data[lib_cards]['+index+'][desc]'" x-model="card.desc" rows="2" :placeholder="'{{ __('cms.layanan_publik.placeholder_desc_general') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     </div>
                                 </div>
                             </template>
@@ -695,21 +695,21 @@
                     {{-- 4. Waktu Pelayanan & Tata Tertib --}}
                     <div class="pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-1">Waktu Pelayanan</label>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">{{ __('cms.layanan_publik.label_lib_hours') }}</label>
                             <textarea name="extra_data[lib_hours]" x-model="lib_hours" rows="4" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                         </div>
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <label class="block text-sm font-bold text-gray-800">Tata Tertib (Poin-poin)</label>
+                                <label class="block text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.lib_rules_title') }}</label>
                                 <button type="button" @click="addLibRule()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                    Tambah Aturan
+                                    {{ __('cms.layanan_publik.btn_add_lib_rule') }}
                                 </button>
                             </div>
                             <div class="space-y-2.5">
                                 <template x-for="(rule, index) in lib_rules" :key="index">
                                     <div class="flex items-center gap-2">
-                                        <input type="text" :name="'extra_data[lib_rules]['+index+'][text]'" x-model="rule.text" placeholder="Aturan..." class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <input type="text" :name="'extra_data[lib_rules]['+index+'][text]'" x-model="rule.text" :placeholder="'{{ __('cms.layanan_publik.placeholder_lib_rule') }}'" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         <button type="button" @click="removeLibRule(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
@@ -721,50 +721,50 @@
 
                     {{-- 5. Foto Perpustakaan --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
-                        <h3 class="text-sm font-bold text-gray-800">Foto Fasilitas Perpustakaan</h3>
+                        <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.lib_photos_title') }}</h3>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Pilih Beberapa Foto (Bisa lebih dari 1)</label>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_photos') }}</label>
                             <div class="flex items-center gap-2">
                                 <div class="relative overflow-hidden shrink-0">
                                     <input type="file" name="extra_data_lib_photos[]" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="lib_photos_names = Array.from($event.target.files).map(f => f.name).join(', ')">
                                     <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
-                                        Choose Images
+                                        {{ __('cms.layanan_publik.btn_choose_images') }}
                                     </button>
                                 </div>
-                                <input type="text" name="extra_data[lib_photos_names]" x-model="lib_photos_names" placeholder="Nama file (otomatis)" readonly class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-600 truncate">
+                                <input type="text" name="extra_data[lib_photos_names]" x-model="lib_photos_names" :placeholder="'{{ __('cms.layanan_publik.placeholder_lib_photos_names') }}'" readonly class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-600 truncate">
                             </div>
-                            <span class="text-[10px] text-gray-500 block mt-1">Anda dapat memilih banyak foto sekaligus saat jendela pemilihan file terbuka.</span>
+                            <span class="text-[10px] text-gray-500 block mt-1">{{ __('cms.layanan_publik.hint_lib_photos') }}</span>
                         </div>
                     </div>
 
                     {{-- 6. Prosedur Infographic --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
                         <div class="flex items-center justify-between">
-                            <label class="block text-sm font-bold text-gray-800">Judul Alur Prosedur & Tahapan</label>
+                            <label class="block text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.lib_procs_title') }}</label>
                             <button type="button" @click="addLibProc()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                Tambah Prosedur
+                                {{ __('cms.layanan_publik.btn_add_lib_proc') }}
                             </button>
                         </div>
                         <div>
-                            <input type="text" name="extra_data[lib_proc_title]" x-model="lib_proc_title" placeholder="Judul utama prosedur..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mb-4">
+                            <input type="text" name="extra_data[lib_proc_title]" x-model="lib_proc_title" :placeholder="'{{ __('cms.layanan_publik.placeholder_lib_proc_title') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mb-4">
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="(proc, index) in lib_procs" :key="index">
                                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                     <div class="flex items-center justify-between gap-2">
-                                        <label class="block text-xs font-bold text-gray-700" x-text="'Prosedur ' + (index + 1)"></label>
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.layanan_publik.label_lib_proc') }}' + ' ' + (index + 1)"></label>
                                         <button type="button" @click="removeLibProc(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Prosedur</label>
-                                        <input type="text" :name="'extra_data[lib_procs]['+index+'][title]'" x-model="proc.title" placeholder="Judul..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_proc_title') }}</label>
+                                        <input type="text" :name="'extra_data[lib_procs]['+index+'][title]'" x-model="proc.title" :placeholder="'{{ __('cms.layanan_publik.placeholder_title_general') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi Prosedur</label>
-                                        <textarea :name="'extra_data[lib_procs]['+index+'][desc]'" x-model="proc.desc" rows="2" placeholder="Deskripsi..." class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_proc_desc') }}</label>
+                                        <textarea :name="'extra_data[lib_procs]['+index+'][desc]'" x-model="proc.desc" rows="2" :placeholder="'{{ __('cms.layanan_publik.placeholder_desc_general') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     </div>
                                 </div>
                             </template>
@@ -773,15 +773,15 @@
 
                     {{-- 7. File Panduan PDF Perpustakaan --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
-                        <label class="block text-xs text-gray-500 mb-1">File Panduan PDF Perpustakaan</label>
+                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_lib_pdf') }}</label>
                         <div class="flex items-center gap-2">
                             <div class="relative overflow-hidden shrink-0">
                                 <input type="file" name="extra_data_lib_pdf" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="lib_pdf_name = $event.target.files[0] ? $event.target.files[0].name : lib_pdf_name">
                                 <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
-                                    Choose File
+                                    {{ __('cms.layanan_publik.btn_choose_file') }}
                                 </button>
                             </div>
-                            <input type="text" name="extra_data[lib_pdf_name]" x-model="lib_pdf_name" placeholder="Nama file (otomatis)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <input type="text" name="extra_data[lib_pdf_name]" x-model="lib_pdf_name" :placeholder="'{{ __('cms.layanan_publik.placeholder_lib_photos_names') }}'" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                         </div>
                     </div>
                 </div>

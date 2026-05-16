@@ -495,13 +495,9 @@
                 </a>
                 <span class="sep">/</span>
             @endif
-            <a href="{{ url(ltrim($feature->path, '/')) }}">
+            <span class="current">
                 {{ $locale === 'id' ? $feature->name : ($feature->name_en ?? $feature->name) }}
-            </a>
-            @if($currentPage && $currentPage->title !== $feature->name)
-                <span class="sep">/</span>
-                <span class="current">{{ $title }}</span>
-            @endif
+            </span>
         </div>
     </div>
 
