@@ -12,6 +12,27 @@ function layananPublikForm(initialType = 'kunjungan', initialExtraData = null) {
         jadwal_kunjungan: initialExtraData?.jadwal_kunjungan || "Senin - Kamis : 07:30 - 12:00 WIB dan 13:00 - 16:00 WIB\nJumat : 07:30 - 16:30 WIB",
         pengajuan_kunjungan: initialExtraData?.pengajuan_kunjungan || "Kapasitas dalam 1 (satu) hari Pagi maks. 2 kunjungan, Siang maks. 2 kunjungan. Mohon isi informasi rencana kunjungan Anda sesuai dengan jadwal yang tersedia. Adapun kepastian jadwal kunjungan akan diinformasikan kembali oleh petugas yang menangani.",
         kuota_harian: initialExtraData?.kuota_harian || (initialExtraData?.kuota_pagi ? (parseInt(initialExtraData.kuota_pagi) + parseInt(initialExtraData.kuota_siang)) : 4),
+        laraska_hours: initialExtraData?.laraska_hours || "Senin - Jumat : 09:00 - 15:00 WIB\nIstirahat (Senin - Kamis) : 12:00 - 13:00 WIB\n(Jumat) : 11:30 - 13:00 WIB",
+        maklumat_title: initialExtraData?.maklumat_title || "MAKLUMAT PELAYANAN",
+        maklumat_content: initialExtraData?.maklumat_content || "\"Dengan ini, kami seluruh pelaksana kegiatan penyelamatan arsip dari dampak bencana menyatakan sanggup memberikan pelayanan LARASKA (Layanan Restorasi Arsip Keluarga) sesuai Standar Pelayanan yang telah ditetapkan dan apabila tidak menepati janji, kami siap menerima sanksi sesuai peraturan perundang-undangan yang berlaku.\"",
+        maklumat_date: initialExtraData?.maklumat_date || "Jakarta, Juni 2024",
+        maklumat_director: initialExtraData?.maklumat_director || "Direktur Pelindungan dan Penyelamatan Arsip",
+        laraska_mech_title: initialExtraData?.laraska_mech_title || "Mekanisme Layanan LARASKA",
+        file_name: initialExtraData?.file_name || "",
+        laraska_step1_title: initialExtraData?.laraska_step1_title || "1. Pengajuan Layanan",
+        laraska_step1_desc: initialExtraData?.laraska_step1_desc || "Pengguna layanan mengajukan permohonan restorasi arsip melalui website DABB atau datang langsung ke loket pelayanan.",
+        laraska_step2_title: initialExtraData?.laraska_step2_title || "2. Pemeriksaan Kondisi Arsip",
+        laraska_step2_desc: initialExtraData?.laraska_step2_desc || "Arsiparis memeriksa tingkat kerusakan arsip untuk menentukan metode restorasi yang tepat.",
+        laraska_step3_title: initialExtraData?.laraska_step3_title || "3. Proses Restorasi Arsip",
+        laraska_step3_desc: initialExtraData?.laraska_step3_desc || "Tim teknis melakukan perbaikan arsip keluarga di laboratorium restorasi DABB.",
+        laraska_step4_title: initialExtraData?.laraska_step4_title || "4. Pengambilan Arsip",
+        laraska_step4_desc: initialExtraData?.laraska_step4_desc || "Pengguna mengambil arsip yang telah selesai direstorasi beserta salinan digitalnya.",
+        laraska_steps: initialExtraData?.laraska_steps || [
+            { title: initialExtraData?.laraska_step1_title || "1. Pengajuan Layanan", desc: initialExtraData?.laraska_step1_desc || "Pengguna layanan mengajukan permohonan restorasi arsip melalui website DABB atau datang langsung ke loket pelayanan." },
+            { title: initialExtraData?.laraska_step2_title || "2. Pemeriksaan Kondisi Arsip", desc: initialExtraData?.laraska_step2_desc || "Arsiparis memeriksa tingkat kerusakan arsip untuk menentukan metode restorasi yang tepat." },
+            { title: initialExtraData?.laraska_step3_title || "3. Proses Restorasi Arsip", desc: initialExtraData?.laraska_step3_desc || "Tim teknis melakukan perbaikan arsip keluarga di laboratorium restorasi DABB." },
+            { title: initialExtraData?.laraska_step4_title || "4. Pengambilan Arsip", desc: initialExtraData?.laraska_step4_desc || "Pengguna mengambil arsip yang telah selesai direstorasi beserta salinan digitalnya." }
+        ],
         libur_dates: initialExtraData?.libur_dates || [],
         tutup_slots: initialExtraData?.tutup_slots || [],
         form_fields: initialExtraData?.form_fields || [
@@ -30,6 +51,13 @@ function layananPublikForm(initialType = 'kunjungan', initialExtraData = null) {
 
         toggleShow(field) {
             this[field] = this[field] == 1 ? 0 : 1;
+        },
+
+        addLaraskaStep() {
+            this.laraska_steps.push({ title: `${this.laraska_steps.length + 1}. Langkah Baru`, desc: '' });
+        },
+        removeLaraskaStep(index) {
+            this.laraska_steps.splice(index, 1);
         },
 
         addLibur() {

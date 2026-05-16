@@ -1542,6 +1542,24 @@ return [
         
         'label_auto_today' => 'Auto update to today\'s date',
         'btn_edit' => 'Edit',
+
+        'laraska_settings_title' => 'LARASKA Service Settings',
+        'laraska_settings_desc' => 'Configure service hours, service announcement, and LARASKA mechanism steps.',
+        'label_laraska_hours' => 'Service Hours Text',
+        'maklumat_box_title' => 'Service Announcement',
+        'label_maklumat_title' => 'Service Announcement Title',
+        'label_maklumat_content' => 'Service Announcement Content',
+        'label_maklumat_date' => 'Announcement Place & Date',
+        'label_maklumat_director' => 'Announcement Official',
+        'label_laraska_mech_title' => 'Service Mechanism Title',
+        'label_laraska_step1_title' => 'Step 1 Title',
+        'label_laraska_step1_desc' => 'Step 1 Description',
+        'label_laraska_step2_title' => 'Step 2 Title',
+        'label_laraska_step2_desc' => 'Step 2 Description',
+        'label_laraska_step3_title' => 'Step 3 Title',
+        'label_laraska_step3_desc' => 'Step 3 Description',
+        'label_laraska_step4_title' => 'Step 4 Title',
+        'label_laraska_step4_desc' => 'Step 4 Description',
     ],
 
 

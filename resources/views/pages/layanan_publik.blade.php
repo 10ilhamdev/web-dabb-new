@@ -30,7 +30,7 @@
             padding: 48px 0;
             background: #fff;
         }
-        
+
         .pub-container {
             display: grid;
             grid-template-columns: 1fr 320px;
@@ -471,7 +471,7 @@
         $updatedAt = ($currentPage && !empty($currentPage->extra_data['auto_today_date'])) ? now()->translatedFormat('d F Y') : ($currentPage->updated_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
 
         // Fallback default rich text content to match reference images perfectly if DB is empty
-        if (empty(trim(strip_tags($content)))) {
+        if (!$currentPage && empty(trim(strip_tags($content)))) {
             if (str_contains($matchTitle, 'kunjungan') || str_contains($matchTitle, 'penelitian')) {
                 $content = '<p>Arsip Nasional Republik Indonesia (ANRI) melalui Depot Arsip Berkelanjutan Bandung memberikan kesempatan kepada masyarakat untuk belajar dan mengenal kearsipan secara langsung. Melalui kegiatan kunjungan edukatif ini, diharapkan masyarakat dapat meningkatkan pemahaman dan kesadaran akan pentingnya arsip sebagai sumber informasi dan sejarah. Kunjungan ini juga menjadi sarana pembelajaran mengenai pengelolaan arsip, pemanfaatan arsip statis, serta penelusuran sumber sejarah yang tersimpan di Depot Arsip ANRI Bandung.</p>';
             } elseif (str_contains($matchTitle, 'laraska') || str_contains($matchTitle, 'restorasi')) {
@@ -518,7 +518,7 @@
                 {{-- Main Detail --}}
                 <div class="detail-main">
                     <h1 class="detail-title">{{ $title }}</h1>
-                    
+
                     <div class="meta-info">
                         <div class="meta-item">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -555,8 +555,8 @@
                             <div class="service-box">
                                 @if(!empty($currentPage->extra_data['jadwal_kunjungan']))
                                     @php
-                                        $jadwalText = $locale === 'en' && !empty($currentPage->extra_data['jadwal_kunjungan_en']) 
-                                            ? $currentPage->extra_data['jadwal_kunjungan_en'] 
+                                        $jadwalText = $locale === 'en' && !empty($currentPage->extra_data['jadwal_kunjungan_en'])
+                                            ? $currentPage->extra_data['jadwal_kunjungan_en']
                                             : $currentPage->extra_data['jadwal_kunjungan'];
                                     @endphp
                                     {!! nl2br(e($jadwalText)) !!}
@@ -576,8 +576,8 @@
                             <div class="service-box">
                                 @if(!empty($currentPage->extra_data['pengajuan_kunjungan']))
                                     @php
-                                        $pengajuanText = $locale === 'en' && !empty($currentPage->extra_data['pengajuan_kunjungan_en']) 
-                                            ? $currentPage->extra_data['pengajuan_kunjungan_en'] 
+                                        $pengajuanText = $locale === 'en' && !empty($currentPage->extra_data['pengajuan_kunjungan_en'])
+                                            ? $currentPage->extra_data['pengajuan_kunjungan_en']
                                             : $currentPage->extra_data['pengajuan_kunjungan'];
                                     @endphp
                                     {!! nl2br(e($pengajuanText)) !!}
@@ -592,7 +592,7 @@
                             @php
                                 $currentYear = now()->year;
                                 $currentMonth = now()->month;
-                                
+
                                 $googleHolidays = array_merge(
                                     \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear - 1),
                                     \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear),
@@ -600,7 +600,7 @@
                                 );
                                 $customLibur = !empty($currentPage->extra_data['libur_dates']) ? collect($currentPage->extra_data['libur_dates'])->pluck('reason', 'date')->toArray() : [];
                                 $liburDates = array_merge($googleHolidays, $customLibur);
-                                
+
                                 $tutupSlots = !empty($currentPage->extra_data['tutup_slots']) ? collect($currentPage->extra_data['tutup_slots'])->groupBy('date')->toArray() : [];
                                 $kuotaHarian = $currentPage->extra_data['kuota_harian'] ?? (($currentPage->extra_data['kuota_pagi'] ?? 2) + ($currentPage->extra_data['kuota_siang'] ?? 2));
                             @endphp
@@ -681,7 +681,7 @@
                                                 const pagiSlot = tutupInfo.find(ti => ti.slot === 'pagi');
                                                 const siangSlot = tutupInfo.find(ti => ti.slot === 'siang');
 
-                                                const isFullClosed = (fullSlot && fullSlot.max_quota == 0) || 
+                                                const isFullClosed = (fullSlot && fullSlot.max_quota == 0) ||
                                                                     (tutupSlotTypes.includes('full') && (!fullSlot || fullSlot.max_quota == 0)) ||
                                                                     (tutupSlotTypes.includes('pagi') && (!pagiSlot || pagiSlot.max_quota == 0) && tutupSlotTypes.includes('siang') && (!siangSlot || siangSlot.max_quota == 0));
 
@@ -864,47 +864,76 @@
                         {{-- Layout 2: LARASKA --}}
                         <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
                         <div class="service-box">
-                            {!! __('home.layanan_publik.laraska_hours') !!}
+                            @if(is_array($currentPage->extra_data) && array_key_exists('laraska_hours', $currentPage->extra_data))
+                                {!! nl2br(e($currentPage->extra_data['laraska_hours'] ?? '')) !!}
+                            @else
+                                {!! __('home.layanan_publik.laraska_hours') !!}
+                            @endif
                         </div>
 
                         {{-- Maklumat Box --}}
                         <div class="p-8 bg-[#1e3a8a] text-white rounded-2xl mb-8 text-center shadow-xl relative overflow-hidden border-4 border-yellow-500">
-                            <h3 class="text-2xl font-bold mb-4 tracking-wider text-yellow-400">{{ __('home.layanan_publik.maklumat_title') }}</h3>
-                            <p class="text-lg leading-relaxed mb-6 font-medium">{!! __('home.layanan_publik.maklumat_content') !!}</p>
+                            <h3 class="text-2xl font-bold mb-4 tracking-wider text-yellow-400">{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_title', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_title'] ?? '') : __('home.layanan_publik.maklumat_title') }}</h3>
+                            <p class="text-lg leading-relaxed mb-6 font-medium">{!! (is_array($currentPage->extra_data) && array_key_exists('maklumat_content', $currentPage->extra_data)) ? nl2br(e($currentPage->extra_data['maklumat_content'] ?? '')) : __('home.layanan_publik.maklumat_content') !!}</p>
                             <div class="text-right text-sm opacity-90 pr-4 font-semibold">
-                                <p>{{ __('home.layanan_publik.maklumat_date') }}</p>
-                                <p>{{ __('home.layanan_publik.maklumat_director') }}</p>
+                                <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_date', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_date'] ?? '') : __('home.layanan_publik.maklumat_date') }}</p>
+                                <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_director', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_director'] ?? '') : __('home.layanan_publik.maklumat_director') }}</p>
                             </div>
                         </div>
 
                         {{-- Mekanisme Flowchart --}}
                         <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
                         <div class="flowchart-box">
-                            <div class="flowchart-title">{{ __('home.layanan_publik.laraska_mech_title') }}</div>
+                            <div class="flowchart-title">{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_mech_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_mech_title'] ?? '') : __('home.layanan_publik.laraska_mech_title') }}</div>
                             <div class="flowchart-steps">
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.laraska_step1_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.laraska_step1_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.laraska_step2_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.laraska_step2_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.laraska_step3_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.laraska_step3_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.laraska_step4_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.laraska_step4_desc') }}</p>
-                                </div>
+                                @if(isset($currentPage->extra_data['laraska_steps']) && is_array($currentPage->extra_data['laraska_steps']))
+                                    @foreach($currentPage->extra_data['laraska_steps'] as $step)
+                                        <div class="flow-step">
+                                            <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
+                                            <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="flow-step">
+                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_title'] ?? '') : __('home.layanan_publik.laraska_step1_title') }}</h4>
+                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_desc'] ?? '') : __('home.layanan_publik.laraska_step1_desc') }}</p>
+                                    </div>
+                                    <div class="flow-step">
+                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_title'] ?? '') : __('home.layanan_publik.laraska_step2_title') }}</h4>
+                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_desc'] ?? '') : __('home.layanan_publik.laraska_step2_desc') }}</p>
+                                    </div>
+                                    <div class="flow-step">
+                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_title'] ?? '') : __('home.layanan_publik.laraska_step3_title') }}</h4>
+                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_desc'] ?? '') : __('home.layanan_publik.laraska_step3_desc') }}</p>
+                                    </div>
+                                    <div class="flow-step">
+                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_title'] ?? '') : __('home.layanan_publik.laraska_step4_title') }}</h4>
+                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_desc'] ?? '') : __('home.layanan_publik.laraska_step4_desc') }}</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
-                        <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.laraska_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                            <span>{{ __('home.layanan_publik.laraska_pdf') }}</span>
-                        </a>
+                        @if(!empty($currentPage->extra_data['file']))
+                            @php
+                                $filePath = $currentPage->extra_data['file'];
+                                $fullPath = public_path('storage/' . $filePath);
+                                $storagePath = storage_path('app/public/' . $filePath);
+                                $fileSizeBytes = Storage::disk('public')->exists($filePath) ? Storage::disk('public')->size($filePath) : (file_exists($fullPath) ? filesize($fullPath) : (file_exists($storagePath) ? filesize($storagePath) : 0));
+                                if ($fileSizeBytes >= 1048576) {
+                                    $fileSizeStr = round($fileSizeBytes / 1048576, 1) . ' MB';
+                                } elseif ($fileSizeBytes > 0) {
+                                    $fileSizeStr = round($fileSizeBytes / 1024, 0) . ' KB';
+                                } else {
+                                    $fileSizeStr = '0 KB';
+                                }
+                                $customFileName = !empty($currentPage->extra_data['file_name']) ? $currentPage->extra_data['file_name'] : basename($filePath);
+                            @endphp
+                            <a href="{{ asset('storage/' . $filePath) }}" target="_blank" class="btn-download-pdf">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                <span>{{ $customFileName }} ({{ $fileSizeStr }})</span>
+                            </a>
+                        @endif
 
                     @elseif (str_contains($matchTitle, 'statis') || str_contains($matchTitle, 'arsip'))
                         {{-- Layout 3: Layanan Arsip Statis --}}
@@ -947,7 +976,7 @@
                         </div>
 
                         <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
-                        
+
                         {{-- Langsung --}}
                         <div class="flowchart-box mb-4">
                             <div class="flowchart-title">{{ __('home.layanan_publik.statis_mech1_title') }}</div>

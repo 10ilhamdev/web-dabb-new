@@ -1549,6 +1549,24 @@ return [
         
         'label_auto_today' => 'Update otomatis ke tanggal hari ini',
         'btn_edit' => 'Edit',
+
+        'laraska_settings_title' => 'Pengaturan Layanan LARASKA',
+        'laraska_settings_desc' => 'Atur teks jam pelayanan, maklumat pelayanan, dan tahapan mekanisme LARASKA.',
+        'label_laraska_hours' => 'Teks Waktu Pelayanan',
+        'maklumat_box_title' => 'Maklumat Pelayanan',
+        'label_maklumat_title' => 'Judul Maklumat Pelayanan',
+        'label_maklumat_content' => 'Isi Maklumat Pelayanan',
+        'label_maklumat_date' => 'Tempat & Tanggal Maklumat',
+        'label_maklumat_director' => 'Pejabat Maklumat',
+        'label_laraska_mech_title' => 'Judul Mekanisme Layanan',
+        'label_laraska_step1_title' => 'Judul Langkah 1',
+        'label_laraska_step1_desc' => 'Deskripsi Langkah 1',
+        'label_laraska_step2_title' => 'Judul Langkah 2',
+        'label_laraska_step2_desc' => 'Deskripsi Langkah 2',
+        'label_laraska_step3_title' => 'Judul Langkah 3',
+        'label_laraska_step3_desc' => 'Deskripsi Langkah 3',
+        'label_laraska_step4_title' => 'Judul Langkah 4',
+        'label_laraska_step4_desc' => 'Deskripsi Langkah 4',
     ],
 
 

@@ -66,8 +66,23 @@ class LayananPublikController extends Controller
         }
 
         $extraData = $validated['extra_data'] ?? [];
-        if ($request->hasFile('extra_data.file')) {
-            $extraData['file'] = $request->file('extra_data.file')->store('features/layanan_publik/files', 'public');
+        if ($request->hasFile('extra_data_file_upload')) {
+            $extraData['file'] = $request->file('extra_data_file_upload')->store('features/layanan_publik/files', 'public');
+        }
+
+        if ($validated['type'] === 'laraska') {
+            if (!isset($extraData['laraska_steps'])) {
+                $extraData['laraska_steps'] = [];
+            } elseif (is_array($extraData['laraska_steps'])) {
+                foreach ($extraData['laraska_steps'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['laraska_steps'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['laraska_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
         }
 
         if (!empty($extraData['jadwal_kunjungan'])) {
@@ -208,13 +223,31 @@ class LayananPublikController extends Controller
         }
 
         $extraData = $validated['extra_data'] ?? [];
-        if ($request->hasFile('extra_data.file')) {
+        if ($request->hasFile('extra_data_file_upload')) {
             if (isset($layananPublik->extra_data['file'])) {
                 Storage::disk('public')->delete($layananPublik->extra_data['file']);
             }
-            $extraData['file'] = $request->file('extra_data.file')->store('features/layanan_publik/files', 'public');
+            $extraData['file'] = $request->file('extra_data_file_upload')->store('features/layanan_publik/files', 'public');
+        } elseif ($request->has('extra_data.file')) {
+            $extraData['file'] = $request->input('extra_data.file');
         } elseif (isset($layananPublik->extra_data['file'])) {
-            $extraData['file'] = $layananPublik->extra_data['file'];
+            Storage::disk('public')->delete($layananPublik->extra_data['file']);
+            unset($extraData['file']);
+        }
+
+        if ($validated['type'] === 'laraska') {
+            if (!isset($extraData['laraska_steps'])) {
+                $extraData['laraska_steps'] = [];
+            } elseif (is_array($extraData['laraska_steps'])) {
+                foreach ($extraData['laraska_steps'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['laraska_steps'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['laraska_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
         }
 
         if (!empty($extraData['jadwal_kunjungan'])) {
