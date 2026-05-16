@@ -118,7 +118,7 @@ class FeatureController extends Controller
                 return redirect()->route('cms.features.profile.index', [$parent, $feature]);
             }
 
-            if ($feature->page_type === 'publication') {
+            if ($feature->page_type === 'publication' && !request()->has('from')) {
                 return redirect()->route('cms.features.publication.index', $feature);
             }
 
@@ -151,7 +151,7 @@ class FeatureController extends Controller
             return redirect()->route('cms.features.profile.index', [$parent, $feature]);
         }
 
-        if ($feature->type === 'dropdown' && $feature->page_type === 'publication') {
+        if ($feature->type === 'dropdown' && $feature->page_type === 'publication' && !request()->has('from')) {
             return redirect()->route('cms.features.publication.index', $feature);
         }
 

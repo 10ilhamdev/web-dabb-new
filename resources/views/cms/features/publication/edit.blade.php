@@ -5,6 +5,11 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.index') }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
+    @if ($feature->parent)
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.show', $feature->parent) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
+    @endif
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.publication.index', $feature) }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>

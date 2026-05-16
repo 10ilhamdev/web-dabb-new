@@ -5,6 +5,11 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.index') }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
+    @if ($feature->parent)
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.show', $feature->parent) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
+    @endif
 @endsection
 @section('breadcrumb_active', $feature->name)
 
@@ -13,7 +18,7 @@
 
     {{-- Header --}}
     <div class="flex items-center gap-3">
-        <a href="{{ route('cms.features.index') }}"
+        <a href="{{ $feature->parent ? route('cms.features.show', $feature->parent) : route('cms.features.index') }}"
             class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors shadow-sm"
             style="background-color: #818284;">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
