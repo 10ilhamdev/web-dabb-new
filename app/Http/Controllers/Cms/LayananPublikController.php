@@ -69,6 +69,12 @@ class LayananPublikController extends Controller
         if ($request->hasFile('extra_data_file_upload')) {
             $extraData['file'] = $request->file('extra_data_file_upload')->store('features/layanan_publik/files', 'public');
         }
+        if ($request->hasFile('extra_data_statis_direct_pdf')) {
+            $extraData['statis_direct_pdf'] = $request->file('extra_data_statis_direct_pdf')->store('features/layanan_publik/files', 'public');
+        }
+        if ($request->hasFile('extra_data_statis_indirect_pdf')) {
+            $extraData['statis_indirect_pdf'] = $request->file('extra_data_statis_indirect_pdf')->store('features/layanan_publik/files', 'public');
+        }
 
         if ($validated['type'] === 'laraska') {
             if (!isset($extraData['laraska_steps'])) {
@@ -80,6 +86,50 @@ class LayananPublikController extends Controller
                     }
                     if (!empty($v['desc'])) {
                         $extraData['laraska_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
+        } elseif ($validated['type'] === 'statis') {
+            $statisFields = [
+                'statis_hours', 'statis_order_hours', 'statis_stage1', 'statis_stage2', 'statis_stage3', 'statis_stage4', 'statis_stage5',
+                'statis_mech1_title', 'statis_mech1_req_title', 'statis_mech1_req_desc', 'statis_mech1_stage_title', 'statis_mech1_stage_desc',
+                'statis_mech2_title', 'statis_mech2_online_title', 'statis_mech2_online_desc', 'statis_mech2_send_title', 'statis_mech2_send_desc'
+            ];
+            foreach ($statisFields as $sf) {
+                if (!empty($extraData[$sf])) {
+                    $extraData[$sf . '_en'] = $this->translationService->translate($extraData[$sf]);
+                }
+            }
+            if (!isset($extraData['statis_stages'])) {
+                $extraData['statis_stages'] = [];
+            } elseif (is_array($extraData['statis_stages'])) {
+                foreach ($extraData['statis_stages'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['statis_stages'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                }
+            }
+            if (!isset($extraData['statis_mech1_steps'])) {
+                $extraData['statis_mech1_steps'] = [];
+            } elseif (is_array($extraData['statis_mech1_steps'])) {
+                foreach ($extraData['statis_mech1_steps'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['statis_mech1_steps'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['statis_mech1_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
+            if (!isset($extraData['statis_mech2_steps'])) {
+                $extraData['statis_mech2_steps'] = [];
+            } elseif (is_array($extraData['statis_mech2_steps'])) {
+                foreach ($extraData['statis_mech2_steps'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['statis_mech2_steps'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['statis_mech2_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
                     }
                 }
             }
@@ -235,6 +285,30 @@ class LayananPublikController extends Controller
             unset($extraData['file']);
         }
 
+        if ($request->hasFile('extra_data_statis_direct_pdf')) {
+            if (isset($layananPublik->extra_data['statis_direct_pdf'])) {
+                Storage::disk('public')->delete($layananPublik->extra_data['statis_direct_pdf']);
+            }
+            $extraData['statis_direct_pdf'] = $request->file('extra_data_statis_direct_pdf')->store('features/layanan_publik/files', 'public');
+        } elseif ($request->has('extra_data.statis_direct_pdf')) {
+            $extraData['statis_direct_pdf'] = $request->input('extra_data.statis_direct_pdf');
+        } elseif (isset($layananPublik->extra_data['statis_direct_pdf'])) {
+            Storage::disk('public')->delete($layananPublik->extra_data['statis_direct_pdf']);
+            unset($extraData['statis_direct_pdf']);
+        }
+
+        if ($request->hasFile('extra_data_statis_indirect_pdf')) {
+            if (isset($layananPublik->extra_data['statis_indirect_pdf'])) {
+                Storage::disk('public')->delete($layananPublik->extra_data['statis_indirect_pdf']);
+            }
+            $extraData['statis_indirect_pdf'] = $request->file('extra_data_statis_indirect_pdf')->store('features/layanan_publik/files', 'public');
+        } elseif ($request->has('extra_data.statis_indirect_pdf')) {
+            $extraData['statis_indirect_pdf'] = $request->input('extra_data.statis_indirect_pdf');
+        } elseif (isset($layananPublik->extra_data['statis_indirect_pdf'])) {
+            Storage::disk('public')->delete($layananPublik->extra_data['statis_indirect_pdf']);
+            unset($extraData['statis_indirect_pdf']);
+        }
+
         if ($validated['type'] === 'laraska') {
             if (!isset($extraData['laraska_steps'])) {
                 $extraData['laraska_steps'] = [];
@@ -245,6 +319,50 @@ class LayananPublikController extends Controller
                     }
                     if (!empty($v['desc'])) {
                         $extraData['laraska_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
+        } elseif ($validated['type'] === 'statis') {
+            $statisFields = [
+                'statis_hours', 'statis_order_hours', 'statis_stage1', 'statis_stage2', 'statis_stage3', 'statis_stage4', 'statis_stage5',
+                'statis_mech1_title', 'statis_mech1_req_title', 'statis_mech1_req_desc', 'statis_mech1_stage_title', 'statis_mech1_stage_desc',
+                'statis_mech2_title', 'statis_mech2_online_title', 'statis_mech2_online_desc', 'statis_mech2_send_title', 'statis_mech2_send_desc'
+            ];
+            foreach ($statisFields as $sf) {
+                if (!empty($extraData[$sf])) {
+                    $extraData[$sf . '_en'] = $this->translationService->translate($extraData[$sf]);
+                }
+            }
+            if (!isset($extraData['statis_stages'])) {
+                $extraData['statis_stages'] = [];
+            } elseif (is_array($extraData['statis_stages'])) {
+                foreach ($extraData['statis_stages'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['statis_stages'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                }
+            }
+            if (!isset($extraData['statis_mech1_steps'])) {
+                $extraData['statis_mech1_steps'] = [];
+            } elseif (is_array($extraData['statis_mech1_steps'])) {
+                foreach ($extraData['statis_mech1_steps'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['statis_mech1_steps'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['statis_mech1_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                    }
+                }
+            }
+            if (!isset($extraData['statis_mech2_steps'])) {
+                $extraData['statis_mech2_steps'] = [];
+            } elseif (is_array($extraData['statis_mech2_steps'])) {
+                foreach ($extraData['statis_mech2_steps'] as $k => $v) {
+                    if (!empty($v['title'])) {
+                        $extraData['statis_mech2_steps'][$k]['title_en'] = $this->translationService->translate($v['title']);
+                    }
+                    if (!empty($v['desc'])) {
+                        $extraData['statis_mech2_steps'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
                     }
                 }
             }

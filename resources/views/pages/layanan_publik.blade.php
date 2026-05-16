@@ -462,12 +462,12 @@
     @php
         $title = $currentPage ? ($locale === 'en' ? ($currentPage->title_en ?? $currentPage->title) : $currentPage->title) : ($locale === 'en' ? ($feature->name_en ?? $feature->name) : $feature->name);
         $content = $currentPage ? ($locale === 'en' ? ($currentPage->description_en ?? $currentPage->description) : $currentPage->description) : ($locale === 'en' ? ($feature->content_en ?? $feature->content) : $feature->content);
-        $date = ($currentPage->created_at ?? $feature->created_at ?? now())->translatedFormat('d F Y');
+        $date = ($currentPage->created_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
         $matchTitle = strtolower($currentPage ? $currentPage->title : $feature->name);
 
         $views = $currentPage ? $currentPage->views : 0;
         $shares = $currentPage ? $currentPage->shares : 0;
-        $publishedAt = ($currentPage && !empty($currentPage->extra_data['auto_today_date'])) ? now()->translatedFormat('d F Y') : ($currentPage->published_at ?? $currentPage->created_at ?? $feature->created_at ?? now())->translatedFormat('d F Y');
+        $publishedAt = ($currentPage && !empty($currentPage->extra_data['auto_today_date'])) ? now()->translatedFormat('d F Y') : ($currentPage->published_at ?? $currentPage->created_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
         $updatedAt = ($currentPage && !empty($currentPage->extra_data['auto_today_date'])) ? now()->translatedFormat('d F Y') : ($currentPage->updated_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
 
         // Fallback default rich text content to match reference images perfectly if DB is empty
@@ -538,600 +538,691 @@
                         </div>
                     </div>
 
-                    <div class="detail-content richtext-guest-view">
-                        {!! $content !!}
-                    </div>
+                    @if($currentPage)
+                        <div class="detail-content richtext-guest-view">
+                            {!! $content !!}
+                        </div>
 
-                    {{-- Dynamic Service Layouts --}}
-                    @if (str_contains($matchTitle, 'kunjungan') || str_contains($matchTitle, 'penelitian'))
-                        {{-- Layout 1: Pendaftaran Kunjungan --}}
-                        @if(!isset($currentPage->extra_data['show_jadwal']) || $currentPage->extra_data['show_jadwal'] == 1)
-                            @php
-                                $titleJadwal = $locale === 'en' && !empty($currentPage->extra_data['title_jadwal_en'])
-                                    ? $currentPage->extra_data['title_jadwal_en']
-                                    : (!empty($currentPage->extra_data['title_jadwal']) ? $currentPage->extra_data['title_jadwal'] : __('home.layanan_publik.visiting_hours'));
-                            @endphp
-                            <h3 class="service-subtitle">{{ $titleJadwal }}</h3>
-                            <div class="service-box">
-                                @if(!empty($currentPage->extra_data['jadwal_kunjungan']))
-                                    @php
-                                        $jadwalText = $locale === 'en' && !empty($currentPage->extra_data['jadwal_kunjungan_en'])
-                                            ? $currentPage->extra_data['jadwal_kunjungan_en']
-                                            : $currentPage->extra_data['jadwal_kunjungan'];
-                                    @endphp
-                                    {!! nl2br(e($jadwalText)) !!}
-                                @else
-                                    {!! __('home.layanan_publik.jadwal_kunjungan_default') !!}
-                                @endif
-                            </div>
-                        @endif
+                        {{-- Dynamic Service Layouts --}}
+                        @if (str_contains($matchTitle, 'kunjungan') || str_contains($matchTitle, 'penelitian'))
+                            {{-- Layout 1: Pendaftaran Kunjungan --}}
+                            @if(!isset($currentPage->extra_data['show_jadwal']) || $currentPage->extra_data['show_jadwal'] == 1)
+                                @php
+                                    $titleJadwal = $locale === 'en' && !empty($currentPage->extra_data['title_jadwal_en'])
+                                        ? $currentPage->extra_data['title_jadwal_en']
+                                        : (!empty($currentPage->extra_data['title_jadwal']) ? $currentPage->extra_data['title_jadwal'] : __('home.layanan_publik.visiting_hours'));
+                                @endphp
+                                <h3 class="service-subtitle">{{ $titleJadwal }}</h3>
+                                <div class="service-box">
+                                    @if(!empty($currentPage->extra_data['jadwal_kunjungan']))
+                                        @php
+                                            $jadwalText = $locale === 'en' && !empty($currentPage->extra_data['jadwal_kunjungan_en'])
+                                                ? $currentPage->extra_data['jadwal_kunjungan_en']
+                                                : $currentPage->extra_data['jadwal_kunjungan'];
+                                        @endphp
+                                        {!! nl2br(e($jadwalText)) !!}
+                                    @else
+                                        {!! __('home.layanan_publik.jadwal_kunjungan_default') !!}
+                                    @endif
+                                </div>
+                            @endif
 
-                        @if(!isset($currentPage->extra_data['show_pengajuan']) || $currentPage->extra_data['show_pengajuan'] == 1)
-                            @php
-                                $titlePengajuan = $locale === 'en' && !empty($currentPage->extra_data['title_pengajuan_en'])
-                                    ? $currentPage->extra_data['title_pengajuan_en']
-                                    : (!empty($currentPage->extra_data['title_pengajuan']) ? $currentPage->extra_data['title_pengajuan'] : __('home.layanan_publik.visiting_app'));
-                            @endphp
-                            <h3 class="service-subtitle">{{ $titlePengajuan }}</h3>
-                            <div class="service-box">
-                                @if(!empty($currentPage->extra_data['pengajuan_kunjungan']))
-                                    @php
-                                        $pengajuanText = $locale === 'en' && !empty($currentPage->extra_data['pengajuan_kunjungan_en'])
-                                            ? $currentPage->extra_data['pengajuan_kunjungan_en']
-                                            : $currentPage->extra_data['pengajuan_kunjungan'];
-                                    @endphp
-                                    {!! nl2br(e($pengajuanText)) !!}
-                                @else
-                                    <p>{{ __('home.layanan_publik.pengajuan_kunjungan_default') }}</p>
-                                @endif
-                            </div>
-                        @endif
+                            @if(!isset($currentPage->extra_data['show_pengajuan']) || $currentPage->extra_data['show_pengajuan'] == 1)
+                                @php
+                                    $titlePengajuan = $locale === 'en' && !empty($currentPage->extra_data['title_pengajuan_en'])
+                                        ? $currentPage->extra_data['title_pengajuan_en']
+                                        : (!empty($currentPage->extra_data['title_pengajuan']) ? $currentPage->extra_data['title_pengajuan'] : __('home.layanan_publik.visiting_app'));
+                                @endphp
+                                <h3 class="service-subtitle">{{ $titlePengajuan }}</h3>
+                                <div class="service-box">
+                                    @if(!empty($currentPage->extra_data['pengajuan_kunjungan']))
+                                        @php
+                                            $pengajuanText = $locale === 'en' && !empty($currentPage->extra_data['pengajuan_kunjungan_en'])
+                                                ? $currentPage->extra_data['pengajuan_kunjungan_en']
+                                                : $currentPage->extra_data['pengajuan_kunjungan'];
+                                        @endphp
+                                        {!! nl2br(e($pengajuanText)) !!}
+                                    @else
+                                        <p>{{ __('home.layanan_publik.pengajuan_kunjungan_default') }}</p>
+                                    @endif
+                                </div>
+                            @endif
 
-                        {{-- Calendar Widget --}}
-                        @if(!isset($currentPage->extra_data['show_kalender']) || $currentPage->extra_data['show_kalender'] == 1)
-                            @php
-                                $currentYear = now()->year;
-                                $currentMonth = now()->month;
+                            {{-- Calendar Widget --}}
+                            @if(!isset($currentPage->extra_data['show_kalender']) || $currentPage->extra_data['show_kalender'] == 1)
+                                @php
+                                    $currentYear = now()->year;
+                                    $currentMonth = now()->month;
 
-                                $googleHolidays = array_merge(
-                                    \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear - 1),
-                                    \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear),
-                                    \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear + 1)
-                                );
-                                $customLibur = !empty($currentPage->extra_data['libur_dates']) ? collect($currentPage->extra_data['libur_dates'])->pluck('reason', 'date')->toArray() : [];
-                                $liburDates = array_merge($googleHolidays, $customLibur);
+                                    $googleHolidays = array_merge(
+                                        \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear - 1),
+                                        \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear),
+                                        \App\Services\GoogleCalendarHolidayService::getHolidays($currentYear + 1)
+                                    );
+                                    $customLibur = !empty($currentPage->extra_data['libur_dates']) ? collect($currentPage->extra_data['libur_dates'])->pluck('reason', 'date')->toArray() : [];
+                                    $liburDates = array_merge($googleHolidays, $customLibur);
 
-                                $tutupSlots = !empty($currentPage->extra_data['tutup_slots']) ? collect($currentPage->extra_data['tutup_slots'])->groupBy('date')->toArray() : [];
-                                $kuotaHarian = $currentPage->extra_data['kuota_harian'] ?? (($currentPage->extra_data['kuota_pagi'] ?? 2) + ($currentPage->extra_data['kuota_siang'] ?? 2));
-                            @endphp
-                            <div class="calendar-widget" id="calendar-widget-anchor">
-                                <div class="calendar-header">
-                                    <div class="calendar-title" id="calendar-title-display">{{ now()->translatedFormat('F Y') }}</div>
-                                    <div class="calendar-nav">
-                                        <button type="button" onclick="changeCalendarMonth(-1)"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-                                        <button type="button" onclick="changeCalendarMonth(1)"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                                    $tutupSlots = !empty($currentPage->extra_data['tutup_slots']) ? collect($currentPage->extra_data['tutup_slots'])->groupBy('date')->toArray() : [];
+                                    $kuotaHarian = $currentPage->extra_data['kuota_harian'] ?? (($currentPage->extra_data['kuota_pagi'] ?? 2) + ($currentPage->extra_data['kuota_siang'] ?? 2));
+                                @endphp
+                                <div class="calendar-widget" id="calendar-widget-anchor">
+                                    <div class="calendar-header">
+                                        <div class="calendar-title" id="calendar-title-display">{{ now()->translatedFormat('F Y') }}</div>
+                                        <div class="calendar-nav">
+                                            <button type="button" onclick="changeCalendarMonth(-1)"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                                            <button type="button" onclick="changeCalendarMonth(1)"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                                        </div>
+                                    </div>
+                                    <div class="calendar-grid" id="calendar-grid-display">
+                                        <!-- Rendered by JS -->
+                                    </div>
+                                    <div class="flex items-center gap-4 mt-4 text-xs text-gray-500 justify-center">
+                                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-red-100 rounded-full inline-block border border-red-300"></span> Libur / Tutup</div>
+                                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-gray-200 rounded-full inline-block"></span> Penuh (Full)</div>
+                                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-yellow-100 rounded-full inline-block border border-yellow-300"></span> Tutup Sebagian</div>
+                                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-[#0284c7] rounded-full inline-block"></span> Dipilih</div>
                                     </div>
                                 </div>
-                                <div class="calendar-grid" id="calendar-grid-display">
-                                    <!-- Rendered by JS -->
-                                </div>
-                                <div class="flex items-center gap-4 mt-4 text-xs text-gray-500 justify-center">
-                                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-red-100 rounded-full inline-block border border-red-300"></span> Libur / Tutup</div>
-                                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-gray-200 rounded-full inline-block"></span> Penuh (Full)</div>
-                                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-yellow-100 rounded-full inline-block border border-yellow-300"></span> Tutup Sebagian</div>
-                                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-[#0284c7] rounded-full inline-block"></span> Dipilih</div>
-                                </div>
-                            </div>
 
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    let currentYear = {{ $currentYear }};
-                                    let currentMonth = {{ $currentMonth }}; // 1-12
-                                    const liburDates = {!! json_encode($liburDates) !!};
-                                    const tutupSlots = {!! json_encode($tutupSlots) !!};
-                                    const kuotaHarian = {{ $kuotaHarian }};
-                                    const monthNamesEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                                    const monthNamesId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                                    const isEn = '{{ $locale }}' === 'en';
-                                    const monthNames = isEn ? monthNamesEn : monthNamesId;
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        let currentYear = {{ $currentYear }};
+                                        let currentMonth = {{ $currentMonth }}; // 1-12
+                                        const liburDates = {!! json_encode($liburDates) !!};
+                                        const tutupSlots = {!! json_encode($tutupSlots) !!};
+                                        const kuotaHarian = {{ $kuotaHarian }};
+                                        const monthNamesEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                                        const monthNamesId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                        const isEn = '{{ $locale }}' === 'en';
+                                        const monthNames = isEn ? monthNamesEn : monthNamesId;
 
-                                    function renderCalendar() {
-                                        const titleDisplay = document.getElementById('calendar-title-display');
-                                        const gridDisplay = document.getElementById('calendar-grid-display');
-                                        if (!titleDisplay || !gridDisplay) return;
+                                        function renderCalendar() {
+                                            const titleDisplay = document.getElementById('calendar-title-display');
+                                            const gridDisplay = document.getElementById('calendar-grid-display');
+                                            if (!titleDisplay || !gridDisplay) return;
 
-                                        titleDisplay.innerText = monthNames[currentMonth - 1] + ' ' + currentYear;
+                                            titleDisplay.innerText = monthNames[currentMonth - 1] + ' ' + currentYear;
 
-                                        const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay(); // 0 for Sunday
-                                        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+                                            const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay(); // 0 for Sunday
+                                            const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
 
-                                        let html = `
-                                            <div class="calendar-day-name">Min</div>
-                                            <div class="calendar-day-name">Sen</div>
-                                            <div class="calendar-day-name">Sel</div>
-                                            <div class="calendar-day-name">Rab</div>
-                                            <div class="calendar-day-name">Kam</div>
-                                            <div class="calendar-day-name">Jum</div>
-                                            <div class="calendar-day-name">Sab</div>
-                                        `;
+                                            let html = `
+                                                <div class="calendar-day-name">Min</div>
+                                                <div class="calendar-day-name">Sen</div>
+                                                <div class="calendar-day-name">Sel</div>
+                                                <div class="calendar-day-name">Rab</div>
+                                                <div class="calendar-day-name">Kam</div>
+                                                <div class="calendar-day-name">Jum</div>
+                                                <div class="calendar-day-name">Sab</div>
+                                            `;
 
-                                        for (let i = 0; i < firstDay; i++) {
-                                            html += `<div></div>`;
-                                        }
-
-                                        for (let d = 1; d <= daysInMonth; d++) {
-                                            const monthStr = String(currentMonth).padStart(2, '0');
-                                            const dayStr = String(d).padStart(2, '0');
-                                            const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
-
-                                            const isLibur = !!liburDates[dateStr];
-                                            const liburReason = isLibur ? liburDates[dateStr] : '';
-                                            const hasTutup = !!tutupSlots[dateStr];
-                                            const tutupInfo = hasTutup ? tutupSlots[dateStr] : [];
-
-                                            let className = 'calendar-date';
-                                            let title = '';
-
-                                            if (isLibur) {
-                                                className += ' holiday bg-red-100 text-red-600 font-bold cursor-not-allowed';
-                                                title = (isEn ? 'Holiday: ' : 'Libur: ') + liburReason;
-                                            } else if (hasTutup) {
-                                                const tutupSlotTypes = tutupInfo.map(ti => ti.slot);
-                                                const fullSlot = tutupInfo.find(ti => ti.slot === 'full');
-                                                const pagiSlot = tutupInfo.find(ti => ti.slot === 'pagi');
-                                                const siangSlot = tutupInfo.find(ti => ti.slot === 'siang');
-
-                                                const isFullClosed = (fullSlot && fullSlot.max_quota == 0) ||
-                                                                    (tutupSlotTypes.includes('full') && (!fullSlot || fullSlot.max_quota == 0)) ||
-                                                                    (tutupSlotTypes.includes('pagi') && (!pagiSlot || pagiSlot.max_quota == 0) && tutupSlotTypes.includes('siang') && (!siangSlot || siangSlot.max_quota == 0));
-
-                                                if (isFullClosed) {
-                                                    className += ' booked bg-gray-200 text-gray-500 line-through cursor-not-allowed';
-                                                    title = isEn ? 'Registration Fully Closed' : 'Pendaftaran Ditutup Penuh';
-                                                } else {
-                                                    className += ' partial-booked bg-yellow-100 text-yellow-800 cursor-pointer';
-                                                    let details = [];
-                                                    tutupInfo.forEach(ti => {
-                                                        let slotName = ti.slot.charAt(0).toUpperCase() + ti.slot.slice(1);
-                                                        let quotaStr = (ti.max_quota && ti.max_quota > 0) ? ` (Kuota Maks: ${ti.max_quota})` : " (Ditutup)";
-                                                        details.push(`${slotName}${quotaStr}`);
-                                                    });
-                                                    title = (isEn ? 'Quota/Time Settings: ' : 'Pengaturan Kuota/Waktu: ') + details.join(', ');
-                                                }
-                                            } else {
-                                                className += ' hover:bg-blue-50 cursor-pointer';
-                                                title = (isEn ? 'Available - Daily Max Quota: ' : 'Tersedia - Kuota Maksimal Harian: ') + kuotaHarian + (isEn ? ' Visits' : ' Kunjungan');
+                                            for (let i = 0; i < firstDay; i++) {
+                                                html += `<div></div>`;
                                             }
 
-                                            html += `<div class="${className}" title="${title}" data-date="${dateStr}">${d}</div>`;
-                                        }
+                                            for (let d = 1; d <= daysInMonth; d++) {
+                                                const monthStr = String(currentMonth).padStart(2, '0');
+                                                const dayStr = String(d).padStart(2, '0');
+                                                const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
 
-                                        gridDisplay.innerHTML = html;
+                                                const isLibur = !!liburDates[dateStr];
+                                                const liburReason = isLibur ? liburDates[dateStr] : '';
+                                                const hasTutup = !!tutupSlots[dateStr];
+                                                const tutupInfo = hasTutup ? tutupSlots[dateStr] : [];
 
-                                        gridDisplay.querySelectorAll('.calendar-date').forEach(el => {
-                                            el.addEventListener('click', function() {
-                                                if (!this.classList.contains('cursor-not-allowed')) {
-                                                    gridDisplay.querySelectorAll('.calendar-date').forEach(item => item.classList.remove('selected'));
-                                                    this.classList.add('selected');
-                                                    let dtInput = document.getElementById('form_visit_date');
-                                                    if (dtInput) {
-                                                        dtInput.value = this.getAttribute('data-date');
+                                                let className = 'calendar-date';
+                                                let title = '';
+
+                                                if (isLibur) {
+                                                    className += ' holiday bg-red-100 text-red-600 font-bold cursor-not-allowed';
+                                                    title = (isEn ? 'Holiday: ' : 'Libur: ') + liburReason;
+                                                } else if (hasTutup) {
+                                                    const tutupSlotTypes = tutupInfo.map(ti => ti.slot);
+                                                    const fullSlot = tutupInfo.find(ti => ti.slot === 'full');
+                                                    const pagiSlot = tutupInfo.find(ti => ti.slot === 'pagi');
+                                                    const siangSlot = tutupInfo.find(ti => ti.slot === 'siang');
+
+                                                    const isFullClosed = (fullSlot && fullSlot.max_quota == 0) ||
+                                                                        (tutupSlotTypes.includes('full') && (!fullSlot || fullSlot.max_quota == 0)) ||
+                                                                        (tutupSlotTypes.includes('pagi') && (!pagiSlot || pagiSlot.max_quota == 0) && tutupSlotTypes.includes('siang') && (!siangSlot || siangSlot.max_quota == 0));
+
+                                                    if (isFullClosed) {
+                                                        className += ' booked bg-gray-200 text-gray-500 line-through cursor-not-allowed';
+                                                        title = isEn ? 'Registration Fully Closed' : 'Pendaftaran Ditutup Penuh';
+                                                    } else {
+                                                        className += ' partial-booked bg-yellow-100 text-yellow-800 cursor-pointer';
+                                                        let details = [];
+                                                        tutupInfo.forEach(ti => {
+                                                            let slotName = ti.slot.charAt(0).toUpperCase() + ti.slot.slice(1);
+                                                            let quotaStr = (ti.max_quota && ti.max_quota > 0) ? ` (Kuota Maks: ${ti.max_quota})` : " (Ditutup)";
+                                                            details.push(`${slotName}${quotaStr}`);
+                                                        });
+                                                        title = (isEn ? 'Quota/Time Settings: ' : 'Pengaturan Kuota/Waktu: ') + details.join(', ');
                                                     }
                                                 } else {
-                                                    Swal.fire({
-                                                        title: isEn ? 'Information' : 'Informasi',
-                                                        text: this.getAttribute('title') || (isEn ? 'Date unavailable' : 'Tanggal tidak tersedia'),
-                                                        icon: 'info',
-                                                        confirmButtonColor: '#174E93'
-                                                    });
+                                                    className += ' hover:bg-blue-50 cursor-pointer';
+                                                    title = (isEn ? 'Available - Daily Max Quota: ' : 'Tersedia - Kuota Maksimal Harian: ') + kuotaHarian + (isEn ? ' Visits' : ' Kunjungan');
                                                 }
+
+                                                html += `<div class="${className}" title="${title}" data-date="${dateStr}">${d}</div>`;
+                                            }
+
+                                            gridDisplay.innerHTML = html;
+
+                                            gridDisplay.querySelectorAll('.calendar-date').forEach(el => {
+                                                el.addEventListener('click', function() {
+                                                    if (!this.classList.contains('cursor-not-allowed')) {
+                                                        gridDisplay.querySelectorAll('.calendar-date').forEach(item => item.classList.remove('selected'));
+                                                        this.classList.add('selected');
+                                                        let dtInput = document.getElementById('form_visit_date');
+                                                        if (dtInput) {
+                                                            dtInput.value = this.getAttribute('data-date');
+                                                        }
+                                                    } else {
+                                                        Swal.fire({
+                                                            title: isEn ? 'Information' : 'Informasi',
+                                                            text: this.getAttribute('title') || (isEn ? 'Date unavailable' : 'Tanggal tidak tersedia'),
+                                                            icon: 'info',
+                                                            confirmButtonColor: '#174E93'
+                                                        });
+                                                    }
+                                                });
                                             });
-                                        });
-                                    }
-
-                                    window.changeCalendarMonth = function(offset) {
-                                        currentMonth += offset;
-                                        if (currentMonth > 12) {
-                                            currentMonth = 1;
-                                            currentYear++;
-                                        } else if (currentMonth < 1) {
-                                            currentMonth = 12;
-                                            currentYear--;
                                         }
+
+                                        window.changeCalendarMonth = function(offset) {
+                                            currentMonth += offset;
+                                            if (currentMonth > 12) {
+                                                currentMonth = 1;
+                                                currentYear++;
+                                            } else if (currentMonth < 1) {
+                                                currentMonth = 12;
+                                                currentYear--;
+                                            }
+                                            renderCalendar();
+                                        };
+
                                         renderCalendar();
-                                    };
+                                    });
+                                </script>
+                            @endif
 
-                                    renderCalendar();
-                                });
-                            </script>
-                        @endif
-
-                        {{-- Form --}}
-                        @if(!isset($currentPage->extra_data['show_form']) || $currentPage->extra_data['show_form'] == 1)
-                            <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); if(typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) { Swal.fire({ title: 'Oops!', text: '{{ __('home.layanan_publik.captcha_warning') }}', icon: 'warning', confirmButtonColor: '#174E93' }); return false; } Swal.fire({ title: 'Berhasil!', text: 'Formulir berhasil dikirim!', icon: 'success', confirmButtonColor: '#174E93' });">
-                                @if(!empty($currentPage->extra_data['form_fields']) && is_array($currentPage->extra_data['form_fields']))
-                                    @foreach($currentPage->extra_data['form_fields'] as $field)
-                                        @php
-                                            $fieldId = 'form_' . ($field['id'] ?? uniqid());
-                                            $fieldLabel = $locale === 'en' && !empty($field['label_en']) ? $field['label_en'] : ($field['label'] ?? '');
-                                            $fieldType = $field['type'] ?? 'text';
-                                            $isRequired = !empty($field['required']) && $field['required'] !== 'false' && $field['required'] !== false && $field['required'] != 0;
-                                        @endphp
-                                        <div class="form-group">
-                                            <label class="form-label" for="{{ $fieldId }}">{{ $fieldLabel }} @if($isRequired)<span class="required">*</span>@endif</label>
-                                            @if($fieldType === 'textarea')
-                                                <textarea id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" rows="3" @if($isRequired) required @endif></textarea>
-                                            @elseif($fieldType === 'select')
-                                                @php
-                                                    $optionsStr = $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : ($field['options'] ?? '');
-                                                    $optionsArr = array_filter(array_map('trim', explode(',', $optionsStr)));
-                                                @endphp
-                                                <select id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-select" @if($isRequired) required @endif>
-                                                    <option value="">{{ __('home.layanan_publik.form_select') }}</option>
-                                                    @foreach($optionsArr as $opt)
-                                                        <option value="{{ $opt }}">{{ $opt }}</option>
-                                                    @endforeach
-                                                </select>
-                                            @elseif($fieldType === 'file')
-                                                <div>
-                                                    <div class="form-file-wrap">
-                                                        <button type="button" class="btn-choose-file" onclick="document.getElementById('{{ $fieldId }}').click()">{{ __('home.layanan_publik.choose_file') }}</button>
-                                                        <span id="{{ $fieldId }}_text">{{ __('home.layanan_publik.no_file') }}</span>
-                                                        <input type="file" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="hidden" onchange="document.getElementById('{{ $fieldId }}_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'" @if($isRequired) required @endif>
+                            {{-- Form --}}
+                            @if(!isset($currentPage->extra_data['show_form']) || $currentPage->extra_data['show_form'] == 1)
+                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); if(typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) { Swal.fire({ title: 'Oops!', text: '{{ __('home.layanan_publik.captcha_warning') }}', icon: 'warning', confirmButtonColor: '#174E93' }); return false; } Swal.fire({ title: 'Berhasil!', text: 'Formulir berhasil dikirim!', icon: 'success', confirmButtonColor: '#174E93' });">
+                                    @if(!empty($currentPage->extra_data['form_fields']) && is_array($currentPage->extra_data['form_fields']))
+                                        @foreach($currentPage->extra_data['form_fields'] as $field)
+                                            @php
+                                                $fieldId = 'form_' . ($field['id'] ?? uniqid());
+                                                $fieldLabel = $locale === 'en' && !empty($field['label_en']) ? $field['label_en'] : ($field['label'] ?? '');
+                                                $fieldType = $field['type'] ?? 'text';
+                                                $isRequired = !empty($field['required']) && $field['required'] !== 'false' && $field['required'] !== false && $field['required'] != 0;
+                                            @endphp
+                                            <div class="form-group">
+                                                <label class="form-label" for="{{ $fieldId }}">{{ $fieldLabel }} @if($isRequired)<span class="required">*</span>@endif</label>
+                                                @if($fieldType === 'textarea')
+                                                    <textarea id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" rows="3" @if($isRequired) required @endif></textarea>
+                                                @elseif($fieldType === 'select')
+                                                    @php
+                                                        $optionsStr = $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : ($field['options'] ?? '');
+                                                        $optionsArr = array_filter(array_map('trim', explode(',', $optionsStr)));
+                                                    @endphp
+                                                    <select id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-select" @if($isRequired) required @endif>
+                                                        <option value="">{{ __('home.layanan_publik.form_select') }}</option>
+                                                        @foreach($optionsArr as $opt)
+                                                            <option value="{{ $opt }}">{{ $opt }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @elseif($fieldType === 'file')
+                                                    <div>
+                                                        <div class="form-file-wrap">
+                                                            <button type="button" class="btn-choose-file" onclick="document.getElementById('{{ $fieldId }}').click()">{{ __('home.layanan_publik.choose_file') }}</button>
+                                                            <span id="{{ $fieldId }}_text">{{ __('home.layanan_publik.no_file') }}</span>
+                                                            <input type="file" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="hidden" onchange="document.getElementById('{{ $fieldId }}_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'" @if($isRequired) required @endif>
+                                                        </div>
+                                                        @if(!empty($field['options']))
+                                                            <div class="file-hint">{{ $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : $field['options'] }}</div>
+                                                        @endif
                                                     </div>
-                                                    @if(!empty($field['options']))
-                                                        <div class="file-hint">{{ $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : $field['options'] }}</div>
-                                                    @endif
+                                                @else
+                                                    <input type="{{ $fieldType }}" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" @if($isRequired) required @endif @if($fieldType === 'number') min="1" @endif>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        {{-- Fallback to default static form if no dynamic fields configured --}}
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_name">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
+                                            <input type="text" id="form_name" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_email">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
+                                            <input type="email" id="form_email" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_phone_office">{{ __('home.layanan_publik.form_phone_office') }}</label>
+                                            <input type="text" id="form_phone_office" class="form-input">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_phone">{{ __('home.layanan_publik.form_phone') }} <span class="required">*</span></label>
+                                            <input type="text" id="form_phone" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_institution">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
+                                            <input type="text" id="form_institution" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_position">{{ __('home.layanan_publik.form_position') }} <span class="required">*</span></label>
+                                            <input type="text" id="form_position" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_visit_date">{{ __('home.layanan_publik.form_visit_date') }} <span class="required">*</span></label>
+                                            <input type="date" id="form_visit_date" class="form-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_visit_time">{{ __('home.layanan_publik.form_visit_time') }} <span class="required">*</span></label>
+                                            <select id="form_visit_time" class="form-select" required>
+                                                <option value="">{{ __('home.layanan_publik.form_select') }}</option>
+                                                <option value="pagi">{{ __('home.layanan_publik.form_time_pagi') }}</option>
+                                                <option value="siang">{{ __('home.layanan_publik.form_time_siang') }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_visitor_count">{{ __('home.layanan_publik.form_visitor_count') }} <span class="required">*</span></label>
+                                            <input type="number" id="form_visitor_count" class="form-input" required min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="form_visit_purpose">{{ __('home.layanan_publik.form_visit_purpose') }} <span class="required">*</span></label>
+                                            <select id="form_visit_purpose" class="form-select" required>
+                                                <option value="">{{ __('home.layanan_publik.form_select') }}</option>
+                                                <option value="edukasi">{{ __('home.layanan_publik.form_purpose_edukasi') }}</option>
+                                                <option value="penelitian">{{ __('home.layanan_publik.form_purpose_penelitian') }}</option>
+                                                <option value="kunker">{{ __('home.layanan_publik.form_purpose_kunker') }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">{{ __('home.layanan_publik.form_req_letter') }}</label>
+                                            <div>
+                                                <div class="form-file-wrap">
+                                                    <button type="button" class="btn-choose-file" onclick="document.getElementById('surat_file').click()">{{ __('home.layanan_publik.choose_file') }}</button>
+                                                    <span id="file_chosen_text">{{ __('home.layanan_publik.no_file') }}</span>
+                                                    <input type="file" id="surat_file" class="hidden" onchange="document.getElementById('file_chosen_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'">
                                                 </div>
+                                                <div class="file-hint">{{ __('home.layanan_publik.file_hint') }}</div>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <div class="form-group">
+                                        <label class="form-label">{{ __('home.layanan_publik.form_captcha') }} <span class="required">*</span></label>
+                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY', '6LfD3PIbAAAAAJs_eEHvoOl75_83eXSqpPSRFJ_u') }}"></div>
+                                    </div>
+                                    <button type="submit" class="btn-submit">{{ __('home.layanan_publik.form_submit') }}</button>
+                                </form>
+                            @endif
+
+                        @elseif (str_contains($matchTitle, 'laraska') || str_contains($matchTitle, 'restorasi'))
+                            {{-- Layout 2: LARASKA --}}
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
+                            <div class="service-box">
+                                @if(is_array($currentPage->extra_data) && array_key_exists('laraska_hours', $currentPage->extra_data))
+                                    {!! nl2br(e($currentPage->extra_data['laraska_hours'] ?? '')) !!}
+                                @else
+                                    {!! __('home.layanan_publik.laraska_hours') !!}
+                                @endif
+                            </div>
+
+                            {{-- Maklumat Box --}}
+                            <div class="p-8 bg-[#1e3a8a] text-white rounded-2xl mb-8 text-center shadow-xl relative overflow-hidden border-4 border-yellow-500">
+                                <h3 class="text-2xl font-bold mb-4 tracking-wider text-yellow-400">{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_title', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_title'] ?? '') : __('home.layanan_publik.maklumat_title') }}</h3>
+                                <p class="text-lg leading-relaxed mb-6 font-medium">{!! (is_array($currentPage->extra_data) && array_key_exists('maklumat_content', $currentPage->extra_data)) ? nl2br(e($currentPage->extra_data['maklumat_content'] ?? '')) : __('home.layanan_publik.maklumat_content') !!}</p>
+                                <div class="text-right text-sm opacity-90 pr-4 font-semibold">
+                                    <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_date', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_date'] ?? '') : __('home.layanan_publik.maklumat_date') }}</p>
+                                    <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_director', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_director'] ?? '') : __('home.layanan_publik.maklumat_director') }}</p>
+                                </div>
+                            </div>
+
+                            {{-- Mekanisme Flowchart --}}
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
+                            <div class="flowchart-box">
+                                <div class="flowchart-title">{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_mech_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_mech_title'] ?? '') : __('home.layanan_publik.laraska_mech_title') }}</div>
+                                <div class="flowchart-steps">
+                                    @if(isset($currentPage->extra_data['laraska_steps']) && is_array($currentPage->extra_data['laraska_steps']))
+                                        @foreach($currentPage->extra_data['laraska_steps'] as $step)
+                                            <div class="flow-step">
+                                                <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
+                                                <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="flow-step">
+                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_title'] ?? '') : __('home.layanan_publik.laraska_step1_title') }}</h4>
+                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_desc'] ?? '') : __('home.layanan_publik.laraska_step1_desc') }}</p>
+                                        </div>
+                                        <div class="flow-step">
+                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_title'] ?? '') : __('home.layanan_publik.laraska_step2_title') }}</h4>
+                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_desc'] ?? '') : __('home.layanan_publik.laraska_step2_desc') }}</p>
+                                        </div>
+                                        <div class="flow-step">
+                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_title'] ?? '') : __('home.layanan_publik.laraska_step3_title') }}</h4>
+                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_desc'] ?? '') : __('home.layanan_publik.laraska_step3_desc') }}</p>
+                                        </div>
+                                        <div class="flow-step">
+                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_title'] ?? '') : __('home.layanan_publik.laraska_step4_title') }}</h4>
+                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_desc'] ?? '') : __('home.layanan_publik.laraska_step4_desc') }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            @if(!empty($currentPage->extra_data['file']))
+                                @php
+                                    $filePath = $currentPage->extra_data['file'];
+                                    $fullPath = public_path('storage/' . $filePath);
+                                    $storagePath = storage_path('app/public/' . $filePath);
+                                    $fileSizeBytes = Storage::disk('public')->exists($filePath) ? Storage::disk('public')->size($filePath) : (file_exists($fullPath) ? filesize($fullPath) : (file_exists($storagePath) ? filesize($storagePath) : 0));
+                                    if ($fileSizeBytes >= 1048576) {
+                                        $fileSizeStr = round($fileSizeBytes / 1048576, 1) . ' MB';
+                                    } elseif ($fileSizeBytes > 0) {
+                                        $fileSizeStr = round($fileSizeBytes / 1024, 0) . ' KB';
+                                    } else {
+                                        $fileSizeStr = '0 KB';
+                                    }
+                                    $customFileName = !empty($currentPage->extra_data['file_name']) ? $currentPage->extra_data['file_name'] : basename($filePath);
+                                @endphp
+                                <a href="{{ asset('storage/' . $filePath) }}" target="_blank" class="btn-download-pdf">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                    <span>{{ $customFileName }} ({{ $fileSizeStr }})</span>
+                                </a>
+                            @endif
+
+                        @elseif (str_contains($matchTitle, 'statis') || str_contains($matchTitle, 'arsip'))
+                            {{-- Layout 3: Layanan Arsip Statis --}}
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
+                            <div class="service-box">
+                                @if($currentPage && is_array($currentPage->extra_data) && (array_key_exists('statis_hours', $currentPage->extra_data) || array_key_exists('statis_hours_en', $currentPage->extra_data)))
+                                    {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_hours_en'] ?? $currentPage->extra_data['statis_hours'] ?? '') : ($currentPage->extra_data['statis_hours'] ?? ''))) !!}
+                                @else
+                                    {!! __('home.layanan_publik.statis_hours') !!}
+                                @endif
+                            </div>
+
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.archive_order') }}</h3>
+                            <div class="service-box">
+                                @if($currentPage && is_array($currentPage->extra_data) && (array_key_exists('statis_order_hours', $currentPage->extra_data) || array_key_exists('statis_order_hours_en', $currentPage->extra_data)))
+                                    {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_order_hours_en'] ?? $currentPage->extra_data['statis_order_hours'] ?? '') : ($currentPage->extra_data['statis_order_hours'] ?? ''))) !!}
+                                @else
+                                    {!! __('home.layanan_publik.statis_order_hours') !!}
+                                @endif
+                            </div>
+
+                            @if(($currentPage && isset($currentPage->extra_data['statis_stages']) && is_array($currentPage->extra_data['statis_stages']) && count($currentPage->extra_data['statis_stages']) > 0) || ($currentPage && !isset($currentPage->extra_data['statis_stages'])))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.stages') }}</h3>
+                                <div class="circles-wrapper">
+                                    @if(isset($currentPage->extra_data['statis_stages']) && is_array($currentPage->extra_data['statis_stages']))
+                                        @foreach($currentPage->extra_data['statis_stages'] as $index => $stage)
+                                            <div class="circle-step">
+                                                <div class="circle-num">{{ $index + 1 }}</div>
+                                                <div class="circle-text">{{ app()->getLocale() == 'en' ? ($stage['title_en'] ?? $stage['title'] ?? '') : ($stage['title'] ?? '') }}</div>
+                                            </div>
+                                            @if(!$loop->last)
+                                                <div class="circle-arrow">➔</div>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <div class="circle-step">
+                                            <div class="circle-num">1</div>
+                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage1_en'] ?? $currentPage->extra_data['statis_stage1'] ?? __('home.layanan_publik.statis_stage1')) : ($currentPage->extra_data['statis_stage1'] ?? __('home.layanan_publik.statis_stage1')) }}</div>
+                                        </div>
+                                        <div class="circle-arrow">➔</div>
+                                        <div class="circle-step">
+                                            <div class="circle-num">2</div>
+                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage2_en'] ?? $currentPage->extra_data['statis_stage2'] ?? __('home.layanan_publik.statis_stage2')) : ($currentPage->extra_data['statis_stage2'] ?? __('home.layanan_publik.statis_stage2')) }}</div>
+                                        </div>
+                                        <div class="circle-arrow">➔</div>
+                                        <div class="circle-step">
+                                            <div class="circle-num">3</div>
+                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage3_en'] ?? $currentPage->extra_data['statis_stage3'] ?? __('home.layanan_publik.statis_stage3')) : ($currentPage->extra_data['statis_stage3'] ?? __('home.layanan_publik.statis_stage3')) }}</div>
+                                        </div>
+                                        <div class="circle-arrow">➔</div>
+                                        <div class="circle-step">
+                                            <div class="circle-num">4</div>
+                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage4_en'] ?? $currentPage->extra_data['statis_stage4'] ?? __('home.layanan_publik.statis_stage4')) : ($currentPage->extra_data['statis_stage4'] ?? __('home.layanan_publik.statis_stage4')) }}</div>
+                                        </div>
+                                        <div class="circle-arrow">➔</div>
+                                        <div class="circle-step">
+                                            <div class="circle-num">5</div>
+                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage5_en'] ?? $currentPage->extra_data['statis_stage5'] ?? __('home.layanan_publik.statis_stage5')) : ($currentPage->extra_data['statis_stage5'] ?? __('home.layanan_publik.statis_stage5')) }}</div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @php
+                                $hasMech1 = ($currentPage && isset($currentPage->extra_data['statis_mech1_steps']) && is_array($currentPage->extra_data['statis_mech1_steps']) && count($currentPage->extra_data['statis_mech1_steps']) > 0) || ($currentPage && !isset($currentPage->extra_data['statis_mech1_steps']));
+                                $hasMech2 = ($currentPage && isset($currentPage->extra_data['statis_mech2_steps']) && is_array($currentPage->extra_data['statis_mech2_steps']) && count($currentPage->extra_data['statis_mech2_steps']) > 0) || ($currentPage && !isset($currentPage->extra_data['statis_mech2_steps']));
+                            @endphp
+
+                            @if($hasMech1 || $hasMech2)
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
+
+                                @if($hasMech1)
+                                    {{-- Langsung --}}
+                                    <div class="flowchart-box mb-4">
+                                        <div class="flowchart-title">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_title_en'] ?? $currentPage->extra_data['statis_mech1_title'] ?? __('home.layanan_publik.statis_mech1_title')) : ($currentPage->extra_data['statis_mech1_title'] ?? __('home.layanan_publik.statis_mech1_title')) }}</div>
+                                        <div class="flowchart-steps">
+                                            @if(isset($currentPage->extra_data['statis_mech1_steps']) && is_array($currentPage->extra_data['statis_mech1_steps']))
+                                                @foreach($currentPage->extra_data['statis_mech1_steps'] as $step)
+                                                    <div class="flow-step">
+                                                        <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
+                                                        <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
+                                                    </div>
+                                                @endforeach
                                             @else
-                                                <input type="{{ $fieldType }}" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" @if($isRequired) required @endif @if($fieldType === 'number') min="1" @endif>
+                                                <div class="flow-step">
+                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_req_title_en'] ?? $currentPage->extra_data['statis_mech1_req_title'] ?? __('home.layanan_publik.statis_mech1_req_title')) : ($currentPage->extra_data['statis_mech1_req_title'] ?? __('home.layanan_publik.statis_mech1_req_title')) }}</h4>
+                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_req_desc_en'] ?? $currentPage->extra_data['statis_mech1_req_desc'] ?? __('home.layanan_publik.statis_mech1_req_desc')) : ($currentPage->extra_data['statis_mech1_req_desc'] ?? __('home.layanan_publik.statis_mech1_req_desc')) }}</p>
+                                                </div>
+                                                <div class="flow-step">
+                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_stage_title_en'] ?? $currentPage->extra_data['statis_mech1_stage_title'] ?? __('home.layanan_publik.statis_mech1_stage_title')) : ($currentPage->extra_data['statis_mech1_stage_title'] ?? __('home.layanan_publik.statis_mech1_stage_title')) }}</h4>
+                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_stage_desc_en'] ?? $currentPage->extra_data['statis_mech1_stage_desc'] ?? __('home.layanan_publik.statis_mech1_stage_desc')) : ($currentPage->extra_data['statis_mech1_stage_desc'] ?? __('home.layanan_publik.statis_mech1_stage_desc')) }}</p>
+                                                </div>
                                             @endif
                                         </div>
-                                    @endforeach
-                                @else
-                                    {{-- Fallback to default static form if no dynamic fields configured --}}
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_name">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
-                                        <input type="text" id="form_name" class="form-input" required>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_email">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
-                                        <input type="email" id="form_email" class="form-input" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_phone_office">{{ __('home.layanan_publik.form_phone_office') }}</label>
-                                        <input type="text" id="form_phone_office" class="form-input">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_phone">{{ __('home.layanan_publik.form_phone') }} <span class="required">*</span></label>
-                                        <input type="text" id="form_phone" class="form-input" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_institution">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
-                                        <input type="text" id="form_institution" class="form-input" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_position">{{ __('home.layanan_publik.form_position') }} <span class="required">*</span></label>
-                                        <input type="text" id="form_position" class="form-input" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_visit_date">{{ __('home.layanan_publik.form_visit_date') }} <span class="required">*</span></label>
-                                        <input type="date" id="form_visit_date" class="form-input" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_visit_time">{{ __('home.layanan_publik.form_visit_time') }} <span class="required">*</span></label>
-                                        <select id="form_visit_time" class="form-select" required>
-                                            <option value="">{{ __('home.layanan_publik.form_select') }}</option>
-                                            <option value="pagi">{{ __('home.layanan_publik.form_time_pagi') }}</option>
-                                            <option value="siang">{{ __('home.layanan_publik.form_time_siang') }}</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_visitor_count">{{ __('home.layanan_publik.form_visitor_count') }} <span class="required">*</span></label>
-                                        <input type="number" id="form_visitor_count" class="form-input" required min="1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="form_visit_purpose">{{ __('home.layanan_publik.form_visit_purpose') }} <span class="required">*</span></label>
-                                        <select id="form_visit_purpose" class="form-select" required>
-                                            <option value="">{{ __('home.layanan_publik.form_select') }}</option>
-                                            <option value="edukasi">{{ __('home.layanan_publik.form_purpose_edukasi') }}</option>
-                                            <option value="penelitian">{{ __('home.layanan_publik.form_purpose_penelitian') }}</option>
-                                            <option value="kunker">{{ __('home.layanan_publik.form_purpose_kunker') }}</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">{{ __('home.layanan_publik.form_req_letter') }}</label>
-                                        <div>
-                                            <div class="form-file-wrap">
-                                                <button type="button" class="btn-choose-file" onclick="document.getElementById('surat_file').click()">{{ __('home.layanan_publik.choose_file') }}</button>
-                                                <span id="file_chosen_text">{{ __('home.layanan_publik.no_file') }}</span>
-                                                <input type="file" id="surat_file" class="hidden" onchange="document.getElementById('file_chosen_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'">
-                                            </div>
-                                            <div class="file-hint">{{ __('home.layanan_publik.file_hint') }}</div>
+
+                                    @if(!empty($currentPage->extra_data['statis_direct_pdf']))
+                                        @php
+                                            $filePath1 = $currentPage->extra_data['statis_direct_pdf'];
+                                            $fullPath1 = public_path('storage/' . $filePath1);
+                                            $storagePath1 = storage_path('app/public/' . $filePath1);
+                                            $fileSizeBytes1 = Storage::disk('public')->exists($filePath1) ? Storage::disk('public')->size($filePath1) : (file_exists($fullPath1) ? filesize($fullPath1) : (file_exists($storagePath1) ? filesize($storagePath1) : 0));
+                                            if ($fileSizeBytes1 >= 1048576) {
+                                                $fileSizeStr1 = round($fileSizeBytes1 / 1048576, 1) . ' MB';
+                                            } elseif ($fileSizeBytes1 > 0) {
+                                                $fileSizeStr1 = round($fileSizeBytes1 / 1024, 0) . ' KB';
+                                            } else {
+                                                $fileSizeStr1 = '0 KB';
+                                            }
+                                            $customFileName1 = !empty($currentPage->extra_data['statis_direct_pdf_name']) ? $currentPage->extra_data['statis_direct_pdf_name'] : basename($filePath1);
+                                        @endphp
+                                        <a href="{{ asset('storage/' . $filePath1) }}" target="_blank" class="btn-download-pdf">
+                                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                            <span>{{ $customFileName1 }} ({{ $fileSizeStr1 }})</span>
+                                        </a>
+                                    @endif
+                                @endif
+
+                                @if($hasMech2)
+                                    {{-- Tidak Langsung --}}
+                                    <div class="flowchart-box mb-4" style="background: linear-gradient(135deg, #0f172a, #334155);">
+                                        <div class="flowchart-title">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_title_en'] ?? $currentPage->extra_data['statis_mech2_title'] ?? __('home.layanan_publik.statis_mech2_title')) : ($currentPage->extra_data['statis_mech2_title'] ?? __('home.layanan_publik.statis_mech2_title')) }}</div>
+                                        <div class="flowchart-steps">
+                                            @if(isset($currentPage->extra_data['statis_mech2_steps']) && is_array($currentPage->extra_data['statis_mech2_steps']))
+                                                @foreach($currentPage->extra_data['statis_mech2_steps'] as $step)
+                                                    <div class="flow-step">
+                                                        <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
+                                                        <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <div class="flow-step">
+                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_online_title_en'] ?? $currentPage->extra_data['statis_mech2_online_title'] ?? __('home.layanan_publik.statis_mech2_online_title')) : ($currentPage->extra_data['statis_mech2_online_title'] ?? __('home.layanan_publik.statis_mech2_online_title')) }}</h4>
+                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_online_desc_en'] ?? $currentPage->extra_data['statis_mech2_online_desc'] ?? __('home.layanan_publik.statis_mech2_online_desc')) : ($currentPage->extra_data['statis_mech2_online_desc'] ?? __('home.layanan_publik.statis_mech2_online_desc')) }}</p>
+                                                </div>
+                                                <div class="flow-step">
+                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_send_title_en'] ?? $currentPage->extra_data['statis_mech2_send_title'] ?? __('home.layanan_publik.statis_mech2_send_title')) : ($currentPage->extra_data['statis_mech2_send_title'] ?? __('home.layanan_publik.statis_mech2_send_title')) }}</h4>
+                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_send_desc_en'] ?? $currentPage->extra_data['statis_mech2_send_desc'] ?? __('home.layanan_publik.statis_mech2_send_desc')) : ($currentPage->extra_data['statis_mech2_send_desc'] ?? __('home.layanan_publik.statis_mech2_send_desc')) }}</p>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif
-
-                                <div class="form-group">
-                                    <label class="form-label">{{ __('home.layanan_publik.form_captcha') }} <span class="required">*</span></label>
-                                    <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY', '6LfD3PIbAAAAAJs_eEHvoOl75_83eXSqpPSRFJ_u') }}"></div>
-                                </div>
-                                <button type="submit" class="btn-submit">{{ __('home.layanan_publik.form_submit') }}</button>
-                            </form>
-                        @endif
-
-                    @elseif (str_contains($matchTitle, 'laraska') || str_contains($matchTitle, 'restorasi'))
-                        {{-- Layout 2: LARASKA --}}
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
-                        <div class="service-box">
-                            @if(is_array($currentPage->extra_data) && array_key_exists('laraska_hours', $currentPage->extra_data))
-                                {!! nl2br(e($currentPage->extra_data['laraska_hours'] ?? '')) !!}
-                            @else
-                                {!! __('home.layanan_publik.laraska_hours') !!}
                             @endif
-                        </div>
 
-                        {{-- Maklumat Box --}}
-                        <div class="p-8 bg-[#1e3a8a] text-white rounded-2xl mb-8 text-center shadow-xl relative overflow-hidden border-4 border-yellow-500">
-                            <h3 class="text-2xl font-bold mb-4 tracking-wider text-yellow-400">{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_title', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_title'] ?? '') : __('home.layanan_publik.maklumat_title') }}</h3>
-                            <p class="text-lg leading-relaxed mb-6 font-medium">{!! (is_array($currentPage->extra_data) && array_key_exists('maklumat_content', $currentPage->extra_data)) ? nl2br(e($currentPage->extra_data['maklumat_content'] ?? '')) : __('home.layanan_publik.maklumat_content') !!}</p>
-                            <div class="text-right text-sm opacity-90 pr-4 font-semibold">
-                                <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_date', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_date'] ?? '') : __('home.layanan_publik.maklumat_date') }}</p>
-                                <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_director', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_director'] ?? '') : __('home.layanan_publik.maklumat_director') }}</p>
+                            @if(!empty($currentPage->extra_data['statis_indirect_pdf']))
+                                @php
+                                    $filePath2 = $currentPage->extra_data['statis_indirect_pdf'];
+                                    $fullPath2 = public_path('storage/' . $filePath2);
+                                    $storagePath2 = storage_path('app/public/' . $filePath2);
+                                    $fileSizeBytes2 = Storage::disk('public')->exists($filePath2) ? Storage::disk('public')->size($filePath2) : (file_exists($fullPath2) ? filesize($fullPath2) : (file_exists($storagePath2) ? filesize($storagePath2) : 0));
+                                    if ($fileSizeBytes2 >= 1048576) {
+                                        $fileSizeStr2 = round($fileSizeBytes2 / 1048576, 1) . ' MB';
+                                    } elseif ($fileSizeBytes2 > 0) {
+                                        $fileSizeStr2 = round($fileSizeBytes2 / 1024, 0) . ' KB';
+                                    } else {
+                                        $fileSizeStr2 = '0 KB';
+                                    }
+                                    $customFileName2 = !empty($currentPage->extra_data['statis_indirect_pdf_name']) ? $currentPage->extra_data['statis_indirect_pdf_name'] : basename($filePath2);
+                                @endphp
+                                <a href="{{ asset('storage/' . $filePath2) }}" target="_blank" class="btn-download-pdf">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                    <span>{{ $customFileName2 }} ({{ $fileSizeStr2 }})</span>
+                                </a>
+                            @endif
+
+                        @elseif (str_contains($matchTitle, 'konsultasi'))
+                            {{-- Layout 4: Konsultasi Kearsipan --}}
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_types') }}</h3>
+                            <div class="service-box">
+                                <p>{{ __('home.layanan_publik.consultation_desc') }}</p>
                             </div>
-                        </div>
 
-                        {{-- Mekanisme Flowchart --}}
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
-                        <div class="flowchart-box">
-                            <div class="flowchart-title">{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_mech_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_mech_title'] ?? '') : __('home.layanan_publik.laraska_mech_title') }}</div>
-                            <div class="flowchart-steps">
-                                @if(isset($currentPage->extra_data['laraska_steps']) && is_array($currentPage->extra_data['laraska_steps']))
-                                    @foreach($currentPage->extra_data['laraska_steps'] as $step)
-                                        <div class="flow-step">
-                                            <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
-                                            <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="flow-step">
-                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_title'] ?? '') : __('home.layanan_publik.laraska_step1_title') }}</h4>
-                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_desc'] ?? '') : __('home.layanan_publik.laraska_step1_desc') }}</p>
-                                    </div>
-                                    <div class="flow-step">
-                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_title'] ?? '') : __('home.layanan_publik.laraska_step2_title') }}</h4>
-                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_desc'] ?? '') : __('home.layanan_publik.laraska_step2_desc') }}</p>
-                                    </div>
-                                    <div class="flow-step">
-                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_title'] ?? '') : __('home.layanan_publik.laraska_step3_title') }}</h4>
-                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_desc'] ?? '') : __('home.layanan_publik.laraska_step3_desc') }}</p>
-                                    </div>
-                                    <div class="flow-step">
-                                        <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_title'] ?? '') : __('home.layanan_publik.laraska_step4_title') }}</h4>
-                                        <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_desc'] ?? '') : __('home.layanan_publik.laraska_step4_desc') }}</p>
-                                    </div>
-                                @endif
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_form') }}</h3>
+                            <form action="#" method="POST" class="service-form" onsubmit="event.preventDefault(); Swal.fire({ title: 'Berhasil!', text: '{{ __('home.layanan_publik.consultation_success') }}', icon: 'success', confirmButtonColor: '#174E93' });">
+                                <div class="form-group">
+                                    <label class="form-label">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
+                                    <input type="text" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
+                                    <input type="text" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
+                                    <input type="email" class="form-input" required>
+                                </div>
+                                <div class="form-group" style="align-items: start;">
+                                    <label class="form-label">{{ __('home.layanan_publik.consultation_form_detail') }} <span class="required">*</span></label>
+                                    <textarea class="form-textarea" required placeholder="{{ __('home.layanan_publik.consultation_form_placeholder') }}"></textarea>
+                                </div>
+                                <button type="submit" class="btn-submit">{{ __('home.layanan_publik.consultation_form_send') }}</button>
+                            </form>
+
+                        @else
+                            {{-- Layout 5: Perpustakaan --}}
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.objectives') }}</h3>
+                            <div class="service-box">
+                                <p>{{ __('home.layanan_publik.lib_obj1') }}</p>
+                                <p>{{ __('home.layanan_publik.lib_obj2') }}</p>
+                                <p>{{ __('home.layanan_publik.lib_obj3') }}</p>
                             </div>
-                        </div>
 
-                        @if(!empty($currentPage->extra_data['file']))
-                            @php
-                                $filePath = $currentPage->extra_data['file'];
-                                $fullPath = public_path('storage/' . $filePath);
-                                $storagePath = storage_path('app/public/' . $filePath);
-                                $fileSizeBytes = Storage::disk('public')->exists($filePath) ? Storage::disk('public')->size($filePath) : (file_exists($fullPath) ? filesize($fullPath) : (file_exists($storagePath) ? filesize($storagePath) : 0));
-                                if ($fileSizeBytes >= 1048576) {
-                                    $fileSizeStr = round($fileSizeBytes / 1048576, 1) . ' MB';
-                                } elseif ($fileSizeBytes > 0) {
-                                    $fileSizeStr = round($fileSizeBytes / 1024, 0) . ' KB';
-                                } else {
-                                    $fileSizeStr = '0 KB';
-                                }
-                                $customFileName = !empty($currentPage->extra_data['file_name']) ? $currentPage->extra_data['file_name'] : basename($filePath);
-                            @endphp
-                            <a href="{{ asset('storage/' . $filePath) }}" target="_blank" class="btn-download-pdf">
+                            <div class="mb-8">
+                                <a href="#" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider" onclick="event.preventDefault(); Swal.fire({ title: 'Informasi', text: '{{ __('home.layanan_publik.lib_redirect') }}', icon: 'info', confirmButtonColor: '#174E93' });">{{ __('home.layanan_publik.lib_visit_btn') }}</a>
+                            </div>
+
+                            {{-- Cards Grid --}}
+                            <div class="cards-grid">
+                                <div class="service-card">
+                                    <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+                                    <div class="card-info">
+                                        <h4>{{ __('home.layanan_publik.lib_card1_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_card1_desc') }}</p>
+                                    </div>
+                                </div>
+                                <div class="service-card">
+                                    <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+                                    <div class="card-info">
+                                        <h4>{{ __('home.layanan_publik.lib_card2_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_card2_desc') }}</p>
+                                    </div>
+                                </div>
+                                <div class="service-card">
+                                    <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
+                                    <div class="card-info">
+                                        <h4>{{ __('home.layanan_publik.lib_card3_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_card3_desc') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
+                            <div class="service-box">
+                                {!! __('home.layanan_publik.statis_hours') !!}
+                            </div>
+
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.rules') }}</h3>
+                            <div class="service-box">
+                                <p>{{ __('home.layanan_publik.lib_rule1') }}</p>
+                                <p>{{ __('home.layanan_publik.lib_rule2') }}</p>
+                                <p>{{ __('home.layanan_publik.lib_rule3') }}</p>
+                            </div>
+
+                            {{-- Photos Grid --}}
+                            <div class="grid grid-cols-2 gap-6 my-8">
+                                <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
+                                    <img src="/image/background.png" alt="{{ __('home.layanan_publik.lib_photo1') }}" class="w-full h-full object-cover">
+                                </div>
+                                <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
+                                    <img src="/image/background.png" alt="{{ __('home.layanan_publik.lib_photo2') }}" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+
+                            {{-- Prosedur Infographic --}}
+                            <h3 class="service-subtitle">{{ __('home.layanan_publik.procedures') }}</h3>
+                            <div class="flowchart-box mb-4">
+                                <div class="flowchart-title">{{ __('home.layanan_publik.lib_proc_title') }}</div>
+                                <div class="flowchart-steps">
+                                    <div class="flow-step">
+                                        <h4>{{ __('home.layanan_publik.lib_proc1_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_proc1_desc') }}</p>
+                                    </div>
+                                    <div class="flow-step">
+                                        <h4>{{ __('home.layanan_publik.lib_proc2_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_proc2_desc') }}</p>
+                                    </div>
+                                    <div class="flow-step">
+                                        <h4>{{ __('home.layanan_publik.lib_proc3_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_proc3_desc') }}</p>
+                                    </div>
+                                    <div class="flow-step">
+                                        <h4>{{ __('home.layanan_publik.lib_proc4_title') }}</h4>
+                                        <p>{{ __('home.layanan_publik.lib_proc4_desc') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.lib_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
                                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                                <span>{{ $customFileName }} ({{ $fileSizeStr }})</span>
+                                <span>{{ __('home.layanan_publik.lib_pdf') }}</span>
                             </a>
+
                         @endif
-
-                    @elseif (str_contains($matchTitle, 'statis') || str_contains($matchTitle, 'arsip'))
-                        {{-- Layout 3: Layanan Arsip Statis --}}
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
-                        <div class="service-box">
-                            {!! __('home.layanan_publik.statis_hours') !!}
-                        </div>
-
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.archive_order') }}</h3>
-                        <div class="service-box">
-                            {!! __('home.layanan_publik.statis_order_hours') !!}
-                        </div>
-
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.stages') }}</h3>
-                        <div class="circles-wrapper">
-                            <div class="circle-step">
-                                <div class="circle-num">1</div>
-                                <div class="circle-text">{{ __('home.layanan_publik.statis_stage1') }}</div>
-                            </div>
-                            <div class="circle-arrow">➔</div>
-                            <div class="circle-step">
-                                <div class="circle-num">2</div>
-                                <div class="circle-text">{{ __('home.layanan_publik.statis_stage2') }}</div>
-                            </div>
-                            <div class="circle-arrow">➔</div>
-                            <div class="circle-step">
-                                <div class="circle-num">3</div>
-                                <div class="circle-text">{{ __('home.layanan_publik.statis_stage3') }}</div>
-                            </div>
-                            <div class="circle-arrow">➔</div>
-                            <div class="circle-step">
-                                <div class="circle-num">4</div>
-                                <div class="circle-text">{{ __('home.layanan_publik.statis_stage4') }}</div>
-                            </div>
-                            <div class="circle-arrow">➔</div>
-                            <div class="circle-step">
-                                <div class="circle-num">5</div>
-                                <div class="circle-text">{{ __('home.layanan_publik.statis_stage5') }}</div>
-                            </div>
-                        </div>
-
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
-
-                        {{-- Langsung --}}
-                        <div class="flowchart-box mb-4">
-                            <div class="flowchart-title">{{ __('home.layanan_publik.statis_mech1_title') }}</div>
-                            <div class="flowchart-steps">
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.statis_mech1_req_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.statis_mech1_req_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.statis_mech1_stage_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.statis_mech1_stage_desc') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.statis_direct_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                            <span>{{ __('home.layanan_publik.statis_direct_pdf') }}</span>
-                        </a>
-
-                        {{-- Tidak Langsung --}}
-                        <div class="flowchart-box mb-4" style="background: linear-gradient(135deg, #0f172a, #334155);">
-                            <div class="flowchart-title">{{ __('home.layanan_publik.statis_mech2_title') }}</div>
-                            <div class="flowchart-steps">
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.statis_mech2_online_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.statis_mech2_online_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.statis_mech2_send_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.statis_mech2_send_desc') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.statis_indirect_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                            <span>{{ __('home.layanan_publik.statis_indirect_pdf') }}</span>
-                        </a>
-
-                    @elseif (str_contains($matchTitle, 'konsultasi'))
-                        {{-- Layout 4: Konsultasi Kearsipan --}}
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_types') }}</h3>
-                        <div class="service-box">
-                            <p>{{ __('home.layanan_publik.consultation_desc') }}</p>
-                        </div>
-
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_form') }}</h3>
-                        <form action="#" method="POST" class="service-form" onsubmit="event.preventDefault(); Swal.fire({ title: 'Berhasil!', text: '{{ __('home.layanan_publik.consultation_success') }}', icon: 'success', confirmButtonColor: '#174E93' });">
-                            <div class="form-group">
-                                <label class="form-label">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
-                                <input type="text" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
-                                <input type="text" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
-                                <input type="email" class="form-input" required>
-                            </div>
-                            <div class="form-group" style="align-items: start;">
-                                <label class="form-label">{{ __('home.layanan_publik.consultation_form_detail') }} <span class="required">*</span></label>
-                                <textarea class="form-textarea" required placeholder="{{ __('home.layanan_publik.consultation_form_placeholder') }}"></textarea>
-                            </div>
-                            <button type="submit" class="btn-submit">{{ __('home.layanan_publik.consultation_form_send') }}</button>
-                        </form>
-
                     @else
-                        {{-- Layout 5: Perpustakaan --}}
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.objectives') }}</h3>
-                        <div class="service-box">
-                            <p>{{ __('home.layanan_publik.lib_obj1') }}</p>
-                            <p>{{ __('home.layanan_publik.lib_obj2') }}</p>
-                            <p>{{ __('home.layanan_publik.lib_obj3') }}</p>
+                        <div class="p-8 text-center bg-gray-50 rounded-2xl border border-gray-200 my-8">
+                            <p class="text-gray-500 text-lg font-medium">{{ app()->getLocale() == 'en' ? 'No public service content available yet.' : 'Belum ada konten layanan publik yang tersedia.' }}</p>
                         </div>
-
-                        <div class="mb-8">
-                            <a href="#" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider" onclick="event.preventDefault(); Swal.fire({ title: 'Informasi', text: '{{ __('home.layanan_publik.lib_redirect') }}', icon: 'info', confirmButtonColor: '#174E93' });">{{ __('home.layanan_publik.lib_visit_btn') }}</a>
-                        </div>
-
-                        {{-- Cards Grid --}}
-                        <div class="cards-grid">
-                            <div class="service-card">
-                                <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
-                                <div class="card-info">
-                                    <h4>{{ __('home.layanan_publik.lib_card1_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_card1_desc') }}</p>
-                                </div>
-                            </div>
-                            <div class="service-card">
-                                <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-                                <div class="card-info">
-                                    <h4>{{ __('home.layanan_publik.lib_card2_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_card2_desc') }}</p>
-                                </div>
-                            </div>
-                            <div class="service-card">
-                                <div class="card-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
-                                <div class="card-info">
-                                    <h4>{{ __('home.layanan_publik.lib_card3_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_card3_desc') }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
-                        <div class="service-box">
-                            {!! __('home.layanan_publik.statis_hours') !!}
-                        </div>
-
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.rules') }}</h3>
-                        <div class="service-box">
-                            <p>{{ __('home.layanan_publik.lib_rule1') }}</p>
-                            <p>{{ __('home.layanan_publik.lib_rule2') }}</p>
-                            <p>{{ __('home.layanan_publik.lib_rule3') }}</p>
-                        </div>
-
-                        {{-- Photos Grid --}}
-                        <div class="grid grid-cols-2 gap-6 my-8">
-                            <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
-                                <img src="/image/background.png" alt="{{ __('home.layanan_publik.lib_photo1') }}" class="w-full h-full object-cover">
-                            </div>
-                            <div class="rounded-xl overflow-hidden shadow-md h-64 bg-gray-100">
-                                <img src="/image/background.png" alt="{{ __('home.layanan_publik.lib_photo2') }}" class="w-full h-full object-cover">
-                            </div>
-                        </div>
-
-                        {{-- Prosedur Infographic --}}
-                        <h3 class="service-subtitle">{{ __('home.layanan_publik.procedures') }}</h3>
-                        <div class="flowchart-box mb-4">
-                            <div class="flowchart-title">{{ __('home.layanan_publik.lib_proc_title') }}</div>
-                            <div class="flowchart-steps">
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.lib_proc1_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_proc1_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.lib_proc2_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_proc2_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.lib_proc3_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_proc3_desc') }}</p>
-                                </div>
-                                <div class="flow-step">
-                                    <h4>{{ __('home.layanan_publik.lib_proc4_title') }}</h4>
-                                    <p>{{ __('home.layanan_publik.lib_proc4_desc') }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.lib_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                            <span>{{ __('home.layanan_publik.lib_pdf') }}</span>
-                        </a>
-
                     @endif
 
                     {{-- Bagikan / Share Widget --}}

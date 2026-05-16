@@ -51,7 +51,6 @@
                                 <option value="statis">{{ __('cms.layanan_publik.type_statis') }}</option>
                                 <option value="konsultasi">{{ __('cms.layanan_publik.type_konsultasi') }}</option>
                                 <option value="perpustakaan">{{ __('cms.layanan_publik.type_perpustakaan') }}</option>
-                                <option value="umum">{{ __('cms.layanan_publik.type_umum') }}</option>
                             </select>
                         </div>
                         <div class="md:col-span-2">
@@ -349,7 +348,7 @@
                                 <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_pdf') }}</label>
                                 <div class="flex items-center gap-2">
                                     <div class="relative overflow-hidden shrink-0">
-                                        <input type="file" name="extra_data[file]" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="file_name = $event.target.files[0] ? $event.target.files[0].name : file_name">
+                                        <input type="file" name="extra_data_file_upload" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="file_name = $event.target.files[0] ? $event.target.files[0].name : file_name">
                                         <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
                                             Choose File
                                         </button>
@@ -381,6 +380,143 @@
                             <button type="button" @click="addLaraskaStep()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                 Tambah Langkah Mekanisme
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- STATIS Settings (Only visible when type === 'statis') --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'statis'">
+                    <div class="border-b border-gray-100 pb-4 mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Pengaturan Layanan Arsip Statis</h2>
+                        <p class="text-xs text-gray-500">Atur waktu layanan, tahapan penelusuran, serta mekanisme dan file panduan untuk layanan arsip statis.</p>
+                    </div>
+
+                    {{-- 1. Waktu Pelayanan & Pemesanan --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">Waktu Pelayanan</label>
+                            <textarea name="extra_data[statis_hours]" x-model="statis_hours" rows="3" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">Waktu Pemesanan Arsip</label>
+                            <textarea name="extra_data[statis_order_hours]" x-model="statis_order_hours" rows="3" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                        </div>
+                    </div>
+
+                    {{-- 2. Tahapan Penelusuran Arsip (Lingkaran Alur) --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <h3 class="text-sm font-bold text-gray-800">Tahapan Penelusuran Arsip (Lingkaran Alur)</h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <template x-for="(stage, index) in statis_stages" :key="index">
+                                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
+                                        <button type="button" @click="removeStatisStage(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Tahap">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            Hapus
+                                        </button>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Nama Tahap ' + (index + 1)"></label>
+                                            <input type="text" :name="'extra_data[statis_stages]['+index+'][title]'" x-model="stage.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" @click="addStatisStage()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                Tambah Tahapan Alur
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- 3. Mekanisme Layanan Langsung --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Judul Mekanisme Langsung</label>
+                                <input type="text" name="extra_data[statis_mech1_title]" x-model="statis_mech1_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">File Panduan PDF (Mekanisme Langsung)</label>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative overflow-hidden shrink-0">
+                                        <input type="file" name="extra_data_statis_direct_pdf" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="statis_direct_pdf_name = $event.target.files[0] ? $event.target.files[0].name : statis_direct_pdf_name">
+                                        <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
+                                            Choose File
+                                        </button>
+                                    </div>
+                                    <input type="text" name="extra_data[statis_direct_pdf_name]" x-model="statis_direct_pdf_name" placeholder="Nama file (otomatis terisi saat upload)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 pt-2">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <template x-for="(step, index) in statis_mech1_steps" :key="index">
+                                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
+                                        <button type="button" @click="removeStatisMech1Step(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Langkah">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            Hapus
+                                        </button>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Judul Langkah ' + (index + 1) + ' (Langsung)'"></label>
+                                            <input type="text" :name="'extra_data[statis_mech1_steps]['+index+'][title]'" x-model="step.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1" x-text="'Deskripsi Langkah ' + (index + 1)"></label>
+                                            <textarea :name="'extra_data[statis_mech1_steps]['+index+'][desc]'" x-model="step.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" @click="addStatisMech1Step()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                Tambah Langkah Mekanisme Langsung
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- 4. Mekanisme Layanan Tidak Langsung --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Judul Mekanisme Tidak Langsung</label>
+                                <input type="text" name="extra_data[statis_mech2_title]" x-model="statis_mech2_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">File Panduan PDF (Mekanisme Tidak Langsung)</label>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative overflow-hidden shrink-0">
+                                        <input type="file" name="extra_data_statis_indirect_pdf" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" @change="statis_indirect_pdf_name = $event.target.files[0] ? $event.target.files[0].name : statis_indirect_pdf_name">
+                                        <button type="button" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200 transition-colors pointer-events-none">
+                                            Choose File
+                                        </button>
+                                    </div>
+                                    <input type="text" name="extra_data[statis_indirect_pdf_name]" x-model="statis_indirect_pdf_name" placeholder="Nama file (otomatis terisi saat upload)" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 pt-2">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <template x-for="(step, index) in statis_mech2_steps" :key="index">
+                                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-2 group">
+                                        <button type="button" @click="removeStatisMech2Step(index)" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs font-semibold" title="Hapus Langkah">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            Hapus
+                                        </button>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 mb-1" x-text="'Judul Langkah ' + (index + 1) + ' (Tidak Langsung)'"></label>
+                                            <input type="text" :name="'extra_data[statis_mech2_steps]['+index+'][title]'" x-model="step.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1" x-text="'Deskripsi Langkah ' + (index + 1)"></label>
+                                            <textarea :name="'extra_data[statis_mech2_steps]['+index+'][desc]'" x-model="step.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" @click="addStatisMech2Step()" class="w-full py-2.5 border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-xl text-xs font-semibold text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50/50 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                Tambah Langkah Mekanisme Tidak Langsung
                             </button>
                         </div>
                     </div>

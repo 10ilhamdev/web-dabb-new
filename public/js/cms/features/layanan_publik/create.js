@@ -33,6 +33,27 @@ function layananPublikForm(initialType = 'kunjungan', initialExtraData = null) {
             { title: initialExtraData?.laraska_step3_title || "3. Proses Restorasi Arsip", desc: initialExtraData?.laraska_step3_desc || "Tim teknis melakukan perbaikan arsip keluarga di laboratorium restorasi DABB." },
             { title: initialExtraData?.laraska_step4_title || "4. Pengambilan Arsip", desc: initialExtraData?.laraska_step4_desc || "Pengguna mengambil arsip yang telah selesai direstorasi beserta salinan digitalnya." }
         ],
+        statis_hours: initialExtraData?.statis_hours || "Senin - Kamis : 08:30 - 15:00 WIB\nJumat : 08:30 - 15:30 WIB",
+        statis_order_hours: initialExtraData?.statis_order_hours || "Senin - Kamis : 08:30 - 14:00 WIB\nJumat : 08:30 - 14:30 WIB",
+        statis_stages: initialExtraData?.statis_stages || [
+            { title: initialExtraData?.statis_stage1 || "Penelusuran Mandiri via JIKN / SIKN" },
+            { title: initialExtraData?.statis_stage2 || "Konsultasi dengan Petugas Layanan" },
+            { title: initialExtraData?.statis_stage3 || "Mengisi Formulir Permintaan" },
+            { title: initialExtraData?.statis_stage4 || "Pencarian Arsip oleh Petugas" },
+            { title: initialExtraData?.statis_stage5 || "Penyerahan & Pembacaan Arsip" }
+        ],
+        statis_mech1_title: initialExtraData?.statis_mech1_title || "Mekanisme Layanan Langsung",
+        statis_mech1_steps: initialExtraData?.statis_mech1_steps || [
+            { title: initialExtraData?.statis_mech1_req_title || "1. Persyaratan", desc: initialExtraData?.statis_mech1_req_desc || "Membawa KTP/Identitas resmi yang berlaku dan surat pengantar dari instansi (bagi peneliti/mahasiswa)." },
+            { title: initialExtraData?.statis_mech1_stage_title || "2. Prosedur", desc: initialExtraData?.statis_mech1_stage_desc || "Melakukan pendaftaran di loket, menelusuri daftar arsip, dan mengisi form peminjaman arsip." }
+        ],
+        statis_direct_pdf_name: initialExtraData?.statis_direct_pdf_name || "",
+        statis_mech2_title: initialExtraData?.statis_mech2_title || "Mekanisme Layanan Tidak Langsung",
+        statis_mech2_steps: initialExtraData?.statis_mech2_steps || [
+            { title: initialExtraData?.statis_mech2_online_title || "1. Pengajuan Online", desc: initialExtraData?.statis_mech2_online_desc || "Mengirimkan surat permohonan resmi atau mengisi formulir daring melalui tautan yang disediakan." },
+            { title: initialExtraData?.statis_mech2_send_title || "2. Pengiriman Salinan", desc: initialExtraData?.statis_mech2_send_desc || "Petugas menelusuri arsip dan mengirimkan salinan digital (watermarked) ke email pemohon." }
+        ],
+        statis_indirect_pdf_name: initialExtraData?.statis_indirect_pdf_name || "",
         libur_dates: initialExtraData?.libur_dates || [],
         tutup_slots: initialExtraData?.tutup_slots || [],
         form_fields: initialExtraData?.form_fields || [
@@ -58,6 +79,25 @@ function layananPublikForm(initialType = 'kunjungan', initialExtraData = null) {
         },
         removeLaraskaStep(index) {
             this.laraska_steps.splice(index, 1);
+        },
+
+        addStatisStage() {
+            this.statis_stages.push({ title: `Tahap ${this.statis_stages.length + 1}` });
+        },
+        removeStatisStage(index) {
+            this.statis_stages.splice(index, 1);
+        },
+        addStatisMech1Step() {
+            this.statis_mech1_steps.push({ title: `${this.statis_mech1_steps.length + 1}. Langkah Baru`, desc: '' });
+        },
+        removeStatisMech1Step(index) {
+            this.statis_mech1_steps.splice(index, 1);
+        },
+        addStatisMech2Step() {
+            this.statis_mech2_steps.push({ title: `${this.statis_mech2_steps.length + 1}. Langkah Baru`, desc: '' });
+        },
+        removeStatisMech2Step(index) {
+            this.statis_mech2_steps.splice(index, 1);
         },
 
         addLibur() {
