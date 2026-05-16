@@ -151,6 +151,8 @@
         tableRowHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="3" y="9" width="18" height="6" fill="currentColor" stroke="none"/></svg>',
         tableColHighlight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><rect x="9" y="3" width="6" height="18" fill="currentColor" stroke="none"/></svg>',
         carousel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 13v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M7 12h10"/></svg>',
+        list_alpha: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="3" y="8.5" font-size="9" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="3" y="14.5" font-size="9" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">b</text><text x="3" y="20.5" font-size="9" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">c</text></svg>',
+        list_multilevel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="12" y1="12" x2="21" y2="12"/><line x1="16" y1="18" x2="21" y2="18"/><text x="2" y="8.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="6" y="14.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="10" y="20.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">i</text></svg>',
     };
 
     // ---------------------------------------------------------------------
@@ -250,6 +252,8 @@
         [
             { kind: 'btn', name: 'ul', icon: ICON.ul, title: 'Bullet list', cmd: 'insertUnorderedList' },
             { kind: 'btn', name: 'ol', icon: ICON.ol, title: 'Numbered list', cmd: 'insertOrderedList' },
+            { kind: 'btn', name: 'list_alpha', icon: ICON.list_alpha, title: 'Alphabetical list', custom: 'list_alpha' },
+            { kind: 'btn', name: 'list_multilevel', icon: ICON.list_multilevel, title: 'Multi-level list', custom: 'list_multilevel' },
             { kind: 'btn', name: 'outdent', icon: ICON.outdent, title: 'Decrease indent', cmd: 'outdent' },
             { kind: 'btn', name: 'indent', icon: ICON.indent, title: 'Increase indent', cmd: 'indent' },
             { kind: 'btn', name: 'quote', icon: ICON.quote, title: 'Quote', custom: 'blockquote' },
@@ -287,6 +291,8 @@
         [
             { kind: 'btn', name: 'ul', icon: ICON.ul, title: 'Bullet list', cmd: 'insertUnorderedList' },
             { kind: 'btn', name: 'ol', icon: ICON.ol, title: 'Numbered list', cmd: 'insertOrderedList' },
+            { kind: 'btn', name: 'list_alpha', icon: ICON.list_alpha, title: 'Alphabetical list', custom: 'list_alpha' },
+            { kind: 'btn', name: 'list_multilevel', icon: ICON.list_multilevel, title: 'Multi-level list', custom: 'list_multilevel' },
         ],
         [
             { kind: 'btn', name: 'link', icon: ICON.link, title: 'Insert link', custom: 'link' },
@@ -850,11 +856,16 @@
         } catch (e) {
             console.warn('[RTE] exec failed', cmd, value, e);
         }
+        if (cmd === 'indent' || cmd === 'outdent') {
+            this._oListCleanup();
+        }
         this._snapshotSelection();
     };
 
     RichTextEditor.prototype._customAction = function (action) {
         switch (action) {
+            case 'list_alpha': return this._doListAlpha();
+            case 'list_multilevel': return this._doListMultilevel();
             case 'link': return this._dialogLink();
             case 'image': return this._dialogImage();
             case 'video': return this._dialogVideo();
@@ -877,6 +888,105 @@
             case 'zoomOut': this._zoomOut(); return;
             case 'zoomReset': this._zoomReset(); return;
         }
+    };
+
+    RichTextEditor.prototype._doListAlpha = function () {
+        var sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        var node = sel.anchorNode;
+        var list = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('ol, ul') : null;
+        if (list && list.tagName === 'OL' && list.type === 'a' && !list.classList.contains('rte-multilevel-list')) {
+            // Already an alpha list, toggle off
+            this.exec('insertOrderedList');
+            this._syncSource();
+            this._updateState();
+            return;
+        }
+        if (!list) {
+            this.exec('insertOrderedList');
+            sel = window.getSelection();
+            node = sel ? sel.anchorNode : null;
+            list = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('ol, ul') : null;
+        }
+        if (list) {
+            if (list.tagName === 'UL') {
+                var ol = document.createElement('ol');
+                ol.innerHTML = list.innerHTML;
+                list.parentNode.replaceChild(ol, list);
+                list = ol;
+            }
+            list.type = 'a';
+            list.style.listStyleType = 'lower-alpha';
+            list.classList.remove('rte-multilevel-list');
+            var lis = list.querySelectorAll('li');
+            lis.forEach(function(li) { li.style.listStyleType = ''; });
+        }
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._doListMultilevel = function () {
+        var sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        var node = sel.anchorNode;
+        var list = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('ol, ul') : null;
+        if (list && list.tagName === 'OL' && list.classList.contains('rte-multilevel-list')) {
+            // Already a multilevel list, toggle off
+            this.exec('insertOrderedList');
+            this._syncSource();
+            this._updateState();
+            return;
+        }
+        if (!list) {
+            this.exec('insertOrderedList');
+            sel = window.getSelection();
+            node = sel ? sel.anchorNode : null;
+            list = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('ol, ul') : null;
+        }
+        if (list) {
+            if (list.tagName === 'UL') {
+                var ol = document.createElement('ol');
+                ol.innerHTML = list.innerHTML;
+                list.parentNode.replaceChild(ol, list);
+                list = ol;
+            }
+            list.type = '1';
+            list.style.listStyleType = 'decimal';
+            list.classList.add('rte-multilevel-list');
+            var lis = list.querySelectorAll('li');
+            lis.forEach(function(li) { li.style.listStyleType = ''; });
+            var sublists = list.querySelectorAll('ol, ul');
+            sublists.forEach(function(sub) {
+                if (sub.tagName === 'UL') {
+                    var subOl = document.createElement('ol');
+                    subOl.innerHTML = sub.innerHTML;
+                    sub.parentNode.replaceChild(subOl, sub);
+                    sub = subOl;
+                }
+                sub.removeAttribute('type');
+                sub.style.listStyleType = '';
+            });
+        }
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._oListCleanup = function () {
+        if (!this.content) return;
+        var multilevelLists = this.content.querySelectorAll('.rte-multilevel-list');
+        multilevelLists.forEach(function (rootList) {
+            var subUls = rootList.querySelectorAll('ul');
+            subUls.forEach(function (ul) {
+                var ol = document.createElement('ol');
+                ol.innerHTML = ul.innerHTML;
+                ul.parentNode.replaceChild(ol, ul);
+            });
+            var allSubOls = rootList.querySelectorAll('ol');
+            allSubOls.forEach(function (subOl) {
+                subOl.removeAttribute('type');
+                subOl.style.listStyleType = '';
+            });
+        });
     };
 
     // -------- dialogs ---------
@@ -4096,6 +4206,19 @@
                 btn.classList.toggle('rte-active', document.queryCommandState(map[key]));
             } catch (e) {}
         });
+        
+        var sel = window.getSelection();
+        var node = sel ? sel.anchorNode : null;
+        var activeList = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('ol, ul') : null;
+        if (self._buttons['list_alpha']) {
+            var isAlpha = activeList && activeList.tagName === 'OL' && activeList.type === 'a' && !activeList.classList.contains('rte-multilevel-list');
+            self._buttons['list_alpha'].classList.toggle('rte-active', !!isAlpha);
+        }
+        if (self._buttons['list_multilevel']) {
+            var isMulti = activeList && activeList.tagName === 'OL' && activeList.classList.contains('rte-multilevel-list');
+            self._buttons['list_multilevel'].classList.toggle('rte-active', !!isMulti);
+        }
+
         // Stats
         var text = this.content.textContent || '';
         var words = text.trim() ? text.trim().split(/\s+/).length : 0;

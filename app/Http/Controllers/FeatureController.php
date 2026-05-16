@@ -29,7 +29,7 @@ class FeatureController extends Controller
             'type' => 'required|in:link,dropdown',
             'order' => 'required|integer|min:0',
             'parent_id' => 'nullable|exists:features,id',
-            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik',
+            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan',
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
@@ -126,6 +126,10 @@ class FeatureController extends Controller
                 return redirect()->route('cms.features.layanan_publik.index', $feature);
             }
 
+            if ($feature->page_type === 'pengelolaan' && !request()->has('from')) {
+                return redirect()->route('cms.features.pengelolaan.index', $feature);
+            }
+
             // Fallback to old logic based on name for backward compatibility
             if (strtolower($feature->name) === 'pameran virtual real') {
                 return redirect()->route('cms.features.virtual_rooms.index', $feature);
@@ -163,6 +167,10 @@ class FeatureController extends Controller
             return redirect()->route('cms.features.layanan_publik.index', $feature);
         }
 
+        if ($feature->type === 'dropdown' && $feature->page_type === 'pengelolaan' && !request()->has('from')) {
+            return redirect()->route('cms.features.pengelolaan.index', $feature);
+        }
+
         // Sub-features of Profil should redirect to profile management
         $parent = Feature::find($feature->parent_id);
         if ($parent && strtolower($parent->name) === 'profil' && $feature->type === 'link') {
@@ -186,7 +194,7 @@ class FeatureController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:link,dropdown',
             'order' => 'required|integer|min:0',
-            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik',
+            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan',
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
@@ -266,7 +274,7 @@ class FeatureController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:link,dropdown',
             'order' => 'required|integer|min:0',
-            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik',
+            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan',
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);

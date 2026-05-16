@@ -212,6 +212,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feature}/layanan_publik/{layananPublik}', [\App\Http\Controllers\Cms\LayananPublikController::class, 'update'])->name('layanan_publik.pages.update');
         Route::delete('/{feature}/layanan_publik/{layananPublik}', [\App\Http\Controllers\Cms\LayananPublikController::class, 'destroy'])->name('layanan_publik.pages.destroy');
 
+        // Pengelolaan Page
+        Route::get('/{feature}/pengelolaan', [\App\Http\Controllers\Cms\PengelolaanController::class, 'index'])->name('pengelolaan.index');
+        Route::get('/{feature}/pengelolaan/create', [\App\Http\Controllers\Cms\PengelolaanController::class, 'create'])->name('pengelolaan.pages.create');
+        Route::post('/{feature}/pengelolaan', [\App\Http\Controllers\Cms\PengelolaanController::class, 'store'])->name('pengelolaan.pages.store');
+        Route::get('/{feature}/pengelolaan/{pengelolaan}/edit', [\App\Http\Controllers\Cms\PengelolaanController::class, 'edit'])->name('pengelolaan.pages.edit');
+        Route::put('/{feature}/pengelolaan/{pengelolaan}', [\App\Http\Controllers\Cms\PengelolaanController::class, 'update'])->name('pengelolaan.pages.update');
+        Route::delete('/{feature}/pengelolaan/{pengelolaan}', [\App\Http\Controllers\Cms\PengelolaanController::class, 'destroy'])->name('pengelolaan.pages.destroy');
+
 
         // Legacy routes - redirect to new structure
         Route::get('/{feature}/virtual-book-pages', function($feature) {
@@ -278,6 +286,10 @@ Route::post('/publication/{id}/share', [FeaturePageController::class, 'publicInc
 Route::post('/layanan-publik/{id}/share', [FeaturePageController::class, 'publicIncrementLayananPublikShares'])
     ->where('id', '[0-9]+')
     ->name('layanan_publik.share.increment');
+
+Route::post('/pengelolaan/{id}/share', [FeaturePageController::class, 'publicIncrementPengelolaanShares'])
+    ->where('id', '[0-9]+')
+    ->name('pengelolaan.share.increment');
 
 Route::get('/{path}', [FeaturePageController::class, 'publicShowByPath'])
     ->where('path', '^(?!storage/|cms/|api/|dashboard|profile|auth).+')

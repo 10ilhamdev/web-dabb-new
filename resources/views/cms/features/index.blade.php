@@ -180,6 +180,7 @@
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
                         <option value="publication">{{ __('cms.page_types.publication') }}</option>
                         <option value="layanan_publik">{{ __('cms.page_types.layanan_publik') }}</option>
+                        <option value="pengelolaan">{{ __('cms.page_types.pengelolaan') }}</option>
                     </select>
                 </div>
 
@@ -259,6 +260,7 @@
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
                         <option value="publication">{{ __('cms.page_types.publication') }}</option>
                         <option value="layanan_publik">{{ __('cms.page_types.layanan_publik') }}</option>
+                        <option value="pengelolaan">{{ __('cms.page_types.pengelolaan') }}</option>
                     </select>
                 </div>
 

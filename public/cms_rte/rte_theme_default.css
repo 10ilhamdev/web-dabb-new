@@ -852,47 +852,29 @@ body.rte-body-fullscreen {
 }
 
 /* =========================================================================
- * List bullets / numbers (rendered via CSS so they work everywhere)
+ * List bullets / numbers (rely on native list-style for accurate rendering)
  * ========================================================================= */
 .rte-content ul {
-    list-style: none;
-    padding-left: 1.4em;
+    list-style: disc;
+    padding-left: 1.5em;
     margin: 0.5em 0;
 }
 .rte-content ul > li {
     position: relative;
-    padding-left: 0.4em;
-}
-.rte-content ul > li::before {
-    content: '\2022';
-    position: absolute;
-    left: -1em;
-    color: #444;
-    font-size: 1em;
-    line-height: inherit;
+    margin: 0.25em 0;
+    display: list-item;
 }
 
 .rte-content ol {
-    list-style: none;
-    padding-left: 1.8em;
+    list-style: decimal;
+    padding-left: 1.5em;
     margin: 0.5em 0;
-    counter-reset: item;
 }
 
 .rte-content ol > li {
     position: relative;
-    padding-left: 0.2em;
-    counter-increment: item;
-}
-
-.rte-content ol > li::before {
-    content: counter(item) '.';
-    position: absolute;
-    left: -1.5em;
-    color: #444;
-    font-size: 1em;
-    line-height: inherit;
-    font-weight: normal;
+    margin: 0.25em 0;
+    display: list-item;
 }
 
 /* =========================================================================
@@ -1608,4 +1590,25 @@ body.rte-body-fullscreen {
 }
 .rte-carousel-dot.active {
     background: #fff;
+}
+
+/* =========================================================================
+ * Multi-level List Styling (Microsoft Word style: 1. -> a. -> i. -> 1.)
+ * ========================================================================= */
+.rte-content ol.rte-multilevel-list {
+    list-style-type: decimal !important;
+}
+.rte-content ol.rte-multilevel-list ol,
+.rte-content ol.rte-multilevel-list ul {
+    list-style-type: lower-alpha !important;
+}
+.rte-content ol.rte-multilevel-list ol ol,
+.rte-content ol.rte-multilevel-list ul ul,
+.rte-content ol.rte-multilevel-list ol ul,
+.rte-content ol.rte-multilevel-list ul ol {
+    list-style-type: lower-roman !important;
+}
+.rte-content ol.rte-multilevel-list ol ol ol,
+.rte-content ol.rte-multilevel-list ul ul ul {
+    list-style-type: decimal !important;
 }

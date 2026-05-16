@@ -61,7 +61,9 @@
 .profile-section-desc iframe,
 .profile-section-desc video,
 .vsshow-section-desc iframe,
-.vsshow-section-desc video {
+.vsshow-section-desc video,
+.richtext-guest-view iframe,
+.richtext-guest-view video {
     pointer-events: auto !important;
     max-width: 100%;
     display: inline-block;
@@ -72,6 +74,7 @@
 .rte-content-body table,
 .profile-section-desc table,
 .vsshow-section-desc table,
+.richtext-guest-view table,
 table[style*="border-collapse"] {
     border-collapse: collapse !important;
     margin: 1rem 0 !important;
@@ -83,6 +86,7 @@ table[style*="border-collapse"] {
 .rte-content-body table th,
 .profile-section-desc table th,
 .vsshow-section-desc table th,
+.richtext-guest-view table th,
 table th {
     font-weight: 700 !important;
     text-align: center !important;
@@ -94,6 +98,7 @@ table th {
 .rte-content-body table td,
 .profile-section-desc table td,
 .vsshow-section-desc table td,
+.richtext-guest-view table td,
 table td {
     border: 1px solid #000000 !important;
     padding: 6px 8px !important;
@@ -105,7 +110,8 @@ table td {
 .rte-content figure,
 .rte-content-body figure,
 .profile-section-desc figure,
-.vsshow-section-desc figure {
+.vsshow-section-desc figure,
+.richtext-guest-view figure {
     display: inline-table;
     margin: 0.5em 4px;
     vertical-align: top;
@@ -128,7 +134,8 @@ table td {
 .rte-content figcaption,
 .rte-content-body figcaption,
 .profile-section-desc figcaption,
-.vsshow-section-desc figcaption {
+.vsshow-section-desc figcaption,
+.richtext-guest-view figcaption {
     text-align: center;
     font-size: 0.85em;
     color: #555;
@@ -142,7 +149,8 @@ table td {
 .rte-content img,
 .rte-content-body img,
 .profile-section-desc img,
-.vsshow-section-desc img {
+.vsshow-section-desc img,
+.richtext-guest-view img {
     max-width: 100%;
     height: auto;
     border-radius: 2px;
@@ -177,6 +185,29 @@ table td {
 .profile-section-desc table, .vsshow-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
 .profile-section-desc table td, .vsshow-section-desc table td,
 .profile-section-desc table th, .vsshow-section-desc table th { padding: 6px 8px !important; border: 1px solid #000000 !important; }
+
+/* ── 7b. Guest view container resets (Layanan Publik, Pengelolaan, Publication Detail) ── */
+.richtext-guest-view {
+    position: relative !important;
+    overflow: visible !important;
+    display: flow-root !important;
+    word-wrap: break-word;
+}
+
+.richtext-guest-view p { margin-bottom: 1rem !important; }
+.richtext-guest-view ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+.richtext-guest-view ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
+.richtext-guest-view li { margin: 0.25em 0 !important; display: list-item !important; }
+.richtext-guest-view a:hover { text-decoration: underline !important; color: #009ac9 !important; }
+.richtext-guest-view h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
+.richtext-guest-view h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
+.richtext-guest-view h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
+.richtext-guest-view h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
+.richtext-guest-view h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
+.richtext-guest-view h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
+.richtext-guest-view table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
+.richtext-guest-view table td,
+.richtext-guest-view table th { padding: 6px 8px !important; border: 1px solid #000000 !important; }
 
 /* ── 8. Media Carousel Runtime ── */
 .rte-carousel-container {
@@ -277,4 +308,74 @@ table td {
 }
 .rte-carousel-dot.active {
     background: #fff;
+}
+
+/* =========================================================================
+ * Multi-level & Alphabetical List Styling (Bulletproof across all views)
+ * ========================================================================= */
+/* 1. Alphabetical List (ol type="a") */
+.rte-content ol[type="a"],
+.rte-content-body ol[type="a"],
+.profile-section-desc ol[type="a"],
+.vsshow-section-desc ol[type="a"],
+.richtext-guest-view ol[type="a"] {
+    list-style-type: lower-alpha !important;
+}
+
+/* 2. Multi-level List (Microsoft Word style: 1. -> a. -> i. -> 1.) */
+.rte-content ol.rte-multilevel-list,
+.rte-content-body ol.rte-multilevel-list,
+.profile-section-desc ol.rte-multilevel-list,
+.vsshow-section-desc ol.rte-multilevel-list,
+.richtext-guest-view ol.rte-multilevel-list {
+    list-style-type: decimal !important;
+}
+
+.rte-content ol.rte-multilevel-list ol,
+.rte-content ol.rte-multilevel-list ul,
+.rte-content-body ol.rte-multilevel-list ol,
+.rte-content-body ol.rte-multilevel-list ul,
+.profile-section-desc ol.rte-multilevel-list ol,
+.profile-section-desc ol.rte-multilevel-list ul,
+.vsshow-section-desc ol.rte-multilevel-list ol,
+.vsshow-section-desc ol.rte-multilevel-list ul,
+.richtext-guest-view ol.rte-multilevel-list ol,
+.richtext-guest-view ol.rte-multilevel-list ul {
+    list-style-type: lower-alpha !important;
+}
+
+.rte-content ol.rte-multilevel-list ol ol,
+.rte-content ol.rte-multilevel-list ul ul,
+.rte-content ol.rte-multilevel-list ol ul,
+.rte-content ol.rte-multilevel-list ul ol,
+.rte-content-body ol.rte-multilevel-list ol ol,
+.rte-content-body ol.rte-multilevel-list ul ul,
+.rte-content-body ol.rte-multilevel-list ol ul,
+.rte-content-body ol.rte-multilevel-list ul ol,
+.profile-section-desc ol.rte-multilevel-list ol ol,
+.profile-section-desc ol.rte-multilevel-list ul ul,
+.profile-section-desc ol.rte-multilevel-list ol ul,
+.profile-section-desc ol.rte-multilevel-list ul ol,
+.vsshow-section-desc ol.rte-multilevel-list ol ol,
+.vsshow-section-desc ol.rte-multilevel-list ul ul,
+.vsshow-section-desc ol.rte-multilevel-list ol ul,
+.vsshow-section-desc ol.rte-multilevel-list ul ol,
+.richtext-guest-view ol.rte-multilevel-list ol ol,
+.richtext-guest-view ol.rte-multilevel-list ul ul,
+.richtext-guest-view ol.rte-multilevel-list ol ul,
+.richtext-guest-view ol.rte-multilevel-list ul ol {
+    list-style-type: lower-roman !important;
+}
+
+.rte-content ol.rte-multilevel-list ol ol ol,
+.rte-content ol.rte-multilevel-list ul ul ul,
+.rte-content-body ol.rte-multilevel-list ol ol ol,
+.rte-content-body ol.rte-multilevel-list ul ul ul,
+.profile-section-desc ol.rte-multilevel-list ol ol ol,
+.profile-section-desc ol.rte-multilevel-list ul ul ul,
+.vsshow-section-desc ol.rte-multilevel-list ol ol ol,
+.vsshow-section-desc ol.rte-multilevel-list ul ul ul,
+.richtext-guest-view ol.rte-multilevel-list ol ol ol,
+.richtext-guest-view ol.rte-multilevel-list ul ul ul {
+    list-style-type: decimal !important;
 }

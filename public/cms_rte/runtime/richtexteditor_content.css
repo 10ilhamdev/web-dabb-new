@@ -97,7 +97,7 @@
 .rte-content-body ol { margin: 1em 0; padding-left: 1.5rem; }
 .rte-content-body ul { list-style: disc !important; }
 .rte-content-body ol { list-style: decimal !important; }
-.rte-content-body li { margin: 0.25em 0; }
+.rte-content-body li { margin: 0.25em 0; display: list-item !important; }
 
 .rte-content-body code {
     font-family: Consolas, "Courier New", Courier, monospace;
@@ -118,3 +118,73 @@
 }
 
 .rte-content-body .code-block { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+
+/* =========================================================================
+ * Multi-level & Alphabetical List Styling (Bulletproof across all views)
+ * ========================================================================= */
+/* 1. Alphabetical List (ol type="a") */
+.rte-content ol[type="a"],
+.rte-content-body ol[type="a"],
+.profile-section-desc ol[type="a"],
+.vsshow-section-desc ol[type="a"],
+.richtext-guest-view ol[type="a"] {
+    list-style-type: lower-alpha !important;
+}
+
+/* 2. Multi-level List (Microsoft Word style: 1. -> a. -> i. -> 1.) */
+.rte-content ol.rte-multilevel-list,
+.rte-content-body ol.rte-multilevel-list,
+.profile-section-desc ol.rte-multilevel-list,
+.vsshow-section-desc ol.rte-multilevel-list,
+.richtext-guest-view ol.rte-multilevel-list {
+    list-style-type: decimal !important;
+}
+
+.rte-content ol.rte-multilevel-list ol,
+.rte-content ol.rte-multilevel-list ul,
+.rte-content-body ol.rte-multilevel-list ol,
+.rte-content-body ol.rte-multilevel-list ul,
+.profile-section-desc ol.rte-multilevel-list ol,
+.profile-section-desc ol.rte-multilevel-list ul,
+.vsshow-section-desc ol.rte-multilevel-list ol,
+.vsshow-section-desc ol.rte-multilevel-list ul,
+.richtext-guest-view ol.rte-multilevel-list ol,
+.richtext-guest-view ol.rte-multilevel-list ul {
+    list-style-type: lower-alpha !important;
+}
+
+.rte-content ol.rte-multilevel-list ol ol,
+.rte-content ol.rte-multilevel-list ul ul,
+.rte-content ol.rte-multilevel-list ol ul,
+.rte-content ol.rte-multilevel-list ul ol,
+.rte-content-body ol.rte-multilevel-list ol ol,
+.rte-content-body ol.rte-multilevel-list ul ul,
+.rte-content-body ol.rte-multilevel-list ol ul,
+.rte-content-body ol.rte-multilevel-list ul ol,
+.profile-section-desc ol.rte-multilevel-list ol ol,
+.profile-section-desc ol.rte-multilevel-list ul ul,
+.profile-section-desc ol.rte-multilevel-list ol ul,
+.profile-section-desc ol.rte-multilevel-list ul ol,
+.vsshow-section-desc ol.rte-multilevel-list ol ol,
+.vsshow-section-desc ol.rte-multilevel-list ul ul,
+.vsshow-section-desc ol.rte-multilevel-list ol ul,
+.vsshow-section-desc ol.rte-multilevel-list ul ol,
+.richtext-guest-view ol.rte-multilevel-list ol ol,
+.richtext-guest-view ol.rte-multilevel-list ul ul,
+.richtext-guest-view ol.rte-multilevel-list ol ul,
+.richtext-guest-view ol.rte-multilevel-list ul ol {
+    list-style-type: lower-roman !important;
+}
+
+.rte-content ol.rte-multilevel-list ol ol ol,
+.rte-content ol.rte-multilevel-list ul ul ul,
+.rte-content-body ol.rte-multilevel-list ol ol ol,
+.rte-content-body ol.rte-multilevel-list ul ul ul,
+.profile-section-desc ol.rte-multilevel-list ol ol ol,
+.profile-section-desc ol.rte-multilevel-list ul ul ul,
+.vsshow-section-desc ol.rte-multilevel-list ol ol ol,
+.vsshow-section-desc ol.rte-multilevel-list ul ul ul,
+.richtext-guest-view ol.rte-multilevel-list ol ol ol,
+.richtext-guest-view ol.rte-multilevel-list ul ul ul {
+    list-style-type: decimal !important;
+}

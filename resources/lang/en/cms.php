@@ -722,6 +722,7 @@ return [
         'slideshow' => 'Virtual Archive Exhibition SlideShow',
         'profile' => 'Profile',
         'layanan_publik' => 'Public Service',
+        'pengelolaan' => 'Pengelolaan',
     ],
 
     /*
@@ -1636,6 +1637,117 @@ return [
         'label_lib_pdf' => 'Library Guide PDF File',
         'btn_choose_file' => 'Choose File',
         'current_photos_title' => 'Current Uploaded Photos (Remove to replace/delete):',
+    ],
+
+
+    'pengelolaan' => [
+        'title' => 'Pengelolaan Management: :name',
+        'desc' => 'Manage Pengelolaan Pages (Penyusutan, Penyimpanan, Preservasi, Pengolahan, Pemanfaatan, Penjangkauan, Akuisisi)',
+        'list_title' => 'Pengelolaan Content List',
+        'list_desc' => 'Order determines the display position on the public page',
+        'add_button' => 'Add Content',
+        'back' => 'Back',
+        
+        // Table columns
+        'col_no' => 'No',
+        'col_title' => 'Title',
+        'col_type' => 'Page Type',
+        'col_date' => 'Date',
+        'col_order' => 'Order',
+        'col_action' => 'Action',
+
+        // Types
+        'type_penyusutan' => 'Penyusutan Arsip',
+        'type_penyimpanan' => 'Penyimpanan Arsip',
+        'type_preservasi' => 'Preservasi Arsip',
+        'type_pengolahan' => 'Pengolahan Arsip Statis',
+        'type_pemanfaatan' => 'Pemanfaatan Arsip',
+        'type_penjangkauan' => 'Penjangkauan Arsip',
+        'type_akuisisi' => 'Akuisisi Arsip',
+
+        // Form
+        'create_title' => 'Add Pengelolaan Content',
+        'edit_title' => 'Edit Pengelolaan Content',
+        'label_type' => 'Page Type',
+        'label_title' => 'Title',
+        'placeholder_title' => 'Enter content title...',
+        'label_description' => 'Description / Content',
+        'label_gallery' => 'Media Images',
+        'hint_gallery' => 'Click or drag images here',
+        'hint_gallery_sub' => 'Supports jpg, png, webp formats',
+        'label_pdf' => 'Document / Guide / Form File (PDF)',
+        'hint_pdf' => 'PDF format max 5MB',
+        'hint_pdf_edit' => 'Upload to replace existing file',
+        'current_doc' => 'Current Document',
+        'view_pdf' => 'View PDF File',
+        
+        'sidebar_title' => 'Page Settings',
+        'label_order' => 'Order',
+        'label_date' => 'Date',
+        'label_subtitle' => 'Sub-title / Summary',
+        'placeholder_subtitle' => 'Brief summary...',
+        
+        'btn_save' => 'Save Content',
+        'btn_update' => 'Update Content',
+        'btn_cancel' => 'Cancel',
+        'btn_edit' => 'Edit',
+
+        // Delete modal
+        'delete_title' => 'Delete Content?',
+        'delete_confirm' => 'Are you sure you want to delete :name?',
+        'delete_yes' => 'Delete',
+        'delete_no' => 'Cancel',
+
+        // Empty state
+        'empty' => 'No pengelolaan content yet. Click "Add Content" to add one.',
+
+        // Flash
+        'flash' => [
+            'added' => 'Pengelolaan content added successfully.',
+            'updated' => 'Pengelolaan content updated successfully.',
+            'deleted' => 'Pengelolaan content deleted successfully.',
+        ],
+
+        // Sub-type specific labels
+        'penyusutan_settings_title' => 'Penyusutan Arsip Settings',
+        'penyusutan_settings_desc' => 'Configure images and description for penyusutan arsip.',
+        'penyimpanan_settings_title' => 'Penyimpanan Arsip Settings',
+        'penyimpanan_settings_desc' => 'Configure storage principles, storage systems (cards), facilities, and room types.',
+        'preservasi_settings_title' => 'Preservasi Arsip Settings',
+        'preservasi_settings_desc' => 'Configure preservation list, restoration text, and restoration steps.',
+        'pengolahan_settings_title' => 'Pengolahan Arsip Statis Settings',
+        'pengolahan_settings_desc' => 'Configure processing points, infographics, and service mechanism file.',
+        'pemanfaatan_settings_title' => 'Pemanfaatan Arsip Settings',
+        'pemanfaatan_settings_desc' => 'Configure legal quote, archive access list, and mechanism file.',
+        'penjangkauan_settings_title' => 'Penjangkauan Arsip Settings',
+        'penjangkauan_settings_desc' => 'Configure outreach activities list and guide/catalog file.',
+        'akuisisi_settings_title' => 'Akuisisi Arsip Settings',
+        'akuisisi_settings_desc' => 'Configure acquisition stages and acquisition form/guideline file.',
+
+        // Custom fields
+        'label_prinsip' => 'Storage Principle (Text/Box)',
+        'label_sistem_title' => 'Storage Systems List (Cards)',
+        'btn_add_sistem' => 'Add Storage System',
+        'label_fasilitas_title' => 'Facilities & Equipment List',
+        'btn_add_fasilitas' => 'Add Facility',
+        'label_ruang_title' => 'Storage Room Types List',
+        'btn_add_ruang' => 'Add Room Type',
+        'label_preservasi_list' => 'Preservation Activities List',
+        'btn_add_preservasi' => 'Add Preservation Activity',
+        'label_restorasi_desc' => 'Archive Restoration Description',
+        'label_restorasi_list' => 'Restoration Stages List',
+        'btn_add_restorasi' => 'Add Restoration Stage',
+        'label_pengolahan_list' => 'Processing Points List',
+        'btn_add_pengolahan' => 'Add Processing Point',
+        'label_mekanisme_title' => 'Service Mechanism Title',
+        'label_mekanisme_desc' => 'Service Mechanism Description',
+        'label_pemanfaatan_quote' => 'Legal Basis Quote (Box)',
+        'label_akses_list' => 'Archive Access / Types List',
+        'btn_add_akses' => 'Add Access Type',
+        'label_kegiatan_list' => 'Outreach Activities List',
+        'btn_add_kegiatan' => 'Add Activity',
+        'label_tahapan_list' => 'Acquisition Stages List',
+        'btn_add_tahapan' => 'Add Stage',
     ],
 
 

@@ -729,6 +729,7 @@ return [
         'profile' => 'Profil',
         'publication' => 'Publikasi',
         'layanan_publik' => 'Layanan Publik',
+        'pengelolaan' => 'Pengelolaan',
     ],
 
     /*
@@ -1643,6 +1644,118 @@ return [
         'label_lib_pdf' => 'File Panduan PDF Perpustakaan',
         'btn_choose_file' => 'Choose File',
         'current_photos_title' => 'Foto Terunggah Saat Ini (Hapus jika ingin mengganti/menghilangkan):',
+    ],
+
+
+    'pengelolaan' => [
+        'title' => 'Manajemen Pengelolaan: :name',
+        'desc' => 'Kelola Halaman Pengelolaan (Penyusutan, Penyimpanan, Preservasi, Pengolahan, Pemanfaatan, Penjangkauan, Akuisisi)',
+        'list_title' => 'Daftar Konten Pengelolaan',
+        'list_desc' => 'Urutan akan menentukan posisi tampilan di halaman publik',
+        'add_button' => 'Tambah Konten',
+        'edit_button' => 'Edit Konten',
+        'back' => 'Kembali',
+        
+        // Table columns
+        'col_no' => 'No',
+        'col_title' => 'Judul',
+        'col_type' => 'Tipe Halaman',
+        'col_date' => 'Tanggal',
+        'col_order' => 'Urutan',
+        'col_action' => 'Aksi',
+
+        // Types
+        'type_penyusutan' => 'Penyusutan Arsip',
+        'type_penyimpanan' => 'Penyimpanan Arsip',
+        'type_preservasi' => 'Preservasi Arsip',
+        'type_pengolahan' => 'Pengolahan Arsip Statis',
+        'type_pemanfaatan' => 'Pemanfaatan Arsip',
+        'type_penjangkauan' => 'Penjangkauan Arsip',
+        'type_akuisisi' => 'Akuisisi Arsip',
+
+        // Form
+        'create_title' => 'Tambah Konten Pengelolaan',
+        'edit_title' => 'Edit Konten Pengelolaan',
+        'label_type' => 'Tipe Halaman',
+        'label_title' => 'Judul',
+        'placeholder_title' => 'Masukkan judul konten...',
+        'label_description' => 'Deskripsi / Isi Konten',
+        'label_gallery' => 'Media Gambar',
+        'hint_gallery' => 'Klik atau drag gambar ke sini',
+        'hint_gallery_sub' => 'Mendukung format jpg, png, webp',
+        'label_pdf' => 'File Dokumen / Panduan / Formulir (PDF)',
+        'hint_pdf' => 'Format PDF maks 5MB',
+        'hint_pdf_edit' => 'Unggah untuk mengganti file lama',
+        'current_doc' => 'Dokumen Saat Ini',
+        'view_pdf' => 'Lihat File PDF',
+        
+        'sidebar_title' => 'Pengaturan Halaman',
+        'label_order' => 'Urutan',
+        'label_date' => 'Tanggal',
+        'label_subtitle' => 'Sub-judul / Ringkasan',
+        'placeholder_subtitle' => 'Ringkasan singkat...',
+        
+        'btn_save' => 'Simpan Konten',
+        'btn_update' => 'Perbarui Konten',
+        'btn_cancel' => 'Batal',
+        'btn_edit' => 'Edit',
+
+        // Delete modal
+        'delete_title' => 'Hapus Konten?',
+        'delete_confirm' => 'Anda yakin ingin menghapus :name?',
+        'delete_yes' => 'Hapus',
+        'delete_no' => 'Batal',
+
+        // Empty state
+        'empty' => 'Belum ada konten pengelolaan. Klik "Tambah Konten" untuk menambahkan.',
+
+        // Flash
+        'flash' => [
+            'added' => 'Konten pengelolaan berhasil ditambahkan.',
+            'updated' => 'Konten pengelolaan berhasil diperbarui.',
+            'deleted' => 'Konten pengelolaan berhasil dihapus.',
+        ],
+
+        // Sub-type specific labels
+        'penyusutan_settings_title' => 'Pengaturan Penyusutan Arsip',
+        'penyusutan_settings_desc' => 'Atur gambar dan deskripsi penyusutan arsip.',
+        'penyimpanan_settings_title' => 'Pengaturan Penyimpanan Arsip',
+        'penyimpanan_settings_desc' => 'Atur prinsip penyimpanan, sistem penyimpanan (cards), fasilitas, dan jenis ruang.',
+        'preservasi_settings_title' => 'Pengaturan Preservasi Arsip',
+        'preservasi_settings_desc' => 'Atur daftar poin preservasi, teks restorasi, dan tahapan restorasi.',
+        'pengolahan_settings_title' => 'Pengaturan Pengolahan Arsip Statis',
+        'pengolahan_settings_desc' => 'Atur daftar poin pengolahan, infografis, dan file mekanisme layanan.',
+        'pemanfaatan_settings_title' => 'Pengaturan Pemanfaatan Arsip',
+        'pemanfaatan_settings_desc' => 'Atur kutipan undang-undang, daftar akses arsip, dan file mekanisme.',
+        'penjangkauan_settings_title' => 'Pengaturan Penjangkauan Arsip',
+        'penjangkauan_settings_desc' => 'Atur daftar kegiatan penjangkauan dan file panduan/katalog.',
+        'akuisisi_settings_title' => 'Pengaturan Akuisisi Arsip',
+        'akuisisi_settings_desc' => 'Atur tahapan akuisisi dan file formulir/pedoman akuisisi.',
+
+        // Custom fields
+        'label_prinsip' => 'Prinsip Penyimpanan (Teks/Boks)',
+        'label_sistem_title' => 'Daftar Sistem Penyimpanan (Cards)',
+        'btn_add_sistem' => 'Tambah Sistem Penyimpanan',
+        'label_fasilitas_title' => 'Daftar Fasilitas & Sarana',
+        'btn_add_fasilitas' => 'Tambah Fasilitas',
+        'label_ruang_title' => 'Daftar Jenis Ruang Penyimpanan',
+        'btn_add_ruang' => 'Tambah Ruang',
+        'label_preservasi_list' => 'Daftar Kegiatan Preservasi',
+        'btn_add_preservasi' => 'Tambah Kegiatan Preservasi',
+        'label_restorasi_desc' => 'Deskripsi Restorasi Arsip',
+        'label_restorasi_list' => 'Daftar Tahapan Restorasi',
+        'btn_add_restorasi' => 'Tambah Tahapan Restorasi',
+        'label_pengolahan_list' => 'Daftar Poin Pengolahan',
+        'btn_add_pengolahan' => 'Tambah Poin Pengolahan',
+        'label_mekanisme_title' => 'Judul Mekanisme Layanan',
+        'label_mekanisme_desc' => 'Deskripsi Mekanisme Layanan',
+        'label_pemanfaatan_quote' => 'Kutipan Dasar Hukum (Boks)',
+        'label_akses_list' => 'Daftar Akses / Jenis Akses Arsip',
+        'btn_add_akses' => 'Tambah Akses',
+        'label_kegiatan_list' => 'Daftar Kegiatan Penjangkauan',
+        'btn_add_kegiatan' => 'Tambah Kegiatan',
+        'label_tahapan_list' => 'Daftar Tahapan Akuisisi',
+        'btn_add_tahapan' => 'Tambah Tahapan',
     ],
 
 

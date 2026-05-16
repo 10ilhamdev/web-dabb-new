@@ -53,6 +53,11 @@ class Feature extends Model
         return $this->hasMany(LayananPublik::class)->orderBy('order');
     }
 
+    public function pengelolaans()
+    {
+        return $this->hasMany(Pengelolaan::class)->orderBy('order');
+    }
+
     public function virtualRooms()
     {
         return $this->hasMany(VirtualRoom::class);
