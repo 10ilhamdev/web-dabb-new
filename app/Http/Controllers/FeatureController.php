@@ -123,11 +123,11 @@ class FeatureController extends Controller
             }
 
             // Fallback to old logic based on name for backward compatibility
-            if ($feature->id === 22 || strtolower($feature->name) === 'pameran virtual real') {
+            if (strtolower($feature->name) === 'pameran virtual real') {
                 return redirect()->route('cms.features.virtual_rooms.index', $feature);
             }
 
-            if ($feature->id === 23 || strtolower($feature->name) === 'pameran virtual' || $feature->path === '/pameran/virtual') {
+            if (strtolower($feature->name) === 'pameran virtual' || $feature->path === '/pameran/virtual') {
                 return redirect()->route('cms.features.virtual_3d_rooms.index', $feature);
             }
 
@@ -155,9 +155,9 @@ class FeatureController extends Controller
             return redirect()->route('cms.features.publication.index', $feature);
         }
 
-        // Sub-features of Profil (id=2) should redirect to profile management
-        if ($feature->parent_id === 2 && $feature->type === 'link') {
-            $parent = Feature::find($feature->parent_id);
+        // Sub-features of Profil should redirect to profile management
+        $parent = Feature::find($feature->parent_id);
+        if ($parent && strtolower($parent->name) === 'profil' && $feature->type === 'link') {
             return redirect()->route('cms.features.profile.index', [$parent, $feature]);
         }
 
