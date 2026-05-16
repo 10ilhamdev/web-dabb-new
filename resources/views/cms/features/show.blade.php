@@ -264,6 +264,7 @@
                         <option value="slideshow">{{ __('cms.page_types.slideshow') }}</option>
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
                         <option value="publication">{{ __('cms.page_types.publication') }}</option>
+                        <option value="layanan_publik">{{ __('cms.page_types.layanan_publik') }}</option>
                     </select>
                 </div>
                 <div>
@@ -337,6 +338,7 @@
                         <option value="slideshow">{{ __('cms.page_types.slideshow') }}</option>
                         <option value="profile">{{ __('cms.page_types.profile') }}</option>
                         <option value="publication">{{ __('cms.page_types.publication') }}</option>
+                        <option value="layanan_publik">{{ __('cms.page_types.layanan_publik') }}</option>
                     </select>
                 </div>
                 <div>

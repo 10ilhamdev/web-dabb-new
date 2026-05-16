@@ -1,0 +1,426 @@
+@extends('layouts.app')
+
+@section('breadcrumb_items')
+    <span class="text-gray-400">CMS</span>
+    <span class="text-gray-300">/</span>
+    <a href="{{ route('cms.features.index') }}"
+        class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
+    @if ($feature->parent)
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.show', $feature->parent) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
+    @endif
+    <span class="text-gray-300">/</span>
+    <a href="{{ route('cms.features.layanan_publik.index', $feature) }}"
+        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
+@endsection
+@section('breadcrumb_active', __('cms.layanan_publik.edit_title'))
+
+@section('content')
+<div class="px-4 py-6 max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="layananPublikForm('{{ $layananPublik->type }}', {{ json_encode($layananPublik->extra_data ?? null) }})">
+
+    {{-- Header --}}
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ route('cms.features.layanan_publik.index', $feature) }}"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors shadow-sm"
+            style="background-color: #818284;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">{{ __('cms.layanan_publik.edit_title') }}</h1>
+        </div>
+    </div>
+
+    <form action="{{ route('cms.features.layanan_publik.pages.update', [$feature, $layananPublik]) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        @csrf
+        @method('PUT')
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- Left: Main Info --}}
+            <div class="lg:col-span-2 space-y-6">
+                {{-- Type & Title --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.layanan_publik.label_type') }} <span class="text-red-500">*</span></label>
+                            <select name="type" x-model="type" required
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <option value="kunjungan" {{ $layananPublik->type === 'kunjungan' ? 'selected' : '' }}>{{ __('cms.layanan_publik.type_kunjungan') }}</option>
+                                <option value="laraska" {{ $layananPublik->type === 'laraska' ? 'selected' : '' }}>{{ __('cms.layanan_publik.type_laraska') }}</option>
+                                <option value="statis" {{ $layananPublik->type === 'statis' ? 'selected' : '' }}>{{ __('cms.layanan_publik.type_statis') }}</option>
+                                <option value="konsultasi" {{ $layananPublik->type === 'konsultasi' ? 'selected' : '' }}>{{ __('cms.layanan_publik.type_konsultasi') }}</option>
+                                <option value="perpustakaan" {{ $layananPublik->type === 'perpustakaan' ? 'selected' : '' }}>{{ __('cms.layanan_publik.type_perpustakaan') }}</option>
+                                <option value="umum" {{ $layananPublik->type === 'umum' ? 'selected' : '' }}>{{ __('cms.layanan_publik.type_umum') }}</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.layanan_publik.label_title') }} <span class="text-red-500">*</span></label>
+                            <input type="text" name="title" value="{{ $layananPublik->title }}" required placeholder="{{ __('cms.layanan_publik.placeholder_title') }}"
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Description / Content --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.layanan_publik.label_description') }}</label>
+                    <div class="rte-wrapper">
+                        <div id="div_editor1">{!! $layananPublik->description !!}</div>
+                    </div>
+                    <input type="hidden" name="description" id="description_input">
+                </div>
+
+                {{-- Gallery Section --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.layanan_publik.label_gallery') }}</label>
+
+                    {{-- Existing Images --}}
+                    @if($layananPublik->images)
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        @foreach($layananPublik->images as $img)
+                        <div class="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                            @if(Str::endsWith($img, ['.mp4', '.webm', '.ogg']))
+                                <video src="{{ asset('storage/' . $img) }}" class="w-full h-full object-cover"></video>
+                            @else
+                                <img src="{{ asset('storage/' . $img) }}" class="w-full h-full object-cover">
+                            @endif
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <input type="hidden" name="existing_images[]" value="{{ $img }}">
+                                <button type="button" onclick="this.closest('.relative').remove()"
+                                    class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                                    title="Hapus Media">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative group">
+                        <input type="file" name="images[]" multiple accept="image/*,video/*"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            @change="handleFiles($event)">
+                        <svg class="w-10 h-10 mx-auto text-gray-400 group-hover:text-blue-500 transition-colors mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-sm font-medium text-gray-600">{{ __('cms.layanan_publik.hint_gallery') }}</p>
+                    </div>
+                    <div id="file-previews" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4"></div>
+                </div>
+
+                {{-- File PDF --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.layanan_publik.label_pdf') }}</label>
+
+                    @if(isset($layananPublik->extra_data['file']))
+                    <div class="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-semibold text-blue-800">{{ __('cms.layanan_publik.current_doc') }}</p>
+                                <a href="{{ asset('storage/' . $layananPublik->extra_data['file']) }}" target="_blank" class="text-xs text-blue-600 hover:underline">{{ __('cms.layanan_publik.view_pdf') }}</a>
+                            </div>
+                        </div>
+                        <input type="hidden" name="extra_data[file]" value="{{ $layananPublik->extra_data['file'] }}">
+                    </div>
+                    @endif
+
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <input type="file" name="extra_data[file]" accept="application/pdf"
+                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all">
+                        </div>
+                        <p class="text-xs text-gray-400 italic">{{ __('cms.layanan_publik.hint_pdf_edit') }}</p>
+                    </div>
+                </div>
+
+                {{-- Kunjungan Settings (Only visible when type === 'kunjungan') --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" x-cloak x-show="type === 'kunjungan'">
+                    <div class="border-b border-gray-100 pb-4 mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.layanan_publik.kunjungan_settings_title') }}</h2>
+                        <p class="text-xs text-gray-500">{{ __('cms.layanan_publik.kunjungan_settings_desc') }}</p>
+                    </div>
+
+                    {{-- 1. Jadwal Kunjungan & 2. Pengajuan Kunjungan --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <label class="block text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section1_title') }}</label>
+                                <input type="hidden" name="extra_data[show_jadwal]" :value="show_jadwal">
+                                <button type="button" @click="toggleShow('show_jadwal')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors" :class="show_jadwal == 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'" :title="show_jadwal == 1 ? '{{ __('cms.layanan_publik.btn_hide_guest') }}' : '{{ __('cms.layanan_publik.btn_show_guest') }}'">
+                                    <template x-if="show_jadwal == 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </template>
+                                    <template x-if="show_jadwal != 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                                    </template>
+                                    <span x-text="show_jadwal == 1 ? '{{ __('cms.layanan_publik.status_show') }}' : '{{ __('cms.layanan_publik.status_hide') }}'"></span>
+                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.section1_label_title') }}</label>
+                                <input type="text" name="extra_data[title_jadwal]" x-model="title_jadwal" placeholder="{{ __('cms.layanan_publik.section1_placeholder_title') }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.section1_label_desc') }}</label>
+                                <textarea name="extra_data[jadwal_kunjungan]" x-model="jadwal_kunjungan" rows="4" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <label class="block text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section2_title') }}</label>
+                                <input type="hidden" name="extra_data[show_pengajuan]" :value="show_pengajuan">
+                                <button type="button" @click="toggleShow('show_pengajuan')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors" :class="show_pengajuan == 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'" :title="show_pengajuan == 1 ? '{{ __('cms.layanan_publik.btn_hide_guest') }}' : '{{ __('cms.layanan_publik.btn_show_guest') }}'">
+                                    <template x-if="show_pengajuan == 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </template>
+                                    <template x-if="show_pengajuan != 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                                    </template>
+                                    <span x-text="show_pengajuan == 1 ? '{{ __('cms.layanan_publik.status_show') }}' : '{{ __('cms.layanan_publik.status_hide') }}'"></span>
+                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.section2_label_title') }}</label>
+                                <input type="text" name="extra_data[title_pengajuan]" x-model="title_pengajuan" placeholder="{{ __('cms.layanan_publik.section2_placeholder_title') }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.section2_label_desc') }}</label>
+                                <textarea name="extra_data[pengajuan_kunjungan]" x-model="pengajuan_kunjungan" rows="4" class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 3. Kalender: Pengaturan Hari Libur & Slot Tutup --}}
+                    <div class="pt-6 border-t border-gray-100 space-y-6">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-4">
+                            <div class="flex items-center gap-3">
+                                <label class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section3_title') }}</label>
+                                <input type="hidden" name="extra_data[show_kalender]" :value="show_kalender">
+                                <button type="button" @click="toggleShow('show_kalender')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors" :class="show_kalender == 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'" :title="show_kalender == 1 ? '{{ __('cms.layanan_publik.btn_hide_guest') }}' : '{{ __('cms.layanan_publik.btn_show_guest') }}'">
+                                    <template x-if="show_kalender == 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </template>
+                                    <template x-if="show_kalender != 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                                    </template>
+                                    <span x-text="show_kalender == 1 ? '{{ __('cms.layanan_publik.status_show') }}' : '{{ __('cms.layanan_publik.status_hide') }}'"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Hari Libur --}}
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section3a_title') }}</h3>
+                                    <p class="text-xs text-gray-500 mb-2.5">{{ __('cms.layanan_publik.section3a_desc') }}</p>
+                                    {{-- Info Box Hari Libur Nasional Otomatis --}}
+                                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-1 flex items-start gap-2.5 text-xs text-blue-700">
+                                        <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <div>
+                                            <span class="font-semibold">{{ __('cms.layanan_publik.info_auto_title') }}</span> {{ __('cms.layanan_publik.info_auto_desc') }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" @click="addLibur()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 self-start mt-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                    {{ __('cms.layanan_publik.btn_add_holiday') }}
+                                </button>
+                            </div>
+                            <template x-for="(item, index) in libur_dates" :key="index">
+                                <div class="flex items-center gap-3 mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <div class="w-1/3">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_holiday_date') }}</label>
+                                        <input type="date" :name="`extra_data[libur_dates][${index}][date]`" x-model="item.date" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div class="w-1/2">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_holiday_reason') }}</label>
+                                        <input type="text" :name="`extra_data[libur_dates][${index}][reason]`" x-model="item.reason" placeholder="{{ __('cms.layanan_publik.placeholder_holiday_reason') }}" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div class="w-1/6 flex items-end justify-end">
+                                        <button type="button" @click="removeLibur(index)" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-sm font-medium transition-colors">{{ __('cms.layanan_publik.btn_delete') }}</button>
+                                    </div>
+                                </div>
+                            </template>
+                            <p x-show="libur_dates.length === 0" class="text-xs text-gray-400 italic py-2">{{ __('cms.layanan_publik.empty_holidays') }}</p>
+                        </div>
+
+                        {{-- 3b. Kuota Harian Maksimal --}}
+                        <div class="pt-4 border-t border-gray-100">
+                            <div class="mb-3">
+                                <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section3b_title') }}</h3>
+                                <p class="text-xs text-gray-500">{{ __('cms.layanan_publik.section3b_desc') }}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg md:w-1/2">
+                                <label class="block text-xs text-gray-700 font-medium mb-1">{{ __('cms.layanan_publik.label_daily_quota') }}</label>
+                                <input type="number" name="extra_data[kuota_harian]" x-model="kuota_harian" min="1" @input="tutup_slots.forEach((_, i) => validateMaxQuota(i))" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            </div>
+                        </div>
+
+                        {{-- 3c. Slot Tutup Khusus / Kuota Khusus --}}
+                        <div class="pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section3c_title') }}</h3>
+                                    <p class="text-xs text-gray-500">{{ __('cms.layanan_publik.section3c_desc') }}</p>
+                                </div>
+                                <button type="button" @click="addTutupSlot()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                    {{ __('cms.layanan_publik.btn_add_close_slot') }}
+                                </button>
+                            </div>
+                            <template x-for="(item, index) in tutup_slots" :key="index">
+                                <div class="flex items-center gap-3 mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <div class="w-1/4">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_date') }}</label>
+                                        <input type="date" :name="`extra_data[tutup_slots][${index}][date]`" x-model="item.date" @change="tutup_slots.forEach((_, i) => validateMaxQuota(i))" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div class="w-1/4">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_slot_time') }}</label>
+                                        <select :name="`extra_data[tutup_slots][${index}][slot]`" x-model="item.slot" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                            <option value="pagi">{{ __('cms.layanan_publik.slot_pagi') }}</option>
+                                            <option value="siang">{{ __('cms.layanan_publik.slot_siang') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-1/6">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_max_slot') }}</label>
+                                        <input type="number" :name="`extra_data[tutup_slots][${index}][max_quota]`" x-model="item.max_quota" min="0" :max="getMaxQuota(index)" @input="validateMaxQuota(index)" placeholder="{{ __('cms.layanan_publik.placeholder_close_slot') }}" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                        <span class="text-[10px] text-gray-500 block mt-0.5" x-text="`{{ __('cms.layanan_publik.label_max_hint', ['max' => '']) }}${getMaxQuota(index)}`"></span>
+                                    </div>
+                                    <div class="w-1/4">
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_close_reason') }}</label>
+                                        <input type="text" :name="`extra_data[tutup_slots][${index}][reason]`" x-model="item.reason" placeholder="{{ __('cms.layanan_publik.placeholder_close_reason') }}" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div class="w-1/12 flex items-end justify-end">
+                                        <button type="button" @click="removeTutupSlot(index)" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-sm font-medium transition-colors">{{ __('cms.layanan_publik.btn_delete') }}</button>
+                                    </div>
+                                </div>
+                            </template>
+                            <p x-show="tutup_slots.length === 0" class="text-xs text-gray-400 italic py-2">{{ __('cms.layanan_publik.empty_close_slots') }}</p>
+                        </div>
+                    </div>
+
+                    {{-- 4. Daftar Form Kunjungan --}}
+                    <div class="pt-6 border-t border-gray-100">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-4">
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-sm font-bold text-gray-800">{{ __('cms.layanan_publik.section4_title') }}</h3>
+                                <input type="hidden" name="extra_data[show_form]" :value="show_form">
+                                <button type="button" @click="toggleShow('show_form')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors" :class="show_form == 1 ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'" :title="show_form == 1 ? '{{ __('cms.layanan_publik.btn_hide_guest') }}' : '{{ __('cms.layanan_publik.btn_show_guest') }}'">
+                                    <template x-if="show_form == 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </template>
+                                    <template x-if="show_form != 1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                                    </template>
+                                    <span x-text="show_form == 1 ? '{{ __('cms.layanan_publik.status_show') }}' : '{{ __('cms.layanan_publik.status_hide') }}'"></span>
+                                </button>
+                            </div>
+                            <button type="button" @click="addFormField()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                {{ __('cms.layanan_publik.btn_add_form_field') }}
+                            </button>
+                        </div>
+
+                        <template x-for="(item, index) in form_fields" :key="index">
+                            <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 relative group">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_field_id') }}</label>
+                                        <input type="text" :name="`extra_data[form_fields][${index}][id]`" x-model="item.id" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-mono bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_field_label') }}</label>
+                                        <input type="text" :name="`extra_data[form_fields][${index}][label]`" x-model="item.label" required class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">{{ __('cms.layanan_publik.label_field_type') }}</label>
+                                        <select :name="`extra_data[form_fields][${index}][type]`" x-model="item.type" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                            <option value="text">{{ __('cms.layanan_publik.type_text') }}</option>
+                                            <option value="email">{{ __('cms.layanan_publik.type_email') }}</option>
+                                            <option value="number">{{ __('cms.layanan_publik.type_number') }}</option>
+                                            <option value="date">{{ __('cms.layanan_publik.type_date') }}</option>
+                                            <option value="select">{{ __('cms.layanan_publik.type_select') }}</option>
+                                            <option value="file">{{ __('cms.layanan_publik.type_file') }}</option>
+                                            <option value="textarea">{{ __('cms.layanan_publik.type_textarea') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-6">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" :name="`extra_data[form_fields][${index}][required]`" value="1" x-model="item.required" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
+                                            <span class="ml-2 text-sm text-gray-700 font-medium">{{ __('cms.layanan_publik.label_required') }}</span>
+                                        </label>
+                                        <button type="button" @click="removeFormField(index)" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-sm font-medium transition-colors">{{ __('cms.layanan_publik.btn_delete') }}</button>
+                                    </div>
+                                </div>
+                                <div class="mt-3" x-show="item.type === 'select' || item.type === 'file'">
+                                    <label class="block text-xs text-gray-500 mb-1" x-text="item.type === 'select' ? '{{ __('cms.layanan_publik.label_options_select') }}' : '{{ __('cms.layanan_publik.label_options_file') }}'"></label>
+                                    <input type="text" :name="`extra_data[form_fields][${index}][options]`" x-model="item.options" :placeholder="item.type === 'select' ? '{{ __('cms.layanan_publik.placeholder_options_select') }}' : '{{ __('cms.layanan_publik.placeholder_options_file') }}'" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Right: Sidebar Info --}}
+            <div class="space-y-6">
+                {{-- Metadata --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('cms.layanan_publik.sidebar_title') }}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.layanan_publik.label_order') }} <span class="text-red-500">*</span></label>
+                            <input type="number" name="order" value="{{ $layananPublik->order }}" required
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.layanan_publik.label_date') }} <span class="text-red-500">*</span></label>
+                            <input type="date" name="published_at" value="{{ $layananPublik->published_at ? $layananPublik->published_at->format('Y-m-d') : date('Y-m-d') }}" required
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="mt-2 flex items-center gap-2">
+                                <label class="inline-flex items-center cursor-pointer text-xs text-gray-600 font-medium">
+                                    <input type="checkbox" name="extra_data[auto_today_date]" value="1" x-model="auto_today_date" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 mr-1.5">
+                                    {{ __('cms.layanan_publik.label_auto_today') }}
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.layanan_publik.label_subtitle') }}</label>
+                            <textarea name="subtitle" rows="3" placeholder="{{ __('cms.layanan_publik.placeholder_subtitle') }}"
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $layananPublik->subtitle }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Action --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col gap-3">
+                    <button type="submit" class="w-full py-3 px-4 bg-[#174E93] hover:bg-blue-800 text-white font-semibold rounded-xl transition-all shadow-sm">
+                        {{ __('cms.layanan_publik.btn_update') }}
+                    </button>
+                    <a href="{{ route('cms.features.layanan_publik.index', $feature) }}"
+                        class="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl text-center transition-all">
+                        {{ __('cms.layanan_publik.btn_cancel') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    window.rteUploadUrl = '{{ route('cms.settings.rte.upload') }}';
+</script>
+<script src="{{ asset('js/cms/features/layanan_publik/create.js') }}"></script>
+@endpush

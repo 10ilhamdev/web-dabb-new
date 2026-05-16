@@ -119,6 +119,7 @@ return [
     'Ini_Adalah_Ruangan_Dua' => 'Ini Adalah Ruangan Dua',
     'Menuju_Ruangan_dua' => 'Menuju Ruangan dua',
     'Menuju_Ruangan_Empat' => 'Menuju Ruangan Empat',
+    'The_Psychology_of_Money' => 'The Psychology of Money',
     // Common virtual room / book names (auto-translated)
     'Ruang_Utama' => 'Ruang Utama',
     'Aula_Utama' => 'Aula Utama',

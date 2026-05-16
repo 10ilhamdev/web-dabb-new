@@ -204,6 +204,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feature}/publication/{publication}', [\App\Http\Controllers\Cms\PublicationController::class, 'update'])->name('publication.pages.update');
         Route::delete('/{feature}/publication/{publication}', [\App\Http\Controllers\Cms\PublicationController::class, 'destroy'])->name('publication.pages.destroy');
 
+        // Layanan Publik Page
+        Route::get('/{feature}/layanan_publik', [\App\Http\Controllers\Cms\LayananPublikController::class, 'index'])->name('layanan_publik.index');
+        Route::get('/{feature}/layanan_publik/create', [\App\Http\Controllers\Cms\LayananPublikController::class, 'create'])->name('layanan_publik.pages.create');
+        Route::post('/{feature}/layanan_publik', [\App\Http\Controllers\Cms\LayananPublikController::class, 'store'])->name('layanan_publik.pages.store');
+        Route::get('/{feature}/layanan_publik/{layananPublik}/edit', [\App\Http\Controllers\Cms\LayananPublikController::class, 'edit'])->name('layanan_publik.pages.edit');
+        Route::put('/{feature}/layanan_publik/{layananPublik}', [\App\Http\Controllers\Cms\LayananPublikController::class, 'update'])->name('layanan_publik.pages.update');
+        Route::delete('/{feature}/layanan_publik/{layananPublik}', [\App\Http\Controllers\Cms\LayananPublikController::class, 'destroy'])->name('layanan_publik.pages.destroy');
+
+
         // Legacy routes - redirect to new structure
         Route::get('/{feature}/virtual-book-pages', function($feature) {
             return redirect()->route('cms.features.virtual_books.index', $feature);
@@ -265,6 +274,10 @@ Route::get('/{path}/detail/{id}', [FeaturePageController::class, 'publicShowPubl
 Route::post('/publication/{id}/share', [FeaturePageController::class, 'publicIncrementShares'])
     ->where('id', '[0-9]+')
     ->name('publication.share.increment');
+
+Route::post('/layanan-publik/{id}/share', [FeaturePageController::class, 'publicIncrementLayananPublikShares'])
+    ->where('id', '[0-9]+')
+    ->name('layanan_publik.share.increment');
 
 Route::get('/{path}', [FeaturePageController::class, 'publicShowByPath'])
     ->where('path', '^(?!storage/|cms/|api/|dashboard|profile|auth).+')

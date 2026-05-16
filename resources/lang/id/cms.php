@@ -728,6 +728,7 @@ return [
         'slideshow' => 'Pameran Arsip Virtual SlideShow',
         'profile' => 'Profil',
         'publication' => 'Publikasi',
+        'layanan_publik' => 'Layanan Publik',
     ],
 
     /*
@@ -1414,6 +1415,142 @@ return [
             'deleted' => 'Konten publikasi berhasil dihapus.',
         ],
     ],
+
+    'layanan_publik' => [
+        'title' => 'Manajemen Layanan Publik: :name',
+        'desc' => 'Kelola Halaman Layanan Publik (Kunjungan, LARASKA, Arsip Statis, dll)',
+        'list_title' => 'Daftar Konten Layanan Publik',
+        'list_desc' => 'Urutan akan menentukan posisi tampilan di halaman publik',
+        'add_button' => 'Tambah Konten',
+        'back' => 'Kembali',
+        
+        // Table columns
+        'col_no' => 'No',
+        'col_title' => 'Judul',
+        'col_type' => 'Tipe Layanan',
+        'col_date' => 'Tanggal',
+        'col_order' => 'Urutan',
+        'col_action' => 'Aksi',
+
+        // Types
+        'type_kunjungan' => 'Pendaftaran Kunjungan',
+        'type_laraska' => 'LARASKA',
+        'type_statis' => 'Layanan Arsip Statis',
+        'type_konsultasi' => 'Konsultasi Kearsipan',
+        'type_perpustakaan' => 'Perpustakaan',
+        'type_umum' => 'Layanan Umum',
+
+        // Form
+        'create_title' => 'Tambah Konten Layanan Publik',
+        'edit_title' => 'Edit Konten Layanan Publik',
+        'label_type' => 'Tipe Layanan',
+        'label_title' => 'Judul',
+        'placeholder_title' => 'Masukkan judul konten...',
+        'label_description' => 'Deskripsi / Maklumat / Prosedur',
+        'label_gallery' => 'Media Galeri (Foto/Video)',
+        'hint_gallery' => 'Klik atau drag media ke sini',
+        'hint_gallery_sub' => 'Mendukung format gambar dan video',
+        'label_pdf' => 'File Dokumen / Formulir (PDF)',
+        'hint_pdf' => 'Format PDF maks 5MB',
+        'hint_pdf_edit' => 'Unggah untuk mengganti file lama',
+        'current_doc' => 'Dokumen Saat Ini',
+        'view_pdf' => 'Lihat File PDF',
+        
+        'sidebar_title' => 'Pengaturan Halaman',
+        'label_order' => 'Urutan',
+        'label_date' => 'Tanggal',
+        'label_subtitle' => 'Sub-judul / Ringkasan',
+        'placeholder_subtitle' => 'Ringkasan singkat layanan...',
+        
+        'btn_save' => 'Simpan Konten',
+        'btn_update' => 'Perbarui Konten',
+        'btn_cancel' => 'Batal',
+
+        // Delete modal
+        'delete_title' => 'Hapus Konten?',
+        'delete_confirm' => 'Anda yakin ingin menghapus :name?',
+        'delete_yes' => 'Hapus',
+        'delete_no' => 'Batal',
+
+        // Empty state
+        'empty' => 'Belum ada konten layanan publik. Klik "Tambah Konten" untuk menambahkan.',
+
+        // Flash
+        'flash' => [
+            'added' => 'Konten layanan publik berhasil ditambahkan.',
+            'updated' => 'Konten layanan publik berhasil diperbarui.',
+            'deleted' => 'Konten layanan publik berhasil dihapus.',
+        ],
+
+        // Kunjungan settings
+        'kunjungan_settings_title' => 'Pengaturan Layanan Pendaftaran Kunjungan',
+        'kunjungan_settings_desc' => 'Konfigurasi jadwal, aturan kapasitas, kuota harian, hari libur, slot tutup, dan kolom formulir.',
+        'section1_title' => '1. Jadwal Kunjungan',
+        'btn_hide_guest' => 'Sembunyikan bagian ini di halaman guest',
+        'btn_show_guest' => 'Tampilkan bagian ini di halaman guest',
+        'status_show' => 'Tampil',
+        'status_hide' => 'Disembunyikan',
+        'section1_label_title' => 'Judul Bagian 1 (Opsional, default: Jadwal Kunjungan)',
+        'section1_placeholder_title' => 'Jadwal Kunjungan',
+        'section1_label_desc' => 'Teks Keterangan Jadwal',
+        
+        'section2_title' => '2. Pengajuan Kunjungan',
+        'section2_label_title' => 'Judul Bagian 2 (Opsional, default: Pengajuan Kunjungan)',
+        'section2_placeholder_title' => 'Pengajuan Kunjungan',
+        'section2_label_desc' => 'Aturan / Kapasitas Pengajuan',
+        
+        'section3_title' => '3. Kalender Kunjungan',
+        'section3a_title' => '3a. Pengaturan Hari Libur / Tanggal Tutup Khusus',
+        'section3a_desc' => 'Tanggal yang diatur di bawah ini adalah hari libur/tutup tambahan (opsional).',
+        'info_auto_title' => 'Informasi Otomatisasi:',
+        'info_auto_desc' => 'Hari Libur Nasional & Cuti Bersama otomatis dideteksi dari kalender resmi Google Calendar. Anda tidak perlu menambahkannya secara manual di sini, cukup tambahkan tanggal tutup khusus internal instansi jika ada.',
+        'btn_add_holiday' => 'Tambah Hari Libur',
+        'label_holiday_date' => 'Tanggal Libur',
+        'label_holiday_reason' => 'Keterangan / Alasan',
+        'placeholder_holiday_reason' => 'Contoh: Libur Nasional / Tutup',
+        'btn_delete' => 'Hapus',
+        'empty_holidays' => 'Belum ada hari libur khusus yang ditambahkan.',
+        
+        'section3b_title' => '3b. Pengaturan Jumlah Slot Maksimal Harian',
+        'section3b_desc' => 'Tentukan batas kuota maksimal pendaftaran untuk setiap harinya (berlaku otomatis setiap hari jika tidak ada pengaturan khusus di 3c).',
+        'label_daily_quota' => 'Jumlah Slot Maksimal Kunjungan / Hari',
+        
+        'section3c_title' => '3c. Pengaturan Kuota Khusus / Penutupan Slot Jam Tertentu (Pagi / Siang)',
+        'section3c_desc' => 'Atur jumlah slot maksimal pendaftar pada tanggal & waktu tertentu (isi 0 jika ingin menutup slot sepenuhnya).',
+        'btn_add_close_slot' => 'Tambah Penutupan Slot',
+        'label_date' => 'Tanggal',
+        'label_slot_time' => 'Waktu / Slot',
+        'slot_pagi' => 'Pagi (07:30 - 12:00)',
+        'slot_siang' => 'Siang (13:00 - 16:00)',
+        'label_max_slot' => 'Jumlah Slot (Maks)',
+        'placeholder_close_slot' => '0 = Tutup',
+        'label_max_hint' => 'Maks slot : :max',
+        'label_close_reason' => 'Keterangan / Alasan',
+        'placeholder_close_reason' => 'Contoh: Kuota Pagi Penuh',
+        'empty_close_slots' => 'Belum ada penutupan slot khusus yang ditambahkan.',
+        
+        'section4_title' => '4. Pengaturan Daftar Kolom Formulir Kunjungan',
+        'btn_add_form_field' => 'Tambah Kolom Form',
+        'label_field_id' => 'ID Field (Unik)',
+        'label_field_label' => 'Label Formulir',
+        'label_field_type' => 'Tipe Input',
+        'type_text' => 'Teks Singkat (text)',
+        'type_email' => 'Email (email)',
+        'type_number' => 'Angka (number)',
+        'type_date' => 'Tanggal (date)',
+        'type_select' => 'Pilihan (select)',
+        'type_file' => 'Unggah File (file)',
+        'type_textarea' => 'Teks Panjang (textarea)',
+        'label_required' => 'Wajib (Required)',
+        'label_options_select' => 'Opsi Pilihan (Pisahkan dengan koma)',
+        'label_options_file' => 'Catatan / Format File',
+        'placeholder_options_select' => 'Contoh: Edukasi, Penelitian, Kunjungan Kerja',
+        'placeholder_options_file' => 'Contoh: Format pdf/doc, max 2MB',
+        
+        'label_auto_today' => 'Update otomatis ke tanggal hari ini',
+        'btn_edit' => 'Edit',
+    ],
+
 
     'datatable' => [
         'info' => 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',

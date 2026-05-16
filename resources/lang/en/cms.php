@@ -721,6 +721,7 @@ return [
         'book' => 'Virtual Archive Exhibition Book',
         'slideshow' => 'Virtual Archive Exhibition SlideShow',
         'profile' => 'Profile',
+        'layanan_publik' => 'Public Service',
     ],
 
     /*
@@ -1407,6 +1408,142 @@ return [
             'deleted' => 'Publication content deleted successfully.',
         ],
     ],
+
+    'layanan_publik' => [
+        'title' => 'Public Service Management: :name',
+        'desc' => 'Manage Public Service Pages (Visits, LARASKA, Static Archives, etc.)',
+        'list_title' => 'Public Service Content List',
+        'list_desc' => 'Order determines the display position on the public page',
+        'add_button' => 'Add Content',
+        'back' => 'Back',
+        
+        // Table columns
+        'col_no' => 'No',
+        'col_title' => 'Title',
+        'col_type' => 'Service Type',
+        'col_date' => 'Date',
+        'col_order' => 'Order',
+        'col_action' => 'Action',
+
+        // Types
+        'type_kunjungan' => 'Visit Registration',
+        'type_laraska' => 'LARASKA',
+        'type_statis' => 'Static Archive Service',
+        'type_konsultasi' => 'Archive Consultation',
+        'type_perpustakaan' => 'Library',
+        'type_umum' => 'General Service',
+
+        // Form
+        'create_title' => 'Add Public Service Content',
+        'edit_title' => 'Edit Public Service Content',
+        'label_type' => 'Service Type',
+        'label_title' => 'Title',
+        'placeholder_title' => 'Enter content title...',
+        'label_description' => 'Description / Procedures / Guidelines',
+        'label_gallery' => 'Gallery Media (Photo/Video)',
+        'hint_gallery' => 'Click or drag media here',
+        'hint_gallery_sub' => 'Supports image and video formats',
+        'label_pdf' => 'Document / Form File (PDF)',
+        'hint_pdf' => 'PDF format max 5MB',
+        'hint_pdf_edit' => 'Upload to replace existing file',
+        'current_doc' => 'Current Document',
+        'view_pdf' => 'View PDF File',
+        
+        'sidebar_title' => 'Page Settings',
+        'label_order' => 'Order',
+        'label_date' => 'Date',
+        'label_subtitle' => 'Sub-title / Summary',
+        'placeholder_subtitle' => 'Brief summary of service...',
+        
+        'btn_save' => 'Save Content',
+        'btn_update' => 'Update Content',
+        'btn_cancel' => 'Cancel',
+
+        // Delete modal
+        'delete_title' => 'Delete Content?',
+        'delete_confirm' => 'Are you sure you want to delete :name?',
+        'delete_yes' => 'Delete',
+        'delete_no' => 'Cancel',
+
+        // Empty state
+        'empty' => 'No public service content yet. Click "Add Content" to add one.',
+
+        // Flash
+        'flash' => [
+            'added' => 'Public service content added successfully.',
+            'updated' => 'Public service content updated successfully.',
+            'deleted' => 'Public service content deleted successfully.',
+        ],
+
+        // Kunjungan settings
+        'kunjungan_settings_title' => 'Visit Registration Service Settings',
+        'kunjungan_settings_desc' => 'Configure schedules, capacity rules, daily quotas, holidays, closed slots, and form fields.',
+        'section1_title' => '1. Visit Schedule',
+        'btn_hide_guest' => 'Hide this section on guest page',
+        'btn_show_guest' => 'Show this section on guest page',
+        'status_show' => 'Shown',
+        'status_hide' => 'Hidden',
+        'section1_label_title' => 'Section 1 Title (Optional, default: Visit Schedule)',
+        'section1_placeholder_title' => 'Visit Schedule',
+        'section1_label_desc' => 'Schedule Description Text',
+        
+        'section2_title' => '2. Visit Application',
+        'section2_label_title' => 'Section 2 Title (Optional, default: Visit Application)',
+        'section2_placeholder_title' => 'Visit Application',
+        'section2_label_desc' => 'Application Rules / Capacity',
+        
+        'section3_title' => '3. Visit Calendar',
+        'section3a_title' => '3a. Holiday / Special Closed Date Settings',
+        'section3a_desc' => 'Dates configured below are additional holidays/closed dates (optional).',
+        'info_auto_title' => 'Automation Information:',
+        'info_auto_desc' => 'National Holidays & Collective Leave are automatically detected from the official Google Calendar. You do not need to add them manually here, just add internal institutional closing dates if any.',
+        'btn_add_holiday' => 'Add Holiday',
+        'label_holiday_date' => 'Holiday Date',
+        'label_holiday_reason' => 'Description / Reason',
+        'placeholder_holiday_reason' => 'e.g. National Holiday / Closed',
+        'btn_delete' => 'Delete',
+        'empty_holidays' => 'No special holidays added yet.',
+        
+        'section3b_title' => '3b. Daily Maximum Slot Settings',
+        'section3b_desc' => 'Set the maximum registration quota limit for each day (applies automatically every day if no special setting in 3c).',
+        'label_daily_quota' => 'Maximum Visit Slots / Day',
+        
+        'section3c_title' => '3c. Special Quota / Specific Time Slot Closing (Morning / Afternoon)',
+        'section3c_desc' => 'Set the maximum number of slots on specific dates & times (enter 0 to close the slot completely).',
+        'btn_add_close_slot' => 'Add Slot Closing',
+        'label_date' => 'Date',
+        'label_slot_time' => 'Time / Slot',
+        'slot_pagi' => 'Morning (07:30 - 12:00)',
+        'slot_siang' => 'Afternoon (13:00 - 16:00)',
+        'label_max_slot' => 'Number of Slots (Max)',
+        'placeholder_close_slot' => '0 = Closed',
+        'label_max_hint' => 'Max slots : :max',
+        'label_close_reason' => 'Description / Reason',
+        'placeholder_close_reason' => 'e.g. Morning Quota Full',
+        'empty_close_slots' => 'No special slot closings added yet.',
+        
+        'section4_title' => '4. Visit Form Column List Settings',
+        'btn_add_form_field' => 'Add Form Column',
+        'label_field_id' => 'Field ID (Unique)',
+        'label_field_label' => 'Form Label',
+        'label_field_type' => 'Input Type',
+        'type_text' => 'Short Text (text)',
+        'type_email' => 'Email (email)',
+        'type_number' => 'Number (number)',
+        'type_date' => 'Date (date)',
+        'type_select' => 'Selection (select)',
+        'type_file' => 'Upload File (file)',
+        'type_textarea' => 'Long Text (textarea)',
+        'label_required' => 'Required',
+        'label_options_select' => 'Selection Options (Comma separated)',
+        'label_options_file' => 'Notes / File Format',
+        'placeholder_options_select' => 'e.g. Education, Research, Work Visit',
+        'placeholder_options_file' => 'e.g. Format pdf/doc, max 2MB',
+        
+        'label_auto_today' => 'Auto update to today\'s date',
+        'btn_edit' => 'Edit',
+    ],
+
 
     'datatable' => [
         'info' => 'Showing _START_ to _END_ of _TOTAL_ entries',
