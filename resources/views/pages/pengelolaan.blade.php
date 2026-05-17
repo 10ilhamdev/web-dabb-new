@@ -853,9 +853,14 @@
                         {{-- 7. AKUISISI --}}
                         @elseif($type === 'akuisisi')
                             @if(!empty($currentPage->extra_data['tahapan_list']) && is_array($currentPage->extra_data['tahapan_list']))
+                                @php
+                                    $tahapanTitle = $locale === 'en'
+                                        ? (!empty($currentPage->extra_data['tahapan_title_en']) ? $currentPage->extra_data['tahapan_title_en'] : ($currentPage->extra_data['tahapan_title'] ?? 'Acquisition Stages & Procedures'))
+                                        : (!empty($currentPage->extra_data['tahapan_title']) ? $currentPage->extra_data['tahapan_title'] : 'Tahapan & Prosedur Akuisisi');
+                                @endphp
                                 <h3 class="service-subtitle">
                                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-                                    {{ $locale === 'en' ? 'Acquisition Stages & Procedures' : 'Tahapan & Prosedur Akuisisi' }}
+                                    {{ $tahapanTitle }}
                                 </h3>
                                 <div class="flowchart-box">
                                     <div class="flowchart-steps">

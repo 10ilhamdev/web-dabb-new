@@ -523,7 +523,11 @@
 
                     {{-- Tahapan List (Cards) --}}
                     <div>
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Daftar Tahapan Akuisisi</label>
+                            <input type="text" name="extra_data[tahapan_title]" x-model="tahapan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Tahapan & Prosedur Akuisisi">
+                        </div>
+                        <div class="flex items-center justify-between mb-4 pt-2 border-t border-gray-100">
                             <h3 class="text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_tahapan_list') }}</h3>
                             <button type="button" @click="addTahapan()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -598,5 +602,5 @@
 <script>
     window.rteUploadUrl = '{{ route('cms.settings.rte.upload') }}';
 </script>
-<script src="{{ asset('js/cms/features/pengelolaan/create.js') }}"></script>
+<script src="{{ asset('js/cms/features/pengelolaan/create.js') }}?v={{ time() }}"></script>
 @endpush

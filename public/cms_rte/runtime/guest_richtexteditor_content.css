@@ -79,7 +79,6 @@ table[style*="border-collapse"] {
     border-collapse: collapse !important;
     margin: 1rem 0 !important;
     max-width: 100% !important;
-    border: 1px solid #000000 !important;
 }
 
 .rte-content table th,
@@ -91,7 +90,7 @@ table th {
     font-weight: 700 !important;
     text-align: center !important;
     padding: 6px 8px !important;
-    border: 1px solid #000000 !important;
+    border: 1px solid #000000;
 }
 
 .rte-content table td,
@@ -100,7 +99,7 @@ table th {
 .vsshow-section-desc table td,
 .richtext-guest-view table td,
 table td {
-    border: 1px solid #000000 !important;
+    border: 1px solid #000000;
     padding: 6px 8px !important;
     vertical-align: top !important;
     word-wrap: break-word !important;
@@ -184,7 +183,7 @@ table td {
 .profile-section-desc h6, .vsshow-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
 .profile-section-desc table, .vsshow-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
 .profile-section-desc table td, .vsshow-section-desc table td,
-.profile-section-desc table th, .vsshow-section-desc table th { padding: 6px 8px !important; border: 1px solid #000000 !important; }
+.profile-section-desc table th, .vsshow-section-desc table th { padding: 6px 8px !important; border: 1px solid #000000; }
 
 /* ── 7b. Guest view container resets (Layanan Publik, Pengelolaan, Publication Detail) ── */
 .richtext-guest-view {
@@ -207,7 +206,7 @@ table td {
 .richtext-guest-view h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
 .richtext-guest-view table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
 .richtext-guest-view table td,
-.richtext-guest-view table th { padding: 6px 8px !important; border: 1px solid #000000 !important; }
+.richtext-guest-view table th { padding: 6px 8px !important; border: 1px solid #000000; }
 
 /* ── 8. Media Carousel Runtime ── */
 .rte-carousel-container {

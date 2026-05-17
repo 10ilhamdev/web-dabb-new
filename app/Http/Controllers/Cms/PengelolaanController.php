@@ -238,6 +238,9 @@ class PengelolaanController extends Controller
                 }
             }
         }
+        if (!empty($extraData['tahapan_title'])) {
+            $extraData['tahapan_title_en'] = $this->translationService->translate($extraData['tahapan_title']);
+        }
         if (!empty($extraData['tahapan_list']) && is_array($extraData['tahapan_list'])) {
             foreach ($extraData['tahapan_list'] as $k => $v) {
                 if (!empty($v['title'])) {
@@ -533,6 +536,9 @@ class PengelolaanController extends Controller
                     $extraData['kegiatan_list'][$k]['button_label_en'] = $this->translationService->translate($v['button_label']);
                 }
             }
+        }
+        if (!empty($extraData['tahapan_title'])) {
+            $extraData['tahapan_title_en'] = $this->translationService->translate($extraData['tahapan_title']);
         }
         if (!empty($extraData['tahapan_list']) && is_array($extraData['tahapan_list'])) {
             foreach ($extraData['tahapan_list'] as $k => $v) {

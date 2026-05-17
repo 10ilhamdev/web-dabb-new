@@ -153,6 +153,19 @@
         carousel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 13v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M7 12h10"/></svg>',
         list_alpha: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="3" y="8.5" font-size="9" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="3" y="14.5" font-size="9" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">b</text><text x="3" y="20.5" font-size="9" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">c</text></svg>',
         list_multilevel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="12" y1="12" x2="21" y2="12"/><line x1="16" y1="18" x2="21" y2="18"/><text x="2" y="8.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="6" y="14.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">a</text><text x="10" y="20.5" font-size="8" font-weight="bold" fill="currentColor" stroke="none" font-family="sans-serif">i</text></svg>',
+        borders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>',
+        borderBottom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="21" x2="21" y2="21" stroke-width="2"/></svg>',
+        borderTop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="3" x2="21" y2="3" stroke-width="2"/></svg>',
+        borderLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="3" x2="3" y2="21" stroke-width="2"/></svg>',
+        borderRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="21" y1="3" x2="21" y2="21" stroke-width="2"/></svg>',
+        borderNone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" opacity="0.4"/></svg>',
+        borderAll: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
+        borderOutside: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/></svg>',
+        borderInside: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
+        borderInsideH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
+        borderInsideV: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/></svg>',
+        borderDiagonalDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="3" x2="21" y2="21"/></svg>',
+        borderDiagonalUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="21" x2="21" y2="3"/></svg>',
     };
 
     // ---------------------------------------------------------------------
@@ -2871,70 +2884,124 @@
         }
         var self = this;
         var savedSel = window.getSelection();
-        if (!savedSel || savedSel.rangeCount === 0) {
+        if (!savedSel || savedSel.rangeCount === 0 || savedSel.isCollapsed) {
             Swal.fire({ title: 'Gagal', text: 'Pilih teks untuk menerapkan format.', icon: 'warning', confirmButtonText: 'OK' });
             return;
         }
         var targetRange = savedSel.getRangeAt(0);
         try {
-            var container = this._copiedFormat.commonAncestorContainer.cloneNode(true);
-            // Extract the formatting wrapper (bold, italic, span, etc.)
-            var formatRoot = this._getFormatWrapper(this._copiedRange || this._copiedFormat);
-            if (!formatRoot) {
-                // Fallback: just wrap selected text in a <span> with inline styles from the copied node
-                var frag = targetRange.extractContents();
-                var wrapper = document.createElement('span');
-                // Copy computed styles from the source node
-                var srcNode = this._copiedFormat.commonAncestorContainer;
-                if (srcNode.nodeType === Node.TEXT_NODE) srcNode = srcNode.parentElement;
-                if (srcNode && srcNode !== this.content) {
-                    var cs = window.getComputedStyle(srcNode);
-                    var inlineStyle = [
-                        'fontWeight', 'fontStyle', 'textDecoration', 'color',
-                        'backgroundColor', 'fontFamily', 'fontSize',
-                    ].map(function (prop) {
-                        var v = cs.getPropertyValue(
-                            prop === 'textDecoration' ? 'text-decoration' :
-                            prop === 'fontFamily' ? 'font-family' :
-                            prop === 'fontSize' ? 'font-size' :
-                            prop === 'fontWeight' ? 'font-weight' :
-                            prop === 'fontStyle' ? 'font-style' :
-                            prop === 'backgroundColor' ? 'background-color' : prop
-                        );
-                        return v && v !== 'normal' && v !== 'none' && v !== 'inherit' ? prop.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v : null;
-                    }).filter(Boolean).join(';');
-                    if (inlineStyle) wrapper.style.cssText = inlineStyle;
-                }
-                wrapper.appendChild(frag);
-                targetRange.insertNode(wrapper);
-            } else {
-                var newWrapper = formatRoot.cloneNode(false);
-                newWrapper.appendChild(targetRange.extractContents());
-                targetRange.insertNode(newWrapper);
+            var srcNode = this._copiedFormat.startContainer;
+            if (srcNode.nodeType === Node.TEXT_NODE) srcNode = srcNode.parentElement;
+            if (!srcNode || !this.content.contains(srcNode)) {
+                srcNode = this.content;
             }
-            // Restore cursor after inserted element
-            var range = document.createRange();
-            range.setStartAfter(newWrapper || wrapper || targetRange.startContainer);
-            range.collapse(true);
-            savedSel.removeAllRanges();
-            savedSel.addRange(range);
-            this._syncSource();
-            this._updateState();
+
+            var cs = window.getComputedStyle(srcNode);
+            var sourceStyles = {
+                fontWeight: cs.getPropertyValue('font-weight'),
+                fontStyle: cs.getPropertyValue('font-style'),
+                textDecoration: cs.getPropertyValue('text-decoration') || cs.getPropertyValue('text-decoration-line'),
+                color: cs.getPropertyValue('color'),
+                backgroundColor: cs.getPropertyValue('background-color'),
+                fontSize: cs.getPropertyValue('font-size'),
+                fontFamily: cs.getPropertyValue('font-family'),
+                isBold: false,
+                isItalic: false,
+                isUnderline: false,
+                isStrike: false,
+                isSub: false,
+                isSup: false
+            };
+
+            if (sourceStyles.fontWeight === 'bold' || parseInt(sourceStyles.fontWeight, 10) >= 600) sourceStyles.isBold = true;
+            if (sourceStyles.fontStyle === 'italic') sourceStyles.isItalic = true;
+            if (sourceStyles.textDecoration && sourceStyles.textDecoration.indexOf('underline') !== -1) sourceStyles.isUnderline = true;
+            if (sourceStyles.textDecoration && sourceStyles.textDecoration.indexOf('line-through') !== -1) sourceStyles.isStrike = true;
+
+            var curr = srcNode;
+            while (curr && curr !== this.content) {
+                var tag = curr.tagName;
+                if (tag === 'B' || tag === 'STRONG') sourceStyles.isBold = true;
+                if (tag === 'I' || tag === 'EM') sourceStyles.isItalic = true;
+                if (tag === 'U') sourceStyles.isUnderline = true;
+                if (tag === 'S' || tag === 'STRIKE') sourceStyles.isStrike = true;
+                if (tag === 'SUB') sourceStyles.isSub = true;
+                if (tag === 'SUP') sourceStyles.isSup = true;
+                curr = curr.parentElement;
+            }
+
+            var frag = targetRange.extractContents();
+
+            // Unwrap existing conflicting inline formatting tags in the extracted fragment
+            var inlineTags = frag.querySelectorAll('b, strong, i, em, u, s, strike, sub, sup, span, font');
+            inlineTags.forEach(function (el) {
+                while (el.firstChild) {
+                    el.parentNode.insertBefore(el.firstChild, el);
+                }
+                el.parentNode.removeChild(el);
+            });
+
+            // Clean up any inline styles on links
+            var links = frag.querySelectorAll('a');
+            links.forEach(function (a) {
+                a.removeAttribute('style');
+            });
+
+            function createFormatWrapper(styles, contentToWrap) {
+                var span = document.createElement('span');
+                var css = [];
+                if (styles.color && styles.color !== 'inherit') css.push('color: ' + styles.color);
+                if (styles.backgroundColor && styles.backgroundColor !== 'rgba(0, 0, 0, 0)' && styles.backgroundColor !== 'transparent' && styles.backgroundColor !== 'inherit') css.push('background-color: ' + styles.backgroundColor);
+                if (styles.fontSize && styles.fontSize !== 'inherit') css.push('font-size: ' + styles.fontSize);
+                if (styles.fontFamily && styles.fontFamily !== 'inherit') css.push('font-family: ' + styles.fontFamily);
+                if (css.length > 0) span.style.cssText = css.join(';');
+
+                span.appendChild(contentToWrap);
+
+                var root = span;
+                if (styles.isBold) { var b = document.createElement('b'); b.appendChild(root); root = b; }
+                if (styles.isItalic) { var i = document.createElement('i'); i.appendChild(root); root = i; }
+                if (styles.isUnderline) { var u = document.createElement('u'); u.appendChild(root); root = u; }
+                if (styles.isStrike) { var s = document.createElement('s'); s.appendChild(root); root = s; }
+                if (styles.isSub) { var sub = document.createElement('sub'); sub.appendChild(root); root = sub; }
+                if (styles.isSup) { var sup = document.createElement('sup'); sup.appendChild(root); root = sup; }
+                return root;
+            }
+
+            var blocks = frag.querySelectorAll('p, div, li, td, th, h1, h2, h3, h4, h5, h6, blockquote, pre');
+            var firstChild = blocks.length > 0 ? frag.firstChild : null;
+            var lastChild = blocks.length > 0 ? frag.lastChild : null;
+
+            if (blocks.length > 0) {
+                blocks.forEach(function (block) {
+                    var tempFrag = document.createDocumentFragment();
+                    while (block.firstChild) {
+                        tempFrag.appendChild(block.firstChild);
+                    }
+                    var wrapped = createFormatWrapper(sourceStyles, tempFrag);
+                    block.appendChild(wrapped);
+                });
+                targetRange.insertNode(frag);
+            } else {
+                var wrapped = createFormatWrapper(sourceStyles, frag);
+                firstChild = wrapped;
+                lastChild = wrapped;
+                targetRange.insertNode(wrapped);
+            }
+
+            if (lastChild) {
+                var range = document.createRange();
+                range.setStartAfter(lastChild);
+                range.collapse(true);
+                savedSel.removeAllRanges();
+                savedSel.addRange(range);
+            }
+
+            self._syncSource();
+            self._updateState();
         } catch (e) {
             console.warn('[RTE] Paste format error', e);
         }
-    };
-
-    RichTextEditor.prototype._getFormatWrapper = function (range) {
-        // Walk from the start of the copied range up to find an inline formatting element
-        var node = range.startContainer;
-        if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-        while (node && node !== this.content) {
-            var tag = node.tagName;
-            if (tag && /^(B|I|U|S|STRONG|EM|SUP|SUB|SPAN|A)$/.test(tag)) return node;
-            node = node.parentElement;
-        }
-        return null;
     };
 
     // -------- Insert Code Block --------
@@ -3443,6 +3510,74 @@
             return btnWrap;
         }
 
+        function applyBorders(type) {
+            var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected'));
+            if (selected.length === 0) {
+                var td = getSelTd();
+                if (td) selected = [td];
+            }
+            if (selected.length === 0) return;
+
+            var defaultBorder = '1px solid #d0d4da';
+
+            var minRow = Infinity, maxRow = -1, minCol = Infinity, maxCol = -1;
+            selected.forEach(function(c) {
+                var r = c.parentElement.rowIndex;
+                var col = c.cellIndex;
+                minRow = Math.min(minRow, r); maxRow = Math.max(maxRow, r);
+                minCol = Math.min(minCol, col); maxCol = Math.max(maxCol, col);
+            });
+
+            selected.forEach(function(c) {
+                var r = c.parentElement.rowIndex;
+                var col = c.cellIndex;
+
+                if (type === 'bottom') {
+                    c.style.borderBottom = defaultBorder;
+                } else if (type === 'top') {
+                    c.style.borderTop = defaultBorder;
+                } else if (type === 'left') {
+                    c.style.borderLeft = defaultBorder;
+                } else if (type === 'right') {
+                    c.style.borderRight = defaultBorder;
+                } else if (type === 'none') {
+                    c.style.border = 'none';
+                    c.style.backgroundImage = 'none';
+                } else if (type === 'all') {
+                    c.style.border = defaultBorder;
+                    c.style.backgroundImage = 'none';
+                } else if (type === 'outside') {
+                    if (r === minRow) c.style.borderTop = defaultBorder;
+                    if (r === maxRow) c.style.borderBottom = defaultBorder;
+                    if (col === minCol) c.style.borderLeft = defaultBorder;
+                    if (col === maxCol) c.style.borderRight = defaultBorder;
+                } else if (type === 'inside') {
+                    if (r > minRow) c.style.borderTop = defaultBorder;
+                    if (r < maxRow) c.style.borderBottom = defaultBorder;
+                    if (col > minCol) c.style.borderLeft = defaultBorder;
+                    if (col < maxCol) c.style.borderRight = defaultBorder;
+                } else if (type === 'insideH') {
+                    if (r > minRow) c.style.borderTop = defaultBorder;
+                    if (r < maxRow) c.style.borderBottom = defaultBorder;
+                } else if (type === 'insideV') {
+                    if (col > minCol) c.style.borderLeft = defaultBorder;
+                    if (col < maxCol) c.style.borderRight = defaultBorder;
+                } else if (type === 'diagDown') {
+                    c.style.backgroundImage = 'linear-gradient(to bottom right, transparent calc(50% - 1px), #d0d4da calc(50% - 1px), #d0d4da calc(50% + 1px), transparent calc(50% + 1px))';
+                } else if (type === 'diagUp') {
+                    c.style.backgroundImage = 'linear-gradient(to top right, transparent calc(50% - 1px), #d0d4da calc(50% - 1px), #d0d4da calc(50% + 1px), transparent calc(50% + 1px))';
+                }
+            });
+
+            if (type === 'none') {
+                tbl.style.border = 'none';
+            } else {
+                tbl.style.border = '';
+            }
+
+            self._syncSource();
+        }
+
         // 1. Table Header (Single Button)
         toolbar.appendChild(createBtn(ICON.tableHeader, 'Table Header', function() {
             self._toggleTableHeader(tbl);
@@ -3458,7 +3593,26 @@
             { kind: 'color', label: 'Cell Back Color', icon: ICON.paint, getValue: function() { var td = getSelTd(); return td ? td.style.backgroundColor || '#ffffff' : '#ffffff'; }, action: function(val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function(c) { c.style.backgroundColor = val; }); } else { var td = getSelTd(); if(td) td.style.backgroundColor = val; } self._syncSource(); } }
         ]));
 
-        // 3. Table Row
+        // 3. Table Borders
+        toolbar.appendChild(createDropdown(ICON.borders, 'Table Borders', [
+            { label: 'Bottom Border', icon: ICON.borderBottom, action: function() { applyBorders('bottom'); } },
+            { label: 'Top Border', icon: ICON.borderTop, action: function() { applyBorders('top'); } },
+            { label: 'Left Border', icon: ICON.borderLeft, action: function() { applyBorders('left'); } },
+            { label: 'Right Border', icon: ICON.borderRight, action: function() { applyBorders('right'); } },
+            'sep',
+            { label: 'No Border', icon: ICON.borderNone, action: function() { applyBorders('none'); } },
+            { label: 'All Borders', icon: ICON.borderAll, action: function() { applyBorders('all'); } },
+            { label: 'Outside Borders', icon: ICON.borderOutside, action: function() { applyBorders('outside'); } },
+            { label: 'Inside Borders', icon: ICON.borderInside, action: function() { applyBorders('inside'); } },
+            'sep',
+            { label: 'Inside Horizontal Border', icon: ICON.borderInsideH, action: function() { applyBorders('insideH'); } },
+            { label: 'Inside Vertical Border', icon: ICON.borderInsideV, action: function() { applyBorders('insideV'); } },
+            'sep',
+            { label: 'Diagonal Down Border', icon: ICON.borderDiagonalDown, action: function() { applyBorders('diagDown'); } },
+            { label: 'Diagonal Up Border', icon: ICON.borderDiagonalUp, action: function() { applyBorders('diagUp'); } }
+        ]));
+
+        // 4. Table Row
         toolbar.appendChild(createDropdown(ICON.tableRowHighlight, 'Table Row', [
             { label: 'Insert Row Above', icon: ICON.insertRowBefore, action: function() { self._insertTableRow(tbl, 0); } },
             { label: 'Insert Row Below', icon: ICON.insertRowAfter, action: function() { self._insertTableRow(tbl, 1); } },
@@ -3498,6 +3652,54 @@
                 });
                 self._updateTableOverlayPosition(); 
                 self._syncSource(); 
+            } },
+            'sep',
+            { label: 'Atur Ukuran Tabel', icon: ICON.tableCellProp, action: function() { 
+                closeMenus();
+                self._hideFloatTableToolbar();
+
+                var curW = tbl.style.width || tbl.getAttribute('width') || 'auto';
+                var curH = tbl.style.height || tbl.getAttribute('height') || 'auto';
+
+                var wInput = el('input', { type: 'text', class: 'rte-form-input', value: curW, placeholder: 'misal: 100%, 500px, auto' });
+                var hInput = el('input', { type: 'text', class: 'rte-form-input', value: curH, placeholder: 'misal: 300px, auto' });
+
+                var body = el('div', { class: 'rte-form' }, [
+                    el('label', { class: 'rte-form-label', text: 'Lebar Tabel (misal: 100%, 500px, auto)' }),
+                    wInput,
+                    el('label', { class: 'rte-form-label', style: 'margin-top:12px;', text: 'Tinggi Tabel (misal: 300px, auto)' }),
+                    hInput
+                ]);
+
+                openModal({
+                    title: 'Atur Ukuran Tabel',
+                    body: body,
+                    confirmLabel: 'Simpan',
+                    cancelLabel: 'Batal',
+                    onConfirm: function () {
+                        var newW = wInput.value.trim();
+                        var newH = hInput.value.trim();
+
+                        if (newW && newW !== 'auto') {
+                            tbl.style.width = newW;
+                            tbl.removeAttribute('width');
+                        } else {
+                            tbl.style.width = 'auto';
+                            tbl.removeAttribute('width');
+                        }
+
+                        if (newH && newH !== 'auto') {
+                            tbl.style.height = newH;
+                            tbl.removeAttribute('height');
+                        } else {
+                            tbl.style.height = 'auto';
+                            tbl.removeAttribute('height');
+                        }
+
+                        self._updateTableOverlayPosition();
+                        self._syncSource();
+                    }
+                });
             } },
             'sep',
             { label: 'Delete Table', icon: ICON.tableDelete, action: function() { 

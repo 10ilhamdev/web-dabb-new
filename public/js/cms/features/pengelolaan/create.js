@@ -88,6 +88,7 @@ function pengelolaanForm(initialType = 'penyusutan', initialExtraData = null) {
         ],
 
         // Akuisisi
+        tahapan_title: initialExtraData?.tahapan_title ?? "Tahapan & Prosedur Akuisisi",
         tahapan_list: initialExtraData?.hasOwnProperty('tahapan_list') ? initialExtraData.tahapan_list : [
             { title: "1. Monitoring dan Verifikasi", desc: "Melakukan pendataan, penilaian, dan verifikasi terhadap arsip bernilai guna permanen pada pencipta arsip (Kementerian/Lembaga/BUMN/Ormas/Perseorangan)." },
             { title: "2. Penilaian Arsip", desc: "Tim penilai melakukan pengujian untuk memastikan otentisitas, integritas, dan nilai guna statis arsip yang akan diakuisisi." },
