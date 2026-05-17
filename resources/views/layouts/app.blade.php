@@ -80,43 +80,75 @@
                         x-transition.opacity>{{ __('dashboard.sidebar.home') }}</span>
                 </a>
 
-                <!-- Laporan -->
-                <a href="#"
-                    class="sidebar-link flex items-center px-3 py-3 rounded-lg text-[#b8cdef] hover:text-white group">
-                    <svg class="w-6 h-6 shrink-0 opacity-80 group-hover:opacity-100" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                        </path>
-                    </svg>
-                    <span x-show="sidebarOpen" class="ml-4 text-[14px] font-medium transition-opacity duration-300"
-                        x-transition.opacity>{{ __('dashboard.sidebar.reports') }}</span>
-                    <svg x-show="sidebarOpen" class="w-4 h-4 ml-auto text-blue-300" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-
                 @php
                     $userRole = auth()->user() ? \App\Models\Role::where('name', auth()->user()->role)->first() : null;
                 @endphp
 
+                <!-- Laporan -->
+                <div x-data="{ open: {{ request()->routeIs('cms.reports.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open"
+                        class="sidebar-link w-full flex items-center px-3 py-3 rounded-lg text-[#b8cdef] hover:text-white group {{ request()->routeIs('cms.reports.*') ? 'active text-white' : '' }}">
+                        <svg class="w-6 h-6 shrink-0 opacity-80 group-hover:opacity-100 {{ request()->routeIs('cms.reports.*') ? 'text-white opacity-100' : '' }}" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        <span x-show="sidebarOpen"
+                            class="ml-4 text-[14px] font-medium transition-opacity duration-300 whitespace-nowrap {{ request()->routeIs('cms.reports.*') ? 'text-white' : '' }}"
+                            x-transition.opacity>{{ __('dashboard.sidebar.reports') }}</span>
+                        <svg x-show="sidebarOpen"
+                            class="cms-chevron w-4 h-4 ml-auto {{ request()->routeIs('cms.reports.*') ? 'text-white' : 'text-[#b8cdef] group-hover:text-white' }}"
+                            :style="open ? 'transform: rotate(0deg)' : 'transform: rotate(-90deg)'" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <!-- Dropdown Items -->
+                    <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 -translate-y-1"
+                        class="cms-dropdown mt-2 ml-9 mr-1 py-2 px-1 space-y-1">
+
+                        <a href="{{ route('cms.reports.kunjungan') }}"
+                            class="flex items-center px-3 py-2 text-[13px] rounded-md {{ request()->routeIs('cms.reports.kunjungan') ? 'active-item' : 'text-white/70 hover:text-white font-medium' }}">
+                            {{ __('dashboard.sidebar.reports_kunjungan') }}
+                        </a>
+                        <a href="{{ route('cms.reports.pengunjung') }}"
+                            class="flex items-center px-3 py-2 text-[13px] rounded-md {{ request()->routeIs('cms.reports.pengunjung') ? 'active-item' : 'text-white/70 hover:text-white font-medium' }}">
+                            {{ __('dashboard.sidebar.reports_pengunjung') }}
+                        </a>
+                        <a href="{{ route('cms.reports.konsultasi') }}"
+                            class="flex items-center px-3 py-2 text-[13px] rounded-md {{ request()->routeIs('cms.reports.konsultasi') ? 'active-item' : 'text-white/70 hover:text-white font-medium' }}">
+                            {{ __('dashboard.sidebar.reports_konsultasi') }}
+                        </a>
+                        <a href="{{ route('cms.reports.online') }}"
+                            class="flex items-center px-3 py-2 text-[13px] rounded-md {{ request()->routeIs('cms.reports.online') ? 'active-item' : 'text-white/70 hover:text-white font-medium' }}">
+                            {{ __('dashboard.sidebar.reports_online') }}
+                        </a>
+                    </div>
+                </div>
+
                 <!-- CMS -->
                 @if (!$userRole || $userRole->hasPermission('cms.features') || $userRole->hasPermission('cms.footer') || $userRole->hasPermission('cms.disclaimer'))
-                <div x-data="{ open: {{ request()->routeIs('cms.*') ? 'true' : 'false' }} }">
+                <div x-data="{ open: {{ request()->routeIs('cms.features.*', 'cms.settings.*') ? 'true' : 'false' }} }">
                     <button @click="open = !open"
-                        class="sidebar-link w-full flex items-center px-3 py-3 rounded-lg text-[#b8cdef] hover:text-white group {{ request()->routeIs('cms.*') ? 'active text-white' : '' }}">
-                        <svg class="w-6 h-6 shrink-0 opacity-80 group-hover:opacity-100 {{ request()->routeIs('cms.*') ? 'text-white opacity-100' : '' }}"
+                        class="sidebar-link w-full flex items-center px-3 py-3 rounded-lg text-[#b8cdef] hover:text-white group {{ request()->routeIs('cms.features.*', 'cms.settings.*') ? 'active text-white' : '' }}">
+                        <svg class="w-6 h-6 shrink-0 opacity-80 group-hover:opacity-100 {{ request()->routeIs('cms.features.*', 'cms.settings.*') ? 'text-white opacity-100' : '' }}"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
                             </path>
                         </svg>
                         <span x-show="sidebarOpen"
-                            class="ml-4 text-[14px] font-medium transition-opacity duration-300 whitespace-nowrap {{ request()->routeIs('cms.*') ? 'text-white' : '' }}"
+                            class="ml-4 text-[14px] font-medium transition-opacity duration-300 whitespace-nowrap {{ request()->routeIs('cms.features.*', 'cms.settings.*') ? 'text-white' : '' }}"
                             x-transition.opacity>{{ __('dashboard.sidebar.cms') }}</span>
                         <svg x-show="sidebarOpen"
-                            class="cms-chevron w-4 h-4 ml-auto {{ request()->routeIs('cms.*') ? 'text-white' : 'text-[#b8cdef] group-hover:text-white' }}"
+                            class="cms-chevron w-4 h-4 ml-auto {{ request()->routeIs('cms.features.*', 'cms.settings.*') ? 'text-white' : 'text-[#b8cdef] group-hover:text-white' }}"
                             :style="open ? 'transform: rotate(0deg)' : 'transform: rotate(-90deg)'" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
@@ -644,9 +676,9 @@
                         if (autoplay && total > 1) {
                             timer = setInterval(function() {
                                 // Pause if any media is being edited (resize overlay or popup is visible)
-                                if (document.querySelector('.rte-img-overlay') || 
+                                if (document.querySelector('.rte-img-overlay') ||
                                     document.querySelector('.rte-img-toolbar')) {
-                                    return; 
+                                    return;
                                 }
                                 showSlide(current + 1);
                             }, interval);

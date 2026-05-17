@@ -745,7 +745,7 @@
 
                             {{-- Form --}}
                             @if(!isset($currentPage->extra_data['show_form']) || $currentPage->extra_data['show_form'] == 1)
-                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); if(typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) { Swal.fire({ title: 'Oops!', text: '{{ __('home.layanan_publik.captcha_warning') }}', icon: 'warning', confirmButtonColor: '#174E93' }); return false; } Swal.fire({ title: 'Berhasil!', text: 'Formulir berhasil dikirim!', icon: 'success', confirmButtonColor: '#174E93' });">
+                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); if(typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) { Swal.fire({ title: 'Oops!', text: '{{ __('home.layanan_publik.captcha_warning') }}', icon: 'warning', confirmButtonColor: '#174E93' }); return false; } var form = this; var fd = new FormData(form); fd.append('_token', '{{ csrf_token() }}'); fetch('{{ route('public.visit.store') }}', { method: 'POST', body: fd }).then(res => res.json()).then(data => { Swal.fire({ title: 'Berhasil!', text: data.message || 'Formulir berhasil dikirim!', icon: 'success', confirmButtonColor: '#174E93' }); form.reset(); if(typeof grecaptcha !== 'undefined') grecaptcha.reset(); }).catch(err => { Swal.fire({ title: 'Oops!', text: 'Terjadi kesalahan saat mengirim formulir.', icon: 'error', confirmButtonColor: '#174E93' }); });">
                                     @if(!empty($currentPage->extra_data['form_fields']) && is_array($currentPage->extra_data['form_fields']))
                                         @foreach($currentPage->extra_data['form_fields'] as $field)
                                             @php
@@ -789,35 +789,35 @@
                                         {{-- Fallback to default static form if no dynamic fields configured --}}
                                         <div class="form-group">
                                             <label class="form-label" for="form_name">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
-                                            <input type="text" id="form_name" class="form-input" required>
+                                            <input type="text" id="form_name" name="name" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_email">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
-                                            <input type="email" id="form_email" class="form-input" required>
+                                            <input type="email" id="form_email" name="email" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_phone_office">{{ __('home.layanan_publik.form_phone_office') }}</label>
-                                            <input type="text" id="form_phone_office" class="form-input">
+                                            <input type="text" id="form_phone_office" name="phone_office" class="form-input">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_phone">{{ __('home.layanan_publik.form_phone') }} <span class="required">*</span></label>
-                                            <input type="text" id="form_phone" class="form-input" required>
+                                            <input type="text" id="form_phone" name="phone" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_institution">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
-                                            <input type="text" id="form_institution" class="form-input" required>
+                                            <input type="text" id="form_institution" name="institution" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_position">{{ __('home.layanan_publik.form_position') }} <span class="required">*</span></label>
-                                            <input type="text" id="form_position" class="form-input" required>
+                                            <input type="text" id="form_position" name="position" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_visit_date">{{ __('home.layanan_publik.form_visit_date') }} <span class="required">*</span></label>
-                                            <input type="date" id="form_visit_date" class="form-input" required>
+                                            <input type="date" id="form_visit_date" name="visit_date" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_visit_time">{{ __('home.layanan_publik.form_visit_time') }} <span class="required">*</span></label>
-                                            <select id="form_visit_time" class="form-select" required>
+                                            <select id="form_visit_time" name="visit_time" class="form-select" required>
                                                 <option value="">{{ __('home.layanan_publik.form_select') }}</option>
                                                 <option value="pagi">{{ __('home.layanan_publik.form_time_pagi') }}</option>
                                                 <option value="siang">{{ __('home.layanan_publik.form_time_siang') }}</option>
@@ -825,11 +825,11 @@
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_visitor_count">{{ __('home.layanan_publik.form_visitor_count') }} <span class="required">*</span></label>
-                                            <input type="number" id="form_visitor_count" class="form-input" required min="1">
+                                            <input type="number" id="form_visitor_count" name="visitor_count" class="form-input" required min="1">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_visit_purpose">{{ __('home.layanan_publik.form_visit_purpose') }} <span class="required">*</span></label>
-                                            <select id="form_visit_purpose" class="form-select" required>
+                                            <select id="form_visit_purpose" name="visit_purpose" class="form-select" required>
                                                 <option value="">{{ __('home.layanan_publik.form_select') }}</option>
                                                 <option value="edukasi">{{ __('home.layanan_publik.form_purpose_edukasi') }}</option>
                                                 <option value="penelitian">{{ __('home.layanan_publik.form_purpose_penelitian') }}</option>
@@ -842,7 +842,7 @@
                                                 <div class="form-file-wrap">
                                                     <button type="button" class="btn-choose-file" onclick="document.getElementById('surat_file').click()">{{ __('home.layanan_publik.choose_file') }}</button>
                                                     <span id="file_chosen_text">{{ __('home.layanan_publik.no_file') }}</span>
-                                                    <input type="file" id="surat_file" class="hidden" onchange="document.getElementById('file_chosen_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'">
+                                                    <input type="file" id="surat_file" name="surat_file" class="hidden" onchange="document.getElementById('file_chosen_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'">
                                                 </div>
                                                 <div class="file-hint">{{ __('home.layanan_publik.file_hint') }}</div>
                                             </div>
@@ -1124,7 +1124,7 @@
                                 @endphp
 
                                 <h3 class="service-subtitle">{{ $formTitle }}</h3>
-                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); Swal.fire({ title: '{{ app()->getLocale() == 'en' ? 'Success!' : 'Berhasil!' }}', text: '{{ addslashes($formSuccess) }}', icon: 'success', confirmButtonColor: '#174E93' });">
+                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); var form = this; var fd = new FormData(form); fd.append('_token', '{{ csrf_token() }}'); fetch('{{ route('public.consultation.store') }}', { method: 'POST', body: fd }).then(res => res.json()).then(data => { Swal.fire({ title: '{{ app()->getLocale() == 'en' ? 'Success!' : 'Berhasil!' }}', text: data.message || '{{ addslashes($formSuccess) }}', icon: 'success', confirmButtonColor: '#174E93' }); form.reset(); }).catch(err => { Swal.fire({ title: 'Oops!', text: 'Terjadi kesalahan saat mengirim formulir.', icon: 'error', confirmButtonColor: '#174E93' }); });">
                                     @if(!empty($currentPage->extra_data['consultation_form_fields']) && is_array($currentPage->extra_data['consultation_form_fields']))
                                         @foreach($currentPage->extra_data['consultation_form_fields'] as $field)
                                             @php
@@ -1169,19 +1169,19 @@
                                         {{-- Fallback to default static form if no dynamic fields configured --}}
                                         <div class="form-group">
                                             <label class="form-label">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
-                                            <input type="text" class="form-input" required>
+                                            <input type="text" name="name" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
-                                            <input type="text" class="form-input" required>
+                                            <input type="text" name="institution" class="form-input" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
-                                            <input type="email" class="form-input" required>
+                                            <input type="email" name="email" class="form-input" required>
                                         </div>
                                         <div class="form-group" style="align-items: start;">
                                             <label class="form-label">{{ __('home.layanan_publik.consultation_form_detail') }} <span class="required">*</span></label>
-                                            <textarea class="form-textarea" required placeholder="{{ __('home.layanan_publik.consultation_form_placeholder') }}"></textarea>
+                                            <textarea name="detail" class="form-textarea" required placeholder="{{ __('home.layanan_publik.consultation_form_placeholder') }}"></textarea>
                                         </div>
                                     @endif
                                     <button type="submit" class="btn-submit">{{ $formSend }}</button>

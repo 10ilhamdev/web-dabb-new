@@ -52,6 +52,10 @@ Route::get('/halaman/{feature}/{pageNum?}', [FeaturePageController::class, 'publ
     ->where('pageNum', '[0-9]+')
     ->name('feature.page');
 
+// Public Service Form Submissions
+Route::post('/layanan-publik/visit', [App\Http\Controllers\PublicServiceSubmissionController::class, 'storeVisit'])->name('public.visit.store');
+Route::post('/layanan-publik/consultation', [App\Http\Controllers\PublicServiceSubmissionController::class, 'storeConsultation'])->name('public.consultation.store');
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [RoleDashboardController::class, 'index'])->name('dashboard');
 
@@ -85,6 +89,14 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:cms.disclaimer')->prefix('cms/settings')->name('cms.settings.disclaimer.')->group(function () {
         Route::get('/disclaimer', [SettingController::class, 'editDisclaimer'])->name('edit');
         Route::put('/disclaimer', [SettingController::class, 'updateDisclaimer'])->name('update');
+    });
+
+    // CMS Reports (Akses dibuka untuk semua user auth, filter data per role dilakukan di ReportController)
+    Route::prefix('cms/reports')->name('cms.reports.')->group(function () {
+        Route::get('/kunjungan', [App\Http\Controllers\Cms\ReportController::class, 'kunjungan'])->name('kunjungan');
+        Route::get('/pengunjung', [App\Http\Controllers\Cms\ReportController::class, 'pengunjung'])->name('pengunjung');
+        Route::get('/konsultasi', [App\Http\Controllers\Cms\ReportController::class, 'konsultasi'])->name('konsultasi');
+        Route::get('/online', [App\Http\Controllers\Cms\ReportController::class, 'online'])->name('online');
     });
 
     // CMS Features

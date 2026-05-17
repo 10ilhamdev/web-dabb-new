@@ -387,6 +387,7 @@ class RoleController extends Controller
                     'cms.features' => 'Manajemen Fitur',
                     'cms.footer' => 'Footer',
                     'cms.disclaimer' => 'Disclaimer',
+                    'cms.reports' => 'Laporan & Monitoring',
                 ],
             ],
             'pengguna' => [

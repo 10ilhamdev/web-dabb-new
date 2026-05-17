@@ -4,6 +4,9 @@ return [
     'sidebar' => [
         'home' => 'Home',
         'reports' => 'Reports',
+        'reports_kunjungan' => 'Visit Reports',
+        'reports_pengunjung' => 'Website Visitor Monitoring',
+        'reports_konsultasi' => 'Archival Consultation Reports',
         'cms' => 'CMS',
         'cms_features' => 'Feature Management',
         'cms_footer' => 'Footer',

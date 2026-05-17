@@ -170,12 +170,15 @@
 
         /* Collection dropdown menu */
         div.dt-button-collection {
+            position: absolute !important;
+            z-index: 50 !important;
             background: white;
             border: 1px solid #e5e7eb;
             border-radius: .5rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, .1);
             padding: .375rem;
             min-width: 160px;
+            margin-top: 0.25rem !important;
         }
 
         div.dt-button-collection .dt-button {

@@ -115,6 +115,13 @@ div.dataTables_wrapper div.dt-top-row {
     gap: 12px;
 }
 
+div.dataTables_wrapper div.dt-top-row .dt-top-right {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+}
+
 div.dataTables_wrapper div.dataTables_length {
     padding: 0 !important;
     margin: 0 !important;
@@ -250,14 +257,14 @@ div.dataTables_wrapper div.dataTables_paginate a.paginate_button.next {
 div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
     background-color: #e9ecef !important;
     border-color: #dee2e6 !important;
-    color: #0056b3 !important;
+    color: #174E93 !important;
 }
 div.dataTables_wrapper div.dataTables_paginate .paginate_button.current,
 div.dataTables_wrapper div.dataTables_paginate .paginate_button.current:hover,
 div.dataTables_wrapper div.dataTables_paginate a.paginate_button.current,
 div.dataTables_wrapper div.dataTables_paginate a.paginate_button.current:hover {
-    background-color: #007bff !important;
-    border-color: #007bff !important;
+    background-color: #174E93 !important;
+    border-color: #174E93 !important;
     color: #fff !important;
 }
 div.dataTables_wrapper div.dataTables_paginate .paginate_button.disabled,
@@ -322,14 +329,77 @@ table.dataTable tbody.divide-y > * + * {
 }
 
 /* ── Buttons ──────────────────────────────────────── */
-div.dataTables_wrapper .dt-buttons .dt-button,
-div.dataTables_wrapper .dt-buttons button.dt-button,
-div.dataTables_wrapper .dt-buttons a.dt-button {
+div.dataTables_wrapper div.dt-buttons {
+    display: inline-flex;
+    gap: .5rem;
+    margin: 0;
+}
+
+div.dataTables_wrapper div.dt-buttons > .dt-button,
+div.dataTables_wrapper div.dt-buttons > button.dt-button,
+div.dataTables_wrapper div.dt-buttons > a.dt-button {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #374151 !important;
+    padding: .5rem .875rem !important;
+    border-radius: .5rem !important;
+    font-size: .8125rem !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: .4rem !important;
+    gap: .375rem !important;
     white-space: nowrap !important;
+}
+
+div.dataTables_wrapper div.dt-buttons > .dt-button:hover {
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+    color: #111827 !important;
+}
+
+div.dataTables_wrapper div.dt-buttons .dt-button svg,
+div.dataTables_wrapper div.dt-buttons > .dt-button svg {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+}
+
+div.dt-button-background,
+.dt-button-background {
+    display: none !important;
+    background: transparent !important;
+    opacity: 0 !important;
+}
+
+div.dt-button-collection {
+    position: absolute !important;
+    z-index: 50 !important;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: .5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, .1);
+    padding: .375rem;
+    min-width: 160px;
+    margin-top: 0.25rem !important;
+}
+
+div.dt-button-collection .dt-button {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    border: 0 !important;
+    border-radius: .375rem !important;
+    margin: 0 !important;
+    padding: .5rem .75rem !important;
+}
+
+div.dt-button-collection .dt-button:hover {
+    background: #f3f4f6 !important;
 }
 
 /* Misc */

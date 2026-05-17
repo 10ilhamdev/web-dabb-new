@@ -4,6 +4,10 @@ return [
     'sidebar' => [
         'home' => 'Beranda',
         'reports' => 'Laporan',
+        'reports_kunjungan' => 'Laporan Kunjungan',
+        'reports_pengunjung' => 'Monitoring Pengunjung Website',
+        'reports_konsultasi' => 'Laporan Konsultasi Kearsipan',
+        'reports_online' => 'Laporan Pengguna Online',
         'cms' => 'CMS',
         'cms_features' => 'Manajemen Fitur',
         'cms_footer' => 'Footer',

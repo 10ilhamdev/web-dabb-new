@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
+use App\Models\RolePermission;
 use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
@@ -55,12 +56,37 @@ class RoleSeeder extends Seeder
             ],
         ];
 
-        foreach ($roles as $role) {
-            Role::firstOrCreate(
-                ['name' => $role['name']],
-                $role
+        foreach ($roles as $roleData) {
+            $role = Role::firstOrCreate(
+                ['name' => $roleData['name']],
+                $roleData
             );
+
+            // Seed default permissions for admin
+            if ($role->name === 'admin') {
+                $adminPerms = ['dashboard', 'cms.features', 'cms.footer', 'cms.disclaimer', 'cms.reports', 'pengguna.users', 'pengguna.roles'];
+                foreach ($adminPerms as $perm) {
+                    RolePermission::firstOrCreate([
+                        'role_id' => $role->id,
+                        'menu_key' => $perm,
+                    ], [
+                        'can_access' => true,
+                    ]);
+                }
+            }
+
+            // Seed default permissions for pegawai
+            if ($role->name === 'pegawai') {
+                $pegawaiPerms = ['dashboard', 'cms.reports'];
+                foreach ($pegawaiPerms as $perm) {
+                    RolePermission::firstOrCreate([
+                        'role_id' => $role->id,
+                        'menu_key' => $perm,
+                    ], [
+                        'can_access' => true,
+                    ]);
+                }
+            }
         }
     }
 }
-
