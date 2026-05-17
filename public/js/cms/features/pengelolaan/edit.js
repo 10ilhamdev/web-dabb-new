@@ -4,7 +4,7 @@ function pengelolaanForm(initialType = 'penyusutan', initialExtraData = null, in
         files: [],
         existingImages: initialImages || [],
         file_name: initialExtraData?.file_name || "",
-        
+
         // Penyimpanan
         prinsip_title: initialExtraData?.hasOwnProperty('prinsip_title') ? (initialExtraData.prinsip_title || "") : (initialType === 'penyimpanan' ? "" : "Prinsip Penyimpanan Arsip Statis"),
         prinsip_desc: initialExtraData?.hasOwnProperty('prinsip_desc') ? (initialExtraData.prinsip_desc || "") : (initialType === 'penyimpanan' ? "" : (initialExtraData?.prinsip_penyimpanan ?? "Penyimpanan arsip statis dilaksanakan berdasarkan prinsip:")),
@@ -71,18 +71,21 @@ function pengelolaanForm(initialType = 'penyusutan', initialExtraData = null, in
         mekanisme_title: initialExtraData?.hasOwnProperty('mekanisme_title') ? (initialExtraData.mekanisme_title || "") : (initialType === 'pemanfaatan' ? "" : "Mekanisme Pemanfaatan dan Akses Arsip"),
         mekanisme_desc: initialExtraData?.hasOwnProperty('mekanisme_desc') ? (initialExtraData.mekanisme_desc || "") : (initialType === 'pemanfaatan' ? "" : "Masyarakat dapat mengakses dan memanfaatkan khazanah arsip statis yang tersimpan di ANRI untuk berbagai kepentingan, seperti penelitian akademis, penulisan sejarah, pembuktian hukum, dan edukasi masyarakat."),
         pemanfaatan_quote: initialExtraData?.hasOwnProperty('pemanfaatan_quote') ? (initialExtraData.pemanfaatan_quote || "") : (initialType === 'pemanfaatan' ? "" : "Berdasarkan Undang-Undang Nomor 43 Tahun 2009 tentang Kearsipan, arsip statis yang dikelola oleh lembaga kearsipan terbuka untuk umum bagi kepentingan penelitian, sejarah, dan ilmu pengetahuan, kecuali arsip yang dinyatakan tertutup berdasarkan ketentuan peraturan perundang-undangan."),
+        akses_title: initialExtraData?.hasOwnProperty('akses_title') ? (initialExtraData.akses_title || "") : (initialType === 'pemanfaatan' ? "" : "Layanan Akses & Pemanfaatan"),
+        akses_title_en: initialExtraData?.hasOwnProperty('akses_title_en') ? (initialExtraData.akses_title_en || "") : (initialType === 'pemanfaatan' ? "" : "Access & Utilization Services"),
         akses_list: initialExtraData?.hasOwnProperty('akses_list') ? initialExtraData.akses_list : (initialType === 'pemanfaatan' ? [] : [
-            { title: "Akses Arsip Terbuka", desc: "Arsip statis yang secara umum dapat diakses langsung oleh publik di Ruang Baca Arsip atau melalui JIKN/SIKN." },
-            { title: "Akses Arsip Terbatas / Tertutup", desc: "Arsip yang memerlukan izin khusus atau masa retensi kerahasiaan tertentu sebelum balances dibuka untuk umum." },
-            { title: "Layanan Reproduksi Arsip", desc: "Pemustaka dapat meminta salinan/reproduksi arsip dalam bentuk cetak atau digital sesuai ketentuan penerimaan negara bukan pajak (PNBP)." }
+            { title: "Akses Arsip Terbuka", desc: "Arsip statis yang secara umum dapat diakses langsung oleh publik di Ruang Baca Arsip atau melalui JIKN/SIKN.", icon: "clipboard" },
+            { title: "Akses Arsip Terbatas / Tertutup", desc: "Arsip yang memerlukan izin khusus atau masa retensi kerahasiaan tertentu sebelum balances dibuka untuk umum.", icon: "lock" },
+            { title: "Layanan Reproduksi Arsip", desc: "Pemustaka dapat meminta salinan/reproduksi arsip dalam bentuk cetak atau digital sesuai ketentuan penerimaan negara bukan pajak (PNBP).", icon: "book" }
         ]),
 
         // Penjangkauan
+        kegiatan_title: initialExtraData?.hasOwnProperty('kegiatan_title') ? (initialExtraData.kegiatan_title || "") : (initialType === 'penjangkauan' ? "" : "Program & Kegiatan Penjangkauan"),
         kegiatan_list: initialExtraData?.hasOwnProperty('kegiatan_list') ? initialExtraData.kegiatan_list : (initialType === 'penjangkauan' ? [] : [
-            { title: "Pameran Arsip (Virtual & Langsung)", desc: "Menyajikan koleksi arsip tematik kepada masyarakat luas untuk meningkatkan kesadaran sejarah dan kebangsaan." },
-            { title: "Sosialisasi dan Edukasi Kearsipan", desc: "Penyuluhan kepada pelajar, mahasiswa, dan komunitas tentang pentingnya arsip sebagai memori kolektif bangsa." },
-            { title: "Penerbitan Naskah Sumber", desc: "Mempublikasikan buku atau kajian berbasis arsip statis yang dapat menjadi referensi bagi peneliti dan masyarakat." },
-            { title: "Kerjasama Kearsipan Nasional & Internasional", desc: "Kolaborasi pameran, pertukaran informasi, dan pelestarian memori dunia (Memory of the World)." }
+            { title: "Pameran Arsip (Virtual & Langsung)", desc: "Menyajikan koleksi arsip tematik kepada masyarakat luas untuk meningkatkan kesadaran sejarah dan kebangsaan.", icon: "clipboard", button_label: "Kunjungi", button_url: "#" },
+            { title: "Sosialisasi dan Edukasi Kearsipan", desc: "Penyuluhan kepada pelajar, mahasiswa, dan komunitas tentang pentingnya arsip sebagai memori kolektif bangsa.", icon: "users", button_label: "Kunjungi", button_url: "#" },
+            { title: "Penerbitan Naskah Sumber", desc: "Mempublikasikan buku atau kajian berbasis arsip statis yang dapat menjadi referensi bagi peneliti dan masyarakat.", icon: "book", button_label: "Kunjungi", button_url: "#" },
+            { title: "Kerjasama Kearsipan Nasional & Internasional", desc: "Kolaborasi pameran, pertukaran informasi, dan pelestarian memori dunia (Memory of the World).", icon: "calendar", button_label: "Kunjungi", button_url: "#" }
         ]),
 
         // Akuisisi
@@ -144,14 +147,14 @@ function pengelolaanForm(initialType = 'penyusutan', initialExtraData = null, in
         },
 
         addAkses() {
-            this.akses_list.push({ title: '', desc: '' });
+            this.akses_list.push({ title: '', desc: '', icon: 'document' });
         },
         removeAkses(index) {
             this.akses_list.splice(index, 1);
         },
 
         addKegiatan() {
-            this.kegiatan_list.push({ title: '', desc: '' });
+            this.kegiatan_list.push({ title: '', desc: '', icon: 'document', button_label: 'Kunjungi', button_url: '#' });
         },
         removeKegiatan(index) {
             this.kegiatan_list.splice(index, 1);

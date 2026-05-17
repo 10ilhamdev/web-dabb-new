@@ -186,6 +186,7 @@
             gap: 1.25rem;
             align-items: flex-start;
             transition: all 0.2s;
+            position: relative;
         }
         .service-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: #cbd5e1; }
         .card-icon {
@@ -198,6 +199,10 @@
             align-items: center;
             justify-content: center;
             flex: 0 0 52px;
+        }
+        .card-info {
+            flex: 1;
+            min-width: 0;
         }
         .card-info h4 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 0.5rem; }
         .card-info p { font-size: 0.92rem; color: #64748b; margin: 0; line-height: 1.5; }
@@ -421,6 +426,8 @@
             'document' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>',
             'lock' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>',
             'database' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>',
+            'users' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>',
+            'globe' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 11h-1a2 2 0 01-2-2V7a2 2 0 00-2-2H8M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
             'tag' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>',
             'folder' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>',
             'check' => '<svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
@@ -508,16 +515,16 @@
 
                     {{-- DYNAMIC SUB-TYPE SECTIONS --}}
                     @if($currentPage && is_array($currentPage->extra_data))
-                        
+
                         {{-- 2. PENYIMPANAN --}}
                         @if($type === 'penyimpanan')
                             @if(!empty($currentPage->extra_data['prinsip_penyimpanan']) || !empty($currentPage->extra_data['prinsip_list']) || !empty($currentPage->extra_data['prinsip_title']) || !empty($currentPage->extra_data['prinsip_desc']))
                                 @php
-                                    $pTitle = $locale === 'en' && !empty($currentPage->extra_data['prinsip_title_en']) 
-                                        ? $currentPage->extra_data['prinsip_title_en'] 
+                                    $pTitle = $locale === 'en' && !empty($currentPage->extra_data['prinsip_title_en'])
+                                        ? $currentPage->extra_data['prinsip_title_en']
                                         : ($currentPage->extra_data['prinsip_title'] ?? ($locale === 'en' ? 'Storage Principles' : 'Prinsip Penyimpanan Arsip Statis'));
-                                    $pDesc = $locale === 'en' && !empty($currentPage->extra_data['prinsip_desc_en']) 
-                                        ? $currentPage->extra_data['prinsip_desc_en'] 
+                                    $pDesc = $locale === 'en' && !empty($currentPage->extra_data['prinsip_desc_en'])
+                                        ? $currentPage->extra_data['prinsip_desc_en']
                                         : ($currentPage->extra_data['prinsip_desc'] ?? ($currentPage->extra_data['prinsip_penyimpanan'] ?? ''));
                                 @endphp
                                 <h3 class="service-subtitle">
@@ -557,8 +564,8 @@
 
                             @if(!empty($currentPage->extra_data['sistem_penyimpanan']) && is_array($currentPage->extra_data['sistem_penyimpanan']))
                                 @php
-                                    $sTitle = $locale === 'en' && !empty($currentPage->extra_data['sistem_title_en']) 
-                                        ? $currentPage->extra_data['sistem_title_en'] 
+                                    $sTitle = $locale === 'en' && !empty($currentPage->extra_data['sistem_title_en'])
+                                        ? $currentPage->extra_data['sistem_title_en']
                                         : ($currentPage->extra_data['sistem_title'] ?? ($locale === 'en' ? 'Storage Systems' : 'Sistem Penyimpanan'));
                                 @endphp
                                 <h3 class="service-subtitle">
@@ -576,7 +583,7 @@
                                             <div class="card-icon">{!! $icon !!}</div>
                                             <div class="card-info">
                                                 <h4>{{ $itemTitle }}</h4>
-                                                <p>{{ $itemDesc }}</p>
+                                                <p>{!! nl2br(e($itemDesc)) !!}</p>
                                             </div>
                                         </div>
                                     @endforeach
@@ -585,11 +592,11 @@
 
                             @if(!empty($currentPage->extra_data['fasilitas_list']) || !empty($currentPage->extra_data['ruang_list']))
                                 @php
-                                    $fTitle = $locale === 'en' && !empty($currentPage->extra_data['fasilitas_title_en']) 
-                                        ? $currentPage->extra_data['fasilitas_title_en'] 
+                                    $fTitle = $locale === 'en' && !empty($currentPage->extra_data['fasilitas_title_en'])
+                                        ? $currentPage->extra_data['fasilitas_title_en']
                                         : ($currentPage->extra_data['fasilitas_title'] ?? ($locale === 'en' ? 'Storage Facilities' : 'Fasilitas Penyimpanan'));
-                                    $rTitle = $locale === 'en' && !empty($currentPage->extra_data['ruang_title_en']) 
-                                        ? $currentPage->extra_data['ruang_title_en'] 
+                                    $rTitle = $locale === 'en' && !empty($currentPage->extra_data['ruang_title_en'])
+                                        ? $currentPage->extra_data['ruang_title_en']
                                         : ($currentPage->extra_data['ruang_title'] ?? ($locale === 'en' ? 'Storage Rooms' : 'Ruang Penyimpanan'));
                                 @endphp
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
@@ -666,11 +673,11 @@
                         {{-- 3. PRESERVASI --}}
                         @elseif($type === 'preservasi')
                             @php
-                                $pTitle = $locale === 'en' && !empty($currentPage->extra_data['preservasi_title_en']) 
-                                    ? $currentPage->extra_data['preservasi_title_en'] 
+                                $pTitle = $locale === 'en' && !empty($currentPage->extra_data['preservasi_title_en'])
+                                    ? $currentPage->extra_data['preservasi_title_en']
                                     : ($currentPage->extra_data['preservasi_title'] ?? ($locale === 'en' ? 'Preservation Activities' : 'Kegiatan Preservasi'));
-                                $resTitle = $locale === 'en' && !empty($currentPage->extra_data['restorasi_title_en']) 
-                                    ? $currentPage->extra_data['restorasi_title_en'] 
+                                $resTitle = $locale === 'en' && !empty($currentPage->extra_data['restorasi_title_en'])
+                                    ? $currentPage->extra_data['restorasi_title_en']
                                     : ($currentPage->extra_data['restorasi_title'] ?? ($locale === 'en' ? 'Archive Restoration' : 'Restorasi Arsip'));
                             @endphp
                             @if(!empty($currentPage->extra_data['preservasi_list']) && is_array($currentPage->extra_data['preservasi_list']))
@@ -699,8 +706,8 @@
                                     </div>
                                     @if(!empty($currentPage->extra_data['restorasi_desc']))
                                         @php
-                                            $rDesc = $locale === 'en' && !empty($currentPage->extra_data['restorasi_desc_en']) 
-                                                ? $currentPage->extra_data['restorasi_desc_en'] 
+                                            $rDesc = $locale === 'en' && !empty($currentPage->extra_data['restorasi_desc_en'])
+                                                ? $currentPage->extra_data['restorasi_desc_en']
                                                 : $currentPage->extra_data['restorasi_desc'];
                                         @endphp
                                         <p class="text-white/90 text-lg mb-6 leading-relaxed font-medium">{!! nl2br(e($rDesc)) !!}</p>
@@ -724,7 +731,7 @@
                         @elseif($type === 'pengolahan')
                             @if(!empty($currentPage->extra_data['pengolahan_list']) && is_array($currentPage->extra_data['pengolahan_list']))
                                 @php
-                                    $pengolahanTitle = $locale === 'en' 
+                                    $pengolahanTitle = $locale === 'en'
                                         ? (array_key_exists('pengolahan_title_en', $currentPage->extra_data) ? $currentPage->extra_data['pengolahan_title_en'] : 'Processing Stages')
                                         : (array_key_exists('pengolahan_title', $currentPage->extra_data) ? $currentPage->extra_data['pengolahan_title'] : 'Tahapan Pengolahan');
                                 @endphp
@@ -759,7 +766,7 @@
                                         <h4 class="text-xl font-bold text-gray-800 mb-2">{{ $mTitle }}</h4>
                                     @endif
                                     @if(!empty($mDesc))
-                                        <p class="text-gray-600 leading-relaxed">{{ $mDesc }}</p>
+                                        <p class="text-gray-600 leading-relaxed">{!! nl2br(e($mDesc)) !!}</p>
                                     @endif
                                 </div>
                             @endif
@@ -775,22 +782,29 @@
                             @endif
 
                             @if(!empty($currentPage->extra_data['akses_list']) && is_array($currentPage->extra_data['akses_list']))
-                                <h3 class="service-subtitle">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
-                                    {{ $locale === 'en' ? 'Access & Utilization Services' : 'Layanan Akses & Pemanfaatan' }}
-                                </h3>
+                                @php
+                                    $aksesTitle = $locale === 'en'
+                                        ? (array_key_exists('akses_title_en', $currentPage->extra_data) ? $currentPage->extra_data['akses_title_en'] : 'Access & Utilization Services')
+                                        : (array_key_exists('akses_title', $currentPage->extra_data) ? $currentPage->extra_data['akses_title'] : 'Layanan Akses & Pemanfaatan');
+                                @endphp
+                                @if(!empty($aksesTitle))
+                                    <h3 class="service-subtitle">
+                                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+                                        {{ $aksesTitle }}
+                                    </h3>
+                                @endif
                                 <div class="cards-grid">
                                     @foreach($currentPage->extra_data['akses_list'] as $index => $item)
                                         @php
                                             $itemTitle = $locale === 'en' && !empty($item['title_en']) ? $item['title_en'] : ($item['title'] ?? '');
                                             $itemDesc = $locale === 'en' && !empty($item['desc_en']) ? $item['desc_en'] : ($item['desc'] ?? '');
-                                            $icon = $cardIcons[$index % count($cardIcons)];
+                                            $icon = !empty($item['icon']) && isset($availableIcons[$item['icon']]) ? $availableIcons[$item['icon']] : $cardIcons[$index % count($cardIcons)];
                                         @endphp
                                         <div class="service-card">
                                             <div class="card-icon">{!! $icon !!}</div>
                                             <div class="card-info">
                                                 <h4>{{ $itemTitle }}</h4>
-                                                <p>{{ $itemDesc }}</p>
+                                                <p>{!! nl2br(e($itemDesc)) !!}</p>
                                             </div>
                                         </div>
                                     @endforeach
@@ -800,23 +814,37 @@
                         {{-- 6. PENJANGKAUAN --}}
                         @elseif($type === 'penjangkauan')
                             @if(!empty($currentPage->extra_data['kegiatan_list']) && is_array($currentPage->extra_data['kegiatan_list']))
+                                @php
+                                    $kegiatanTitle = $locale === 'en'
+                                        ? (!empty($currentPage->extra_data['kegiatan_title_en']) ? $currentPage->extra_data['kegiatan_title_en'] : ($currentPage->extra_data['kegiatan_title'] ?? 'Outreach Programs & Activities'))
+                                        : (!empty($currentPage->extra_data['kegiatan_title']) ? $currentPage->extra_data['kegiatan_title'] : 'Program & Kegiatan Penjangkauan');
+                                @endphp
                                 <h3 class="service-subtitle">
                                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    {{ $locale === 'en' ? 'Outreach Programs & Activities' : 'Program & Kegiatan Penjangkauan' }}
+                                    {{ $kegiatanTitle }}
                                 </h3>
                                 <div class="cards-grid">
                                     @foreach($currentPage->extra_data['kegiatan_list'] as $index => $item)
                                         @php
                                             $itemTitle = $locale === 'en' && !empty($item['title_en']) ? $item['title_en'] : ($item['title'] ?? '');
                                             $itemDesc = $locale === 'en' && !empty($item['desc_en']) ? $item['desc_en'] : ($item['desc'] ?? '');
-                                            $icon = $cardIcons[$index % count($cardIcons)];
+                                            $icon = !empty($item['icon']) && isset($availableIcons[$item['icon']]) ? $availableIcons[$item['icon']] : $cardIcons[$index % count($cardIcons)];
+                                            $buttonLabel = $locale === 'en' && !empty($item['button_label_en']) ? $item['button_label_en'] : ($item['button_label'] ?? 'Kunjungi');
+                                            $buttonUrl = $item['button_url'] ?? '';
+                                            $hasButton = !empty($buttonUrl) && $buttonUrl !== '#';
                                         @endphp
                                         <div class="service-card">
                                             <div class="card-icon">{!! $icon !!}</div>
                                             <div class="card-info">
-                                                <h4>{{ $itemTitle }}</h4>
-                                                <p>{{ $itemDesc }}</p>
+                                                <h4 class="{{ $hasButton ? 'pr-20 sm:pr-24' : '' }}">{{ $itemTitle }}</h4>
+                                                <p>{!! nl2br(e($itemDesc)) !!}</p>
                                             </div>
+                                            @if($hasButton)
+                                                <a href="{{ $buttonUrl }}" target="_blank" class="absolute top-6 right-6 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#174E93] hover:bg-blue-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm">
+                                                    <span>{{ $buttonLabel }}</span>
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                </a>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -841,7 +869,7 @@
                                                     <span class="w-8 h-8 rounded-full bg-[#174E93] text-white font-bold flex items-center justify-center text-sm shadow-sm">{{ $index + 1 }}</span>
                                                     <h4>{{ $itemTitle }}</h4>
                                                 </div>
-                                                <p class="pl-11">{{ $itemDesc }}</p>
+                                                <p class="pl-11">{!! nl2br(e($itemDesc)) !!}</p>
                                             </div>
                                         @endforeach
                                     </div>

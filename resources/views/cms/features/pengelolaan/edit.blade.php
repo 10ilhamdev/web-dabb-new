@@ -76,7 +76,7 @@
                 {{-- Media Images --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.pengelolaan.label_gallery') }}</label>
-                    
+
                     {{-- Existing Images --}}
                     <div class="mb-4" x-show="existingImages.length > 0">
                         <label class="block text-xs font-semibold text-gray-500 mb-2">{{ __('cms.layanan_publik.current_photos_title') }}</label>
@@ -116,7 +116,7 @@
                 {{-- Document / Guide / Form File (PDF) --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('cms.pengelolaan.label_pdf') }}</label>
-                    
+
                     @if(isset($pengelolaan->extra_data['file']))
                     <div class="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -270,8 +270,8 @@
                             <div class="mb-4 pt-3 border-t border-gray-100">
                                 <label class="block text-xs font-semibold text-gray-600 mb-2">Upload Gambar Fasilitas (Bisa Lebih dari Satu)</label>
                                 @php
-                                    $existingFasilitas = !empty($pengelolaan->extra_data['fasilitas_images']) && is_array($pengelolaan->extra_data['fasilitas_images']) 
-                                        ? $pengelolaan->extra_data['fasilitas_images'] 
+                                    $existingFasilitas = !empty($pengelolaan->extra_data['fasilitas_images']) && is_array($pengelolaan->extra_data['fasilitas_images'])
+                                        ? $pengelolaan->extra_data['fasilitas_images']
                                         : (!empty($pengelolaan->extra_data['fasilitas_image']) ? [$pengelolaan->extra_data['fasilitas_image']] : []);
                                 @endphp
                                 @if(count($existingFasilitas) > 0)
@@ -322,8 +322,8 @@
                             <div class="mb-4 pt-3 border-t border-gray-100">
                                 <label class="block text-xs font-semibold text-gray-600 mb-2">Upload Gambar Ruang (Bisa Lebih dari Satu)</label>
                                 @php
-                                    $existingRuang = !empty($pengelolaan->extra_data['ruang_images']) && is_array($pengelolaan->extra_data['ruang_images']) 
-                                        ? $pengelolaan->extra_data['ruang_images'] 
+                                    $existingRuang = !empty($pengelolaan->extra_data['ruang_images']) && is_array($pengelolaan->extra_data['ruang_images'])
+                                        ? $pengelolaan->extra_data['ruang_images']
                                         : (!empty($pengelolaan->extra_data['ruang_image']) ? [$pengelolaan->extra_data['ruang_image']] : []);
                                 @endphp
                                 @if(count($existingRuang) > 0)
@@ -485,12 +485,16 @@
 
                     {{-- Akses List (Cards) --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between mb-2">
                             <h3 class="text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_akses_list') }}</h3>
                             <button type="button" @click="addAkses()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                 {{ __('cms.pengelolaan.btn_add_akses') }}
                             </button>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Daftar Akses</label>
+                            <input type="text" name="extra_data[akses_title]" x-model="akses_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Layanan Akses & Pemanfaatan">
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="(item, index) in akses_list" :key="index">
@@ -504,6 +508,19 @@
                                     <div>
                                         <label class="block text-[11px] text-gray-500 mb-1">Judul Akses</label>
                                         <input type="text" :name="'extra_data[akses_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-500 mb-1">Pilih Ikon</label>
+                                        <select :name="'extra_data[akses_list]['+index+'][icon]'" x-model="item.icon" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                            <option value="clipboard">📋 Clipboard (Klasifikasi / Daftar)</option>
+                                            <option value="archive">🗃️ Kotak Arsip (Subjek / Berkas)</option>
+                                            <option value="book">📖 Buku (Abjad / Panduan)</option>
+                                            <option value="calendar">📅 Kalender (Tanggal / Kronologis)</option>
+                                            <option value="map">🗺️ Peta (Wilayah / Geografis)</option>
+                                            <option value="document">📄 Dokumen (File / Catatan)</option>
+                                            <option value="lock">🔒 Gembok (Keamanan / Rahasia)</option>
+                                            <option value="database">🗄️ Database (Server / Penyimpanan)</option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label class="block text-[11px] text-gray-500 mb-1">Deskripsi</label>
@@ -524,7 +541,11 @@
 
                     {{-- Kegiatan List (Cards) --}}
                     <div>
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Daftar Kegiatan Penjangkauan</label>
+                            <input type="text" name="extra_data[kegiatan_title]" x-model="kegiatan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Program & Kegiatan Penjangkauan">
+                        </div>
+                        <div class="flex items-center justify-between mb-4 pt-2 border-t border-gray-100">
                             <h3 class="text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_kegiatan_list') }}</h3>
                             <button type="button" @click="addKegiatan()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -543,6 +564,35 @@
                                     <div>
                                         <label class="block text-[11px] text-gray-500 mb-1">Judul Kegiatan</label>
                                         <input type="text" :name="'extra_data[kegiatan_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-500 mb-1">Pilih Ikon</label>
+                                        <select :name="'extra_data[kegiatan_list]['+index+'][icon]'" x-model="item.icon" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                            <option value="clipboard">📋 Clipboard (Daftar / Pameran)</option>
+                                            <option value="archive">🗃️ Kotak Arsip (Koleksi / Berkas)</option>
+                                            <option value="book">📖 Buku (Publikasi / Naskah)</option>
+                                            <option value="calendar">📅 Kalender (Kegiatan / Kerjasama)</option>
+                                            <option value="map">🗺️ Peta (Wilayah / Geografis)</option>
+                                            <option value="document">📄 Dokumen (File / Catatan)</option>
+                                            <option value="lock">🔒 Gembok (Keamanan / Rahasia)</option>
+                                            <option value="database">🗄️ Database (Server / Penyimpanan)</option>
+                                            <option value="users">👥 Pengguna (Sosialisasi / Edukasi)</option>
+                                            <option value="globe">🌐 Globe (Internasional / Website)</option>
+                                            <option value="tag">🏷️ Tag (Label / Kategori)</option>
+                                            <option value="folder">📁 Folder (Direktori / Berkas)</option>
+                                            <option value="check">✔️ Ceklis (Verifikasi / Selesai)</option>
+                                            <option value="star">⭐ Bintang (Unggulan / Penting)</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-200/60">
+                                        <div>
+                                            <label class="block text-[11px] text-gray-500 mb-1">Teks Tombol (Kanan Atas)</label>
+                                            <input type="text" :name="'extra_data[kegiatan_list]['+index+'][button_label]'" x-model="item.button_label" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Kunjungi">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] text-gray-500 mb-1">Link URL Tombol</label>
+                                            <input type="text" :name="'extra_data[kegiatan_list]['+index+'][button_url]'" x-model="item.button_url" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="https://...">
+                                        </div>
                                     </div>
                                     <div>
                                         <label class="block text-[11px] text-gray-500 mb-1">Deskripsi</label>

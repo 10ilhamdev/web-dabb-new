@@ -176,6 +176,9 @@ class PengelolaanController extends Controller
         if (!empty($extraData['pengolahan_title'])) {
             $extraData['pengolahan_title_en'] = $this->translationService->translate($extraData['pengolahan_title']);
         }
+        if (!empty($extraData['akses_title'])) {
+            $extraData['akses_title_en'] = $this->translationService->translate($extraData['akses_title']);
+        }
         if (!empty($extraData['preservasi_list']) && is_array($extraData['preservasi_list'])) {
             foreach ($extraData['preservasi_list'] as $k => $v) {
                 if (!empty($v['text'])) {
@@ -219,6 +222,9 @@ class PengelolaanController extends Controller
                 }
             }
         }
+        if (!empty($extraData['kegiatan_title'])) {
+            $extraData['kegiatan_title_en'] = $this->translationService->translate($extraData['kegiatan_title']);
+        }
         if (!empty($extraData['kegiatan_list']) && is_array($extraData['kegiatan_list'])) {
             foreach ($extraData['kegiatan_list'] as $k => $v) {
                 if (!empty($v['title'])) {
@@ -226,6 +232,9 @@ class PengelolaanController extends Controller
                 }
                 if (!empty($v['desc'])) {
                     $extraData['kegiatan_list'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                }
+                if (!empty($v['button_label'])) {
+                    $extraData['kegiatan_list'][$k]['button_label_en'] = $this->translationService->translate($v['button_label']);
                 }
             }
         }
@@ -463,6 +472,9 @@ class PengelolaanController extends Controller
         if (!empty($extraData['pengolahan_title'])) {
             $extraData['pengolahan_title_en'] = $this->translationService->translate($extraData['pengolahan_title']);
         }
+        if (!empty($extraData['akses_title'])) {
+            $extraData['akses_title_en'] = $this->translationService->translate($extraData['akses_title']);
+        }
         if (!empty($extraData['preservasi_list']) && is_array($extraData['preservasi_list'])) {
             foreach ($extraData['preservasi_list'] as $k => $v) {
                 if (!empty($v['text'])) {
@@ -506,6 +518,9 @@ class PengelolaanController extends Controller
                 }
             }
         }
+        if (!empty($extraData['kegiatan_title'])) {
+            $extraData['kegiatan_title_en'] = $this->translationService->translate($extraData['kegiatan_title']);
+        }
         if (!empty($extraData['kegiatan_list']) && is_array($extraData['kegiatan_list'])) {
             foreach ($extraData['kegiatan_list'] as $k => $v) {
                 if (!empty($v['title'])) {
@@ -513,6 +528,9 @@ class PengelolaanController extends Controller
                 }
                 if (!empty($v['desc'])) {
                     $extraData['kegiatan_list'][$k]['desc_en'] = $this->translationService->translate($v['desc']);
+                }
+                if (!empty($v['button_label'])) {
+                    $extraData['kegiatan_list'][$k]['button_label_en'] = $this->translationService->translate($v['button_label']);
                 }
             }
         }

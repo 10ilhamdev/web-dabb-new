@@ -872,7 +872,7 @@
             case 'carousel': return this._dialogCarousel();
             case 'table': return this._dialogTable();
             case 'hr': return this._insertHTML('<hr>');
-            case 'blockquote': return this.exec('formatBlock', 'blockquote');
+            case 'blockquote': return this._dialogQuote();
             case 'codeblock': return this._dialogCode();
             case 'source': return this._toggleSource();
             case 'fullscreen': return this._toggleFullscreen();
@@ -888,6 +888,33 @@
             case 'zoomOut': this._zoomOut(); return;
             case 'zoomReset': this._zoomReset(); return;
         }
+    };
+
+    RichTextEditor.prototype._toggleBlockquote = function () {
+        var sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        var node = sel.anchorNode;
+        var bq = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
+        if (bq) {
+            // We are inside a blockquote, toggle it off
+            // First try browser native formatBlock 'p' which handles splitting if selection is partial
+            this.exec('formatBlock', 'p');
+            // If the node is still inside bq (e.g. browser didn't unwrap it), do manual unwrap
+            var stillBq = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
+            if (stillBq && stillBq === bq) {
+                var frag = document.createDocumentFragment();
+                while (bq.firstChild) {
+                    frag.appendChild(bq.firstChild);
+                }
+                bq.parentNode.insertBefore(frag, bq);
+                bq.parentNode.removeChild(bq);
+            }
+        } else {
+            // Not in a blockquote, create one
+            this.exec('formatBlock', 'blockquote');
+        }
+        this._syncSource();
+        this._updateState();
     };
 
     RichTextEditor.prototype._doListAlpha = function () {
@@ -990,12 +1017,175 @@
     };
 
     // -------- dialogs ---------
+    RichTextEditor.prototype._dialogQuote = function () {
+        var self = this;
+        var sel = window.getSelection();
+        var node = sel ? sel.anchorNode : null;
+        var existingBq = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
+        var currentText = existingBq ? existingBq.textContent.replace('“', '').trim() : (sel && sel.toString() ? sel.toString().trim() : '');
+
+        var initType = 'default';
+        var initBg = '#f8fafc', initBorder = '#1d4ed8', initTextCol = '#334155', initBadge = '#1d4ed8';
+        if (existingBq) {
+            if (existingBq.classList.contains('rte-quote-blue')) initType = 'box_blue';
+            else if (existingBq.classList.contains('rte-quote-green')) initType = 'box_green';
+            else if (existingBq.classList.contains('rte-quote-gold')) initType = 'box_gold';
+            else if (existingBq.classList.contains('rte-quote-custom')) {
+                initType = 'custom';
+                initBg = existingBq.style.backgroundColor || initBg;
+                initBorder = existingBq.style.borderLeftColor || initBorder;
+                initTextCol = existingBq.style.color || initTextCol;
+                var bEl = existingBq.querySelector('.rte-quote-badge');
+                if (bEl) initBadge = bEl.style.backgroundColor || initBadge;
+            }
+        }
+
+        var typeSelect = el('select', { class: 'rte-form-input', name: 'quotetype' }, [
+            el('option', { value: 'default', text: 'Style Standar (Bawaan Editor)', selected: initType === 'default' }),
+            el('option', { value: 'box_blue', text: 'Kutipan Boks Dasar Hukum (Biru)', selected: initType === 'box_blue' }),
+            el('option', { value: 'box_green', text: 'Kutipan Boks (Hijau)', selected: initType === 'box_green' }),
+            el('option', { value: 'box_gold', text: 'Kutipan Boks (Emas / Kuning)', selected: initType === 'box_gold' }),
+            el('option', { value: 'custom', text: 'Kustom Sendiri (Warna Latar & Border)', selected: initType === 'custom' }),
+        ]);
+
+        var customRow = el('div', { class: 'rte-form-group', style: 'margin-top:12px; display: ' + (initType === 'custom' ? 'block' : 'none') + ';' }, [
+            el('label', { class: 'rte-form-label', text: 'Warna Latar Belakang' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'qbg', value: initBg, style: 'height:38px; padding:2px;' }),
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Warna Garis Tepi (Border)' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'qborder', value: initBorder, style: 'height:38px; padding:2px;' }),
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Warna Badge Ikon' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'qbadge', value: initBadge, style: 'height:38px; padding:2px;' }),
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Warna Teks' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'qtextcol', value: initTextCol, style: 'height:38px; padding:2px;' }),
+        ]);
+
+        typeSelect.addEventListener('change', function () {
+            customRow.style.display = typeSelect.value === 'custom' ? 'block' : 'none';
+        });
+
+        var textInput = el('textarea', { class: 'rte-form-input', rows: 5, name: 'quotetext', placeholder: 'Tuliskan atau edit isi kutipan di sini...' });
+        textInput.value = currentText;
+
+        var removeBtn = existingBq ? el('button', {
+            type: 'button',
+            class: 'rte-btn rte-btn-secondary',
+            style: 'margin-top: 16px; width: 100%; background: #fee2e2; color: #991b1b; border-color: #fca5a5; font-weight: 600;',
+            text: 'Hapus Quote (Kembalikan ke Teks Normal)',
+            onclick: function () {
+                var bd = document.querySelector('.rte-modal-backdrop');
+                if (bd && bd.parentNode) bd.parentNode.removeChild(bd);
+                self._toggleBlockquote();
+            }
+        }) : null;
+
+        var bodyNodes = [
+            el('label', { class: 'rte-form-label', text: 'Tipe / Style Kutipan' }),
+            typeSelect,
+            customRow,
+            el('label', { class: 'rte-form-label', style: 'margin-top:12px;', text: 'Isi Teks Kutipan' }),
+            textInput
+        ];
+        if (removeBtn) bodyNodes.push(removeBtn);
+
+        var body = el('div', { class: 'rte-form' }, bodyNodes);
+
+        openModal({
+            title: existingBq ? 'Pengaturan Quote (Kutipan)' : 'Insert Quote (Kutipan)',
+            body: body,
+            confirmLabel: existingBq ? 'Terapkan' : 'Insert',
+            onConfirm: function () {
+                var qtype = body.querySelector('[name=quotetype]').value;
+                var qtext = body.querySelector('[name=quotetext]').value.trim();
+                if (!qtext) return false;
+
+                var bg = '#f8fafc', border = '#1d4ed8', textCol = '#334155', badgeCol = '#1d4ed8', qClass = 'rte-quote-blue';
+                if (qtype === 'box_green') {
+                    bg = '#f0fdf4'; border = '#16a34a'; textCol = '#166534'; badgeCol = '#16a34a'; qClass = 'rte-quote-green';
+                } else if (qtype === 'box_gold') {
+                    bg = '#fefce8'; border = '#ca8a04'; textCol = '#854d0e'; badgeCol = '#ca8a04'; qClass = 'rte-quote-gold';
+                } else if (qtype === 'custom') {
+                    bg = body.querySelector('[name=qbg]').value;
+                    border = body.querySelector('[name=qborder]').value;
+                    badgeCol = body.querySelector('[name=qbadge]').value;
+                    textCol = body.querySelector('[name=qtextcol]').value;
+                    qClass = 'rte-quote-custom';
+                }
+
+                if (existingBq) {
+                    if (qtype === 'default') {
+                        existingBq.className = '';
+                        existingBq.removeAttribute('style');
+                        var badge = existingBq.querySelector('.rte-quote-badge');
+                        if (badge) badge.parentNode.removeChild(badge);
+                        var pEl = existingBq.querySelector('p');
+                        if (pEl) pEl.textContent = qtext;
+                        else existingBq.textContent = qtext;
+                    } else {
+                        existingBq.className = 'rte-quote-box ' + qClass;
+                        existingBq.style.cssText = 'position: relative; margin: 2em 0 1.5em 0; padding: 20px 20px 20px 30px; background-color: ' + bg + '; border-left: 4px solid ' + border + '; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-style: italic; color: ' + textCol + ';';
+                        
+                        var badgeEl = existingBq.querySelector('.rte-quote-badge');
+                        if (!badgeEl) {
+                            badgeEl = document.createElement('div');
+                            badgeEl.className = 'rte-quote-badge';
+                            badgeEl.setAttribute('contenteditable', 'false');
+                            badgeEl.textContent = '“';
+                            existingBq.insertBefore(badgeEl, existingBq.firstChild);
+                        }
+                        badgeEl.style.cssText = 'position: absolute; top: -15px; left: 20px; width: 32px; height: 32px; background-color: ' + badgeCol + '; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-size: 20px; font-weight: bold; font-style: normal; box-shadow: 0 2px 4px rgba(0,0,0,0.2); user-select: none;';
+                        
+                        var pEl = existingBq.querySelector('p');
+                        if (!pEl) {
+                            pEl = document.createElement('p');
+                            pEl.style.cssText = 'margin: 0; line-height: 1.6;';
+                            while (existingBq.childNodes.length > 1) {
+                                pEl.appendChild(existingBq.childNodes[1]);
+                            }
+                            existingBq.appendChild(pEl);
+                        }
+                        pEl.textContent = qtext;
+                    }
+                    self._syncSource();
+                    self._updateState();
+                } else {
+                    var html;
+                    if (qtype === 'default') {
+                        html = '<blockquote><p>' + escapeHtml(qtext) + '</p></blockquote>';
+                    } else {
+                        html = '<blockquote class="rte-quote-box ' + escapeHtml(qClass) + '" style="position: relative; margin: 2em 0 1.5em 0; padding: 20px 20px 20px 30px; background-color: ' + escapeHtml(bg) + '; border-left: 4px solid ' + escapeHtml(border) + '; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-style: italic; color: ' + escapeHtml(textCol) + ';"><div class="rte-quote-badge" contenteditable="false" style="position: absolute; top: -15px; left: 20px; width: 32px; height: 32px; background-color: ' + escapeHtml(badgeCol) + '; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-size: 20px; font-weight: bold; font-style: normal; box-shadow: 0 2px 4px rgba(0,0,0,0.2); user-select: none;">“</div><p style="margin: 0; line-height: 1.6;">' + escapeHtml(qtext) + '</p></blockquote>';
+                    }
+                    self._insertHTML(html);
+                }
+            }
+        });
+    };
+
     RichTextEditor.prototype._dialogLink = function () {
         var self = this;
         var sel = window.getSelection();
         var selectedText = sel && sel.toString() ? sel.toString() : '';
+        var typeSelect = el('select', { class: 'rte-form-input', name: 'linktype' }, [
+            el('option', { value: 'button', text: 'Button (Tombol)', selected: true }),
+            el('option', { value: 'text', text: 'Text (Teks Link)' }),
+        ]);
+        var colorRow = el('div', { class: 'rte-form-group', style: 'margin-top:10px;' }, [
+            el('label', { class: 'rte-form-label', text: 'Warna Latar Button' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'bgcolor', value: '#0d6efd', style: 'height:38px; padding:2px;' }),
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Warna Teks Button' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'textcolor', value: '#ffffff', style: 'height:38px; padding:2px;' }),
+        ]);
+        typeSelect.addEventListener('change', function () {
+            if (typeSelect.value === 'button') {
+                colorRow.style.display = 'block';
+            } else {
+                colorRow.style.display = 'none';
+            }
+        });
         var body = el('div', { class: 'rte-form' }, [
-            el('label', { class: 'rte-form-label', text: 'URL' }),
+            el('label', { class: 'rte-form-label', text: 'Tipe Link' }),
+            typeSelect,
+            colorRow,
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'URL' }),
             el('input', { type: 'url', class: 'rte-form-input', name: 'url', placeholder: 'https://example.com', value: 'https://' }),
             el('label', { class: 'rte-form-label', text: 'Text to display' }),
             el('input', { type: 'text', class: 'rte-form-input', name: 'text', value: selectedText }),
@@ -1012,11 +1202,21 @@
                 var url = body.querySelector('[name=url]').value.trim();
                 var text = body.querySelector('[name=text]').value;
                 var newtab = body.querySelector('[name=newtab]').checked;
+                var linktype = body.querySelector('[name=linktype]').value;
+                var bgcolor = body.querySelector('[name=bgcolor]').value;
+                var textcolor = body.querySelector('[name=textcolor]').value;
                 if (!url) return false;
                 var safeText = text || url;
-                var html = '<a href="' + escapeHtml(url) + '"' +
-                    (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
-                    '>' + escapeHtml(safeText) + '</a>';
+                var html;
+                if (linktype === 'button') {
+                    html = '<a href="' + escapeHtml(url) + '" class="rte-btn-link"' +
+                        (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                        ' style="display: inline-flex; align-items: center; justify-content: center; background-color: ' + escapeHtml(bgcolor) + '; color: ' + escapeHtml(textcolor) + '; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; margin: 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box;">' + escapeHtml(safeText) + '</a>';
+                } else {
+                    html = '<a href="' + escapeHtml(url) + '"' +
+                        (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                        '>' + escapeHtml(safeText) + '</a>';
+                }
                 self._insertHTML(html);
             },
         });
@@ -1804,6 +2004,7 @@
         this._closeVideoPopup();
         this._closeImagePopup();
         this._closeCarouselPopup();
+        this._closeButtonPopup();
         this._attachMediaResizeHandle(img);
 
         var toolbar = el('div', { class: 'rte-img-toolbar' });
@@ -2207,6 +2408,7 @@
         this._closeImagePopup();
         this._closeVideoPopup();
         this._closeCarouselPopup();
+        this._closeButtonPopup();
         this._videoTarget = media;
         this._attachMediaResizeHandle(media);
 
@@ -2404,6 +2606,7 @@
         this._closeImagePopup();
         this._closeVideoPopup();
         this._closeCarouselPopup();
+        this._closeButtonPopup();
         this._attachMediaResizeHandle(carousel);
 
         var toolbar = el('div', { class: 'rte-img-toolbar' });
@@ -2511,6 +2714,133 @@
         if (this._carouselPopup) {
             if (this._carouselPopup.parentNode) this._carouselPopup.parentNode.removeChild(this._carouselPopup);
             this._carouselPopup = null;
+        }
+    };
+
+    RichTextEditor.prototype._showButtonEditorPopup = function (btnLink) {
+        var self = this;
+        this._closeImagePopup();
+        this._closeVideoPopup();
+        this._closeCarouselPopup();
+        this._closeButtonPopup();
+        this._attachMediaResizeHandle(btnLink);
+
+        var toolbar = el('div', { class: 'rte-img-toolbar' });
+        var activeMenu = null;
+        function closeMenus() { if (activeMenu) { activeMenu.style.display = 'none'; activeMenu = null; } }
+
+        function mkBtn(svgHtml, title, onclick) {
+            var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            b.innerHTML = svgHtml;
+            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            return b;
+        }
+        function mkDrop(svgHtml, title, items, onOpen) {
+            var wrap = el('div', { style: 'position:relative;display:inline-block;' });
+            var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+            var menu = el('div', { class: 'rte-img-tb-menu' });
+            items.forEach(function(item) {
+                if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
+                var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                menu.appendChild(mi);
+            });
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = menu.style.display === 'block';
+                closeMenus();
+                if (!open) { menu.style.display = 'block'; activeMenu = menu; if (onOpen) onOpen(menu); }
+            });
+            wrap.appendChild(btn); wrap.appendChild(menu);
+            return wrap;
+        }
+
+        // 1. Set Size
+        var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
+        var bSizeItems = [
+            { label: 'Set Size\u2026', get: function() { return false; }, action: function() {
+                Swal.fire({ title: 'Set Button Size', html:
+                    '<div style="display:flex;gap:8px;justify-content:center">' +
+                    '<label style="font-size:13px">W: <input id="swal-btn-w" type="number" value="' + (btnLink.offsetWidth||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '<label style="font-size:13px">H: <input id="swal-btn-h" type="number" value="' + (btnLink.offsetHeight||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                    '</div>',
+                    showCancelButton: true, confirmButtonText: 'Apply'
+                }).then(function(r) { if (r.isConfirmed) {
+                    var w = parseInt(document.getElementById('swal-btn-w').value,10);
+                    var h = parseInt(document.getElementById('swal-btn-h').value,10);
+                    if (w>0) btnLink.style.width = w+'px';
+                    if (h>0) btnLink.style.height = h+'px';
+                    self._syncSource();
+                    setTimeout(function(){self._updatePopupPositions();}, 10);
+                }});
+            }},
+            '-',
+            { label: 'Auto size',  get: function() { return !btnLink.style.width && !btnLink.style.height; }, action: function() { btnLink.style.width=''; btnLink.style.height=''; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '100% width', get: function() { return btnLink.style.width === '100%'; }, action: function() { btnLink.style.width='100%'; btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '75% width',  get: function() { return btnLink.style.width === '75%'; }, action: function() { btnLink.style.width='75%';  btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '50% width',  get: function() { return btnLink.style.width === '50%'; }, action: function() { btnLink.style.width='50%';  btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: '25% width',  get: function() { return btnLink.style.width === '25%'; }, action: function() { btnLink.style.width='25%';  btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+        ];
+        toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', bSizeItems, function(menu) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+                var item = bSizeItems[i];
+                if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
+            });
+        }));
+
+        // 2. Justify
+        var ICON_JUSTIFY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+        function setBJustify(float, mL, mR, disp) {
+            btnLink.style.float = float;
+            btnLink.style.marginLeft = mL;
+            btnLink.style.marginRight = mR;
+            if (disp === 'block') {
+                btnLink.style.display = 'flex';
+                if (!btnLink.style.width) btnLink.style.width = 'fit-content';
+            } else {
+                btnLink.style.display = 'inline-flex';
+                if (btnLink.style.width === 'fit-content') btnLink.style.width = '';
+            }
+            self._syncSource();
+            setTimeout(function(){self._updatePopupPositions();}, 10);
+        }
+        var bJustifyItems = [
+            { label: 'Justify Left',   get: function() { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft !== 'auto'; }, action: function() { setBJustify('none', '0', 'auto', 'inline-flex'); }},
+            { label: 'Justify Center', get: function() { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft === 'auto' && btnLink.style.marginRight === 'auto'; }, action: function() { setBJustify('none', 'auto', 'auto', 'block'); }},
+            { label: 'Justify Right',  get: function() { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft === 'auto' && (btnLink.style.marginRight === '0px' || btnLink.style.marginRight === '0'); }, action: function() { setBJustify('none', 'auto', '0', 'inline-flex'); }},
+            '-',
+            { label: 'Float Left',  get: function() { return btnLink.style.float === 'left'; }, action: function() { setBJustify('left', '0', '10px', 'inline-flex'); }},
+            { label: 'Float Right', get: function() { return btnLink.style.float === 'right'; }, action: function() { setBJustify('right', '10px', '0', 'inline-flex'); }},
+        ];
+        toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', bJustifyItems, function(menu) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+                var item = bJustifyItems[i];
+                if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
+            });
+        }));
+
+        // 3. Delete
+        var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Button', function() {
+            self._removeMediaResizeHandle();
+            if (btnLink.parentNode) btnLink.parentNode.removeChild(btnLink);
+            self._closeButtonPopup();
+            self._syncSource();
+        }));
+
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
+        this._buttonPopup = toolbar;
+
+        this._updatePopupPositions();
+    };
+
+    RichTextEditor.prototype._closeButtonPopup = function () {
+        if (this._buttonPopup) {
+            if (this._buttonPopup.parentNode) this._buttonPopup.parentNode.removeChild(this._buttonPopup);
+            this._buttonPopup = null;
         }
     };
 
@@ -3003,6 +3333,15 @@
             if (topC < 4) topC = rectC.bottom + 4;
             this._carouselPopup.style.left = leftC + 'px';
             this._carouselPopup.style.top = topC + 'px';
+        }
+        if (this._buttonPopup && this._mediaResizeTarget) {
+            var rectB = this._mediaResizeTarget.getBoundingClientRect();
+            var tbWB = this._buttonPopup.offsetWidth || 180;
+            var leftB = Math.min(Math.max(rectB.left + rectB.width/2 - tbWB/2, 4), window.innerWidth - tbWB - 4);
+            var topB = rectB.top - 44;
+            if (topB < 4) topB = rectB.bottom + 4;
+            this._buttonPopup.style.left = leftB + 'px';
+            this._buttonPopup.style.top = topB + 'px';
         }
     };
 
@@ -4218,6 +4557,10 @@
             var isMulti = activeList && activeList.tagName === 'OL' && activeList.classList.contains('rte-multilevel-list');
             self._buttons['list_multilevel'].classList.toggle('rte-active', !!isMulti);
         }
+        if (self._buttons['quote']) {
+            var isQuote = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
+            self._buttons['quote'].classList.toggle('rte-active', !!isQuote);
+        }
 
         // Stats
         var text = this.content.textContent || '';
@@ -4298,6 +4641,14 @@
             }
 
             var carousel = target.closest('.rte-carousel-container');
+            var btnLink = target.closest('.rte-btn-link');
+            if (!btnLink) {
+                var possibleA = target.closest('a');
+                if (possibleA && possibleA.style && (possibleA.style.padding || possibleA.style.borderRadius) && possibleA.style.backgroundColor) {
+                    possibleA.classList.add('rte-btn-link');
+                    btnLink = possibleA;
+                }
+            }
 
             if (clickedMedia) {
                 clickedMedia.draggable = true;
@@ -4305,20 +4656,29 @@
             } else if (target.tagName === 'IMG') {
                 self._closeVideoPopup();
                 self._closeCarouselPopup();
+                self._closeButtonPopup();
                 self._showImageEditorPopup(target);
             } else if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') {
                 self._closeImagePopup();
                 self._closeCarouselPopup();
+                self._closeButtonPopup();
                 target.draggable = true; // ensure it can be dragged
                 self._showVideoEditorPopup(target);
             } else if (carousel) {
                 self._closeImagePopup();
                 self._closeVideoPopup();
+                self._closeButtonPopup();
                 self._showCarouselEditorPopup(carousel);
+            } else if (btnLink) {
+                self._closeImagePopup();
+                self._closeVideoPopup();
+                self._closeCarouselPopup();
+                self._showButtonEditorPopup(btnLink);
             } else if (target.tagName !== 'TD' && target.tagName !== 'TH' && !target.closest('.rte-img-overlay')) {
                 self._closeImagePopup();
                 self._closeVideoPopup();
                 self._closeCarouselPopup();
+                self._closeButtonPopup();
                 self._removeMediaResizeHandle();
             }
         });
@@ -4531,6 +4891,122 @@
                 else if (k === 'y') { e.preventDefault(); self._historyRedo(); }
                 self._snapshotSelection();
                 self._updateState();
+            }
+
+            // Backspace custom handling for Word-like list & indent behavior
+            if (e.key === 'Backspace') {
+                var sel = window.getSelection();
+                if (sel && sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    if (range.collapsed && range.startContainer) {
+                        var node = range.startContainer;
+                        
+                        function isAtStartOf(el) {
+                            var testRange = document.createRange();
+                            testRange.setStart(el, 0);
+                            testRange.setEnd(range.startContainer, range.startOffset);
+                            var beforeText = testRange.toString().trim();
+                            var beforeFrag = testRange.cloneContents();
+                            var hasMediaBefore = beforeFrag.querySelector('img, table, iframe, video, audio');
+                            return beforeText.length === 0 && !hasMediaBefore;
+                        }
+
+                        var li = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('li');
+                        if (li) {
+                            if (isAtStartOf(li)) {
+                                e.preventDefault();
+                                var parentList = li.closest('ol, ul');
+                                var isNested = parentList && parentList.parentNode && parentList.parentNode.closest('ol, ul');
+
+                                if (isNested) {
+                                    var marker = document.createElement('span');
+                                    marker.id = 'rte-temp-outdent-marker'; marker.textContent = '\u200B';
+                                    range.insertNode(marker);
+                                    range.selectNode(marker);
+                                    range.collapse(false);
+                                    sel.removeAllRanges(); sel.addRange(range);
+
+                                    self.exec('outdent');
+
+                                    var restoredMarker = document.getElementById('rte-temp-outdent-marker');
+                                    if (restoredMarker) {
+                                        var newRange = document.createRange();
+                                        newRange.setStartAfter(restoredMarker);
+                                        newRange.collapse(true);
+                                        sel.removeAllRanges(); sel.addRange(newRange);
+                                        restoredMarker.parentNode.removeChild(restoredMarker);
+                                    }
+                                } else {
+                                    // Manual, 100% clean top-level outdent (avoids browser execCommand layout bugs)
+                                    var p = document.createElement('p');
+                                    p.style.marginLeft = '1.5rem';
+                                    
+                                    while (li.firstChild) {
+                                        var child = li.firstChild;
+                                        if (child.tagName === 'P' || child.tagName === 'DIV') {
+                                            while (child.firstChild) {
+                                                p.appendChild(child.firstChild);
+                                            }
+                                            li.removeChild(child);
+                                        } else {
+                                            p.appendChild(child);
+                                        }
+                                    }
+                                    if (p.childNodes.length === 0) {
+                                        p.appendChild(document.createElement('br'));
+                                    }
+                                    
+                                    var nextLis = [];
+                                    var nextSib = li.nextElementSibling;
+                                    while (nextSib) {
+                                        nextLis.push(nextSib);
+                                        nextSib = nextSib.nextElementSibling;
+                                    }
+                                    
+                                    parentList.parentNode.insertBefore(p, parentList.nextSibling);
+                                    
+                                    if (nextLis.length > 0) {
+                                        var newList = document.createElement(parentList.tagName);
+                                        newList.className = parentList.className;
+                                        if (parentList.getAttribute('type')) newList.setAttribute('type', parentList.getAttribute('type'));
+                                        if (parentList.getAttribute('style')) newList.setAttribute('style', parentList.getAttribute('style'));
+                                        
+                                        nextLis.forEach(function(nLi) {
+                                            newList.appendChild(nLi);
+                                        });
+                                        p.parentNode.insertBefore(newList, p.nextSibling);
+                                    }
+                                    
+                                    li.parentNode.removeChild(li);
+                                    if (parentList.children.length === 0) {
+                                        parentList.parentNode.removeChild(parentList);
+                                    }
+                                    
+                                    var newRange = document.createRange();
+                                    newRange.selectNodeContents(p);
+                                    newRange.collapse(true);
+                                    sel.removeAllRanges(); sel.addRange(newRange);
+                                }
+
+                                self._syncSource();
+                                self._updateState();
+                                return;
+                            }
+                        } else {
+                            var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6');
+                            if (block && isAtStartOf(block)) {
+                                if (block.style.marginLeft || block.style.paddingLeft) {
+                                    e.preventDefault();
+                                    block.style.marginLeft = '';
+                                    block.style.paddingLeft = '';
+                                    self._syncSource();
+                                    self._updateState();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Tab inside table -> next cell, otherwise -> indent
