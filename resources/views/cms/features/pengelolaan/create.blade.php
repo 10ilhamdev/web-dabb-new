@@ -119,39 +119,39 @@
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Judul Bagian Prinsip Penyimpanan</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">{{ __('cms.pengelolaan.label_prinsip_title') }}</label>
                                 <input type="text" name="extra_data[prinsip_title]" x-model="prinsip_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Deskripsi Bagian Prinsip Penyimpanan</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">{{ __('cms.pengelolaan.label_prinsip_desc') }}</label>
                                 <textarea name="extra_data[prinsip_desc]" x-model="prinsip_desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <label class="block text-sm font-bold text-gray-800">Daftar Poin Prinsip Penyimpanan</label>
+                                <label class="block text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_prinsip_list') }}</label>
                                 <button type="button" @click="addPrinsip()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                    Tambah Poin
+                                    {{ __('cms.pengelolaan.btn_add_poin') }}
                                 </button>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <template x-for="(item, index) in prinsip_list" :key="index">
                                     <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                         <div class="flex items-center justify-between gap-2">
-                                            <label class="block text-xs font-bold text-gray-700" x-text="'Prinsip ' + (index + 1)"></label>
-                                            <button type="button" @click="removePrinsip(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors" title="Hapus Poin">
+                                            <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.pengelolaan.item_prinsip') }} ' + (index + 1)"></label>
+                                            <button type="button" @click="removePrinsip(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors" :title="'{{ __('cms.pengelolaan.btn_delete_poin') }}'">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] text-gray-500 mb-1">Judul Poin</label>
-                                            <input type="text" :name="'extra_data[prinsip_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Keutuhan (Integrity)">
+                                            <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_poin_title') }}</label>
+                                            <input type="text" :name="'extra_data[prinsip_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" :placeholder="'{{ __('cms.pengelolaan.placeholder_prinsip_title') }}'">
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] text-gray-500 mb-1">Deskripsi Poin</label>
-                                            <textarea :name="'extra_data[prinsip_list]['+index+'][desc]'" x-model="item.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Arsip disimpan tanpa mengubah susunan asli..."></textarea>
+                                            <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_poin_desc') }}</label>
+                                            <textarea :name="'extra_data[prinsip_list]['+index+'][desc]'" x-model="item.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" :placeholder="'{{ __('cms.pengelolaan.placeholder_prinsip_desc') }}'"></textarea>
                                         </div>
                                     </div>
                                 </template>
@@ -169,41 +169,41 @@
                             </button>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Judul Bagian Sistem Penyimpanan</label>
-                            <input type="text" name="extra_data[sistem_title]" x-model="sistem_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Sistem Penyimpanan">
+                            <label class="block text-xs font-bold text-gray-700 mb-1">{{ __('cms.pengelolaan.label_sistem_section_title') }}</label>
+                            <input type="text" name="extra_data[sistem_title]" x-model="sistem_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_sistem_title') }}">
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="(item, index) in sistem_penyimpanan" :key="index">
                                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                     <div class="flex items-center justify-between gap-2">
-                                        <label class="block text-xs font-bold text-gray-700" x-text="'Sistem ' + (index + 1)"></label>
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.pengelolaan.item_sistem') }} ' + (index + 1)"></label>
                                         <button type="button" @click="removeSistem(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Sistem</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_sistem_name') }}</label>
                                         <input type="text" :name="'extra_data[sistem_penyimpanan]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Pilih Ikon</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_choose_icon') }}</label>
                                         <select :name="'extra_data[sistem_penyimpanan]['+index+'][icon]'" x-model="item.icon" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                            <option value="clipboard">📋 Clipboard (Klasifikasi / Nomor)</option>
-                                            <option value="archive">🗃️ Kotak Arsip (Subjek / Berkas)</option>
-                                            <option value="book">📖 Buku (Abjad / Panduan)</option>
-                                            <option value="calendar">📅 Kalender (Tanggal / Kronologis)</option>
-                                            <option value="map">🗺️ Peta (Wilayah / Geografis)</option>
-                                            <option value="document">📄 Dokumen (File / Catatan)</option>
-                                            <option value="lock">🔒 Gembok (Keamanan / Rahasia)</option>
-                                            <option value="database">🗄️ Database (Server / Penyimpanan)</option>
-                                            <option value="tag">🏷️ Tag (Label / Kategori)</option>
-                                            <option value="folder">📁 Folder (Direktori / Berkas)</option>
-                                            <option value="check">✔️ Ceklis (Verifikasi / Selesai)</option>
-                                            <option value="star">⭐ Bintang (Unggulan / Penting)</option>
+                                            <option value="clipboard">{{ __('cms.pengelolaan.icons.sistem_clipboard') }}</option>
+                                            <option value="archive">{{ __('cms.pengelolaan.icons.sistem_archive') }}</option>
+                                            <option value="book">{{ __('cms.pengelolaan.icons.sistem_book') }}</option>
+                                            <option value="calendar">{{ __('cms.pengelolaan.icons.sistem_calendar') }}</option>
+                                            <option value="map">{{ __('cms.pengelolaan.icons.sistem_map') }}</option>
+                                            <option value="document">{{ __('cms.pengelolaan.icons.sistem_document') }}</option>
+                                            <option value="lock">{{ __('cms.pengelolaan.icons.sistem_lock') }}</option>
+                                            <option value="database">{{ __('cms.pengelolaan.icons.sistem_database') }}</option>
+                                            <option value="tag">{{ __('cms.pengelolaan.icons.sistem_tag') }}</option>
+                                            <option value="folder">{{ __('cms.pengelolaan.icons.sistem_folder') }}</option>
+                                            <option value="check">{{ __('cms.pengelolaan.icons.sistem_check') }}</option>
+                                            <option value="star">{{ __('cms.pengelolaan.icons.sistem_star') }}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_desc_general') }}</label>
                                         <textarea :name="'extra_data[sistem_penyimpanan]['+index+'][desc]'" x-model="item.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     </div>
                                 </div>
@@ -222,13 +222,13 @@
                                 </button>
                             </div>
                             <div class="mb-3">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Fasilitas</label>
-                                <input type="text" name="extra_data[fasilitas_title]" x-model="fasilitas_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Fasilitas Penyimpanan">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_fasilitas_section_title') }}</label>
+                                <input type="text" name="extra_data[fasilitas_title]" x-model="fasilitas_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_fasilitas_title') }}">
                             </div>
                             <div class="mb-4 pt-3 border-t border-gray-100">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Upload Gambar Fasilitas (Bisa Lebih dari Satu)</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_upload_fasilitas') }}</label>
                                 <input type="file" name="fasilitas_images[]" multiple accept="image/jpeg,image/png,image/webp" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                <p class="text-[11px] text-gray-500 mt-1">Format: JPG, PNG, WebP. Bisa pilih banyak file sekaligus.</p>
+                                <p class="text-[11px] text-gray-500 mt-1">{{ __('cms.pengelolaan.hint_upload_multiple') }}</p>
                             </div>
                             <div class="space-y-2.5">
                                 <template x-for="(item, index) in fasilitas_list" :key="index">
@@ -250,13 +250,13 @@
                                 </button>
                             </div>
                             <div class="mb-3">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Ruang</label>
-                                <input type="text" name="extra_data[ruang_title]" x-model="ruang_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Ruang Penyimpanan">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_ruang_section_title') }}</label>
+                                <input type="text" name="extra_data[ruang_title]" x-model="ruang_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_ruang_title') }}">
                             </div>
                             <div class="mb-4 pt-3 border-t border-gray-100">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Upload Gambar Ruang (Bisa Lebih dari Satu)</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_upload_ruang') }}</label>
                                 <input type="file" name="ruang_images[]" multiple accept="image/jpeg,image/png,image/webp" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                <p class="text-[11px] text-gray-500 mt-1">Format: JPG, PNG, WebP. Bisa pilih banyak file sekaligus.</p>
+                                <p class="text-[11px] text-gray-500 mt-1">{{ __('cms.pengelolaan.hint_upload_multiple') }}</p>
                             </div>
                             <div class="space-y-2.5">
                                 <template x-for="(item, index) in ruang_list" :key="index">
@@ -282,8 +282,8 @@
                     {{-- Preservasi List --}}
                     <div>
                         <div class="mb-3">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Kegiatan Preservasi</label>
-                            <input type="text" name="extra_data[preservasi_title]" x-model="preservasi_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Kegiatan Preservasi">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_preservasi_section_title') }}</label>
+                            <input type="text" name="extra_data[preservasi_title]" x-model="preservasi_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_preservasi_title') }}">
                         </div>
                         <div class="flex items-center justify-between mb-2 pt-2 border-t border-gray-100">
                             <label class="block text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_preservasi_list') }}</label>
@@ -307,8 +307,8 @@
                     {{-- Restorasi Desc & List --}}
                     <div class="pt-6 border-t border-gray-100 space-y-4">
                         <div class="mb-3">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Restorasi Arsip</label>
-                            <input type="text" name="extra_data[restorasi_title]" x-model="restorasi_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: RESTORASI ARSIP">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_restorasi_section_title') }}</label>
+                            <input type="text" name="extra_data[restorasi_title]" x-model="restorasi_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_restorasi_title') }}">
                         </div>
                         <div class="pt-2 border-t border-gray-100">
                             <label class="block text-sm font-bold text-gray-800 mb-1">{{ __('cms.pengelolaan.label_restorasi_desc') }}</label>
@@ -345,8 +345,8 @@
 
                     <div>
                         <div class="mb-4">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Pengolahan</label>
-                            <input type="text" name="extra_data[pengolahan_title]" x-model="pengolahan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Tahapan Pengolahan">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_pengolahan_section_title') }}</label>
+                            <input type="text" name="extra_data[pengolahan_title]" x-model="pengolahan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_pengolahan_title') }}">
                         </div>
                         <div class="flex items-center justify-between mb-2 pt-2 border-t border-gray-100">
                             <label class="block text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_pengolahan_list') }}</label>
@@ -403,37 +403,37 @@
                             </button>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Daftar Akses</label>
-                            <input type="text" name="extra_data[akses_title]" x-model="akses_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Layanan Akses & Pemanfaatan">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_akses_section_title') }}</label>
+                            <input type="text" name="extra_data[akses_title]" x-model="akses_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_akses_title') }}">
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="(item, index) in akses_list" :key="index">
                                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                     <div class="flex items-center justify-between gap-2">
-                                        <label class="block text-xs font-bold text-gray-700" x-text="'Akses ' + (index + 1)"></label>
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.pengelolaan.item_akses') }} ' + (index + 1)"></label>
                                         <button type="button" @click="removeAkses(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Akses</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_akses_name') }}</label>
                                         <input type="text" :name="'extra_data[akses_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Pilih Ikon</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_choose_icon') }}</label>
                                         <select :name="'extra_data[akses_list]['+index+'][icon]'" x-model="item.icon" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                            <option value="clipboard">📋 Clipboard (Klasifikasi / Daftar)</option>
-                                            <option value="archive">🗃️ Kotak Arsip (Subjek / Berkas)</option>
-                                            <option value="book">📖 Buku (Abjad / Panduan)</option>
-                                            <option value="calendar">📅 Kalender (Tanggal / Kronologis)</option>
-                                            <option value="map">🗺️ Peta (Wilayah / Geografis)</option>
-                                            <option value="document">📄 Dokumen (File / Catatan)</option>
-                                            <option value="lock">🔒 Gembok (Keamanan / Rahasia)</option>
-                                            <option value="database">🗄️ Database (Server / Penyimpanan)</option>
+                                            <option value="clipboard">{{ __('cms.pengelolaan.icons.akses_clipboard') }}</option>
+                                            <option value="archive">{{ __('cms.pengelolaan.icons.akses_archive') }}</option>
+                                            <option value="book">{{ __('cms.pengelolaan.icons.akses_book') }}</option>
+                                            <option value="calendar">{{ __('cms.pengelolaan.icons.akses_calendar') }}</option>
+                                            <option value="map">{{ __('cms.pengelolaan.icons.akses_map') }}</option>
+                                            <option value="document">{{ __('cms.pengelolaan.icons.akses_document') }}</option>
+                                            <option value="lock">{{ __('cms.pengelolaan.icons.akses_lock') }}</option>
+                                            <option value="database">{{ __('cms.pengelolaan.icons.akses_database') }}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_desc_general') }}</label>
                                         <textarea :name="'extra_data[akses_list]['+index+'][desc]'" x-model="item.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     </div>
                                 </div>
@@ -452,8 +452,8 @@
                     {{-- Kegiatan List (Cards) --}}
                     <div>
                         <div class="mb-4">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Daftar Kegiatan Penjangkauan</label>
-                            <input type="text" name="extra_data[kegiatan_title]" x-model="kegiatan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Program & Kegiatan Penjangkauan">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_kegiatan_section_title') }}</label>
+                            <input type="text" name="extra_data[kegiatan_title]" x-model="kegiatan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_kegiatan_title') }}">
                         </div>
                         <div class="flex items-center justify-between mb-4 pt-2 border-t border-gray-100">
                             <h3 class="text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_kegiatan_list') }}</h3>
@@ -466,46 +466,46 @@
                             <template x-for="(item, index) in kegiatan_list" :key="index">
                                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                     <div class="flex items-center justify-between gap-2">
-                                        <label class="block text-xs font-bold text-gray-700" x-text="'Kegiatan ' + (index + 1)"></label>
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.pengelolaan.item_kegiatan') }} ' + (index + 1)"></label>
                                         <button type="button" @click="removeKegiatan(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Kegiatan</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_kegiatan_name') }}</label>
                                         <input type="text" :name="'extra_data[kegiatan_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Pilih Ikon</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_choose_icon') }}</label>
                                         <select :name="'extra_data[kegiatan_list]['+index+'][icon]'" x-model="item.icon" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                            <option value="clipboard">📋 Clipboard (Daftar / Pameran)</option>
-                                            <option value="archive">🗃️ Kotak Arsip (Koleksi / Berkas)</option>
-                                            <option value="book">📖 Buku (Publikasi / Naskah)</option>
-                                            <option value="calendar">📅 Kalender (Kegiatan / Kerjasama)</option>
-                                            <option value="map">🗺️ Peta (Wilayah / Geografis)</option>
-                                            <option value="document">📄 Dokumen (File / Catatan)</option>
-                                            <option value="lock">🔒 Gembok (Keamanan / Rahasia)</option>
-                                            <option value="database">🗄️ Database (Server / Penyimpanan)</option>
-                                            <option value="users">👥 Pengguna (Sosialisasi / Edukasi)</option>
-                                            <option value="globe">🌐 Globe (Internasional / Website)</option>
-                                            <option value="tag">🏷️ Tag (Label / Kategori)</option>
-                                            <option value="folder">📁 Folder (Direktori / Berkas)</option>
-                                            <option value="check">✔️ Ceklis (Verifikasi / Selesai)</option>
-                                            <option value="star">⭐ Bintang (Unggulan / Penting)</option>
+                                            <option value="clipboard">{{ __('cms.pengelolaan.icons.kegiatan_clipboard') }}</option>
+                                            <option value="archive">{{ __('cms.pengelolaan.icons.kegiatan_archive') }}</option>
+                                            <option value="book">{{ __('cms.pengelolaan.icons.kegiatan_book') }}</option>
+                                            <option value="calendar">{{ __('cms.pengelolaan.icons.kegiatan_calendar') }}</option>
+                                            <option value="map">{{ __('cms.pengelolaan.icons.kegiatan_map') }}</option>
+                                            <option value="document">{{ __('cms.pengelolaan.icons.kegiatan_document') }}</option>
+                                            <option value="lock">{{ __('cms.pengelolaan.icons.kegiatan_lock') }}</option>
+                                            <option value="database">{{ __('cms.pengelolaan.icons.kegiatan_database') }}</option>
+                                            <option value="users">{{ __('cms.pengelolaan.icons.kegiatan_users') }}</option>
+                                            <option value="globe">{{ __('cms.pengelolaan.icons.kegiatan_globe') }}</option>
+                                            <option value="tag">{{ __('cms.pengelolaan.icons.kegiatan_tag') }}</option>
+                                            <option value="folder">{{ __('cms.pengelolaan.icons.kegiatan_folder') }}</option>
+                                            <option value="check">{{ __('cms.pengelolaan.icons.kegiatan_check') }}</option>
+                                            <option value="star">{{ __('cms.pengelolaan.icons.kegiatan_star') }}</option>
                                         </select>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-200/60">
                                         <div>
-                                            <label class="block text-[11px] text-gray-500 mb-1">Teks Tombol (Kanan Atas)</label>
-                                            <input type="text" :name="'extra_data[kegiatan_list]['+index+'][button_label]'" x-model="item.button_label" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Kunjungi">
+                                            <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_button_text') }}</label>
+                                            <input type="text" :name="'extra_data[kegiatan_list]['+index+'][button_label]'" x-model="item.button_label" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_button_text') }}">
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] text-gray-500 mb-1">Link URL Tombol</label>
-                                            <input type="text" :name="'extra_data[kegiatan_list]['+index+'][button_url]'" x-model="item.button_url" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="https://...">
+                                            <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_button_url') }}</label>
+                                            <input type="text" :name="'extra_data[kegiatan_list]['+index+'][button_url]'" x-model="item.button_url" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_button_url') }}">
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_desc_general') }}</label>
                                         <textarea :name="'extra_data[kegiatan_list]['+index+'][desc]'" x-model="item.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     </div>
                                 </div>
@@ -524,8 +524,8 @@
                     {{-- Tahapan List (Cards) --}}
                     <div>
                         <div class="mb-4">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Judul Bagian Daftar Tahapan Akuisisi</label>
-                            <input type="text" name="extra_data[tahapan_title]" x-model="tahapan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="Contoh: Tahapan & Prosedur Akuisisi">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('cms.pengelolaan.label_tahapan_section_title') }}</label>
+                            <input type="text" name="extra_data[tahapan_title]" x-model="tahapan_title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="{{ __('cms.pengelolaan.placeholder_tahapan_title') }}">
                         </div>
                         <div class="flex items-center justify-between mb-4 pt-2 border-t border-gray-100">
                             <h3 class="text-sm font-bold text-gray-800">{{ __('cms.pengelolaan.label_tahapan_list') }}</h3>
@@ -538,17 +538,17 @@
                             <template x-for="(item, index) in tahapan_list" :key="index">
                                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3 relative group">
                                     <div class="flex items-center justify-between gap-2">
-                                        <label class="block text-xs font-bold text-gray-700" x-text="'Tahapan ' + (index + 1)"></label>
+                                        <label class="block text-xs font-bold text-gray-700" x-text="'{{ __('cms.pengelolaan.item_tahapan') }} ' + (index + 1)"></label>
                                         <button type="button" @click="removeTahapan(index)" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Judul Tahapan</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_tahapan_name') }}</label>
                                         <input type="text" :name="'extra_data[tahapan_list]['+index+'][title]'" x-model="item.title" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] text-gray-500 mb-1">Deskripsi</label>
+                                        <label class="block text-[11px] text-gray-500 mb-1">{{ __('cms.pengelolaan.label_desc_general') }}</label>
                                         <textarea :name="'extra_data[tahapan_list]['+index+'][desc]'" x-model="item.desc" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
                                     </div>
                                 </div>

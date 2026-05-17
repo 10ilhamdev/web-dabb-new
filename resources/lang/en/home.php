@@ -325,5 +325,13 @@ Disclaimer | #',
         'lib_pdf' => 'Library_Service_Mechanism_DABB_2025.pdf (1.4 MB)',
         'captcha_warning' => 'Please complete the Captcha first.',
     ],
+    'kontak_kami' => [
+        'address' => 'Address',
+        'phone' => 'Phone',
+        'gallery' => 'Documentation & Gallery',
+        'empty' => 'No contact information available yet.',
+        'link_copied' => 'Link Copied!',
+        'link_copied_desc' => 'The link has been copied to your clipboard.',
+    ],
 ];
 

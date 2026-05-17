@@ -220,6 +220,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/{feature}/pengelolaan/{pengelolaan}', [\App\Http\Controllers\Cms\PengelolaanController::class, 'update'])->name('pengelolaan.pages.update');
         Route::delete('/{feature}/pengelolaan/{pengelolaan}', [\App\Http\Controllers\Cms\PengelolaanController::class, 'destroy'])->name('pengelolaan.pages.destroy');
 
+        // Kontak Kami Page
+        Route::get('/{feature}/kontak_kami', [\App\Http\Controllers\Cms\KontakKamiController::class, 'index'])->name('kontak_kami.index');
+        Route::get('/{feature}/kontak_kami/create', [\App\Http\Controllers\Cms\KontakKamiController::class, 'create'])->name('kontak_kami.pages.create');
+        Route::post('/{feature}/kontak_kami', [\App\Http\Controllers\Cms\KontakKamiController::class, 'store'])->name('kontak_kami.pages.store');
+        Route::get('/{feature}/kontak_kami/{kontakKami}/edit', [\App\Http\Controllers\Cms\KontakKamiController::class, 'edit'])->name('kontak_kami.pages.edit');
+        Route::put('/{feature}/kontak_kami/{kontakKami}', [\App\Http\Controllers\Cms\KontakKamiController::class, 'update'])->name('kontak_kami.pages.update');
+        Route::delete('/{feature}/kontak_kami/{kontakKami}', [\App\Http\Controllers\Cms\KontakKamiController::class, 'destroy'])->name('kontak_kami.pages.destroy');
+
 
         // Legacy routes - redirect to new structure
         Route::get('/{feature}/virtual-book-pages', function($feature) {
@@ -290,6 +298,10 @@ Route::post('/layanan-publik/{id}/share', [FeaturePageController::class, 'public
 Route::post('/pengelolaan/{id}/share', [FeaturePageController::class, 'publicIncrementPengelolaanShares'])
     ->where('id', '[0-9]+')
     ->name('pengelolaan.share.increment');
+
+Route::post('/kontak-kami/{id}/share', [FeaturePageController::class, 'publicIncrementKontakKamiShares'])
+    ->where('id', '[0-9]+')
+    ->name('kontak_kami.share.increment');
 
 Route::get('/{path}', [FeaturePageController::class, 'publicShowByPath'])
     ->where('path', '^(?!storage/|cms/|api/|dashboard|profile|auth).+')

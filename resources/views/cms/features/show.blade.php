@@ -266,6 +266,7 @@
                         <option value="publication">{{ __('cms.page_types.publication') }}</option>
                         <option value="layanan_publik">{{ __('cms.page_types.layanan_publik') }}</option>
                         <option value="pengelolaan">{{ __('cms.page_types.pengelolaan') }}</option>
+                        <option value="kontak_kami">{{ __('cms.page_types.kontak_kami') }}</option>
                     </select>
                 </div>
                 <div>
@@ -341,6 +342,7 @@
                         <option value="publication">{{ __('cms.page_types.publication') }}</option>
                         <option value="layanan_publik">{{ __('cms.page_types.layanan_publik') }}</option>
                         <option value="pengelolaan">{{ __('cms.page_types.pengelolaan') }}</option>
+                        <option value="kontak_kami">{{ __('cms.page_types.kontak_kami') }}</option>
                     </select>
                 </div>
                 <div>

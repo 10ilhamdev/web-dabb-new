@@ -413,6 +413,53 @@ class FeaturePageController extends Controller
             ]);
         }
 
+        if ($feature->page_type === 'kontak_kami') {
+            $pages = $feature->kontakKamis()->where('is_active', true)->orderBy('order')->get();
+            $pageNum = $pageNum ?? 1;
+            $currentPage = $pages->values()->get($pageNum - 1);
+            if ($currentPage) {
+                $currentPage->increment('views');
+            }
+
+            $locale = app()->getLocale();
+            $popularNews = \App\Models\Publication::where('type', 'berita')
+                ->where('is_active', true)
+                ->orderBy('views', 'desc')
+                ->limit(5)
+                ->get();
+
+            $pameranArsip = collect();
+            foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
+                if (!$room->feature || !$room->feature->path) continue;
+                $pameranArsip->push((object)[
+                    'title' => $room->translated_name ?? $room->name,
+                    'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
+                    'link'  => url($room->feature->path),
+                    'date'  => $room->created_at,
+                ]);
+            }
+            foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
+                if (!$book->feature || !$book->feature->path) continue;
+                $pameranArsip->push((object)[
+                    'title' => $book->translated_title ?? $book->title,
+                    'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
+                    'link'  => url($book->feature->path),
+                    'date'  => $book->created_at,
+                ]);
+            }
+
+            return view('pages.kontak_kami', [
+                'feature'             => $feature,
+                'pages'               => $pages,
+                'currentPage'         => $currentPage,
+                'currentPageNum'      => $pageNum,
+                'totalPages'          => $pages->count(),
+                'locale'              => $locale,
+                'popularNews'         => $popularNews,
+                'pameranArsip'        => $pameranArsip,
+            ]);
+        }
+
         $pages = $feature->pages()->where('is_active', true)->withCount('sections')->orderBy('order')->get();
 
         if ($pages->isEmpty()) {
@@ -838,6 +885,50 @@ class FeaturePageController extends Controller
             ]);
         }
 
+        if ($feature->page_type === 'kontak_kami') {
+            if ($feature->kontakKamis()->where('is_active', true)->count() > 0) {
+                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
+            }
+
+            $locale = app()->getLocale();
+            $popularNews = \App\Models\Publication::where('type', 'berita')
+                ->where('is_active', true)
+                ->orderBy('views', 'desc')
+                ->limit(5)
+                ->get();
+
+            $pameranArsip = collect();
+            foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
+                if (!$room->feature || !$room->feature->path) continue;
+                $pameranArsip->push((object)[
+                    'title' => $room->translated_name ?? $room->name,
+                    'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
+                    'link'  => url($room->feature->path),
+                    'date'  => $room->created_at,
+                ]);
+            }
+            foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
+                if (!$book->feature || !$book->feature->path) continue;
+                $pameranArsip->push((object)[
+                    'title' => $book->translated_title ?? $book->title,
+                    'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
+                    'link'  => url($book->feature->path),
+                    'date'  => $book->created_at,
+                ]);
+            }
+
+            return view('pages.kontak_kami', [
+                'feature'             => $feature,
+                'pages'               => collect(),
+                'currentPage'         => null,
+                'currentPageNum'      => 1,
+                'totalPages'          => 1,
+                'locale'              => $locale,
+                'popularNews'         => $popularNews,
+                'pameranArsip'        => $pameranArsip,
+            ]);
+        }
+
         if ($feature->pages_count > 0) {
             return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
         }
@@ -901,6 +992,13 @@ class FeaturePageController extends Controller
         $pengelolaan = \App\Models\Pengelolaan::findOrFail($id);
         $pengelolaan->increment('shares');
         return response()->json(['success' => true, 'shares' => $pengelolaan->shares]);
+    }
+
+    public function publicIncrementKontakKamiShares(Request $request, $id)
+    {
+        $kontakKami = \App\Models\KontakKami::findOrFail($id);
+        $kontakKami->increment('shares');
+        return response()->json(['success' => true, 'shares' => $kontakKami->shares]);
     }
 
     private function getFeatureTranslations($featureId, $locale): array

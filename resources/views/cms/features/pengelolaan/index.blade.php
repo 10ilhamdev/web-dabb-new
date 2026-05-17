@@ -137,14 +137,14 @@
                 <div>
                     <h3 class="text-base font-semibold text-gray-800">{{ __('cms.pengelolaan.delete_title') }}</h3>
                     <p class="text-sm text-gray-500 mt-1">
-                        {{ __('cms.pengelolaan.delete_confirm', ['name' => '']) }}<strong x-text="deleteModal.name" class="text-gray-700"></strong>?
+                        {!! __('cms.pengelolaan.delete_confirm', ['name' => '<strong x-text="deleteModal.name" class="text-gray-700"></strong>']) !!}
                     </p>
                 </div>
                 <div class="flex items-center gap-3 w-full">
                     <button @click="deleteModal.open = false"
                         class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">{{ __('cms.pengelolaan.delete_no') }}</button>
                     <button type="button" @click="submitDelete()"
-                        class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-50 hover:bg-red-600 rounded-lg transition-colors">{{ __('cms.pengelolaan.delete_yes') }}</button>
+                        class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">{{ __('cms.pengelolaan.delete_yes') }}</button>
                 </div>
             </div>
         </div>

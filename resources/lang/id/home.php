@@ -325,5 +325,13 @@ Disclaimer | #',
         'lib_pdf' => 'Mekanisme_Layanan_Perpustakaan_DABB_2025.pdf (1.4 MB)',
         'captcha_warning' => 'Silakan selesaikan Captcha terlebih dahulu.',
     ],
+    'kontak_kami' => [
+        'address' => 'Alamat Lengkap',
+        'phone' => 'Telepon',
+        'gallery' => 'Dokumentasi & Galeri',
+        'empty' => 'Belum ada informasi kontak yang tersedia.',
+        'link_copied' => 'Tautan Disalin!',
+        'link_copied_desc' => 'Tautan telah berhasil disalin.',
+    ],
 ];
 

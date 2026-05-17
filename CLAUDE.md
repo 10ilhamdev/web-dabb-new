@@ -63,6 +63,13 @@ php artisan <command>
 - `ProfileSection` - Content sections
 - Sub-menu items via `profile_sub` table
 
+**Kontak Kami Feature**:
+- `KontakKamiController` manages CRUD under `cms/features/{feature}/kontak_kami`
+- Stores flexible JSON data in `extra_data` column (address, operating hours, social media links, custom contact cards)
+- Manages image gallery uploads via Alpine.js synced with `DataTransfer` object (`updateInputFiles`)
+- Public guest rendering handled by `FeaturePageController::publicShow` using `resources/views/pages/kontak_kami.blade.php`
+- Tracks share count metrics via `kontak-kami/{id}/share` route
+
 ### Database Conventions
 
 - MySQL with utf8mb4_unicode_ci collation
