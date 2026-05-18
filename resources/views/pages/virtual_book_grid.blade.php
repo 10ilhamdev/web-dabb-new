@@ -318,15 +318,24 @@ window.onerror = function(msg, url, line, col, error) {
         <h2 class="vt-section-title">{{ app()->getLocale() === 'en' ? 'Select Book' : 'Pilih Buku' }}</h2>
         <p class="vt-section-sub">{{ app()->getLocale() === 'en' ? 'Click one of the books below to start reading' : 'Klik salah satu buku di bawah untuk mulai membaca' }}</p>
 
+        @if(!$books->isEmpty())
+        <div class="vt-search-box" style="max-width: 500px; margin: 0 auto 2.5rem; position: relative;">
+            <svg style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="gridSearchInput" placeholder="{{ app()->getLocale() === 'en' ? 'Search book title...' : 'Cari judul buku...' }}" onkeyup="filterGridCards()" style="width: 100%; padding: 0.85rem 1.25rem 0.85rem 3.25rem; border-radius: 2rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.08); font-size: 1rem; outline: none; transition: all 0.2s; background: white;">
+        </div>
+        @endif
+
         @if($books->isEmpty())
             <div style="text-align:center;padding:4rem;color:#9ca3af;">
                 <svg style="width:64px;height:64px;margin:0 auto 1rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
                 <p>{{ app()->getLocale() === 'en' ? 'No books available yet' : 'Belum ada buku' }}</p>
             </div>
         @else
-            <div class="vt-rooms-grid">
+            <div class="vt-rooms-grid" id="gridCardsWrapper">
                 @foreach($books as $book)
-                <a href="?detail={{ $book->id }}" class="vt-room-card" style="text-decoration:none; color:inherit;">
+                <a href="?detail={{ $book->id }}" class="vt-room-card" data-search="{{ mb_strtolower($book->translated_title) }}" style="text-decoration:none; color:inherit;">
                     <div class="vt-room-thumb">
                         @if($book->thumbnail)
                             <img src="{{ asset('storage/'.$book->thumbnail) }}" alt="{{ $book->translated_title }}" loading="lazy">
@@ -354,6 +363,9 @@ window.onerror = function(msg, url, line, col, error) {
                 </a>
                 @endforeach
             </div>
+            <div id="noResultsMsg" style="display:none; text-align:center; padding:3rem; color:#6b7280;">
+                <p style="font-size:1.1rem;">{{ app()->getLocale() === 'en' ? 'No books match your search.' : 'Tidak ada buku yang sesuai dengan pencarian Anda.' }}</p>
+            </div>
         @endif
     </div>
 </section>
@@ -365,5 +377,30 @@ window.onerror = function(msg, url, line, col, error) {
         'roomName'     => $loginModalRoomName ?? null
     ])
 @endif
+
+<script>
+function filterGridCards() {
+    var input = document.getElementById('gridSearchInput');
+    if (!input) return;
+    var filter = input.value.toLowerCase().trim();
+    var cards = document.querySelectorAll('#gridCardsWrapper .vt-room-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+        var searchStr = card.getAttribute('data-search') || '';
+        if (searchStr.indexOf(filter) > -1) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    var noMsg = document.getElementById('noResultsMsg');
+    if (noMsg) {
+        noMsg.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
+    }
+}
+</script>
 
 @endsection

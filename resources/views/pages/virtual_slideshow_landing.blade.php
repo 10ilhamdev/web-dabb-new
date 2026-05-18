@@ -200,15 +200,24 @@
     <h2 class="vss-section-title">{{ __('home.virtual_slideshow.select_exhibition') }}</h2>
     <p class="vss-section-sub">{{ __('home.virtual_slideshow.select_exhibition_desc') }}</p>
 
+    @if(!$pages->isEmpty())
+    <div class="vt-search-box" style="max-width: 500px; margin: 0 auto 2.5rem; position: relative;">
+        <svg style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" id="landingSearchInput" placeholder="{{ app()->getLocale() === 'en' ? 'Search exhibition title or description...' : 'Cari judul atau deskripsi pameran...' }}" onkeyup="filterLandingCards()" style="width: 100%; padding: 0.85rem 1.25rem 0.85rem 3.25rem; border-radius: 2rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.08); font-size: 1rem; outline: none; transition: all 0.2s; background: white;">
+    </div>
+    @endif
+
     @if($pages->isEmpty())
         <div style="text-align:center;padding:4rem;color:#9ca3af;">
             <svg style="width:64px;height:64px;margin:0 auto 1rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
             <p>{{ __('home.virtual_slideshow.no_exhibitions') }}</p>
         </div>
     @else
-        <div class="vss-rooms-grid">
+        <div class="vss-rooms-grid" id="landingCardsWrapper">
             @foreach($pages as $page)
-            <a href="{{ url($feature->path) }}?page={{ $page->order }}" class="vss-room-card">
+            <a href="{{ url($feature->path) }}?page={{ $page->order }}" class="vss-room-card" data-search="{{ mb_strtolower($page->translated_title . ' ' . strip_tags($page->translated_description)) }}">
                 <div class="vss-room-thumb">
                     @php
                         $pageSlides = $page->slideshowSlides ?? collect();
@@ -277,6 +286,9 @@
             </a>
             @endforeach
         </div>
+        <div id="noLandingResultsMsg" style="display:none; text-align:center; padding:3rem; color:#6b7280;">
+            <p style="font-size:1.1rem;">{{ app()->getLocale() === 'en' ? 'No exhibitions match your search.' : 'Tidak ada pameran yang sesuai dengan pencarian Anda.' }}</p>
+        </div>
     @endif
 </section>
 
@@ -287,5 +299,30 @@
         'roomName'     => $loginModalRoomName ?? null
     ])
 @endif
+
+<script>
+function filterLandingCards() {
+    var input = document.getElementById('landingSearchInput');
+    if (!input) return;
+    var filter = input.value.toLowerCase().trim();
+    var cards = document.querySelectorAll('#landingCardsWrapper .vss-room-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+        var searchStr = card.getAttribute('data-search') || '';
+        if (searchStr.indexOf(filter) > -1) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    var noMsg = document.getElementById('noLandingResultsMsg');
+    if (noMsg) {
+        noMsg.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
+    }
+}
+</script>
 
 @endsection

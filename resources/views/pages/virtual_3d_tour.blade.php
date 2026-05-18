@@ -66,15 +66,24 @@
         <h2 class="vt-section-title">{{ __('home.virtual_3d_tour.select_room') }}</h2>
         <p class="vt-section-sub">{{ __('home.virtual_3d_tour.select_room_desc') }}</p>
 
+        @if(!$virtual3dRooms->isEmpty())
+        <div class="vt-search-box" style="max-width: 500px; margin: 0 auto 2.5rem; position: relative;">
+            <svg style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #6b7280; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="tour3dSearchInput" placeholder="{{ app()->getLocale() === 'en' ? 'Search 3D room title or description...' : 'Cari judul atau deskripsi ruangan 3D...' }}" onkeyup="filterTour3dCards()" style="width: 100%; padding: 0.85rem 1.25rem 0.85rem 3.25rem; border-radius: 2rem; border: 1px solid #e5e7eb; box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.08); font-size: 1rem; outline: none; transition: all 0.2s; background: white;">
+        </div>
+        @endif
+
         @if($virtual3dRooms->isEmpty())
             <div style="text-align:center;padding:4rem;color:#9ca3af;">
                 <svg style="width:64px;height:64px;margin:0 auto 1rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 <p>{{ __('home.virtual_3d_tour.no_rooms') }}</p>
             </div>
         @else
-            <div class="vt-rooms-grid">
+            <div class="vt-rooms-grid" id="tour3dCardsWrapper">
                 @foreach($virtual3dRooms as $room)
-                <div class="vt-room-card" data-room-id="{{ $room->id }}" onclick="openRoom3D(+this.dataset.roomId)">
+                <div class="vt-room-card" data-search="{{ mb_strtolower($room->translated_name . ' ' . $room->translated_description) }}" data-room-id="{{ $room->id }}" onclick="openRoom3D(+this.dataset.roomId)">
                     <div class="vt-room-thumb">
                         @if($room->thumbnail_path)
                             <img src="{{ asset('storage/'.$room->thumbnail_path) }}" alt="{{ $room->translated_name }}" loading="lazy">
@@ -105,6 +114,9 @@
                     </div>
                 </div>
                 @endforeach
+            </div>
+            <div id="noTour3dResultsMsg" style="display:none; text-align:center; padding:3rem; color:#6b7280;">
+                <p style="font-size:1.1rem;">{{ app()->getLocale() === 'en' ? 'No 3D rooms match your search.' : 'Tidak ada ruangan 3D yang sesuai dengan pencarian Anda.' }}</p>
             </div>
         @endif
     </div>
@@ -328,5 +340,29 @@
 @push('scripts')
 <script src="{{ asset('js/pages/feature.js') }}"></script>
 <script src="{{ asset('js/virtual_3d_tour.js') }}"></script>
+<script>
+function filterTour3dCards() {
+    var input = document.getElementById('tour3dSearchInput');
+    if (!input) return;
+    var filter = input.value.toLowerCase().trim();
+    var cards = document.querySelectorAll('#tour3dCardsWrapper .vt-room-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+        var searchStr = card.getAttribute('data-search') || '';
+        if (searchStr.indexOf(filter) > -1) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    var noMsg = document.getElementById('noTour3dResultsMsg');
+    if (noMsg) {
+        noMsg.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
+    }
+}
+</script>
 @endpush
 

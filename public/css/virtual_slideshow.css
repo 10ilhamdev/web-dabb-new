@@ -304,6 +304,7 @@
     overflow: hidden;
     border-radius: var(--vsshow-radius);
     box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    background: #ffffff;
 }
 
 .vsshow-carousel-track {
@@ -314,7 +315,7 @@
 .vsshow-carousel-slide {
     min-width: 100%;
     position: relative;
-    background: #f8fafc;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -324,7 +324,8 @@ class FeaturePageController extends Controller
             $pageNum = $pageNum ?? 1;
             $currentPage = $pages->values()->get($pageNum - 1);
             if ($currentPage) {
-                $currentPage->increment('views');
+                \App\Models\LayananPublik::where('id', $currentPage->id)->increment('views');
+                $currentPage->views++;
             }
 
             $locale = app()->getLocale();
@@ -371,7 +372,8 @@ class FeaturePageController extends Controller
             $pageNum = $pageNum ?? 1;
             $currentPage = $pages->values()->get($pageNum - 1);
             if ($currentPage) {
-                $currentPage->increment('views');
+                \App\Models\Pengelolaan::where('id', $currentPage->id)->increment('views');
+                $currentPage->views++;
             }
 
             $locale = app()->getLocale();
@@ -418,7 +420,8 @@ class FeaturePageController extends Controller
             $pageNum = $pageNum ?? 1;
             $currentPage = $pages->values()->get($pageNum - 1);
             if ($currentPage) {
-                $currentPage->increment('views');
+                \App\Models\KontakKami::where('id', $currentPage->id)->increment('views');
+                $currentPage->views++;
             }
 
             $locale = app()->getLocale();
@@ -958,7 +961,8 @@ class FeaturePageController extends Controller
         $locale = app()->getLocale();
 
         // Increment views
-        $publication->increment('views');
+        \App\Models\Publication::where('id', $publication->id)->increment('views');
+        $publication->views++;
 
         // Popular news for sidebar
         $popularNews = $feature->publications()
@@ -976,28 +980,32 @@ class FeaturePageController extends Controller
     public function publicIncrementShares(Request $request, $id)
     {
         $publication = Publication::findOrFail($id);
-        $publication->increment('shares');
+        \App\Models\Publication::where('id', $publication->id)->increment('shares');
+        $publication->shares++;
         return response()->json(['success' => true, 'shares' => $publication->shares]);
     }
 
     public function publicIncrementLayananPublikShares(Request $request, $id)
     {
         $layananPublik = \App\Models\LayananPublik::findOrFail($id);
-        $layananPublik->increment('shares');
+        \App\Models\LayananPublik::where('id', $layananPublik->id)->increment('shares');
+        $layananPublik->shares++;
         return response()->json(['success' => true, 'shares' => $layananPublik->shares]);
     }
 
     public function publicIncrementPengelolaanShares(Request $request, $id)
     {
         $pengelolaan = \App\Models\Pengelolaan::findOrFail($id);
-        $pengelolaan->increment('shares');
+        \App\Models\Pengelolaan::where('id', $pengelolaan->id)->increment('shares');
+        $pengelolaan->shares++;
         return response()->json(['success' => true, 'shares' => $pengelolaan->shares]);
     }
 
     public function publicIncrementKontakKamiShares(Request $request, $id)
     {
         $kontakKami = \App\Models\KontakKami::findOrFail($id);
-        $kontakKami->increment('shares');
+        \App\Models\KontakKami::where('id', $kontakKami->id)->increment('shares');
+        $kontakKami->shares++;
         return response()->json(['success' => true, 'shares' => $kontakKami->shares]);
     }
 
