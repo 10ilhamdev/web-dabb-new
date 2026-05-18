@@ -30,9 +30,9 @@
     @stack('styles')
 
     <!-- CMS RTE Content CSS — loads RTE content styles for guest display -->
-    <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css') }}">
+    <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css?v=' . (file_exists(public_path('cms_rte/rte_theme_default.css')) ? filemtime(public_path('cms_rte/rte_theme_default.css')) : time())) }}">
     <!-- Guest-scoped override: removes editor chrome, adapts content styles for guest layout -->
-    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css') }}">
+    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) : time())) }}">
 </head>
 
 <body class="@yield('body-class', 'font-sans text-gray-900 antialiased flex flex-col min-h-screen')">

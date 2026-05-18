@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('publication_year', 6)->nullable();
             $table->string('isbn', 20)->nullable();
             $table->text('synopsis')->nullable();
+            $table->longText('description')->nullable();
+            $table->longText('description_en')->nullable();
             $table->string('cover_image')->nullable();
             $table->json('cover_position')->nullable();
             $table->float('cover_scale', 8, 2)->default(1.00);

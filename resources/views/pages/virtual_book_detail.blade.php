@@ -14,12 +14,17 @@
     }
     .book-detail-wrapper {
         display: flex;
-        gap: 3rem;
+        flex-direction: column;
+        gap: 3.5rem;
         background: white;
-        padding: 2.5rem;
+        padding: 3rem;
         border-radius: 1.5rem;
-        shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         border: 1px solid #e5e7eb;
+    }
+    .book-main-section {
+        display: flex;
+        gap: 3.5rem;
     }
     .book-cover-side {
         flex: 0 0 350px;
@@ -30,51 +35,111 @@
         border-radius: 0.75rem;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
+    .book-cover-placeholder {
+        background: #f3f4f6;
+        aspect-ratio: 3/4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        font-size: 5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
     .book-info-side {
         flex: 1;
+        min-width: 0;
     }
     .book-title {
         font-size: 2.25rem;
         font-weight: 800;
         color: #111827;
-        margin-bottom: 2rem;
+        margin-bottom: 1.75rem;
         line-height: 1.2;
+    }
+    .book-description-box {
+        background: #f8fafc;
+        border-left: 4px solid #057ece;
+        padding: 1.75rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+    }
+    .description-heading {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .book-description-content {
+        color: #334155;
+        line-height: 1.7;
+        font-size: 1.05rem;
+    }
+    .book-description-content p {
+        margin-bottom: 1rem;
+    }
+    .book-description-content p:last-child {
+        margin-bottom: 0;
+    }
+    .book-metadata-section {
+        border-top: 2px solid #f1f5f9;
+        padding-top: 2.5rem;
+    }
+    .metadata-section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
     .metadata-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 2.5rem;
     }
     .metadata-table td {
-        padding: 0.75rem 0;
+        padding: 0.85rem 0;
         vertical-align: top;
-        font-size: 1rem;
+        font-size: 1.025rem;
+        border-bottom: 1px solid #f8fafc;
+    }
+    .metadata-table tr:last-child td {
+        border-bottom: none;
     }
     .metadata-label {
-        width: 180px;
+        width: 220px;
         font-weight: 700;
-        color: #374151;
+        color: #334155;
     }
     .metadata-separator {
-        width: 20px;
-        color: #9ca3af;
+        width: 25px;
+        color: #94a3b8;
+        text-align: center;
     }
     .metadata-value {
-        color: #4b5563;
+        color: #475569;
+        line-height: 1.6;
     }
     .read-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 0.6rem 1.7rem;
+        padding: 0.85rem 2rem;
         background-color: #057ece;
         color: white;
         font-weight: 600;
         font-size: 1.125rem;
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
         text-decoration: none;
         transition: all 0.2s;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        width: 100%;
     }
     .read-button:hover {
         background-color: #055bab;
@@ -97,27 +162,34 @@
     }
 
     @media (max-width: 991px) {
-        .book-detail-wrapper {
+        .book-main-section {
             flex-direction: column;
             align-items: center;
-            text-align: center;
         }
         .book-cover-side {
             flex: 0 0 auto;
             width: 280px;
+            margin-bottom: 2rem;
+        }
+        .book-info-side {
+            width: 100%;
         }
         .metadata-table td {
             display: block;
             text-align: left;
+            padding: 0.35rem 0;
         }
-        .metadata-label, .metadata-separator {
-            display: inline-block;
+        .metadata-label {
+            width: 100%;
+            padding-top: 0.75rem;
+        }
+        .metadata-separator {
+            display: none;
         }
         .metadata-table tr {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #f3f4f6;
+            display: block;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.75rem;
         }
     }
 </style>
@@ -144,18 +216,50 @@
         </a>
 
         <div class="book-detail-wrapper">
-            <div class="book-cover-side">
-                @if($book->thumbnail)
-                    <img src="{{ asset('storage/'.$book->thumbnail) }}" alt="{{ $book->translated_title }}">
-                @elseif($book->cover_image)
-                    <img src="{{ asset('storage/'.$book->cover_image) }}" alt="{{ $book->translated_title }}">
-                @else
-                    <div style="background:#f3f4f6; aspect-ratio:3/4; display:flex; align-items:center; justify-content:center; border-radius:0.75rem; font-size:5rem;">📚</div>
-                @endif
+            <!-- Bagian Atas: Cover + Tombol Baca (Kiri) & Judul + Deskripsi (Kanan) -->
+            <div class="book-main-section">
+                <div class="book-cover-side">
+                    @if($book->thumbnail)
+                        <img src="{{ asset('storage/'.$book->thumbnail) }}" alt="{{ $book->translated_title }}">
+                    @elseif($book->cover_image)
+                        <img src="{{ asset('storage/'.$book->cover_image) }}" alt="{{ $book->translated_title }}">
+                    @else
+                        <div class="book-cover-placeholder">📚</div>
+                    @endif
+                    
+                    <div class="mt-6 text-center">
+                        <a href="?read={{ $book->id }}" class="read-button">
+                            <svg style="width:1.35rem; height:1.35rem; margin-right:0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            {{ app()->getLocale() === 'en' ? 'Read Book' : 'Baca Buku' }}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="book-info-side">
+                    <h2 class="book-title">{{ $book->translated_title }}</h2>
+                    
+                    <div class="book-description-box">
+                        <h3 class="description-heading">
+                            <svg class="w-5 h-5 text-[#057ece]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            {{ app()->getLocale() === 'en' ? 'Description' : 'Deskripsi' }}
+                        </h3>
+                        <div class="book-description-content rte-guest-content">
+                            @if($book->translated_description)
+                                {!! $book->translated_description !!}
+                            @else
+                                <p class="text-gray-500 italic">{{ app()->getLocale() === 'en' ? 'No description available for this book.' : 'Belum ada deskripsi untuk buku ini.' }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="book-info-side">
-                <h2 class="book-title">{{ $book->translated_title }}</h2>
+            <!-- Bagian Bawah: Informasi Buku (Penulis sampai Sinopsis) -->
+            <div class="book-metadata-section">
+                <h3 class="metadata-section-title">
+                    <svg class="w-6 h-6 text-[#057ece]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    {{ app()->getLocale() === 'en' ? 'Book Information' : 'Informasi Buku' }}
+                </h3>
 
                 <table class="metadata-table">
                     <tr>
@@ -212,10 +316,6 @@
                         <td class="metadata-value">{{ $book->synopsis ?: '-' }}</td>
                     </tr>
                 </table>
-
-                <a href="?read={{ $book->id }}" class="read-button">
-                    {{ app()->getLocale() === 'en' ? 'Read' : 'Baca' }}
-                </a>
             </div>
         </div>
     </div>

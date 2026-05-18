@@ -50,6 +50,7 @@ class BookController extends Controller
             'publication_year' => 'nullable|string|max:100',
             'isbn' => 'nullable|string|max:100',
             'synopsis' => 'nullable|string',
+            'description' => 'nullable|string',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'cover_position' => 'nullable|json',
             'cover_scale' => 'nullable|numeric|min:0.1|max:3',
@@ -150,6 +151,9 @@ class BookController extends Controller
         if (!empty($validated['title'])) {
             $book->update(['title_en' => $translationService->translate($validated['title'])]);
         }
+        if (!empty($validated['description'])) {
+            $book->update(['description_en' => $translationService->translate($validated['description'])]);
+        }
 
         return redirect()->route('cms.features.virtual_books.index', $feature)
             ->with('success', __('cms.virtual_books.flash.created'));
@@ -181,6 +185,7 @@ class BookController extends Controller
             'publication_year' => 'nullable|string|max:100',
             'isbn' => 'nullable|string|max:100',
             'synopsis' => 'nullable|string',
+            'description' => 'nullable|string',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'cover_position' => 'nullable|json',
             'cover_scale' => 'nullable|numeric|min:0.1|max:3',
@@ -319,6 +324,9 @@ class BookController extends Controller
         // Translate and save title_en for public display
         if (!empty($validated['title'])) {
             $book->update(['title_en' => $translationService->translate($validated['title'])]);
+        }
+        if (!empty($validated['description'])) {
+            $book->update(['description_en' => $translationService->translate($validated['description'])]);
         }
 
         return redirect()->route('cms.features.virtual_books.index', $feature)

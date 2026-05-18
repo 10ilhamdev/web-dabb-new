@@ -10,7 +10,6 @@
     max-width: 100%;
     min-width: 0;
     height: 100%;
-    /* Ensure RTE inside fills the wrapper height */
     min-height: 100px;
 }
 
@@ -27,11 +26,12 @@
     height: auto !important;
 }
 
-/* Editable iframe body only */
+/* Editable iframe body and general resets */
 .rte-content-body,
 .rte-content-body table,
 .rte-content-body p,
-.rte-content-body div {
+.rte-content-body div,
+.rte-content-body span {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: inherit;
     font-size: 14px;
@@ -39,39 +39,101 @@
 }
 
 .rte-content-body a { color: #174e93; text-decoration: none; }
-.rte-content-body a:hover { color: #1e40af; }
+.rte-content-body a:hover { color: #1e40af; text-decoration: underline; }
 
+/* Table Styling */
 .rte-content-body table {
     border-spacing: 0;
-    border-collapse: collapse;
+    border-collapse: collapse !important;
+    margin: 1rem 0;
+    max-width: 100%;
 }
 
 .rte-content-body table:not([width]) { width: 100%; }
 
-.rte-content-body table[border="0"] td,
-.rte-content-body table:not([border]) td,
-.rte-content-body table[border="0"] th,
-.rte-content-body table:not([border]) th {
-    border: 1px solid #e5e7eb;
-    padding: 0.75rem;
+.rte-content-body table td,
+.rte-content-body table th {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    vertical-align: top;
+    word-wrap: break-word;
 }
 
 .rte-content-body thead,
 .rte-content-body th {
-    background-color: #1e1e1e !important;
-    color: #ffffff !important;
+    background-color: #1e1e1e;
+    color: #ffffff;
     font-weight: 700;
     text-align: center;
 }
 
-.rte-content-body img { max-width: 100%; height: auto; cursor: default; }
-
-.rte-content-body blockquote {
-    border-left: 3px solid #ddd;
-    padding: 5px 0 5px 10px;
-    margin: 15px 0 15px 15px;
+/* Media & Figures */
+.rte-content-body img { 
+    max-width: 100%; 
+    height: auto; 
+    border-radius: 2px;
+    vertical-align: top;
+    display: inline-block;
 }
 
+.rte-content-body figure {
+    display: inline-table;
+    margin: 0.5em 4px;
+    vertical-align: top;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.rte-content-body figure[style*="float: left"],
+.rte-content-body figure[style*="float: right"],
+.rte-content-body img[style*="float: left"],
+.rte-content-body img[style*="float: right"] {
+    max-width: 48% !important;
+}
+
+.rte-content-body figcaption {
+    text-align: center;
+    font-size: 0.85em;
+    color: #555;
+    padding: 4px 0;
+    display: table-caption;
+    caption-side: bottom;
+    word-break: break-word;
+}
+
+/* Blockquote & Code */
+.rte-content-body blockquote {
+    border-left: 4px solid #cbd5e1;
+    padding: 8px 16px;
+    margin: 16px 0 16px 16px;
+    background-color: #f8fafc;
+    color: #334155;
+    font-style: italic;
+}
+
+.rte-content-body code {
+    font-family: Consolas, "Courier New", Courier, monospace;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.rte-content-body pre.code-block,
+.rte-content-body pre {
+    background: #f8fafc;
+    border-left: 4px solid #174e93;
+    padding: 12px 16px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    color: #0f172a;
+    white-space: pre-wrap;
+    margin: 1em 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Headings */
 .rte-content-body h1,
 .rte-content-body h2,
 .rte-content-body h3,
@@ -82,6 +144,7 @@
     font-weight: bold;
     color: #1e293b;
     margin: 0.67em 0;
+    line-height: 1.3;
 }
 
 .rte-content-body h1 { font-size: 2em; }
@@ -93,31 +156,12 @@
 
 .rte-content-body p { margin-bottom: 1rem; }
 
+/* Lists */
 .rte-content-body ul,
 .rte-content-body ol { margin: 1em 0; padding-left: 1.5rem; }
 .rte-content-body ul { list-style: disc !important; }
 .rte-content-body ol { list-style: decimal !important; }
 .rte-content-body li { margin: 0.25em 0; display: list-item !important; }
-
-.rte-content-body code {
-    font-family: Consolas, "Courier New", Courier, monospace;
-    background-color: #f5f5f5;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-size: 0.9em;
-}
-
-.rte-content-body pre.code-block {
-    background: #f4f4f4;
-    border-left: 4px solid #174E93;
-    padding: 12px 16px;
-    font-family: Consolas, "Courier New", monospace;
-    font-size: 13px;
-    white-space: pre-wrap;
-    margin: 1em 0;
-}
-
-.rte-content-body .code-block { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
 
 /* =========================================================================
  * Multi-level & Alphabetical List Styling (Bulletproof across all views)

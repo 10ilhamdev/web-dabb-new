@@ -19,6 +19,8 @@ class Book extends Model
         'publication_year',
         'isbn',
         'synopsis',
+        'description',
+        'description_en',
         'cover_image',
         'cover_position',
         'cover_scale',
@@ -68,5 +70,21 @@ class Book extends Model
             return \App\Services\AutoLangService::ensureKey($key, $title);
         }
         return $title;
+    }
+
+    /**
+     * Get the translated description based on current locale.
+     * Uses stored description_en if available, otherwise auto-translate via Google Translate.
+     */
+    public function getTranslatedDescriptionAttribute(): string
+    {
+        if (app()->getLocale() === 'en') {
+            if ($this->description_en) return $this->description_en;
+            $desc = $this->description ?? '';
+            if (!$desc) return '';
+            $key = 'book_desc_' . $this->id . '_' . md5(substr($desc, 0, 50));
+            return \App\Services\AutoLangService::ensureKey($key, $desc);
+        }
+        return $this->description ?? '';
     }
 }

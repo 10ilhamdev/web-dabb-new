@@ -4,7 +4,7 @@
  * Purpose:
  *   1. Hide all editor UI chrome (toolbars, modals, status bar, overlays)
  *   2. Adapt .rte-content / .rte-content-body styles for guest page context
- *   3. Override scoped rules for legacy .profile-section-desc / .vsshow-hero-subtitle containers
+ *   3. Provide robust default styling matching CMS RTE exactly, WITHOUT overriding user inline styles
  */
 
 /* ── 1. Hide all editor chrome elements (not needed on guest pages) ── */
@@ -40,36 +40,38 @@
     min-height: 0 !important;
 }
 
-/* ── 3. rte-content-body / rte-content guest adaptations ── */
+/* ── 3. Base Container Adaptations (Guest Context) ── */
 .rte-content,
-.rte-content-body {
+.rte-content-body,
+.profile-section-desc,
+.vsshow-section-desc,
+.richtext-guest-view {
     padding: 0;
     height: auto !important;
     min-height: 0;
-    background: transparent !important;
+    background: transparent;
     overflow: visible !important;
     display: flow-root !important;
     word-wrap: break-word;
     position: relative !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #414141; /* Default text color if not specified by user */
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 /* Iframes and videos: restore pointer-events for guest (editor disables them) */
-.rte-content iframe,
-.rte-content video,
-.rte-content-body iframe,
-.rte-content-body video,
-.profile-section-desc iframe,
-.profile-section-desc video,
-.vsshow-section-desc iframe,
-.vsshow-section-desc video,
-.richtext-guest-view iframe,
-.richtext-guest-view video {
+.rte-content iframe, .rte-content video,
+.rte-content-body iframe, .rte-content-body video,
+.profile-section-desc iframe, .profile-section-desc video,
+.vsshow-section-desc iframe, .vsshow-section-desc video,
+.richtext-guest-view iframe, .richtext-guest-view video {
     pointer-events: auto !important;
     max-width: 100%;
     display: inline-block;
 }
 
-/* ── 4. Table styling matching editor (dark th header) ── */
+/* ── 4. Table Styling (100% Parity with CMS RTE) ── */
 .rte-content table,
 .rte-content-body table,
 .profile-section-desc table,
@@ -79,37 +81,52 @@ table[style*="border-collapse"] {
     border-collapse: collapse !important;
     margin: 1rem 0 !important;
     max-width: 100% !important;
+    border-spacing: 0;
 }
 
-.rte-content table th,
-.rte-content-body table th,
-.profile-section-desc table th,
-.vsshow-section-desc table th,
-.richtext-guest-view table th,
-table th {
-    font-weight: 700 !important;
-    text-align: center !important;
-    padding: 6px 8px !important;
-    border: 1px solid #000000;
+.rte-content table:not([width]),
+.rte-content-body table:not([width]),
+.profile-section-desc table:not([width]),
+.vsshow-section-desc table:not([width]),
+.richtext-guest-view table:not([width]) {
+    width: 100%;
 }
 
-.rte-content table td,
-.rte-content-body table td,
-.profile-section-desc table td,
-.vsshow-section-desc table td,
-.richtext-guest-view table td,
-table td {
-    border: 1px solid #000000;
-    padding: 6px 8px !important;
-    vertical-align: top !important;
-    word-wrap: break-word !important;
+.rte-content table td, .rte-content table th,
+.rte-content-body table td, .rte-content-body table th,
+.profile-section-desc table td, .profile-section-desc table th,
+.vsshow-section-desc table td, .vsshow-section-desc table th,
+.richtext-guest-view table td, .richtext-guest-view table th {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    vertical-align: top;
+    word-wrap: break-word;
 }
 
-/* ── 5. Figure & Figcaption ── */
-.rte-content figure,
-.rte-content-body figure,
-.profile-section-desc figure,
-.vsshow-section-desc figure,
+.rte-content table thead, .rte-content table th,
+.rte-content-body table thead, .rte-content-body table th,
+.profile-section-desc table thead, .profile-section-desc table th,
+.vsshow-section-desc table thead, .vsshow-section-desc table th,
+.richtext-guest-view table thead, .richtext-guest-view table th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* ── 5. Figure & Figcaption & Images ── */
+.rte-content img, .rte-content-body img,
+.profile-section-desc img, .vsshow-section-desc img,
+.richtext-guest-view img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 2px;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.rte-content figure, .rte-content-body figure,
+.profile-section-desc figure, .vsshow-section-desc figure,
 .richtext-guest-view figure {
     display: inline-table;
     margin: 0.5em 4px;
@@ -119,21 +136,21 @@ table td {
 }
 
 /* Force floated images/figures to scale down to fit side-by-side on guest layouts */
-.rte-content figure[style*="float: left"],
-.rte-content figure[style*="float: right"],
-.rte-content img[style*="float: left"],
-.rte-content img[style*="float: right"],
-.rte-content-body figure[style*="float: left"],
-.rte-content-body figure[style*="float: right"],
-.rte-content-body img[style*="float: left"],
-.rte-content-body img[style*="float: right"] {
+.rte-content figure[style*="float: left"], .rte-content figure[style*="float: right"],
+.rte-content img[style*="float: left"], .rte-content img[style*="float: right"],
+.rte-content-body figure[style*="float: left"], .rte-content-body figure[style*="float: right"],
+.rte-content-body img[style*="float: left"], .rte-content-body img[style*="float: right"],
+.profile-section-desc figure[style*="float: left"], .profile-section-desc figure[style*="float: right"],
+.profile-section-desc img[style*="float: left"], .profile-section-desc img[style*="float: right"],
+.vsshow-section-desc figure[style*="float: left"], .vsshow-section-desc figure[style*="float: right"],
+.vsshow-section-desc img[style*="float: left"], .vsshow-section-desc img[style*="float: right"],
+.richtext-guest-view figure[style*="float: left"], .richtext-guest-view figure[style*="float: right"],
+.richtext-guest-view img[style*="float: left"], .richtext-guest-view img[style*="float: right"] {
     max-width: 48% !important;
 }
 
-.rte-content figcaption,
-.rte-content-body figcaption,
-.profile-section-desc figcaption,
-.vsshow-section-desc figcaption,
+.rte-content figcaption, .rte-content-body figcaption,
+.profile-section-desc figcaption, .vsshow-section-desc figcaption,
 .richtext-guest-view figcaption {
     text-align: center;
     font-size: 0.85em;
@@ -144,69 +161,90 @@ table td {
     word-break: break-word;
 }
 
-/* ── 6. Image defaults ── */
-.rte-content img,
-.rte-content-body img,
-.profile-section-desc img,
-.vsshow-section-desc img,
-.richtext-guest-view img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 2px;
-    vertical-align: top;
-    display: inline-block;
+/* ── 6. Typography, Headings, Links, Blockquote, Code (100% Parity) ── */
+.rte-content a, .rte-content-body a,
+.profile-section-desc a, .vsshow-section-desc a,
+.richtext-guest-view a {
+    color: #174e93;
+    text-decoration: none;
 }
 
-/* ── 7. Legacy scoped container resets ── */
-.profile-section-desc,
-.vsshow-section-desc {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    font-size: 14px !important;
-    line-height: 1.6;
-    color: #414141;
-    position: relative !important;
-    overflow: visible !important;
-    display: flow-root !important;
-    word-wrap: break-word;
+.rte-content a:hover, .rte-content-body a:hover,
+.profile-section-desc a:hover, .vsshow-section-desc a:hover,
+.richtext-guest-view a:hover {
+    color: #1e40af;
+    text-decoration: underline;
 }
 
-.profile-section-desc p, .vsshow-section-desc p { margin-bottom: 1rem !important; }
-.profile-section-desc ul, .vsshow-section-desc ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-.profile-section-desc ol, .vsshow-section-desc ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-.profile-section-desc li, .vsshow-section-desc li { margin: 0.25em 0 !important; display: list-item !important; }
-.profile-section-desc a:hover, .vsshow-section-desc a:hover { text-decoration: underline !important; color: #009ac9 !important; }
-.profile-section-desc h1, .vsshow-section-desc h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
-.profile-section-desc h2, .vsshow-section-desc h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
-.profile-section-desc h3, .vsshow-section-desc h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
-.profile-section-desc h4, .vsshow-section-desc h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
-.profile-section-desc h5, .vsshow-section-desc h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
-.profile-section-desc h6, .vsshow-section-desc h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-.profile-section-desc table, .vsshow-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
-.profile-section-desc table td, .vsshow-section-desc table td,
-.profile-section-desc table th, .vsshow-section-desc table th { padding: 6px 8px !important; border: 1px solid #000000; }
-
-/* ── 7b. Guest view container resets (Layanan Publik, Pengelolaan, Publication Detail) ── */
-.richtext-guest-view {
-    position: relative !important;
-    overflow: visible !important;
-    display: flow-root !important;
-    word-wrap: break-word;
+.rte-content blockquote, .rte-content-body blockquote,
+.profile-section-desc blockquote, .vsshow-section-desc blockquote,
+.richtext-guest-view blockquote {
+    border-left: 4px solid #cbd5e1;
+    padding: 8px 16px;
+    margin: 16px 0 16px 16px;
+    background-color: #f8fafc;
+    color: #334155;
+    font-style: italic;
 }
 
-.richtext-guest-view p { margin-bottom: 1rem !important; }
-.richtext-guest-view ul { list-style-type: disc !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-.richtext-guest-view ol { list-style-type: decimal !important; margin: 1em 0 !important; padding-left: 1.5rem !important; }
-.richtext-guest-view li { margin: 0.25em 0 !important; display: list-item !important; }
-.richtext-guest-view a:hover { text-decoration: underline !important; color: #009ac9 !important; }
-.richtext-guest-view h1 { font-size: 2em !important; font-weight: bold !important; margin: 0.67em 0 !important; color: #1e293b !important; }
-.richtext-guest-view h2 { font-size: 1.5em !important; font-weight: bold !important; margin: 0.83em 0 !important; color: #1e293b !important; }
-.richtext-guest-view h3 { font-size: 1.17em !important; font-weight: bold !important; margin: 1em 0 !important; color: #1e293b !important; }
-.richtext-guest-view h4 { font-size: 1em !important; font-weight: bold !important; margin: 1.33em 0 !important; color: #1e293b !important; }
-.richtext-guest-view h5 { font-size: 0.83em !important; font-weight: bold !important; margin: 1.67em 0 !important; color: #1e293b !important; }
-.richtext-guest-view h6 { font-size: 0.67em !important; font-weight: bold !important; margin: 2.33em 0 !important; color: #1e293b !important; }
-.richtext-guest-view table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
-.richtext-guest-view table td,
-.richtext-guest-view table th { padding: 6px 8px !important; border: 1px solid #000000; }
+.rte-content code, .rte-content-body code,
+.profile-section-desc code, .vsshow-section-desc code,
+.richtext-guest-view code {
+    font-family: Consolas, "Courier New", Courier, monospace;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.rte-content pre.code-block, .rte-content pre,
+.rte-content-body pre.code-block, .rte-content-body pre,
+.profile-section-desc pre.code-block, .profile-section-desc pre,
+.vsshow-section-desc pre.code-block, .vsshow-section-desc pre,
+.richtext-guest-view pre.code-block, .richtext-guest-view pre {
+    background: #f8fafc;
+    border-left: 4px solid #174e93;
+    padding: 12px 16px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    color: #0f172a;
+    white-space: pre-wrap;
+    margin: 1em 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.rte-content h1, .rte-content-body h1, .profile-section-desc h1, .vsshow-section-desc h1, .richtext-guest-view h1,
+.rte-content h2, .rte-content-body h2, .profile-section-desc h2, .vsshow-section-desc h2, .richtext-guest-view h2,
+.rte-content h3, .rte-content-body h3, .profile-section-desc h3, .vsshow-section-desc h3, .richtext-guest-view h3,
+.rte-content h4, .rte-content-body h4, .profile-section-desc h4, .vsshow-section-desc h4, .richtext-guest-view h4,
+.rte-content h5, .rte-content-body h5, .profile-section-desc h5, .vsshow-section-desc h5, .richtext-guest-view h5,
+.rte-content h6, .rte-content-body h6, .profile-section-desc h6, .vsshow-section-desc h6, .richtext-guest-view h6 {
+    font-family: "Poppins", "Montserrat", sans-serif;
+    font-weight: bold;
+    color: #1e293b;
+    margin: 0.67em 0;
+    line-height: 1.3;
+}
+
+.rte-content h1, .rte-content-body h1, .profile-section-desc h1, .vsshow-section-desc h1, .richtext-guest-view h1 { font-size: 2em; }
+.rte-content h2, .rte-content-body h2, .profile-section-desc h2, .vsshow-section-desc h2, .richtext-guest-view h2 { font-size: 1.5em; }
+.rte-content h3, .rte-content-body h3, .profile-section-desc h3, .vsshow-section-desc h3, .richtext-guest-view h3 { font-size: 1.17em; }
+.rte-content h4, .rte-content-body h4, .profile-section-desc h4, .vsshow-section-desc h4, .richtext-guest-view h4 { font-size: 1em; }
+.rte-content h5, .rte-content-body h5, .profile-section-desc h5, .vsshow-section-desc h5, .richtext-guest-view h5 { font-size: 0.83em; }
+.rte-content h6, .rte-content-body h6, .profile-section-desc h6, .vsshow-section-desc h6, .richtext-guest-view h6 { font-size: 0.67em; }
+
+.rte-content p, .rte-content-body p, .profile-section-desc p, .vsshow-section-desc p, .richtext-guest-view p { margin-bottom: 1rem; }
+
+/* ── 7. Lists (100% Parity) ── */
+.rte-content ul, .rte-content-body ul, .profile-section-desc ul, .vsshow-section-desc ul, .richtext-guest-view ul,
+.rte-content ol, .rte-content-body ol, .profile-section-desc ol, .vsshow-section-desc ol, .richtext-guest-view ol {
+    margin: 1em 0;
+    padding-left: 1.5rem;
+}
+.rte-content ul, .rte-content-body ul, .profile-section-desc ul, .vsshow-section-desc ul, .richtext-guest-view ul { list-style: disc !important; }
+.rte-content ol, .rte-content-body ol, .profile-section-desc ol, .vsshow-section-desc ol, .richtext-guest-view ol { list-style: decimal !important; }
+.rte-content li, .rte-content-body li, .profile-section-desc li, .vsshow-section-desc li, .richtext-guest-view li { margin: 0.25em 0; display: list-item !important; }
 
 /* ── 8. Media Carousel Runtime ── */
 .rte-carousel-container {

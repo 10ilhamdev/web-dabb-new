@@ -349,6 +349,15 @@
                             <textarea name="synopsis" rows="4"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{{ old('synopsis', $book->synopsis) }}</textarea>
                         </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi (Ditampilkan di Halaman Detail Buku)</label>
+                            <div class="rte-wrapper" style="overflow-x: auto; width: 100%;">
+                                <div id="div_editor_desc" style="min-width: 100%;">
+                                    {!! old('description', $book->description) !!}
+                                </div>
+                            </div>
+                            <input type="hidden" name="description" id="book_description" />
+                        </div>
                     </div>
 
                     <div>
@@ -748,5 +757,48 @@
             });
         </script>
         <script src="{{ asset('js/cms/features/virtual_books/book-cover-editor.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var editorDesc = new RichTextEditor("#div_editor_desc", {
+                    base_url: '/cms_rte',
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'align': [] }],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean'],
+                    ],
+                    editorBodyCssClass: 'rte-content-body',
+                    file_upload_handler: function(file, callback, errorCallback) {
+                        var formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('_token', '{{ csrf_token() }}');
+
+                        fetch('{{ route("cms.settings.rte.upload") }}', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Upload gagal.');
+                            return response.json();
+                        })
+                        .then(result => { callback(result.url); })
+                        .catch(error => {
+                            console.error('Error saat upload:', error);
+                            alert('Gagal mengunggah file.');
+                            if (errorCallback) errorCallback(error);
+                        });
+                    }
+                });
+
+                document.getElementById('bookForm').addEventListener('submit', function() {
+                    var html = editorDesc.getHTMLCode();
+                    document.getElementById('book_description').value = html;
+                });
+            });
+        </script>
     @endpush
 @endsection

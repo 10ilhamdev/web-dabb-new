@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
 <link rel="stylesheet" href="{{ asset('css/virtual_slideshow.css') }}">
-<link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css') }}">
+<link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/richtexteditor_content.css')) : time())) }}">
 <style>
     /* Back button for slideshow view */
     .vss-back-btn {
@@ -28,13 +28,6 @@
     }
     .vsshow-hero-subtitle {
         color: rgba(255, 255, 255, 0.9) !important;
-    }
-    /* Ensure RTE styles are preserved and not overridden by guest defaults */
-    .rte-content-body {
-        color: inherit !important;
-    }
-    .rte-content-body [style*="color"] {
-        color: unset !important; /* Allow inline style to win */
     }
 </style>
 @endpush
@@ -163,7 +156,7 @@
             elseif (preg_match('/commons\.wikimedia\.org\/wiki\/File:(.+)/', $url, $matches)) {
                 $url = 'https://commons.wikimedia.org/wiki/Special:FilePath/' . $matches[1];
             }
-            
+
             // Use local proxy for external domains to bypass CORS/Blocking
             if (str_contains($url, 'pemanfaatan.anri.go.id') || str_contains($url, 'wikimedia.org') || str_contains($url, 'magnific.com')) {
                 return route('vss.image.proxy', ['url' => $url]);
