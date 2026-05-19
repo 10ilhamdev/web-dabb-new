@@ -12,9 +12,12 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('image/logo_anri.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('image/logo_anri.png') }}">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts & CDN Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdn.datatables.net" crossorigin>
+    <link rel="preconnect" href="https://code.jquery.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS (via Vite) -->
@@ -587,8 +590,8 @@
     </svg>
 
     {{-- SweetAlert2 & html2canvas — always loaded --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
 
     @if (session('success') || session('error') || $errors->any() || session('warning') || session('info'))
         @php
@@ -631,13 +634,13 @@
     @endif
 
     <!-- ApexCharts -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
 
     <!-- CMS RichTextEditor (MIT licensed, self-built) -->
     <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css') }}">
     <link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css') }}">
-    <script src="{{ asset('cms_rte/rte.js') }}"></script>
-    <script src="{{ asset('cms_rte/all_plugins.js') }}"></script>
+    <script src="{{ asset('cms_rte/rte.js') }}" defer></script>
+    <script src="{{ asset('cms_rte/all_plugins.js') }}" defer></script>
 
     {{-- Media Carousel Runtime Logic (shared with guest) --}}
     <script>

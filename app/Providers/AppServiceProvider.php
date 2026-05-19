@@ -32,15 +32,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('navbar', function ($view) {
-            $view->with('navFeatures', Feature::whereNull('parent_id')
-                ->where('is_active', true)
-                ->with(['subfeatures' => function($q) {
-                    $q->where('is_active', true)->orderBy('order')->with(['subfeatures' => function($q) {
-                        $q->where('is_active', true)->orderBy('order');
-                    }]);
-                }])
-                ->orderBy('order')
-                ->get());
+            $navFeatures = \Illuminate\Support\Facades\Cache::remember('navFeatures', 60, function () {
+                return Feature::whereNull('parent_id')
+                    ->where('is_active', true)
+                    ->with(['subfeatures' => function($q) {
+                        $q->where('is_active', true)->orderBy('order')->with(['subfeatures' => function($q) {
+                            $q->where('is_active', true)->orderBy('order');
+                        }]);
+                    }])
+                    ->orderBy('order')
+                    ->get();
+            });
+            $view->with('navFeatures', $navFeatures);
         });
 
         // Customize VerifyEmail notification with ANRI branding

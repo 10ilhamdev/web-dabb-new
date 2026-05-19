@@ -13,8 +13,15 @@ class TrackPageView
     {
         $response = $next($request);
 
-        // Only track GET requests for HTML pages (not assets, API, etc.)
-        if ($request->isMethod('GET') && !$request->ajax() && !$request->is('cms/*', 'api/*', 'login', 'register')) {
+        // Exclude internal paths, APIs, assets, and auth routes
+        $excludedPaths = [
+            'cms/*', 'api/*', 'login', 'register', 'password/*', 'email/*',
+            'dashboard', 'dashboard/*', 'profile', 'profile/*', 'storage/*',
+            'lang/*', 'vss-image-proxy*'
+        ];
+
+        // Only track GET requests for public HTML pages
+        if ($request->isMethod('GET') && !$request->ajax() && !$request->is(...$excludedPaths)) {
             try {
                 PageView::create([
                     'user_id' => $request->user()?->id,

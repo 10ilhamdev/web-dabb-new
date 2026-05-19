@@ -329,31 +329,36 @@ class FeaturePageController extends Controller
             }
 
             $locale = app()->getLocale();
-            $popularNews = \App\Models\Publication::where('type', 'berita')
-                ->where('is_active', true)
-                ->orderBy('views', 'desc')
-                ->limit(5)
-                ->get();
+            $sidebarData = \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
+                $news = \App\Models\Publication::where('type', 'berita')
+                    ->where('is_active', true)
+                    ->orderBy('views', 'desc')
+                    ->limit(5)
+                    ->get();
 
-            $pameranArsip = collect();
-            foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
-                if (!$room->feature || !$room->feature->path) continue;
-                $pameranArsip->push((object)[
-                    'title' => $room->translated_name ?? $room->name,
-                    'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
-                    'link'  => url($room->feature->path),
-                    'date'  => $room->created_at,
-                ]);
-            }
-            foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
-                if (!$book->feature || !$book->feature->path) continue;
-                $pameranArsip->push((object)[
-                    'title' => $book->translated_title ?? $book->title,
-                    'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
-                    'link'  => url($book->feature->path),
-                    'date'  => $book->created_at,
-                ]);
-            }
+                $pameran = collect();
+                foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path) continue;
+                    $pameran->push((object)[
+                        'title' => $room->translated_name ?? $room->name,
+                        'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
+                        'link'  => url($room->feature->path),
+                        'date'  => $room->created_at,
+                    ]);
+                }
+                foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
+                    if (!$book->feature || !$book->feature->path) continue;
+                    $pameran->push((object)[
+                        'title' => $book->translated_title ?? $book->title,
+                        'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
+                        'link'  => url($book->feature->path),
+                        'date'  => $book->created_at,
+                    ]);
+                }
+                return ['popularNews' => $news, 'pameranArsip' => $pameran];
+            });
+            $popularNews = $sidebarData['popularNews'];
+            $pameranArsip = $sidebarData['pameranArsip'];
 
             return view('pages.layanan_publik', [
                 'feature'             => $feature,
@@ -377,31 +382,36 @@ class FeaturePageController extends Controller
             }
 
             $locale = app()->getLocale();
-            $popularNews = \App\Models\Publication::where('type', 'berita')
-                ->where('is_active', true)
-                ->orderBy('views', 'desc')
-                ->limit(5)
-                ->get();
+            $sidebarData = \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
+                $news = \App\Models\Publication::where('type', 'berita')
+                    ->where('is_active', true)
+                    ->orderBy('views', 'desc')
+                    ->limit(5)
+                    ->get();
 
-            $pameranArsip = collect();
-            foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
-                if (!$room->feature || !$room->feature->path) continue;
-                $pameranArsip->push((object)[
-                    'title' => $room->translated_name ?? $room->name,
-                    'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
-                    'link'  => url($room->feature->path),
-                    'date'  => $room->created_at,
-                ]);
-            }
-            foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
-                if (!$book->feature || !$book->feature->path) continue;
-                $pameranArsip->push((object)[
-                    'title' => $book->translated_title ?? $book->title,
-                    'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
-                    'link'  => url($book->feature->path),
-                    'date'  => $book->created_at,
-                ]);
-            }
+                $pameran = collect();
+                foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path) continue;
+                    $pameran->push((object)[
+                        'title' => $room->translated_name ?? $room->name,
+                        'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
+                        'link'  => url($room->feature->path),
+                        'date'  => $room->created_at,
+                    ]);
+                }
+                foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
+                    if (!$book->feature || !$book->feature->path) continue;
+                    $pameran->push((object)[
+                        'title' => $book->translated_title ?? $book->title,
+                        'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
+                        'link'  => url($book->feature->path),
+                        'date'  => $book->created_at,
+                    ]);
+                }
+                return ['popularNews' => $news, 'pameranArsip' => $pameran];
+            });
+            $popularNews = $sidebarData['popularNews'];
+            $pameranArsip = $sidebarData['pameranArsip'];
 
             return view('pages.pengelolaan', [
                 'feature'             => $feature,
@@ -425,31 +435,36 @@ class FeaturePageController extends Controller
             }
 
             $locale = app()->getLocale();
-            $popularNews = \App\Models\Publication::where('type', 'berita')
-                ->where('is_active', true)
-                ->orderBy('views', 'desc')
-                ->limit(5)
-                ->get();
+            $sidebarData = \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
+                $news = \App\Models\Publication::where('type', 'berita')
+                    ->where('is_active', true)
+                    ->orderBy('views', 'desc')
+                    ->limit(5)
+                    ->get();
 
-            $pameranArsip = collect();
-            foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
-                if (!$room->feature || !$room->feature->path) continue;
-                $pameranArsip->push((object)[
-                    'title' => $room->translated_name ?? $room->name,
-                    'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
-                    'link'  => url($room->feature->path),
-                    'date'  => $room->created_at,
-                ]);
-            }
-            foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
-                if (!$book->feature || !$book->feature->path) continue;
-                $pameranArsip->push((object)[
-                    'title' => $book->translated_title ?? $book->title,
-                    'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
-                    'link'  => url($book->feature->path),
-                    'date'  => $book->created_at,
-                ]);
-            }
+                $pameran = collect();
+                foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path) continue;
+                    $pameran->push((object)[
+                        'title' => $room->translated_name ?? $room->name,
+                        'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
+                        'link'  => url($room->feature->path),
+                        'date'  => $room->created_at,
+                    ]);
+                }
+                foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
+                    if (!$book->feature || !$book->feature->path) continue;
+                    $pameran->push((object)[
+                        'title' => $book->translated_title ?? $book->title,
+                        'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
+                        'link'  => url($book->feature->path),
+                        'date'  => $book->created_at,
+                    ]);
+                }
+                return ['popularNews' => $news, 'pameranArsip' => $pameran];
+            });
+            $popularNews = $sidebarData['popularNews'];
+            $pameranArsip = $sidebarData['pameranArsip'];
 
             return view('pages.kontak_kami', [
                 'feature'             => $feature,
@@ -965,12 +980,14 @@ class FeaturePageController extends Controller
         $publication->views++;
 
         // Popular news for sidebar
-        $popularNews = $feature->publications()
-            ->where('type', 'berita')
-            ->where('is_active', true)
-            ->reorder('views', 'desc')
-            ->limit(5)
-            ->get();
+        $popularNews = \Illuminate\Support\Facades\Cache::remember('sidebar_popular_news_' . $locale, 60, function() use ($feature) {
+            return $feature->publications()
+                ->where('type', 'berita')
+                ->where('is_active', true)
+                ->reorder('views', 'desc')
+                ->limit(5)
+                ->get();
+        });
 
         return view('pages.publication_detail', compact(
             'feature', 'publication', 'locale', 'popularNews'
