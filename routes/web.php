@@ -94,7 +94,9 @@ Route::middleware('auth')->group(function () {
     // CMS Reports (Akses dibuka untuk semua user auth, filter data per role dilakukan di ReportController)
     Route::prefix('cms/reports')->name('cms.reports.')->group(function () {
         Route::get('/kunjungan', [App\Http\Controllers\Cms\ReportController::class, 'kunjungan'])->name('kunjungan');
-        Route::get('/pengunjung', [App\Http\Controllers\Cms\ReportController::class, 'pengunjung'])->name('pengunjung');
+        Route::get('/pengunjung', [App\Http\Controllers\Cms\ReportController::class, 'pengunjungIndex'])->name('pengunjung');
+        Route::get('/pengunjung/page-views', [App\Http\Controllers\Cms\ReportController::class, 'pengunjungPageViews'])->name('pengunjung.page_views');
+        Route::get('/pengunjung/unique', [App\Http\Controllers\Cms\ReportController::class, 'pengunjungUnique'])->name('pengunjung.unique');
         Route::get('/konsultasi', [App\Http\Controllers\Cms\ReportController::class, 'konsultasi'])->name('konsultasi');
         Route::get('/online', [App\Http\Controllers\Cms\ReportController::class, 'online'])->name('online');
     });

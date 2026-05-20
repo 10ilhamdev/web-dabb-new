@@ -131,10 +131,52 @@ class ReportController extends Controller
     }
 
     /**
-     * 2. Monitoring Pengunjung Website
+     * 2. Monitoring Pengunjung Website - Index Page
+     * Menampilkan ringkasan total page views dan total unique visitors.
+     */
+    public function pengunjungIndex(Request $request)
+    {
+        $user = $request->user();
+        $role = $user?->role ?? 'admin';
+        $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
+        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $tf = $request->input('tf', 'day'); // day, week, month, year, custom
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = PageView::query();
+        if (!$isAdminOrPegawai && $user) {
+            $query->where('user_id', $user->id);
+        }
+
+        $now = Carbon::now();
+
+        if ($tf === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+        } elseif ($tf === 'day') {
+            $query->whereDate('created_at', $now->toDateString());
+        } elseif ($tf === 'week') {
+            $query->where('created_at', '>=', (clone $now)->subDays(7));
+        } elseif ($tf === 'month') {
+            $query->where('created_at', '>=', (clone $now)->subDays(30));
+        } elseif ($tf === 'year') {
+            $query->where('created_at', '>=', (clone $now)->subDays(365));
+        }
+
+        $totalPageViews = (clone $query)->count();
+        $totalUniqueVisitors = (clone $query)->distinct('ip', DB::raw('DATE(created_at)'))->count('ip');
+
+        return view('cms.reports.pengunjung_index', compact(
+            'role', 'tf', 'startDate', 'endDate', 'totalPageViews', 'totalUniqueVisitors'
+        ));
+    }
+
+    /**
+     * 2a. Monitoring Pengunjung Website - Page Views
      * Bar chart (kunjungan per halaman) dgn filter hari, minggu, bulan, tahun, custom date range
      */
-    public function pengunjung(Request $request)
+    public function pengunjungPageViews(Request $request)
     {
         $user = $request->user();
         $role = $user?->role ?? 'admin';
@@ -214,7 +256,128 @@ class ReportController extends Controller
         // All recent logs for DataTables client-side handling
         $recentLogs = (clone $query)->latest()->get();
 
-        return view('cms.reports.pengunjung', compact(
+        return view('cms.reports.pengunjung_page_views', compact(
+            'role',
+            'tf',
+            'startDate',
+            'endDate',
+            'subtitle',
+            'totalViews',
+            'pages',
+            'barLabels',
+            'barSeries',
+            'recentLogs'
+        ));
+    }
+
+    /**
+     * 2b. Monitoring Pengunjung Website - Unique Visitors
+     * Bar chart (pengunjung unik per halaman) dgn filter hari, minggu, bulan, tahun, custom date range
+     */
+    public function pengunjungUnique(Request $request)
+    {
+        $user = $request->user();
+        $role = $user?->role ?? 'admin';
+        $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
+        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $tf = $request->input('tf', 'day'); // day, week, month, year, custom
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = PageView::query();
+        if (!$isAdminOrPegawai && $user) {
+            $query->where('user_id', $user->id);
+        }
+
+        $now = Carbon::now();
+
+        $subtitle = __('dashboard.admin.chart.filter_day', ['default' => 'Hari Ini']);
+        if ($tf === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+            $subtitle = 'Periode: ' . Carbon::parse($startDate)->format('d M Y') . ' - ' . Carbon::parse($endDate)->format('d M Y');
+        } elseif ($tf === 'day') {
+            $query->whereDate('created_at', $now->toDateString());
+        } elseif ($tf === 'week') {
+            $query->where('created_at', '>=', (clone $now)->subDays(7));
+            $subtitle = __('dashboard.admin.chart.filter_week', ['default' => '7 Hari Terakhir']);
+        } elseif ($tf === 'month') {
+            $query->where('created_at', '>=', (clone $now)->subDays(30));
+            $subtitle = __('dashboard.admin.chart.filter_month', ['default' => '30 Hari Terakhir']);
+        } elseif ($tf === 'year') {
+            $query->where('created_at', '>=', (clone $now)->subDays(365));
+            $subtitle = __('dashboard.admin.chart.filter_year', ['default' => '1 Tahun Terakhir']);
+        }
+
+        // Get raw views to group by category later
+        $views = (clone $query)->select('path', 'ip', DB::raw('DATE(created_at) as date'))->get();
+        // Total unique visitors is count of unique IP + Date combinations overall
+        $totalViews = (clone $query)->select('ip', DB::raw('DATE(created_at) as date'))->distinct()->get()->count();
+
+        // Define page mapping
+        $pages = [
+            'beranda' => ['label' => 'Beranda', 'match' => '/', 'count' => 0],
+            'pameran' => ['label' => 'Pameran Arsip', 'match' => 'pameran-arsip', 'count' => 0],
+            'pengumuman' => ['label' => 'Pengumuman', 'match' => 'pengumuman', 'count' => 0],
+            'berita' => ['label' => 'Berita', 'match' => 'berita', 'count' => 0],
+            'galeri' => ['label' => 'Galeri', 'match' => 'galeri', 'count' => 0],
+            'layanan' => ['label' => 'Layanan Publik', 'match' => 'layanan-publik', 'count' => 0],
+            'pengelolaan' => ['label' => 'Pengelolaan', 'match' => 'pengelolaan', 'count' => 0],
+            'kontak' => ['label' => 'Kontak Kami', 'match' => 'kontak-kami', 'count' => 0],
+        ];
+
+        // Track unique page visits per IP+Date
+        $uniquePageVisits = [];
+
+        foreach ($views as $v) {
+            $path = $v->path;
+            
+            // Determine category
+            if ($path === '/' || empty($path)) {
+                $category = 'beranda';
+            } elseif (str_contains($path, 'pameran-arsip')) {
+                $category = 'pameran';
+            } elseif (str_contains($path, 'pengumuman')) {
+                $category = 'pengumuman';
+            } elseif (str_contains($path, 'berita')) {
+                $category = 'berita';
+            } elseif (str_contains($path, 'galeri')) {
+                $category = 'galeri';
+            } elseif (str_contains($path, 'layanan-publik')) {
+                $category = 'layanan';
+            } elseif (str_contains($path, 'pengelolaan')) {
+                $category = 'pengelolaan';
+            } elseif (str_contains($path, 'kontak-kami')) {
+                $category = 'kontak';
+            } else {
+                $category = 'beranda';
+            }
+
+            // Create unique key for this IP, Date, and specific Path
+            $normalizedPath = trim($path, '/');
+            if ($normalizedPath === '') {
+                $normalizedPath = '/';
+            }
+            $key = $normalizedPath . '_' . $v->ip . '_' . $v->date;
+            $uniquePageVisits[$key] = $category;
+        }
+
+        // Increment counts based on unique page visits
+        foreach ($uniquePageVisits as $category) {
+            $pages[$category]['count']++;
+        }
+
+        $barLabels = array_column($pages, 'label');
+        $barSeries = array_column($pages, 'count');
+
+        // Recent logs for DataTables client-side handling
+        // For unique visitors logs, we can group by IP and Date and show the latest access
+        $recentLogs = (clone $query)->select('ip', 'path', DB::raw('MAX(created_at) as created_at'))
+            ->groupBy('ip', 'path', DB::raw('DATE(created_at)'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('cms.reports.pengunjung_unique', compact(
             'role',
             'tf',
             'startDate',

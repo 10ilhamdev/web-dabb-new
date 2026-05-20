@@ -330,7 +330,8 @@ class FeaturePageController extends Controller
 
             $locale = app()->getLocale();
             $sidebarData = \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
-                $news = \App\Models\Publication::where('type', 'berita')
+                $news = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+                    ->where('type', 'berita')
                     ->where('is_active', true)
                     ->orderBy('views', 'desc')
                     ->limit(5)
@@ -383,7 +384,8 @@ class FeaturePageController extends Controller
 
             $locale = app()->getLocale();
             $sidebarData = \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
-                $news = \App\Models\Publication::where('type', 'berita')
+                $news = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+                    ->where('type', 'berita')
                     ->where('is_active', true)
                     ->orderBy('views', 'desc')
                     ->limit(5)
@@ -436,7 +438,8 @@ class FeaturePageController extends Controller
 
             $locale = app()->getLocale();
             $sidebarData = \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
-                $news = \App\Models\Publication::where('type', 'berita')
+                $news = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+                    ->where('type', 'berita')
                     ->where('is_active', true)
                     ->orderBy('views', 'desc')
                     ->limit(5)
@@ -596,6 +599,7 @@ class FeaturePageController extends Controller
             $popularNews = collect();
             if ($currentPage && $currentPage->type === 'berita') {
                 $popularNews = $feature->publications()
+                    ->select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
                     ->where('type', 'berita')
                     ->where('is_active', true)
                     ->reorder('views', 'desc')
@@ -821,7 +825,8 @@ class FeaturePageController extends Controller
             }
 
             $locale = app()->getLocale();
-            $popularNews = \App\Models\Publication::where('type', 'berita')
+            $popularNews = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+                ->where('type', 'berita')
                 ->where('is_active', true)
                 ->orderBy('views', 'desc')
                 ->limit(5)
@@ -865,7 +870,8 @@ class FeaturePageController extends Controller
             }
 
             $locale = app()->getLocale();
-            $popularNews = \App\Models\Publication::where('type', 'berita')
+            $popularNews = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+                ->where('type', 'berita')
                 ->where('is_active', true)
                 ->orderBy('views', 'desc')
                 ->limit(5)
@@ -909,7 +915,8 @@ class FeaturePageController extends Controller
             }
 
             $locale = app()->getLocale();
-            $popularNews = \App\Models\Publication::where('type', 'berita')
+            $popularNews = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+                ->where('type', 'berita')
                 ->where('is_active', true)
                 ->orderBy('views', 'desc')
                 ->limit(5)
@@ -982,6 +989,7 @@ class FeaturePageController extends Controller
         // Popular news for sidebar
         $popularNews = \Illuminate\Support\Facades\Cache::remember('sidebar_popular_news_' . $locale, 60, function() use ($feature) {
             return $feature->publications()
+                ->select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
                 ->where('type', 'berita')
                 ->where('is_active', true)
                 ->reorder('views', 'desc')
