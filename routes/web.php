@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Response;
 
 
@@ -24,11 +25,11 @@ Route::get('/gdrive-stream/{fileId}', [App\Http\Controllers\GoogleDriveStreamCon
     ->name('gdrive.stream');
 Route::get('/lang/{locale}', [HomeController::class, 'switchLocale'])->name('locale.switch');
 Route::post('/api/chat', [ChatController::class, 'getBotResponse'])->name('api.chat');
-Route::get('/vss-image-proxy', function(\Illuminate\Http\Request $request) {
+Route::get('/vss-image-proxy', function (\Illuminate\Http\Request $request) {
     $url = $request->get('url');
     if (!$url) abort(404);
     if (str_contains($url, 'storage/')) {
-         $url = str_replace(' ', '%20', $url);
+        $url = str_replace(' ', '%20', $url);
     }
     if (strpos($url, '//') === 0) $url = 'https:' . $url;
     try {
@@ -40,7 +41,8 @@ Route::get('/vss-image-proxy', function(\Illuminate\Http\Request $request) {
                 'Access-Control-Allow-Origin' => '*',
             ]);
         }
-    } catch (\Exception $e) {}
+    } catch (\Exception $e) {
+    }
     return redirect($url);
 })->name('vss.image.proxy');
 
@@ -244,7 +246,7 @@ Route::middleware('auth')->group(function () {
 
 
         // Legacy routes - redirect to new structure
-        Route::get('/{feature}/virtual-book-pages', function($feature) {
+        Route::get('/{feature}/virtual-book-pages', function ($feature) {
             return redirect()->route('cms.features.virtual_books.index', $feature);
         });
     });
@@ -279,7 +281,7 @@ Route::middleware('auth')->group(function () {
 
 // Storage files route - MUST be before auth middleware and catch-all routes
 // Explicitly serve files from storage to prevent corruption issues
-Route::get('/storage/{path}', function($path) {
+Route::get('/storage/{path}', function ($path) {
     $storagePath = storage_path('app/public/' . $path);
 
     // Security: prevent directory traversal
@@ -293,8 +295,8 @@ Route::get('/storage/{path}', function($path) {
 
     return response()->file($storagePath);
 })
-->where('path', '.+');
-require __DIR__.'/auth.php';
+    ->where('path', '.+');
+require __DIR__ . '/auth.php';
 
 Route::get('/{path}/detail/{id}', [FeaturePageController::class, 'publicShowPublicationDetail'])
     ->where('path', '.+')
@@ -320,5 +322,3 @@ Route::post('/kontak-kami/{id}/share', [FeaturePageController::class, 'publicInc
 Route::get('/{path}', [FeaturePageController::class, 'publicShowByPath'])
     ->where('path', '^(?!storage/|cms/|api/|dashboard|profile|auth).+')
     ->name('feature.path');
-
-

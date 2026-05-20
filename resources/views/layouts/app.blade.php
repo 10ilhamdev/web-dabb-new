@@ -637,15 +637,82 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
 
     <!-- CMS RichTextEditor (MIT licensed, self-built) -->
-    <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css') }}">
-    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css') }}">
-    <script src="{{ asset('cms_rte/rte.js') }}" defer></script>
-    <script src="{{ asset('cms_rte/all_plugins.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css?v=' . (file_exists(public_path('cms_rte/rte_theme_default.css')) ? filemtime(public_path('cms_rte/rte_theme_default.css')) : time())) }}">
+    <link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/richtexteditor_content.css')) : time())) }}">
+    <script src="{{ asset('cms_rte/rte.js?v=' . (file_exists(public_path('cms_rte/rte.js')) ? filemtime(public_path('cms_rte/rte.js')) : time())) }}" defer></script>
+    <script src="{{ asset('cms_rte/all_plugins.js?v=' . (file_exists(public_path('cms_rte/all_plugins.js')) ? filemtime(public_path('cms_rte/all_plugins.js')) : time())) }}" defer></script>
 
     {{-- Media Carousel Runtime Logic (shared with guest) --}}
     <script>
+        // ── Caption Modal Helpers ──
+        var __captionModal = null;
+        var __captionModalText = null;
+        function __openCaptionModal(text) {
+            if (!__captionModal) { __captionModal = document.getElementById('rte-caption-modal'); }
+            if (!__captionModalText) { __captionModalText = document.getElementById('rte-caption-modal-text'); }
+            if (__captionModal && __captionModalText) {
+                __captionModalText.textContent = text;
+                __captionModal.style.display = 'flex';
+            }
+        }
+        function __closeCaptionModal() {
+            if (!__captionModal) { __captionModal = document.getElementById('rte-caption-modal'); }
+            if (__captionModal) { __captionModal.style.display = 'none'; }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var closeBtn = document.getElementById('rte-caption-modal-close');
+            var overlay = document.getElementById('rte-caption-modal');
+            if (closeBtn) closeBtn.onclick = function() { __closeCaptionModal(); };
+            if (overlay) overlay.onclick = function(e) { if (e.target === this) __closeCaptionModal(); };
+        });
+
         window.addEventListener('load', function() {
+
+            function upgradeCaptionButtons() {
+                // ── 1. Handle OLD format: .rte-carousel-caption div inside slide ──
+                document.querySelectorAll('.rte-carousel-caption').forEach(function(cap) {
+                    var slide = cap.parentElement;
+                    if (!slide || !slide.classList.contains('rte-carousel-slide')) return;
+                    var captionText = (cap.textContent || '').trim();
+                    cap.parentNode.removeChild(cap);
+                    if (!slide.querySelector('.rte-carousel-caption-btn') && captionText) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'rte-carousel-caption-btn';
+                        btn.title = 'Lihat Keterangan';
+                        btn.textContent = '?';
+                        btn.setAttribute('data-caption', captionText);
+                        btn.onclick = function(e) { e.stopPropagation(); __openCaptionModal(captionText); };
+                        slide.appendChild(btn);
+                    }
+                });
+
+                // ── 2. Handle NEW format: .rte-carousel-caption-btn already in HTML ──
+                document.querySelectorAll('.rte-carousel-caption-btn').forEach(function(btn) {
+                    if (btn._captionBound) return; // already wired
+                    var captionText = btn.getAttribute('data-caption') || '';
+                    if (!captionText) {
+                        var popup = btn.parentElement && btn.parentElement.querySelector('.rte-carousel-caption-popup');
+                        if (popup) {
+                            var textNode = popup.querySelector('div') || popup.lastChild;
+                            captionText = textNode ? (textNode.textContent || '').trim() : '';
+                        }
+                    }
+                    // Remove any old inline popup (no longer needed)
+                    var oldPopup = btn.parentElement && btn.parentElement.querySelector('.rte-carousel-caption-popup');
+                    if (oldPopup) oldPopup.parentNode.removeChild(oldPopup);
+                    var text = captionText;
+                    btn.setAttribute('data-caption', text);
+                    btn.onclick = null;
+                    btn.addEventListener('click', function(e) { e.stopPropagation(); __openCaptionModal(text); });
+                    btn._captionBound = true;
+                });
+            }
+
             function initCarousels() {
+                // Upgrade caption buttons first
+                upgradeCaptionButtons();
+
                 var carousels = document.querySelectorAll('.rte-carousel-container');
                 carousels.forEach(function(container) {
                     if (container._carouselInit) return;
@@ -702,9 +769,11 @@
             }
 
             initCarousels();
-            // In CMS, content can be inserted dynamically, so we poll or use an observer.
-            // Simplified: re-init on intervals or after editor actions.
-            setInterval(initCarousels, 1500);
+            // In CMS, content can be inserted dynamically, so we poll for new carousels.
+            setInterval(function() {
+                upgradeCaptionButtons();
+                initCarousels();
+            }, 1500);
         });
     </script>
 
@@ -753,6 +822,15 @@
             });
         });
     </script>
+
+    {{-- Caption Modal — floats at body level, above everything --}}
+    <div id="rte-caption-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+        <div style="background:#1e293b;border-radius:16px;max-width:540px;width:100%;padding:52px 36px 40px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.6);text-align:center;">
+            <button id="rte-caption-modal-close" style="position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.2s;">&times;</button>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#64748b;margin-bottom:18px;">Keterangan Media</div>
+            <div id="rte-caption-modal-text" style="font-size:16px;line-height:1.8;color:#e2e8f0;white-space:pre-wrap;word-break:break-word;"></div>
+        </div>
+    </div>
 
     <!-- Stack for additional scripts -->
     @stack('scripts')

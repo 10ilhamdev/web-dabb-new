@@ -17,6 +17,33 @@ class LayananPublikController extends Controller
     {}
 
     /**
+     * Ensure all array extra_data keys are always initialized to [] so that
+     * intentionally emptied arrays (e.g. user deleted all form_fields) are
+     * saved and re-appear as empty on next edit — not filled with defaults.
+     */
+    private function initExtraDataArrays(array $extraData): array
+    {
+        // All array-type extra_data keys must be initialized so that
+        // intentionally emptied arrays (user deleted all items) are
+        // persisted to the DB and reappear as empty (not filled with defaults).
+        $arrayKeys = [
+            'laraska_steps', 'statis_stages', 'statis_mech1_steps', 'statis_mech2_steps',
+            'form_fields', 'consultation_form_fields', 'libur_dates', 'tutup_slots',
+            'lib_objs', 'lib_cards', 'lib_rules', 'lib_procs', 'lib_photos',
+        ];
+        foreach ($arrayKeys as $key) {
+            if (!isset($extraData[$key]) || !is_array($extraData[$key])) {
+                $extraData[$key] = [];
+            }
+        }
+        // lib_photos_names must also be preserved when cleared
+        if (!isset($extraData['lib_photos_names'])) {
+            $extraData['lib_photos_names'] = '';
+        }
+        return $extraData;
+    }
+
+    /**
      * Show the layanan publik list for a sub-feature.
      */
     public function index(Feature $feature)
@@ -66,6 +93,7 @@ class LayananPublikController extends Controller
         }
 
         $extraData = $validated['extra_data'] ?? [];
+        $extraData = $this->initExtraDataArrays($extraData);
         if ($request->hasFile('extra_data_file_upload')) {
             $extraData['file'] = $request->file('extra_data_file_upload')->store('features/layanan_publik/files', 'public');
         }
@@ -364,6 +392,7 @@ class LayananPublikController extends Controller
         }
 
         $extraData = $validated['extra_data'] ?? [];
+        $extraData = $this->initExtraDataArrays($extraData);
         if ($request->hasFile('extra_data_file_upload')) {
             if (isset($layananPublik->extra_data['file'])) {
                 Storage::disk('public')->delete($layananPublik->extra_data['file']);

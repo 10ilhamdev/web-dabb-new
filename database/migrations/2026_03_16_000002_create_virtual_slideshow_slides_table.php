@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('title_en')->nullable();
             $table->string('subtitle')->nullable();
             $table->string('subtitle_en')->nullable();
-            $table->text('description')->nullable();
-            $table->text('description_en')->nullable();
+            $table->longText('description')->nullable();
+            $table->longText('description_en')->nullable();
             $table->json('images')->nullable();
             $table->json('image_urls')->nullable();
             $table->string('video_url')->nullable();

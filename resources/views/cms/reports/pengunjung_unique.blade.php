@@ -77,9 +77,12 @@
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex-1 flex flex-col">
                     <h3 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">{{ __('cms.reports.page_breakdown') }}</h3>
                     <div class="space-y-3 flex-1 overflow-y-auto pr-1" style="max-height: 290px;">
+                        @php
+                            $totalPageCounts = array_sum(array_column($pages, 'count'));
+                        @endphp
                         @foreach($pages as $key => $p)
                             @php
-                                $pct = $totalViews > 0 ? round(($p['count'] / $totalViews) * 100, 1) : 0;
+                                $pct = $totalPageCounts > 0 ? round(($p['count'] / $totalPageCounts) * 100, 1) : 0;
                             @endphp
                             <div>
                                 <div class="flex justify-between text-xs font-semibold mb-1">

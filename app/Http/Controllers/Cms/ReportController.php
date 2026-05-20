@@ -228,25 +228,32 @@ class ReportController extends Controller
 
         foreach ($views as $v) {
             $path = $v->path;
-            if ($path === '/' || empty($path)) {
+            $normalizedPath = trim($path, '/');
+            if ($normalizedPath === '') {
+                $normalizedPath = '/';
+            }
+
+            // Skip main menus that have no pages of their own
+            if ($normalizedPath === 'pameran-arsip' || $normalizedPath === 'layanan-publik' || $normalizedPath === 'pengelolaan') {
+                continue;
+            }
+
+            if ($normalizedPath === '/') {
                 $pages['beranda']['count']++;
-            } elseif (str_contains($path, 'pameran-arsip')) {
+            } elseif (str_contains($normalizedPath, 'pameran-arsip')) {
                 $pages['pameran']['count']++;
-            } elseif (str_contains($path, 'pengumuman')) {
+            } elseif (str_contains($normalizedPath, 'pengumuman')) {
                 $pages['pengumuman']['count']++;
-            } elseif (str_contains($path, 'berita')) {
+            } elseif (str_contains($normalizedPath, 'berita')) {
                 $pages['berita']['count']++;
-            } elseif (str_contains($path, 'galeri')) {
+            } elseif (str_contains($normalizedPath, 'galeri')) {
                 $pages['galeri']['count']++;
-            } elseif (str_contains($path, 'layanan-publik')) {
+            } elseif (str_contains($normalizedPath, 'layanan-publik')) {
                 $pages['layanan']['count']++;
-            } elseif (str_contains($path, 'pengelolaan')) {
+            } elseif (str_contains($normalizedPath, 'pengelolaan')) {
                 $pages['pengelolaan']['count']++;
-            } elseif (str_contains($path, 'kontak-kami')) {
+            } elseif (str_contains($normalizedPath, 'kontak-kami')) {
                 $pages['kontak']['count']++;
-            } else {
-                // fallback count to beranda if doesn't match specific feature
-                $pages['beranda']['count']++;
             }
         }
 
@@ -331,33 +338,38 @@ class ReportController extends Controller
 
         foreach ($views as $v) {
             $path = $v->path;
-            
-            // Determine category
-            if ($path === '/' || empty($path)) {
-                $category = 'beranda';
-            } elseif (str_contains($path, 'pameran-arsip')) {
-                $category = 'pameran';
-            } elseif (str_contains($path, 'pengumuman')) {
-                $category = 'pengumuman';
-            } elseif (str_contains($path, 'berita')) {
-                $category = 'berita';
-            } elseif (str_contains($path, 'galeri')) {
-                $category = 'galeri';
-            } elseif (str_contains($path, 'layanan-publik')) {
-                $category = 'layanan';
-            } elseif (str_contains($path, 'pengelolaan')) {
-                $category = 'pengelolaan';
-            } elseif (str_contains($path, 'kontak-kami')) {
-                $category = 'kontak';
-            } else {
-                $category = 'beranda';
-            }
-
-            // Create unique key for this IP, Date, and specific Path
             $normalizedPath = trim($path, '/');
             if ($normalizedPath === '') {
                 $normalizedPath = '/';
             }
+
+            // Skip main menus that have no pages of their own
+            if ($normalizedPath === 'pameran-arsip' || $normalizedPath === 'layanan-publik' || $normalizedPath === 'pengelolaan') {
+                continue;
+            }
+
+            // Determine category
+            if ($normalizedPath === '/') {
+                $category = 'beranda';
+            } elseif (str_contains($normalizedPath, 'pameran-arsip')) {
+                $category = 'pameran';
+            } elseif (str_contains($normalizedPath, 'pengumuman')) {
+                $category = 'pengumuman';
+            } elseif (str_contains($normalizedPath, 'berita')) {
+                $category = 'berita';
+            } elseif (str_contains($normalizedPath, 'galeri')) {
+                $category = 'galeri';
+            } elseif (str_contains($normalizedPath, 'layanan-publik')) {
+                $category = 'layanan';
+            } elseif (str_contains($normalizedPath, 'pengelolaan')) {
+                $category = 'pengelolaan';
+            } elseif (str_contains($normalizedPath, 'kontak-kami')) {
+                $category = 'kontak';
+            } else {
+                continue; // Skip other unmatched pages
+            }
+
+            // Create unique key for this IP, Date, and specific Path
             $key = $normalizedPath . '_' . $v->ip . '_' . $v->date;
             $uniquePageVisits[$key] = $category;
         }

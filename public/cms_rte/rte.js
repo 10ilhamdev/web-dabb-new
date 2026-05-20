@@ -166,6 +166,7 @@
         borderInsideV: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/></svg>',
         borderDiagonalDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="3" x2="21" y2="21"/></svg>',
         borderDiagonalUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="2 2" stroke-width="1" opacity="0.4"/><line x1="3" y1="21" x2="21" y2="3"/></svg>',
+        fontoptions: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/><circle cx="18" cy="18" r="3"/></svg>',
     };
 
     // ---------------------------------------------------------------------
@@ -184,40 +185,154 @@
 
     var FONT_FAMILIES = [
         { label: 'Default', value: '' },
+        { label: 'Agency FB', value: '"Agency FB", sans-serif' },
+        { label: 'Algerian', value: 'Algerian, serif' },
         { label: 'Arial', value: 'Arial, sans-serif' },
+        { label: 'Arial Black', value: '"Arial Black", sans-serif' },
+        { label: 'Arial Narrow', value: '"Arial Narrow", sans-serif' },
+        { label: 'Arial Rounded MT Bold', value: '"Arial Rounded MT Bold", sans-serif' },
+        { label: 'Bahnschrift', value: 'Bahnschrift, sans-serif' },
+        { label: 'Baskerville', value: 'Baskerville, serif' },
+        { label: 'Bell MT', value: '"Bell MT", serif' },
+        { label: 'Berlin Sans FB', value: '"Berlin Sans FB", sans-serif' },
+        { label: 'Bodoni MT', value: '"Bodoni MT", serif' },
+        { label: 'Book Antiqua', value: '"Book Antiqua", serif' },
+        { label: 'Bookman Old Style', value: '"Bookman Old Style", serif' },
+        { label: 'Bradley Hand ITC', value: '"Bradley Hand ITC", cursive' },
+        { label: 'Brush Script MT', value: '"Brush Script MT", cursive' },
         { label: 'Calibri', value: 'Calibri, sans-serif' },
+        { label: 'Cambria', value: 'Cambria, serif' },
+        { label: 'Candara', value: 'Candara, sans-serif' },
+        { label: 'Castellar', value: 'Castellar, serif' },
+        { label: 'Centaur', value: 'Centaur, serif' },
+        { label: 'Century', value: 'Century, serif' },
+        { label: 'Century Gothic', value: '"Century Gothic", sans-serif' },
+        { label: 'Chiller', value: 'Chiller, fantasy' },
+        { label: 'Colonna MT', value: '"Colonna MT", serif' },
         { label: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
+        { label: 'Consolas', value: 'Consolas, monospace' },
+        { label: 'Constantia', value: 'Constantia, serif' },
+        { label: 'Cooper Black', value: '"Cooper Black", serif' },
+        { label: 'Copperplate Gothic Bold', value: '"Copperplate Gothic Bold", serif' },
+        { label: 'Corbel', value: 'Corbel, sans-serif' },
         { label: 'Courier New', value: '"Courier New", monospace' },
+        { label: 'Elephant', value: 'Elephant, serif' },
+        { label: 'Engravers MT', value: '"Engravers MT", serif' },
+        { label: 'Eras ITC', value: '"Eras ITC", sans-serif' },
+        { label: 'Felix Titling', value: '"Felix Titling", serif' },
+        { label: 'Forte', value: 'Forte, cursive' },
+        { label: 'Franklin Gothic Book', value: '"Franklin Gothic Book", sans-serif' },
+        { label: 'Franklin Gothic Medium', value: '"Franklin Gothic Medium", sans-serif' },
+        { label: 'Freestyle Script', value: '"Freestyle Script", cursive' },
+        { label: 'French Script MT', value: '"French Script MT", cursive' },
+        { label: 'Garamond', value: 'Garamond, serif' },
         { label: 'Georgia', value: 'Georgia, serif' },
+        { label: 'Gigi', value: 'Gigi, cursive' },
+        { label: 'Gill Sans MT', value: '"Gill Sans MT", sans-serif' },
+        { label: 'Gloucester MT Extra Condensed', value: '"Gloucester MT Extra Condensed", serif' },
+        { label: 'Goudy Old Style', value: '"Goudy Old Style", serif' },
+        { label: 'Haettenschweiler', value: 'Haettenschweiler, sans-serif' },
+        { label: 'Harlow Solid Italic', value: '"Harlow Solid Italic", cursive' },
+        { label: 'Harrington', value: 'Harrington, fantasy' },
         { label: 'Helvetica', value: 'Helvetica, Arial, sans-serif' },
+        { label: 'High Tower Text', value: '"High Tower Text", serif' },
         { label: 'Impact', value: 'Impact, sans-serif' },
+        { label: 'Imprint MT Shadow', value: '"Imprint MT Shadow", serif' },
+        { label: 'Informal Roman', value: '"Informal Roman", serif' },
+        { label: 'Jokerman', value: 'Jokerman, fantasy' },
+        { label: 'Juice ITC', value: '"Juice ITC", cursive' },
+        { label: 'Kristen ITC', value: '"Kristen ITC", cursive' },
+        { label: 'Kunstler Script', value: '"Kunstler Script", cursive' },
+        { label: 'Lucida Bright', value: '"Lucida Bright", serif' },
+        { label: 'Lucida Calligraphy', value: '"Lucida Calligraphy", cursive' },
         { label: 'Lucida Console', value: '"Lucida Console", monospace' },
+        { label: 'Lucida Fax', value: '"Lucida Fax", serif' },
+        { label: 'Lucida Handwriting', value: '"Lucida Handwriting", cursive' },
+        { label: 'Lucida Sans', value: '"Lucida Sans", sans-serif' },
+        { label: 'Lucida Sans Typewriter', value: '"Lucida Sans Typewriter", monospace' },
+        { label: 'Lucida Sans Unicode', value: '"Lucida Sans Unicode", sans-serif' },
+        { label: 'Magneto', value: 'Magneto, cursive' },
+        { label: 'Maiandra GD', value: '"Maiandra GD", sans-serif' },
+        { label: 'Matura MT Script Capitals', value: '"Matura MT Script Capitals", cursive' },
+        { label: 'Mistral', value: 'Mistral, cursive' },
+        { label: 'Modern No. 20', value: '"Modern No. 20", serif' },
+        { label: 'Monotype Corsiva', value: '"Monotype Corsiva", cursive' },
+        { label: 'Niagara Engraved', value: '"Niagara Engraved", serif' },
+        { label: 'Niagara Solid', value: '"Niagara Solid", serif' },
+        { label: 'OCR A Extended', value: '"OCR A Extended", monospace' },
+        { label: 'Old English Text MT', value: '"Old English Text MT", serif' },
+        { label: 'Onyx', value: 'Onyx, sans-serif' },
+        { label: 'Palace Script MT', value: '"Palace Script MT", cursive' },
+        { label: 'Palatino Linotype', value: '"Palatino Linotype", serif' },
+        { label: 'Papyrus', value: 'Papyrus, fantasy' },
+        { label: 'Parchment', value: 'Parchment, cursive' },
+        { label: 'Perpetua', value: 'Perpetua, serif' },
+        { label: 'Perpetua Titling MT', value: '"Perpetua Titling MT", serif' },
+        { label: 'Playbill', value: 'Playbill, sans-serif' },
+        { label: 'Poor Richard', value: '"Poor Richard", serif' },
+        { label: 'Pristina', value: 'Pristina, cursive' },
+        { label: 'Rage Italic', value: '"Rage Italic", cursive' },
+        { label: 'Ravie', value: 'Ravie, cursive' },
+        { label: 'Rockwell', value: 'Rockwell, serif' },
+        { label: 'Script MT Bold', value: '"Script MT Bold", cursive' },
+        { label: 'Segoe Print', value: '"Segoe Print", cursive' },
+        { label: 'Segoe Script', value: '"Segoe Script", cursive' },
+        { label: 'Segoe UI', value: '"Segoe UI", sans-serif' },
+        { label: 'Showcard Gothic', value: '"Showcard Gothic", sans-serif' },
+        { label: 'Snap ITC', value: '"Snap ITC", fantasy' },
+        { label: 'Stencil', value: 'Stencil, sans-serif' },
         { label: 'Tahoma', value: 'Tahoma, sans-serif' },
+        { label: 'Tempus Sans ITC', value: '"Tempus Sans ITC", sans-serif' },
         { label: 'Times New Roman', value: '"Times New Roman", Times, serif' },
         { label: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+        { label: 'Tw Cen MT', value: '"Tw Cen MT", sans-serif' },
         { label: 'Verdana', value: 'Verdana, Geneva, sans-serif' },
+        { label: 'Viner Hand ITC', value: '"Viner Hand ITC", cursive' },
+        { label: 'Vivaldi', value: 'Vivaldi, cursive' },
+        { label: 'Vladimir Script', value: '"Vladimir Script", cursive' },
+        { label: 'Wide Latin', value: '"Wide Latin", serif' }
     ];
 
     var FONT_SIZES = [
-        { label: '8',  value: '1' },
-        { label: '10', value: '2' },
-        { label: '12', value: '3' },
-        { label: '14', value: '4' },
-        { label: '18', value: '5' },
-        { label: '24', value: '6' },
-        { label: '36', value: '7' },
+        { label: '8', value: '8pt' },
+        { label: '9', value: '9pt' },
+        { label: '10', value: '10pt' },
+        { label: '11', value: '11pt' },
+        { label: '12', value: '12pt' },
+        { label: '14', value: '14pt' },
+        { label: '16', value: '16pt' },
+        { label: '18', value: '18pt' },
+        { label: '20', value: '20pt' },
+        { label: '22', value: '22pt' },
+        { label: '24', value: '24pt' },
+        { label: '26', value: '26pt' },
+        { label: '28', value: '28pt' },
+        { label: '36', value: '36pt' },
+        { label: '48', value: '48pt' },
+        { label: '72', value: '72pt' },
+    ];
+
+    var FONT_EFFECTS = [
+        { label: 'Double Strikethrough', value: 'double-strike' },
+        { label: 'Small Caps', value: 'small-caps' },
+        { label: 'All Caps', value: 'all-caps' },
+        { label: 'Sentence case', value: 'case-sentence' },
+        { label: 'lowercase', value: 'case-lowercase' },
+        { label: 'UPPERCASE', value: 'case-uppercase' },
+        { label: 'Capitalize Each Word', value: 'case-capitalize' },
+        { label: 'tOGGLE cASE', value: 'case-toggle' },
     ];
 
     var BLOCK_FORMATS = [
-        { label: 'Paragraph',  value: 'p' },
-        { label: 'Heading 1',  value: 'h1' },
-        { label: 'Heading 2',  value: 'h2' },
-        { label: 'Heading 3',  value: 'h3' },
-        { label: 'Heading 4',  value: 'h4' },
-        { label: 'Heading 5',  value: 'h5' },
-        { label: 'Heading 6',  value: 'h6' },
-        { label: 'Quote',      value: 'blockquote' },
-        { label: 'Code',       value: 'pre' },
+        { label: 'Paragraph', value: '<p>' },
+        { label: 'Heading 1', value: '<h1>' },
+        { label: 'Heading 2', value: '<h2>' },
+        { label: 'Heading 3', value: '<h3>' },
+        { label: 'Heading 4', value: '<h4>' },
+        { label: 'Heading 5', value: '<h5>' },
+        { label: 'Heading 6', value: '<h6>' },
+        { label: 'Quote', value: '<blockquote>' },
+        { label: 'Code', value: '<pre>' },
     ];
 
     var LINE_HEIGHTS = [
@@ -239,6 +354,7 @@
             { kind: 'dropdown', name: 'font', label: 'Font', items: FONT_FAMILIES, action: 'fontName' },
             { kind: 'dropdown', name: 'size', label: 'Size', items: FONT_SIZES, action: 'fontSize' },
             { kind: 'dropdown', name: 'lineheight', title: 'Line Height', icon: ICON.lineheight, items: LINE_HEIGHTS, action: 'lineHeight' },
+            { kind: 'dropdown', name: 'fontoptions', title: 'Font Effects', icon: ICON.fontoptions, items: FONT_EFFECTS, action: 'fontEffect' },
         ],
         [
             { kind: 'btn', name: 'bold', icon: ICON.bold, title: 'Bold (Ctrl+B)', cmd: 'bold' },
@@ -488,7 +604,7 @@
             editorBodyCssClass: 'rte-content-body',
             file_upload_handler: null,
             readOnly: false,
-            height: '320px',
+            height: '500px',
         }, config || {});
 
         this.id = nextId();
@@ -525,6 +641,7 @@
         // Set initial history entry to the actual content (not empty)
         this._history = [this.content.innerHTML];
         this._historyIndex = 0;
+        this._loadPrism();
     }
 
     RichTextEditor.prototype._build = function (target) {
@@ -535,12 +652,16 @@
         // target and hide target. This lets the original element remain in DOM
         // (handy for textarea form binding).
         var wrapper = el('div', { class: 'richtexteditor rte-modern', id: this.id });
+        wrapper.style.height = cfg.height;
+        wrapper.style.minHeight = '300px';
         if (target.tagName === 'TEXTAREA') {
             target.style.display = 'none';
             target.parentNode.insertBefore(wrapper, target.nextSibling);
         } else {
             // Replace contents inside target (target is just a placeholder div).
             target.appendChild(wrapper);
+            target.style.setProperty('min-height', 'auto', 'important');
+            target.style.setProperty('height', 'auto', 'important');
         }
 
         var toolbar = el('div', { class: 'rte-toolbar', role: 'toolbar' });
@@ -558,7 +679,7 @@
 
         var sourceArea = el('textarea', { class: 'rte-source', spellcheck: 'false' });
         sourceArea.style.display = 'none';
-        sourceArea.style.minHeight = cfg.height || '320px';
+        sourceArea.style.minHeight = '220px';
         wrapper.appendChild(sourceArea);
 
         var statusbar = el('div', { class: 'rte-statusbar' }, [
@@ -654,22 +775,214 @@
             'data-name': item.name,
         }, [label, el('span', { class: 'rte-dd-caret', html: ICON.chevron })]);
         var panel = el('div', { class: 'rte-dropdown-panel' });
+
+        // ── Helper: detect what value is currently active for this dropdown ──
+        // Always reads from self._savedRange (snapshotted just before panel opens)
+        // so detection works even when focus has moved to the dropdown panel.
+        function getCurrentValue() {
+            // Prefer savedRange.startContainer over live window.getSelection()
+            // because focus may have shifted away from editor when panel is open
+            var node = null;
+            if (self._savedRange && self._savedRange.startContainer) {
+                node = self._savedRange.startContainer;
+            } else {
+                var sel = window.getSelection();
+                node = sel && sel.anchorNode;
+            }
+            if (!node) return null;
+
+            var el2 = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+
+            if (item.action === 'block') {
+                var blockTags = { H1: 1, H2: 1, H3: 1, H4: 1, H5: 1, H6: 1, P: 1, BLOCKQUOTE: 1, PRE: 1 };
+                var cur = el2;
+                while (cur && cur !== self.content) {
+                    if (blockTags[cur.tagName]) return '<' + cur.tagName.toLowerCase() + '>';
+                    cur = cur.parentNode;
+                }
+                return '<p>';
+            } else if (item.action === 'fontName') {
+                // Walk up DOM to find the nearest inline font-family style or <font face>
+                // This works even when queryCommandValue can't be used (no live selection)
+                var fEl = el2;
+                while (fEl && fEl !== self.content) {
+                    if (fEl.style && fEl.style.fontFamily) {
+                        var first = fEl.style.fontFamily.split(',')[0].trim().replace(/["']/g, '').toLowerCase();
+                        if (first) return first;
+                    }
+                    if (fEl.tagName === 'FONT' && fEl.getAttribute('face')) {
+                        var firstFace = fEl.getAttribute('face').split(',')[0].trim().replace(/["']/g, '').toLowerCase();
+                        if (firstFace) return firstFace;
+                    }
+                    fEl = fEl.parentNode;
+                }
+                // Fallback: queryCommandValue (only accurate when selection is in editor)
+                try {
+                    var raw = document.queryCommandValue('fontName') || '';
+                    var first2 = raw.split(',')[0].trim().replace(/["']/g, '').toLowerCase();
+                    return first2 || null;
+                } catch (e) { return null; }
+            } else if (item.action === 'fontSize') {
+                var szEl = el2;
+                while (szEl && szEl !== self.content) {
+                    if (szEl.style && szEl.style.fontSize) {
+                        var cssSize = szEl.style.fontSize.trim().toLowerCase();
+                        if (cssSize.indexOf('pt') !== -1) {
+                            return cssSize;
+                        }
+                        if (cssSize.indexOf('px') !== -1) {
+                            var px = parseFloat(cssSize);
+                            var pt = Math.round(px * 0.75);
+                            return pt + 'pt';
+                        }
+                        if (cssSize === 'x-small') return '8pt';
+                        if (cssSize === 'small') return '10pt';
+                        if (cssSize === 'medium') return '12pt';
+                        if (cssSize === 'large') return '14pt';
+                        if (cssSize === 'x-large') return '18pt';
+                        if (cssSize === 'xx-large') return '24pt';
+                        if (cssSize === 'xxx-large') return '36pt';
+                        break;
+                    }
+                    if (szEl.tagName === 'FONT' && szEl.getAttribute('size')) {
+                        var val = szEl.getAttribute('size');
+                        var fontValToPt = {
+                            '1': '8pt',
+                            '2': '10pt',
+                            '3': '12pt',
+                            '4': '14pt',
+                            '5': '18pt',
+                            '6': '24pt',
+                            '7': '36pt'
+                        };
+                        return fontValToPt[val] || val;
+                    }
+                    szEl = szEl.parentNode;
+                }
+                try {
+                    var val = document.queryCommandValue('fontSize');
+                    if (val) {
+                        var valStr = String(val).trim().toLowerCase();
+                        var fontValToPt = {
+                            '1': '8pt',
+                            '2': '10pt',
+                            '3': '12pt',
+                            '4': '14pt',
+                            '5': '18pt',
+                            '6': '24pt',
+                            '7': '36pt'
+                        };
+                        return fontValToPt[valStr] || valStr;
+                    }
+                } catch (e) { }
+                return null;
+            } else if (item.action === 'lineHeight') {
+                // Walk up to block element and read its inline line-height
+                var blk = el2;
+                while (blk && blk !== self.content) {
+                    var tag2 = blk.tagName;
+                    if (tag2 && /^(P|DIV|H[1-6]|LI|TR|BLOCKQUOTE|PRE)$/.test(tag2)) break;
+                    blk = blk.parentElement;
+                }
+                if (blk && blk !== self.content && blk.style && blk.style.lineHeight) {
+                    // lineHeight stored as ratio e.g. 1.5 -> return '150'
+                    var lhNum = parseFloat(blk.style.lineHeight);
+                    if (!isNaN(lhNum)) return String(Math.round(lhNum * 100));
+                }
+                return null;
+            }
+            return null;
+        }
+
+        // Store all option elements so we can mark the active one when panel opens
+        var optEls = [];
+
         item.items.forEach(function (opt) {
+            var optStyle = null;
+            if (item.action === 'fontName' && opt.value) {
+                optStyle = { fontFamily: opt.value };
+            } else if (item.action === 'block' && opt.value) {
+                var cleanTag = opt.value.replace(/[<>]/g, '').toLowerCase();
+                if (cleanTag === 'h1') {
+                    optStyle = {
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        color: '#1e40af',
+                        fontStyle: 'normal',
+                        textDecoration: 'none'
+                    };
+                } else if (cleanTag === 'h2') {
+                    optStyle = {
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: '#2563eb',
+                        fontStyle: 'normal',
+                        textDecoration: 'none'
+                    };
+                } else if (cleanTag === 'h3') {
+                    optStyle = {
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#0f172a',
+                        fontStyle: 'normal',
+                        textDecoration: 'none'
+                    };
+                } else if (cleanTag === 'h4') {
+                    optStyle = {
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: '#334155',
+                        fontStyle: 'italic',
+                        textDecoration: 'none'
+                    };
+                } else if (cleanTag === 'h5') {
+                    optStyle = {
+                        fontSize: '12px',
+                        fontWeight: '400',
+                        color: '#475569',
+                        fontStyle: 'italic',
+                        textDecoration: 'none'
+                    };
+                } else if (cleanTag === 'h6') {
+                    optStyle = {
+                        fontSize: '12px',
+                        fontWeight: '400',
+                        color: '#64748b',
+                        fontStyle: 'normal',
+                        textDecoration: 'none'
+                    };
+                } else if (cleanTag === 'blockquote') {
+                    optStyle = {
+                        borderLeft: '3px solid #cfd6df',
+                        paddingLeft: '6px',
+                        color: '#555',
+                        fontStyle: 'italic'
+                    };
+                }
+            }
+
             var optEl = el('div', {
                 class: 'rte-dropdown-item',
-                text: opt.label,
-                style: item.action === 'fontName' && opt.value ? { fontFamily: opt.value } : null,
+                style: optStyle,
+                'data-opt-value': opt.value || '',
                 onclick: function (e) {
                     e.preventDefault();
                     self._focusContent();
                     if (item.action === 'block') {
                         self.exec('formatBlock', opt.value);
                     } else if (item.action === 'fontName') {
-                        if (opt.value) self.exec('fontName', opt.value);
+                        if (opt.value) {
+                            self.exec('fontName', opt.value);
+                        } else {
+                            // Reset to default font by applying 'inherit'
+                            self.exec('fontName', 'inherit');
+                        }
                     } else if (item.action === 'fontSize') {
-                        self.exec('fontSize', opt.value);
+                        self._setFontSize(opt.value);
                     } else if (item.action === 'lineHeight') {
                         self._setLineHeight(opt.value);
+                    } else if (item.action === 'fontEffect') {
+                        self._applyFontEffect(opt.value);
                     }
                     if (!item.icon) label.textContent = opt.label;
                     closePanel();
@@ -677,18 +990,84 @@
                     self._updateState();
                 },
             });
+            // Build inner: checkmark span + label text span
+            var checkSpan = el('span', { class: 'rte-dd-check', text: '\u2713' });
+            var textSpan = el('span', { class: 'rte-dd-opt-text', text: opt.label });
+            optEl.appendChild(checkSpan);
+            optEl.appendChild(textSpan);
             panel.appendChild(optEl);
+            optEls.push({ el: optEl, value: opt.value || '', label: opt.label });
         });
 
         var open = false;
+
+        function markActiveItem() {
+            var cur = getCurrentValue();
+            var anyMatch = false;
+            optEls.forEach(function (o) {
+                var active = false;
+                if (cur !== null) {
+                    if (item.action === 'block') {
+                        active = (o.value.toLowerCase() === (cur || '').toLowerCase());
+                    } else if (item.action === 'fontName') {
+                        var optFirst = o.value.split(',')[0].trim().replace(/["']/g, '').toLowerCase();
+                        if (optFirst !== '') active = (cur === optFirst);
+                    } else if (item.action === 'fontSize' || item.action === 'lineHeight') {
+                        active = (String(o.value) === String(cur));
+                    }
+                }
+                if (active) anyMatch = true;
+                o.el.classList.toggle('rte-dd-active', !!active);
+            });
+            // Fallback for Default font if no specific font is matched
+            if (!anyMatch && item.action === 'fontName') {
+                optEls.forEach(function (o) {
+                    if (o.value === '') o.el.classList.toggle('rte-dd-active', true);
+                });
+            }
+        }
+
+        // Expose a way to update the button label from _updateState
+        function updateLabel() {
+            if (item.icon) return; // icon-only dropdowns don't have text labels
+            var cur = getCurrentValue();
+            var match = null;
+            if (cur !== null) {
+                for (var i = 0; i < optEls.length; i++) {
+                    var o = optEls[i];
+                    var hit = false;
+                    if (item.action === 'block') {
+                        hit = (o.value.toLowerCase() === cur.toLowerCase());
+                    } else if (item.action === 'fontName') {
+                        var optFirst = o.value.split(',')[0].trim().replace(/["']/g, '').toLowerCase();
+                        if (optFirst !== '') hit = (cur === optFirst);
+                    } else if (item.action === 'fontSize' || item.action === 'lineHeight') {
+                        hit = (String(o.value) === String(cur));
+                    }
+                    if (hit) { match = o; break; }
+                }
+            }
+            if (match) {
+                label.textContent = match.label;
+            } else {
+                if (item.action === 'fontName') label.textContent = 'Default';
+                else if (item.action === 'block') label.textContent = 'Paragraph';
+                else label.textContent = item.label || item.name;
+            }
+        }
+
         function openPanel() {
+            // Snapshot selection BEFORE opening panel so lineHeight and other
+            // actions can restore it correctly via _focusContent()
+            self._snapshotSelection();
             // Close other panels
             self._dropdowns.forEach(function (d) { d.close(); });
+            markActiveItem();
             var rect = btn.getBoundingClientRect();
             panel.style.position = 'fixed';
             panel.style.left = rect.left + 'px';
             panel.style.top = (rect.bottom + 2) + 'px';
-            panel.style.minWidth = rect.width + 'px';
+            panel.style.minWidth = Math.max(rect.width, 160) + 'px';
             document.body.appendChild(panel);
             open = true;
             setTimeout(function () { document.addEventListener('mousedown', onDocClick); }, 0);
@@ -707,7 +1086,7 @@
         });
 
         groupEl.appendChild(btn);
-        this._dropdowns.push({ close: closePanel });
+        this._dropdowns.push({ close: closePanel, updateLabel: updateLabel });
     };
 
     RichTextEditor.prototype._buildColorPicker = function (groupEl, item) {
@@ -852,16 +1231,209 @@
         document.addEventListener('mouseup', onUp);
     };
 
+    RichTextEditor.prototype._setFontSize = function (val) {
+        this._focusContent();
+        document.execCommand('styleWithCSS', false, true);
+        // Use a dummy font size '7' to wrap the selection, then style it
+        document.execCommand('fontSize', false, '7');
+        var spans = this.content.querySelectorAll('span, font');
+        spans.forEach(function (el) {
+            if (el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px' || el.getAttribute('size') === '7') {
+                el.removeAttribute('size');
+                el.style.fontSize = val; // e.g. "12pt"
+            }
+        });
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._changeCase = function (type) {
+        var sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        var range = sel.getRangeAt(0);
+        var content = range.cloneContents();
+        if (!content) return;
+
+        function traverse(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                var txt = node.nodeValue;
+                if (type === 'uppercase') {
+                    node.nodeValue = txt.toUpperCase();
+                } else if (type === 'lowercase') {
+                    node.nodeValue = txt.toLowerCase();
+                } else if (type === 'sentence') {
+                    var lower = txt.toLowerCase();
+                    node.nodeValue = lower.replace(/(^\s*|[.!?]\s+)([a-z])/g, function (m, p1, p2) {
+                        return p1 + p2.toUpperCase();
+                    });
+                } else if (type === 'capitalize') {
+                    node.nodeValue = txt.replace(/\b([a-z])/g, function (m, p1) {
+                        return p1.toUpperCase();
+                    });
+                } else if (type === 'toggle') {
+                    var toggled = '';
+                    for (var i = 0; i < txt.length; i++) {
+                        var c = txt[i];
+                        if (c === c.toUpperCase()) {
+                            toggled += c.toLowerCase();
+                        } else {
+                            toggled += c.toUpperCase();
+                        }
+                    }
+                    node.nodeValue = toggled;
+                }
+            } else {
+                for (var i = 0; i < node.childNodes.length; i++) {
+                    traverse(node.childNodes[i]);
+                }
+            }
+        }
+
+        traverse(content);
+        range.deleteContents();
+        range.insertNode(content);
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._applyFontEffect = function (effect) {
+        this._focusContent();
+        document.execCommand('styleWithCSS', false, true);
+
+        if (effect === 'double-strike') {
+            document.execCommand('strikeThrough', false, null);
+            var spans = this.content.querySelectorAll('strike, span[style*="line-through"]');
+            spans.forEach(function (el) {
+                if (el.style.textDecoration.indexOf('line-through') !== -1 || el.tagName === 'STRIKE') {
+                    el.style.textDecoration = 'line-through double';
+                }
+            });
+        } else if (effect === 'small-caps') {
+            document.execCommand('fontSize', false, '7');
+            var spans = this.content.querySelectorAll('span, font');
+            spans.forEach(function (el) {
+                if (el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px' || el.getAttribute('size') === '7') {
+                    el.removeAttribute('size');
+                    el.style.fontSize = '';
+                    el.style.fontVariant = el.style.fontVariant === 'small-caps' ? '' : 'small-caps';
+                }
+            });
+        } else if (effect === 'all-caps') {
+            document.execCommand('fontSize', false, '7');
+            var spans = this.content.querySelectorAll('span, font');
+            spans.forEach(function (el) {
+                if (el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px' || el.getAttribute('size') === '7') {
+                    el.removeAttribute('size');
+                    el.style.fontSize = '';
+                    el.style.textTransform = el.style.textTransform === 'uppercase' ? '' : 'uppercase';
+                }
+            });
+        } else if (effect.indexOf('case-') === 0) {
+            var caseType = effect.replace('case-', '');
+            this._changeCase(caseType);
+        }
+
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._stripEditorStyles = function (root) {
+        if (!root) return;
+        var cells = root.querySelectorAll('td, th, table');
+        cells.forEach(function (n) {
+            if (n.classList.contains('rte-cell-selected')) {
+                n.classList.remove('rte-cell-selected');
+            }
+            var styleAttr = n.getAttribute('style') || '';
+            if (styleAttr) {
+                if (styleAttr.indexOf('377dff') !== -1 || styleAttr.indexOf('55, 125, 255') !== -1 || styleAttr.indexOf('55,125,255') !== -1) {
+                    n.style.outline = '';
+                    n.style.outlineColor = '';
+                    n.style.outlineWidth = '';
+                    n.style.outlineStyle = '';
+                    n.style.outlineOffset = '';
+                    var bg = n.style.backgroundColor;
+                    if (bg && (bg.indexOf('55, 125, 255') !== -1 || bg.indexOf('55,125,255') !== -1)) {
+                        n.style.backgroundColor = '';
+                    }
+                }
+            }
+        });
+    };
+
     RichTextEditor.prototype._focusContent = function () {
         if (this._savedRange) {
             this.content.focus();
-            try { restoreSelection(this._savedRange); } catch (e) {}
+            try { restoreSelection(this._savedRange); } catch (e) { }
         } else {
             this.content.focus();
         }
     };
 
     RichTextEditor.prototype.exec = function (cmd, value) {
+        var activeTable = this._selectedTable;
+        if (!activeTable) {
+            var sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                var node = sel.anchorNode;
+                while (node && node !== this.content) {
+                    if (node && node.tagName === 'TABLE') {
+                        activeTable = node;
+                        break;
+                    }
+                    node = node ? node.parentNode : null;
+                }
+            }
+        }
+
+        if (activeTable && (cmd === 'justifyLeft' || cmd === 'justifyCenter' || cmd === 'justifyRight' || cmd === 'justifyFull')) {
+            // 1. Align table block
+            if (cmd === 'justifyLeft') {
+                activeTable.style.marginLeft = '0';
+                activeTable.style.marginRight = 'auto';
+            } else if (cmd === 'justifyCenter') {
+                activeTable.style.marginLeft = 'auto';
+                activeTable.style.marginRight = 'auto';
+            } else if (cmd === 'justifyRight') {
+                activeTable.style.marginLeft = 'auto';
+                activeTable.style.marginRight = '0';
+            } else if (cmd === 'justifyFull') {
+                activeTable.style.width = '100%';
+                activeTable.style.marginLeft = '0';
+                activeTable.style.marginRight = 'auto';
+            }
+
+            // 2. Align cell content text
+            var selectedCells = activeTable.querySelectorAll('.rte-cell-selected');
+            var textAlignValue = (cmd === 'justifyLeft' ? 'left' : (cmd === 'justifyCenter' ? 'center' : (cmd === 'justifyRight' ? 'right' : (cmd === 'justifyFull' ? 'justify' : ''))));
+            if (selectedCells.length > 0) {
+                selectedCells.forEach(function (c) {
+                    c.style.textAlign = textAlignValue;
+                });
+            } else {
+                var sel = window.getSelection();
+                if (sel && sel.rangeCount > 0) {
+                    var node = sel.anchorNode;
+                    while (node && node !== activeTable) {
+                        if (node.tagName === 'TD' || node.tagName === 'TH') {
+                            node.style.textAlign = textAlignValue;
+                            break;
+                        }
+                        node = node.parentNode;
+                    }
+                }
+            }
+
+            var self = this;
+            requestAnimationFrame(function () {
+                self._updateTableOverlayPosition();
+                if (self._repositionFloatTableToolbar) {
+                    self._repositionFloatTableToolbar(activeTable);
+                }
+            });
+            this._syncSource();
+        }
+
         try {
             // hiliteColor needs styleWithCSS = true on some browsers
             document.execCommand('styleWithCSS', false, true);
@@ -909,9 +1481,8 @@
         var node = sel.anchorNode;
         var bq = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
         if (bq) {
-            // We are inside a blockquote, toggle it off
-            // First try browser native formatBlock 'p' which handles splitting if selection is partial
-            this.exec('formatBlock', 'p');
+            // First try browser native formatBlock '<p>' which handles splitting if selection is partial
+            this.exec('formatBlock', '<p>');
             // If the node is still inside bq (e.g. browser didn't unwrap it), do manual unwrap
             var stillBq = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
             if (stillBq && stillBq === bq) {
@@ -924,7 +1495,7 @@
             }
         } else {
             // Not in a blockquote, create one
-            this.exec('formatBlock', 'blockquote');
+            this.exec('formatBlock', '<blockquote>');
         }
         this._syncSource();
         this._updateState();
@@ -959,7 +1530,7 @@
             list.style.listStyleType = 'lower-alpha';
             list.classList.remove('rte-multilevel-list');
             var lis = list.querySelectorAll('li');
-            lis.forEach(function(li) { li.style.listStyleType = ''; });
+            lis.forEach(function (li) { li.style.listStyleType = ''; });
         }
         this._syncSource();
         this._updateState();
@@ -994,9 +1565,9 @@
             list.style.listStyleType = 'decimal';
             list.classList.add('rte-multilevel-list');
             var lis = list.querySelectorAll('li');
-            lis.forEach(function(li) { li.style.listStyleType = ''; });
+            lis.forEach(function (li) { li.style.listStyleType = ''; });
             var sublists = list.querySelectorAll('ol, ul');
-            sublists.forEach(function(sub) {
+            sublists.forEach(function (sub) {
                 if (sub.tagName === 'UL') {
                     var subOl = document.createElement('ol');
                     subOl.innerHTML = sub.innerHTML;
@@ -1136,7 +1707,7 @@
                     } else {
                         existingBq.className = 'rte-quote-box ' + qClass;
                         existingBq.style.cssText = 'position: relative; margin: 2em 0 1.5em 0; padding: 20px 20px 20px 30px; background-color: ' + bg + '; border-left: 4px solid ' + border + '; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-style: italic; color: ' + textCol + ';';
-                        
+
                         var badgeEl = existingBq.querySelector('.rte-quote-badge');
                         if (!badgeEl) {
                             badgeEl = document.createElement('div');
@@ -1146,7 +1717,7 @@
                             existingBq.insertBefore(badgeEl, existingBq.firstChild);
                         }
                         badgeEl.style.cssText = 'position: absolute; top: -15px; left: 20px; width: 32px; height: 32px; background-color: ' + badgeCol + '; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-size: 20px; font-weight: bold; font-style: normal; box-shadow: 0 2px 4px rgba(0,0,0,0.2); user-select: none;';
-                        
+
                         var pEl = existingBq.querySelector('p');
                         if (!pEl) {
                             pEl = document.createElement('p');
@@ -1245,7 +1816,7 @@
 
         // Alignment selector
         var alignSelect = el('select', { class: 'rte-form-input', name: 'align' });
-        [['left','Kiri'],['center','Tengah'],['right','Kanan']].forEach(function(a) {
+        [['left', 'Kiri'], ['center', 'Tengah'], ['right', 'Kanan']].forEach(function (a) {
             var opt = el('option', { value: a[0], text: a[1] });
             alignSelect.appendChild(opt);
         });
@@ -1295,7 +1866,7 @@
                     var v = parseInt(input.value, 10);
                     return v > 0 ? ' width="' + v + '"' : '';
                 };
-                var wrapImg = function(img) {
+                var wrapImg = function (img) {
                     var wrapper = document.createElement('div');
                     wrapper.style.textAlign = alignVal;
                     wrapper.style.display = alignVal === 'center' ? 'block' : 'inline-' + alignVal;
@@ -1356,12 +1927,12 @@
         self.showLoading();
         var handler = this.config.file_upload_handler;
         if (typeof handler === 'function') {
-            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch(e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
+            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch (e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
             // Fallback: embed as base64 data URL.
             var reader = new FileReader();
-            reader.onload = function () { self.hideLoading(); try { cb(reader.result); } catch(e) { console.error("Error in upload callback:", e); } };
-            reader.onerror = function(err) { self.hideLoading(); if(errCb) errCb(err); };
+            reader.onload = function () { self.hideLoading(); try { cb(reader.result); } catch (e) { console.error("Error in upload callback:", e); } };
+            reader.onerror = function (err) { self.hideLoading(); if (errCb) errCb(err); };
             reader.readAsDataURL(file);
         }
     };
@@ -1442,7 +2013,7 @@
         self.showLoading();
         var handler = this.config.file_upload_handler;
         if (typeof handler === 'function') {
-            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch(e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
+            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch (e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
             self.hideLoading();
             alert("Video upload not configured.");
@@ -1469,14 +2040,14 @@
     RichTextEditor.prototype._dialogCarousel = function (existingCarousel) {
         var self = this;
         var mediaList = [];
-        
+
         // If editing, extract items from DOM
         if (existingCarousel) {
             var slides = existingCarousel.querySelectorAll('.rte-carousel-slide');
-            slides.forEach(function(slide) {
+            slides.forEach(function (slide) {
                 var img = slide.querySelector('img');
                 var vid = slide.querySelector('video');
-                var cap = slide.querySelector('.rte-carousel-caption');
+                var cap = slide.querySelector('.rte-carousel-caption-popup div') || slide.querySelector('.rte-carousel-caption');
                 var type = vid ? 'video' : 'image';
                 var url = vid ? vid.src : (img ? img.src : '');
                 if (url) {
@@ -1545,7 +2116,7 @@
         function renderItem(item) {
             var isVideo = item.type === 'video' || (item.file && item.file.type.startsWith('video/'));
             var preview = el('div', { class: 'rte-carousel-item-preview', style: 'width:60px; height:60px; background:#eee; border-radius:4px; overflow:hidden; flex-shrink:0;' });
-            
+
             if (item.file) {
                 var reader = new FileReader();
                 reader.onload = function () {
@@ -1575,12 +2146,12 @@
                     el('button', {
                         type: 'button', style: 'background:none; border:none; cursor:pointer; padding:2px; font-size:12px; color:#999; line-height:1;',
                         html: '▲', title: 'Move Up',
-                        onclick: function() { moveItem(item, -1); }
+                        onclick: function () { moveItem(item, -1); }
                     }),
                     el('button', {
                         type: 'button', style: 'background:none; border:none; cursor:pointer; padding:2px; font-size:12px; color:#999; line-height:1;',
                         html: '▼', title: 'Move Down',
-                        onclick: function() { moveItem(item, 1); }
+                        onclick: function () { moveItem(item, 1); }
                     })
                 ]),
                 preview,
@@ -1588,7 +2159,7 @@
                     el('input', {
                         type: 'text', placeholder: 'Enter caption...', value: item.caption,
                         style: 'width:100%; padding:5px 8px; border:1px solid #ddd; border-radius:4px; font-size:12px;',
-                        oninput: function(e) { item.caption = e.target.value; }
+                        oninput: function (e) { item.caption = e.target.value; }
                     })
                 ]),
                 el('button', {
@@ -1604,7 +2175,7 @@
         }
 
         // Initial render for existing items
-        mediaList.forEach(function(m) { renderItem(m); });
+        mediaList.forEach(function (m) { renderItem(m); });
 
         openModal({
             title: existingCarousel ? 'Edit Media Carousel' : 'Insert Media Carousel',
@@ -1616,7 +2187,7 @@
                 self.showLoading();
                 var autoplay = body.querySelector('[name=autoplay]').checked;
                 var interval = body.querySelector('[name=interval]').value || '3000';
-                
+
                 var results = [];
                 var itemsProcessed = 0;
 
@@ -1644,7 +2215,11 @@
                             html += '<img src="' + escapeHtml(it.url) + '" alt="' + escapeHtml(it.caption) + '">';
                         }
                         if (it.caption) {
-                            html += '<div class="rte-carousel-caption">' + escapeHtml(it.caption) + '</div>';
+                            html += '<button class="rte-carousel-caption-btn" type="button" onclick="var p = this.nextElementSibling; p.style.display = \'flex\'; p.style.opacity = \'1\';" title="Lihat Keterangan">?</button>';
+                            html += '<div class="rte-carousel-caption-popup" style="display:none; opacity: 0; transition: opacity 0.3s ease; position:absolute; inset:0; background:rgba(0,0,0,0.85); color:#fff; align-items:center; justify-content:center; padding:40px; text-align:center; z-index:15; box-sizing:border-box;">';
+                            html += '<button class="rte-carousel-caption-close" type="button" onclick="this.parentElement.style.display = \'none\'; this.parentElement.style.opacity = \'0\'; event.stopPropagation();" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; line-height: 1;">&times;</button>';
+                            html += '<div style="font-size:16px; line-height:1.6; max-width:80%; margin: 0 auto; white-space: pre-wrap;">' + escapeHtml(it.caption) + '</div>';
+                            html += '</div>';
                         }
                         html += '</div>';
                     });
@@ -1659,7 +2234,7 @@
                         html += '</div>';
                     }
                     html += '</div><p><br></p>';
-                    
+
                     if (existingCarousel) {
                         // Replace existing
                         var range = document.createRange();
@@ -1679,7 +2254,7 @@
                         uploadFn.call(self, item.file, function (url) {
                             results[idx] = { url: url, type: isVideo ? 'video' : 'image', caption: item.caption };
                             checkDone();
-                        }, function() { checkDone(); });
+                        }, function () { checkDone(); });
                     } else {
                         // Already uploaded
                         results[idx] = { url: item.url, type: item.type, caption: item.caption };
@@ -1760,7 +2335,7 @@
 
     RichTextEditor.prototype._dialogEmoji = function () {
         var self = this;
-        var emojis = ['😀','😁','😂','🤣','😊','😍','😘','😎','🤩','🤔','🙄','😴','😢','😭','😡','🤯','😱','🥳','🤝','👏','👍','👎','🙏','💪','❤️','💔','💯','🔥','⭐','✨','✅','❌','⚡','🎉','🎁','🚀','📌','📎','📝','📷','🎵','💡','⚙️','🌟','🌈','☀️','🌙','🌍'];
+        var emojis = ['😀', '😁', '😂', '🤣', '😊', '😍', '😘', '😎', '🤩', '🤔', '🙄', '😴', '😢', '😭', '😡', '🤯', '😱', '🥳', '🤝', '👏', '👍', '👎', '🙏', '💪', '❤️', '💔', '💯', '🔥', '⭐', '✨', '✅', '❌', '⚡', '🎉', '🎁', '🚀', '📌', '📎', '📝', '📷', '🎵', '💡', '⚙️', '🌟', '🌈', '☀️', '🌙', '🌍'];
         var grid = el('div', { class: 'rte-emoji-grid' });
         emojis.forEach(function (em) {
             grid.appendChild(el('button', {
@@ -1835,7 +2410,7 @@
             span.className = 'rte-find-hl';
             try {
                 range.surroundContents(span);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function scrollRangeIntoView(range) {
@@ -1844,7 +2419,7 @@
                 if (rects.length) {
                     self.contentWrap.scrollTop += rects[0].top - self.contentWrap.getBoundingClientRect().top - 80;
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function updateHighlight() {
@@ -1927,7 +2502,7 @@
                             currentIdx = -1;
                             statusEl.textContent = 'Not found';
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             }
         }
@@ -2027,7 +2602,7 @@
         function mkBtn(svgHtml, title, onclick) {
             var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             b.innerHTML = svgHtml;
-            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            b.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); onclick(e); });
             return b;
         }
 
@@ -2036,13 +2611,13 @@
             var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
             var menu = el('div', { class: 'rte-img-tb-menu' });
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
-                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var open = menu.style.display === 'block';
                 closeMenus();
@@ -2055,33 +2630,38 @@
         // 1. Set Size
         var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
         toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', [
-            { label: 'Set Size\u2026', action: function() {
-                Swal.fire({ title: 'Set Image Size', html:
-                    '<div style="display:flex;gap:8px;justify-content:center">' +
-                    '<label style="font-size:13px">W: <input id="swal-img-w" type="number" value="' + (img.offsetWidth||img.width||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '<label style="font-size:13px">H: <input id="swal-img-h" type="number" value="' + (img.offsetHeight||img.height||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '</div>',
-                    showCancelButton: true, confirmButtonText: 'Apply', cancelButtonText: 'Cancel'
-                }).then(function(r) { if (r.isConfirmed) {
-                    var w = parseInt(document.getElementById('swal-img-w').value, 10);
-                    var h = parseInt(document.getElementById('swal-img-h').value, 10);
-                    if (w > 0) img.style.width = w + 'px';
-                    if (h > 0) img.style.height = h + 'px';
-                    self._syncSource();
-                    setTimeout(function(){self._updatePopupPositions();}, 10);
-                }});
-            }},
+            {
+                label: 'Set Size\u2026', action: function () {
+                    Swal.fire({
+                        title: 'Set Image Size', html:
+                            '<div style="display:flex;gap:8px;justify-content:center">' +
+                            '<label style="font-size:13px">W: <input id="swal-img-w" type="number" value="' + (img.offsetWidth || img.width || '') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '<label style="font-size:13px">H: <input id="swal-img-h" type="number" value="' + (img.offsetHeight || img.height || '') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '</div>',
+                        showCancelButton: true, confirmButtonText: 'Apply', cancelButtonText: 'Cancel'
+                    }).then(function (r) {
+                        if (r.isConfirmed) {
+                            var w = parseInt(document.getElementById('swal-img-w').value, 10);
+                            var h = parseInt(document.getElementById('swal-img-h').value, 10);
+                            if (w > 0) img.style.width = w + 'px';
+                            if (h > 0) img.style.height = h + 'px';
+                            self._syncSource();
+                            setTimeout(function () { self._updatePopupPositions(); }, 10);
+                        }
+                    });
+                }
+            },
             '-',
-            { label: 'Auto size', action: function() { img.style.width=''; img.style.height=''; img.removeAttribute('width'); img.removeAttribute('height'); self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '100% width', action: function() { img.style.width='100%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '75% width', action: function() { img.style.width='75%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '50% width', action: function() { img.style.width='50%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '25% width', action: function() { img.style.width='25%'; img.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Auto size', action: function () { img.style.width = ''; img.style.height = ''; img.removeAttribute('width'); img.removeAttribute('height'); self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '100% width', action: function () { img.style.width = '100%'; img.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '75% width', action: function () { img.style.width = '75%'; img.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '50% width', action: function () { img.style.width = '50%'; img.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '25% width', action: function () { img.style.width = '25%'; img.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ]));
 
         // 2. Caption
         var ICON_CAPTION = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><line x1="3" y1="21" x2="21" y2="21"/><line x1="7" y1="18" x2="17" y2="18"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_CAPTION, 'Image Caption', function() {
+        toolbar.appendChild(mkBtn(ICON_CAPTION, 'Image Caption', function () {
             var fig = img.closest('figure');
             var cap = fig ? fig.querySelector('figcaption') : null;
             if (!fig) {
@@ -2119,26 +2699,29 @@
                 }
             }
             self._syncSource();
-            setTimeout(function(){self._updatePopupPositions();}, 10);
+            setTimeout(function () { self._updatePopupPositions(); }, 10);
         }));
 
         // 3. Insert link
         var ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_LINK, 'Insert Link', function() {
+        toolbar.appendChild(mkBtn(ICON_LINK, 'Insert Link', function () {
             var current = img.parentNode && img.parentNode.tagName === 'A' ? img.parentNode.href : '';
-            Swal.fire({ title: 'Link URL', input: 'url', inputValue: current,
+            Swal.fire({
+                title: 'Link URL', input: 'url', inputValue: current,
                 showCancelButton: true, confirmButtonText: 'Apply', inputPlaceholder: 'https://'
-            }).then(function(r) { if (r.isConfirmed) {
-                var href = r.value.trim();
-                if (img.parentNode && img.parentNode.tagName === 'A') {
-                    if (!href) { var a = img.parentNode; a.parentNode.insertBefore(img, a); a.parentNode.removeChild(a); }
-                    else img.parentNode.href = href;
-                } else if (href) {
-                    var a = document.createElement('a'); a.href = href; a.target = '_blank';
-                    img.parentNode.insertBefore(a, img); a.appendChild(img);
+            }).then(function (r) {
+                if (r.isConfirmed) {
+                    var href = r.value.trim();
+                    if (img.parentNode && img.parentNode.tagName === 'A') {
+                        if (!href) { var a = img.parentNode; a.parentNode.insertBefore(img, a); a.parentNode.removeChild(a); }
+                        else img.parentNode.href = href;
+                    } else if (href) {
+                        var a = document.createElement('a'); a.href = href; a.target = '_blank';
+                        img.parentNode.insertBefore(a, img); a.appendChild(img);
+                    }
+                    self._syncSource();
                 }
-                self._syncSource();
-            }});
+            });
         }));
 
         // 4. Justify
@@ -2155,42 +2738,42 @@
                 target.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
             }
             self._syncSource();
-            setTimeout(function(){self._updatePopupPositions();}, 10);
+            setTimeout(function () { self._updatePopupPositions(); }, 10);
         }
         toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', [
-            { label: 'Justify Left',   action: function() { setJustify('none', '0', 'auto'); }},
-            { label: 'Justify Center', action: function() { setJustify('none', 'auto', 'auto'); }},
-            { label: 'Justify Right',  action: function() { setJustify('none', 'auto', '0'); }},
+            { label: 'Justify Left', action: function () { setJustify('none', '0', 'auto'); } },
+            { label: 'Justify Center', action: function () { setJustify('none', 'auto', 'auto'); } },
+            { label: 'Justify Right', action: function () { setJustify('none', 'auto', '0'); } },
             '-',
-            { label: 'Float Left',  action: function() { setJustify('left', '0', '10px'); }},
-            { label: 'Float Right', action: function() { setJustify('right', '10px', '0'); }},
+            { label: 'Float Left', action: function () { setJustify('left', '0', '10px'); } },
+            { label: 'Float Right', action: function () { setJustify('right', '10px', '0'); } },
         ]));
 
         // 5. Style
         var ICON_STYLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-        var getTarget = function() { return img; };
-        var getWrap = function() { return img.closest('figure') || img; };
+        var getTarget = function () { return img; };
+        var getWrap = function () { return img.closest('figure') || img; };
         var styleItems = [
-            { label: 'Border',          key: 'border',       get: function() { return getWrap().style.border ? 'active' : ''; },     action: function() { var t = getWrap(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Grayscale',       key: 'grayscale',    get: function() { return img.style.filter === 'grayscale(100%)' ? 'active' : ''; }, action: function() { img.style.filter = img.style.filter === 'grayscale(100%)' ? '' : 'grayscale(100%)'; self._syncSource(); }},
-            { label: 'Shadow',          key: 'shadow',       get: function() { return getWrap().style.boxShadow ? 'active' : ''; },  action: function() { var t = getWrap(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 8px rgba(0,0,0,0.1)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Margin 10px',     key: 'margin',       get: function() { return getWrap().style.margin ? 'active' : ''; },    action: function() { var t = getWrap(); t.style.margin = t.style.margin ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Padding 10px',    key: 'padding',      get: function() { return getWrap().style.padding ? 'active' : ''; },   action: function() { var t = getWrap(); t.style.padding = t.style.padding ? '' : '10px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Rounded Corners', key: 'rounded',      get: function() { return getWrap().style.borderRadius === '8px' ? 'active' : ''; }, action: function() { var t = getWrap(); t.style.borderRadius = t.style.borderRadius === '8px' ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Rounded Image',   key: 'circle',       get: function() { return img.style.borderRadius === '50%' ? 'active' : ''; }, action: function() { img.style.borderRadius = img.style.borderRadius === '50%' ? '' : '50%'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Thumbnail',       key: 'thumb',        get: function() { return (getWrap().style.background === 'rgb(255, 255, 255)' || getWrap().style.background === '#fff') ? 'active' : ''; }, action: function() { var t=getWrap(); if(t.style.background === 'rgb(255, 255, 255)' || t.style.background === '#fff') { t.style.border=''; t.style.padding=''; t.style.background=''; t.style.borderRadius=''; } else { t.style.border='1px solid #ddd'; t.style.padding='4px'; t.style.background='#fff'; t.style.borderRadius='4px'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Free Canvas Mode',key: 'absolute',     get: function() { var w=getWrap(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function() { var w=getWrap(); if(w.style.position==='absolute'){w.style.position='';w.style.left='';w.style.top='';w.style.zIndex='';}else{w.style.position='absolute';w.style.zIndex='100';w.style.left=w.offsetLeft+'px';w.style.top=w.offsetTop+'px';} self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }}
+            { label: 'Border', key: 'border', get: function () { return getWrap().style.border ? 'active' : ''; }, action: function () { var t = getWrap(); if (t.style.border) { t.style.border = ''; t.style.padding = ''; t.style.borderRadius = ''; } else { t.style.border = '1px solid #ccc'; t.style.padding = '4px'; t.style.borderRadius = '4px'; t.style.background = '#fff'; } self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Grayscale', key: 'grayscale', get: function () { return img.style.filter === 'grayscale(100%)' ? 'active' : ''; }, action: function () { img.style.filter = img.style.filter === 'grayscale(100%)' ? '' : 'grayscale(100%)'; self._syncSource(); } },
+            { label: 'Shadow', key: 'shadow', get: function () { return getWrap().style.boxShadow ? 'active' : ''; }, action: function () { var t = getWrap(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 8px rgba(0,0,0,0.1)'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Margin 10px', key: 'margin', get: function () { return getWrap().style.margin ? 'active' : ''; }, action: function () { var t = getWrap(); t.style.margin = t.style.margin ? '' : '10px'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Padding 10px', key: 'padding', get: function () { return getWrap().style.padding ? 'active' : ''; }, action: function () { var t = getWrap(); t.style.padding = t.style.padding ? '' : '10px'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Rounded Corners', key: 'rounded', get: function () { return getWrap().style.borderRadius === '8px' ? 'active' : ''; }, action: function () { var t = getWrap(); t.style.borderRadius = t.style.borderRadius === '8px' ? '' : '8px'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Rounded Image', key: 'circle', get: function () { return img.style.borderRadius === '50%' ? 'active' : ''; }, action: function () { img.style.borderRadius = img.style.borderRadius === '50%' ? '' : '50%'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Thumbnail', key: 'thumb', get: function () { return (getWrap().style.background === 'rgb(255, 255, 255)' || getWrap().style.background === '#fff') ? 'active' : ''; }, action: function () { var t = getWrap(); if (t.style.background === 'rgb(255, 255, 255)' || t.style.background === '#fff') { t.style.border = ''; t.style.padding = ''; t.style.background = ''; t.style.borderRadius = ''; } else { t.style.border = '1px solid #ddd'; t.style.padding = '4px'; t.style.background = '#fff'; t.style.borderRadius = '4px'; } self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Free Canvas Mode', key: 'absolute', get: function () { var w = getWrap(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function () { var w = getWrap(); if (w.style.position === 'absolute') { w.style.position = ''; w.style.left = ''; w.style.top = ''; w.style.zIndex = ''; } else { w.style.position = 'absolute'; w.style.zIndex = '100'; w.style.left = w.offsetLeft + 'px'; w.style.top = w.offsetTop + 'px'; } self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } }
         ];
-        toolbar.appendChild(mkDrop(ICON_STYLE, 'Image Style', styleItems, function(menu) {
+        toolbar.appendChild(mkDrop(ICON_STYLE, 'Image Style', styleItems, function (menu) {
             // Refresh active states when menu opens
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
                 mi.classList.toggle('rte-img-tb-menuitem-active', styleItems[i] && styleItems[i].get && !!styleItems[i].get());
             });
         }));
 
         // 6. Delete
         var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Image', function() {
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Image', function () {
             self._removeMediaResizeHandle();
             var fig = img.closest('figure');
             var target = fig || img;
@@ -2210,8 +2793,8 @@
         }
         requestAnimationFrame(positionToolbar);
 
-        setTimeout(function() {
-            document.addEventListener('mousedown', self._imagePopupCloseHandler = function(e) {
+        setTimeout(function () {
+            document.addEventListener('mousedown', self._imagePopupCloseHandler = function (e) {
                 if (!toolbar.contains(e.target) && e.target !== img &&
                     !e.target.classList.contains('rte-img-handle') &&
                     !e.target.classList.contains('rte-media-move-handle') &&
@@ -2239,7 +2822,7 @@
             clickInterceptor.draggable = true;
             document.body.appendChild(clickInterceptor);
 
-            clickInterceptor.addEventListener('click', function(e) {
+            clickInterceptor.addEventListener('click', function (e) {
                 e.stopPropagation();
                 self._showVideoEditorPopup(media);
             });
@@ -2264,18 +2847,18 @@
         moveHandle.title = 'Drag to move';
         moveHandle.style.cssText = 'position:absolute;top:0;left:0;width:24px;height:24px;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;cursor:move;pointer-events:auto;z-index:10;';
         moveHandle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="19 9 22 12 19 15"></polyline><polyline points="9 19 12 22 15 19"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>';
-        
+
         var isMediaDragging = false, dragOffX = 0, dragOffY = 0, mediaOrigLeft = 0, mediaOrigTop = 0;
-        
+
         function onMediaDragStart(e) {
             e.preventDefault(); e.stopPropagation();
             isMediaDragging = true;
             self._isResizingOrMoving = true;
-            
+
             var cx = e.touches ? e.touches[0].clientX : e.clientX;
             var cy = e.touches ? e.touches[0].clientY : e.clientY;
             var targetNode = media.closest('figure') || media;
-            
+
             if (targetNode.style.position === 'absolute') {
                 mediaOrigLeft = parseFloat(targetNode.style.left) || targetNode.offsetLeft || 0;
                 mediaOrigTop = parseFloat(targetNode.style.top) || targetNode.offsetTop || 0;
@@ -2291,14 +2874,14 @@
             document.addEventListener('touchmove', onMediaDragMove, { passive: false });
             document.addEventListener('touchend', onMediaDragEnd);
         }
-        
+
         function onMediaDragMove(e) {
             if (!isMediaDragging) return;
             e.preventDefault();
             var cx = e.touches ? e.touches[0].clientX : e.clientX;
             var cy = e.touches ? e.touches[0].clientY : e.clientY;
             var targetNode = media.closest('figure') || media;
-            
+
             if (targetNode.style.position === 'absolute') {
                 targetNode.style.left = (mediaOrigLeft + cx - dragOffX) + 'px';
                 targetNode.style.top = (mediaOrigTop + cy - dragOffY) + 'px';
@@ -2308,7 +2891,7 @@
             }
             if (self._mediaResizePositioner) self._mediaResizePositioner();
         }
-        
+
         function onMediaDragEnd() {
             isMediaDragging = false;
             self._isResizingOrMoving = false;
@@ -2318,7 +2901,7 @@
             document.removeEventListener('touchend', onMediaDragEnd);
             self._syncSource();
         }
-        
+
         moveHandle.addEventListener('mousedown', onMediaDragStart);
         moveHandle.addEventListener('touchstart', onMediaDragStart, { passive: false });
         overlay.appendChild(moveHandle);
@@ -2326,29 +2909,29 @@
         function positionOverlay() {
             if (!self._mediaResizeTarget || !self._mediaResizeHandle) return;
             var rect = self._mediaResizeTarget.getBoundingClientRect();
-            self._mediaResizeHandle.style.left   = (rect.left - 2) + 'px';
-            self._mediaResizeHandle.style.top    = (rect.top - 2) + 'px';
-            self._mediaResizeHandle.style.width  = (rect.width + 4) + 'px';
+            self._mediaResizeHandle.style.left = (rect.left - 2) + 'px';
+            self._mediaResizeHandle.style.top = (rect.top - 2) + 'px';
+            self._mediaResizeHandle.style.width = (rect.width + 4) + 'px';
             self._mediaResizeHandle.style.height = (rect.height + 4) + 'px';
-            
+
             // Sync click interceptor if present
             if (self._iframeClickInterceptor) {
-                self._iframeClickInterceptor.style.left   = rect.left + 'px';
-                self._iframeClickInterceptor.style.top    = rect.top + 'px';
-                self._iframeClickInterceptor.style.width  = rect.width + 'px';
+                self._iframeClickInterceptor.style.left = rect.left + 'px';
+                self._iframeClickInterceptor.style.top = rect.top + 'px';
+                self._iframeClickInterceptor.style.width = rect.width + 'px';
                 self._iframeClickInterceptor.style.height = rect.height + 'px';
             }
 
             // Sync popups as well
             if (self._imagePopup || self._videoPopup) self._updatePopupPositions();
-            
+
             self._mediaResizeRaf = requestAnimationFrame(positionOverlay);
         }
         positionOverlay();
         self._mediaResizePositioner = positionOverlay;
 
-        var dirs = ['nw','n','ne','e','se','s','sw','w'];
-        dirs.forEach(function(dir) {
+        var dirs = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+        dirs.forEach(function (dir) {
             var h = document.createElement('div');
             h.className = 'rte-img-handle rte-img-handle-' + dir;
             // Slightly larger and more visible
@@ -2357,8 +2940,8 @@
             h.style.background = '#3b82f6';
             h.style.border = '2px solid #fff';
             h.style.boxShadow = '0 0 4px rgba(0,0,0,0.3)';
-            
-            h.addEventListener('mousedown', function(e) {
+
+            h.addEventListener('mousedown', function (e) {
                 e.preventDefault(); e.stopPropagation();
                 var startX = e.clientX, startY = e.clientY;
                 var startW = media.offsetWidth, startH = media.offsetHeight;
@@ -2432,7 +3015,7 @@
         function mkBtn(svgHtml, title, onclick) {
             var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             b.innerHTML = svgHtml;
-            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            b.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); onclick(e); });
             return b;
         }
         function mkDrop(svgHtml, title, items, onOpen) {
@@ -2440,13 +3023,13 @@
             var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
             var menu = el('div', { class: 'rte-img-tb-menu' });
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
-                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var open = menu.style.display === 'block';
                 closeMenus();
@@ -2459,33 +3042,38 @@
         // 1. Set Size
         var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
         toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', [
-            { label: 'Set Size\u2026', action: function() {
-                Swal.fire({ title: 'Set Video Size', html:
-                    '<div style="display:flex;gap:8px;justify-content:center">' +
-                    '<label style="font-size:13px">W: <input id="swal-vid-w" type="number" value="' + (media.offsetWidth||560) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '<label style="font-size:13px">H: <input id="swal-vid-h" type="number" value="' + (media.offsetHeight||315) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '</div>',
-                    showCancelButton: true, confirmButtonText: 'Apply'
-                }).then(function(r) { if (r.isConfirmed) {
-                    var w = parseInt(document.getElementById('swal-vid-w').value,10);
-                    var h = parseInt(document.getElementById('swal-vid-h').value,10);
-                    if (w>0) media.style.width = w+'px';
-                    if (h>0) media.style.height = h+'px';
-                    self._syncSource();
-                    setTimeout(function(){self._updatePopupPositions();}, 10);
-                }});
-            }},
+            {
+                label: 'Set Size\u2026', action: function () {
+                    Swal.fire({
+                        title: 'Set Video Size', html:
+                            '<div style="display:flex;gap:8px;justify-content:center">' +
+                            '<label style="font-size:13px">W: <input id="swal-vid-w" type="number" value="' + (media.offsetWidth || 560) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '<label style="font-size:13px">H: <input id="swal-vid-h" type="number" value="' + (media.offsetHeight || 315) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '</div>',
+                        showCancelButton: true, confirmButtonText: 'Apply'
+                    }).then(function (r) {
+                        if (r.isConfirmed) {
+                            var w = parseInt(document.getElementById('swal-vid-w').value, 10);
+                            var h = parseInt(document.getElementById('swal-vid-h').value, 10);
+                            if (w > 0) media.style.width = w + 'px';
+                            if (h > 0) media.style.height = h + 'px';
+                            self._syncSource();
+                            setTimeout(function () { self._updatePopupPositions(); }, 10);
+                        }
+                    });
+                }
+            },
             '-',
-            { label: 'Auto size',  action: function() { media.style.width=''; media.style.height=''; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '100% width', action: function() { media.style.width='100%'; media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '75% width',  action: function() { media.style.width='75%';  media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '50% width',  action: function() { media.style.width='50%';  media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '25% width',  action: function() { media.style.width='25%';  media.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Auto size', action: function () { media.style.width = ''; media.style.height = ''; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '100% width', action: function () { media.style.width = '100%'; media.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '75% width', action: function () { media.style.width = '75%'; media.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '50% width', action: function () { media.style.width = '50%'; media.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '25% width', action: function () { media.style.width = '25%'; media.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ]));
 
         // 2. Caption
         var ICON_CAPTION = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="13" rx="2"/><line x1="3" y1="21" x2="21" y2="21"/><line x1="7" y1="18" x2="17" y2="18"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_CAPTION, 'Video Caption', function() {
+        toolbar.appendChild(mkBtn(ICON_CAPTION, 'Video Caption', function () {
             var fig = media.closest('figure');
             var cap = fig ? fig.querySelector('figcaption') : null;
             if (!fig) {
@@ -2523,7 +3111,7 @@
                 }
             }
             self._syncSource();
-            setTimeout(function(){self._updatePopupPositions();}, 10);
+            setTimeout(function () { self._updatePopupPositions(); }, 10);
         }));
 
         // 3. Justify
@@ -2540,30 +3128,30 @@
                 wrap.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
             }
             self._syncSource();
-            setTimeout(function(){self._updatePopupPositions();}, 10);
+            setTimeout(function () { self._updatePopupPositions(); }, 10);
         }
         toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', [
-            { label: 'Justify Left',   action: function() { setVJustify('none', '0', 'auto'); }},
-            { label: 'Justify Center', action: function() { setVJustify('none', 'auto', 'auto'); }},
-            { label: 'Justify Right',  action: function() { setVJustify('none', 'auto', '0'); }},
+            { label: 'Justify Left', action: function () { setVJustify('none', '0', 'auto'); } },
+            { label: 'Justify Center', action: function () { setVJustify('none', 'auto', 'auto'); } },
+            { label: 'Justify Right', action: function () { setVJustify('none', 'auto', '0'); } },
             '-',
-            { label: 'Float Left',  action: function() { setVJustify('left', '0', '10px'); }},
-            { label: 'Float Right', action: function() { setVJustify('right', '10px', '0'); }},
+            { label: 'Float Left', action: function () { setVJustify('left', '0', '10px'); } },
+            { label: 'Float Right', action: function () { setVJustify('right', '10px', '0'); } },
         ]));
 
         // 4. Style
         var ICON_STYLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-        var getTarget = function() { return media; };
-        var getWrapV = function() { return media.closest('figure') || media; };
+        var getTarget = function () { return media; };
+        var getWrapV = function () { return media.closest('figure') || media; };
         var vStyleItems = [
-            { label: 'Border',  get: function() { return !!getTarget().style.border; }, action: function() { var t = getTarget(); if(t.style.border){ t.style.border=''; t.style.padding=''; t.style.borderRadius=''; }else{ t.style.border='1px solid #ccc'; t.style.padding='4px'; t.style.borderRadius='4px'; t.style.background='#fff'; } self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Shadow',  get: function() { return !!getTarget().style.boxShadow; }, action: function() { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 12px rgba(0,0,0,0.3)'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: 'Rounded', get: function() { return !!getTarget().style.borderRadius; }, action: function() { var t = getTarget(); t.style.borderRadius = t.style.borderRadius ? '' : '8px'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Border', get: function () { return !!getTarget().style.border; }, action: function () { var t = getTarget(); if (t.style.border) { t.style.border = ''; t.style.padding = ''; t.style.borderRadius = ''; } else { t.style.border = '1px solid #ccc'; t.style.padding = '4px'; t.style.borderRadius = '4px'; t.style.background = '#fff'; } self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Shadow', get: function () { return !!getTarget().style.boxShadow; }, action: function () { var t = getTarget(); t.style.boxShadow = t.style.boxShadow ? '' : '0 4px 12px rgba(0,0,0,0.3)'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: 'Rounded', get: function () { return !!getTarget().style.borderRadius; }, action: function () { var t = getTarget(); t.style.borderRadius = t.style.borderRadius ? '' : '8px'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
             '-',
-            { label: 'Free Canvas Mode', get: function() { var w=getWrapV(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function() { var w=getWrapV(); if(w.style.position==='absolute'){w.style.position='';w.style.left='';w.style.top='';w.style.zIndex='';}else{w.style.position='absolute';w.style.zIndex='100';w.style.left=w.offsetLeft+'px';w.style.top=w.offsetTop+'px';} self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Free Canvas Mode', get: function () { var w = getWrapV(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function () { var w = getWrapV(); if (w.style.position === 'absolute') { w.style.position = ''; w.style.left = ''; w.style.top = ''; w.style.zIndex = ''; } else { w.style.position = 'absolute'; w.style.zIndex = '100'; w.style.left = w.offsetLeft + 'px'; w.style.top = w.offsetTop + 'px'; } self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ];
-        toolbar.appendChild(mkDrop(ICON_STYLE, 'Video Style', vStyleItems, function(menu) {
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+        toolbar.appendChild(mkDrop(ICON_STYLE, 'Video Style', vStyleItems, function (menu) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
                 var item = vStyleItems[i];
                 if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
@@ -2571,7 +3159,7 @@
 
         // 5. Delete
         var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Video', function() {
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Video', function () {
             self._removeMediaResizeHandle();
             var wrap = media.closest('figure') || media;
             if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
@@ -2589,8 +3177,8 @@
         }
         requestAnimationFrame(positionToolbar);
 
-        setTimeout(function() {
-            document.addEventListener('mousedown', self._videoPopupCloseHandler = function(e) {
+        setTimeout(function () {
+            document.addEventListener('mousedown', self._videoPopupCloseHandler = function (e) {
                 if (!toolbar.contains(e.target) && e.target !== media &&
                     !e.target.classList.contains('rte-img-handle') &&
                     !e.target.classList.contains('rte-media-move-handle') &&
@@ -2629,7 +3217,7 @@
         function mkBtn(svgHtml, title, onclick) {
             var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             b.innerHTML = svgHtml;
-            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            b.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); onclick(e); });
             return b;
         }
         function mkDrop(svgHtml, title, items, onOpen) {
@@ -2637,13 +3225,13 @@
             var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
             var menu = el('div', { class: 'rte-img-tb-menu' });
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
-                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var open = menu.style.display === 'block';
                 closeMenus();
@@ -2655,35 +3243,40 @@
 
         // 0. Edit Media (List)
         var ICON_LIST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_LIST, 'Edit Media Carousel', function() {
+        toolbar.appendChild(mkBtn(ICON_LIST, 'Edit Media Carousel', function () {
             self._dialogCarousel(carousel);
         }));
 
         // 1. Set Size
         var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
         toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', [
-            { label: 'Set Size\u2026', action: function() {
-                Swal.fire({ title: 'Set Carousel Size', html:
-                    '<div style="display:flex;gap:8px;justify-content:center">' +
-                    '<label style="font-size:13px">W: <input id="swal-car-w" type="number" value="' + (carousel.offsetWidth||800) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '<label style="font-size:13px">H: <input id="swal-car-h" type="number" value="' + (carousel.offsetHeight||450) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '</div>',
-                    showCancelButton: true, confirmButtonText: 'Apply'
-                }).then(function(r) { if (r.isConfirmed) {
-                    var w = parseInt(document.getElementById('swal-car-w').value, 10);
-                    var h = parseInt(document.getElementById('swal-car-h').value, 10);
-                    if (w > 0) { carousel.style.width = w + 'px'; carousel.style.aspectRatio = 'auto'; }
-                    if (h > 0) { carousel.style.height = h + 'px'; carousel.style.aspectRatio = 'auto'; }
-                    self._syncSource();
-                    setTimeout(function(){self._updatePopupPositions();}, 10);
-                }});
-            }},
+            {
+                label: 'Set Size\u2026', action: function () {
+                    Swal.fire({
+                        title: 'Set Carousel Size', html:
+                            '<div style="display:flex;gap:8px;justify-content:center">' +
+                            '<label style="font-size:13px">W: <input id="swal-car-w" type="number" value="' + (carousel.offsetWidth || 800) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '<label style="font-size:13px">H: <input id="swal-car-h" type="number" value="' + (carousel.offsetHeight || 450) + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '</div>',
+                        showCancelButton: true, confirmButtonText: 'Apply'
+                    }).then(function (r) {
+                        if (r.isConfirmed) {
+                            var w = parseInt(document.getElementById('swal-car-w').value, 10);
+                            var h = parseInt(document.getElementById('swal-car-h').value, 10);
+                            if (w > 0) { carousel.style.width = w + 'px'; carousel.style.aspectRatio = 'auto'; }
+                            if (h > 0) { carousel.style.height = h + 'px'; carousel.style.aspectRatio = 'auto'; }
+                            self._syncSource();
+                            setTimeout(function () { self._updatePopupPositions(); }, 10);
+                        }
+                    });
+                }
+            },
             '-',
-            { label: 'Auto size (16:9)', action: function() { carousel.style.width=''; carousel.style.height=''; carousel.style.aspectRatio='16/9'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '100% width', action: function() { carousel.style.width='100%'; carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '75% width',  action: function() { carousel.style.width='75%';  carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '50% width',  action: function() { carousel.style.width='50%';  carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '25% width',  action: function() { carousel.style.width='25%';  carousel.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Auto size (16:9)', action: function () { carousel.style.width = ''; carousel.style.height = ''; carousel.style.aspectRatio = '16/9'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '100% width', action: function () { carousel.style.width = '100%'; carousel.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '75% width', action: function () { carousel.style.width = '75%'; carousel.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '50% width', action: function () { carousel.style.width = '50%'; carousel.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '25% width', action: function () { carousel.style.width = '25%'; carousel.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ]));
 
         // 2. Justify
@@ -2694,20 +3287,20 @@
             carousel.style.marginRight = mR;
             carousel.style.display = (float === 'none' && mL === 'auto') ? 'block' : 'inline-block';
             self._syncSource();
-            setTimeout(function(){self._updatePopupPositions();}, 10);
+            setTimeout(function () { self._updatePopupPositions(); }, 10);
         }
         toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', [
-            { label: 'Justify Left',   action: function() { setJustify('none', '0', 'auto'); }},
-            { label: 'Justify Center', action: function() { setJustify('none', 'auto', 'auto'); }},
-            { label: 'Justify Right',  action: function() { setJustify('none', 'auto', '0'); }},
+            { label: 'Justify Left', action: function () { setJustify('none', '0', 'auto'); } },
+            { label: 'Justify Center', action: function () { setJustify('none', 'auto', 'auto'); } },
+            { label: 'Justify Right', action: function () { setJustify('none', 'auto', '0'); } },
             '-',
-            { label: 'Float Left',  action: function() { setJustify('left', '0', '15px'); }},
-            { label: 'Float Right', action: function() { setJustify('right', '15px', '0'); }},
+            { label: 'Float Left', action: function () { setJustify('left', '0', '15px'); } },
+            { label: 'Float Right', action: function () { setJustify('right', '15px', '0'); } },
         ]));
 
         // 3. Delete
         var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Carousel', function() {
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Carousel', function () {
             self._removeMediaResizeHandle();
             if (carousel.parentNode) carousel.parentNode.removeChild(carousel);
             self._closeCarouselPopup();
@@ -2745,7 +3338,7 @@
         function mkBtn(svgHtml, title, onclick) {
             var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             b.innerHTML = svgHtml;
-            b.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            b.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); onclick(e); });
             return b;
         }
         function mkDrop(svgHtml, title, items, onOpen) {
@@ -2753,13 +3346,13 @@
             var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
             btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
             var menu = el('div', { class: 'rte-img-tb-menu' });
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
-                mi.addEventListener('click', function(e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var open = menu.style.display === 'block';
                 closeMenus();
@@ -2772,31 +3365,36 @@
         // 1. Set Size
         var ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>';
         var bSizeItems = [
-            { label: 'Set Size\u2026', get: function() { return false; }, action: function() {
-                Swal.fire({ title: 'Set Button Size', html:
-                    '<div style="display:flex;gap:8px;justify-content:center">' +
-                    '<label style="font-size:13px">W: <input id="swal-btn-w" type="number" value="' + (btnLink.offsetWidth||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '<label style="font-size:13px">H: <input id="swal-btn-h" type="number" value="' + (btnLink.offsetHeight||'') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
-                    '</div>',
-                    showCancelButton: true, confirmButtonText: 'Apply'
-                }).then(function(r) { if (r.isConfirmed) {
-                    var w = parseInt(document.getElementById('swal-btn-w').value,10);
-                    var h = parseInt(document.getElementById('swal-btn-h').value,10);
-                    if (w>0) btnLink.style.width = w+'px';
-                    if (h>0) btnLink.style.height = h+'px';
-                    self._syncSource();
-                    setTimeout(function(){self._updatePopupPositions();}, 10);
-                }});
-            }},
+            {
+                label: 'Set Size\u2026', get: function () { return false; }, action: function () {
+                    Swal.fire({
+                        title: 'Set Button Size', html:
+                            '<div style="display:flex;gap:8px;justify-content:center">' +
+                            '<label style="font-size:13px">W: <input id="swal-btn-w" type="number" value="' + (btnLink.offsetWidth || '') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '<label style="font-size:13px">H: <input id="swal-btn-h" type="number" value="' + (btnLink.offsetHeight || '') + '" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px"></label>' +
+                            '</div>',
+                        showCancelButton: true, confirmButtonText: 'Apply'
+                    }).then(function (r) {
+                        if (r.isConfirmed) {
+                            var w = parseInt(document.getElementById('swal-btn-w').value, 10);
+                            var h = parseInt(document.getElementById('swal-btn-h').value, 10);
+                            if (w > 0) btnLink.style.width = w + 'px';
+                            if (h > 0) btnLink.style.height = h + 'px';
+                            self._syncSource();
+                            setTimeout(function () { self._updatePopupPositions(); }, 10);
+                        }
+                    });
+                }
+            },
             '-',
-            { label: 'Auto size',  get: function() { return !btnLink.style.width && !btnLink.style.height; }, action: function() { btnLink.style.width=''; btnLink.style.height=''; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '100% width', get: function() { return btnLink.style.width === '100%'; }, action: function() { btnLink.style.width='100%'; btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '75% width',  get: function() { return btnLink.style.width === '75%'; }, action: function() { btnLink.style.width='75%';  btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '50% width',  get: function() { return btnLink.style.width === '50%'; }, action: function() { btnLink.style.width='50%';  btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
-            { label: '25% width',  get: function() { return btnLink.style.width === '25%'; }, action: function() { btnLink.style.width='25%';  btnLink.style.height='auto'; self._syncSource(); setTimeout(function(){self._updatePopupPositions();}, 10); }},
+            { label: 'Auto size', get: function () { return !btnLink.style.width && !btnLink.style.height; }, action: function () { btnLink.style.width = ''; btnLink.style.height = ''; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '100% width', get: function () { return btnLink.style.width === '100%'; }, action: function () { btnLink.style.width = '100%'; btnLink.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '75% width', get: function () { return btnLink.style.width === '75%'; }, action: function () { btnLink.style.width = '75%'; btnLink.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '50% width', get: function () { return btnLink.style.width === '50%'; }, action: function () { btnLink.style.width = '50%'; btnLink.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
+            { label: '25% width', get: function () { return btnLink.style.width === '25%'; }, action: function () { btnLink.style.width = '25%'; btnLink.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ];
-        toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', bSizeItems, function(menu) {
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+        toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', bSizeItems, function (menu) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
                 var item = bSizeItems[i];
                 if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
@@ -2816,18 +3414,18 @@
                 if (btnLink.style.width === 'fit-content') btnLink.style.width = '';
             }
             self._syncSource();
-            setTimeout(function(){self._updatePopupPositions();}, 10);
+            setTimeout(function () { self._updatePopupPositions(); }, 10);
         }
         var bJustifyItems = [
-            { label: 'Justify Left',   get: function() { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft !== 'auto'; }, action: function() { setBJustify('none', '0', 'auto', 'inline-flex'); }},
-            { label: 'Justify Center', get: function() { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft === 'auto' && btnLink.style.marginRight === 'auto'; }, action: function() { setBJustify('none', 'auto', 'auto', 'block'); }},
-            { label: 'Justify Right',  get: function() { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft === 'auto' && (btnLink.style.marginRight === '0px' || btnLink.style.marginRight === '0'); }, action: function() { setBJustify('none', 'auto', '0', 'inline-flex'); }},
+            { label: 'Justify Left', get: function () { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft !== 'auto'; }, action: function () { setBJustify('none', '0', 'auto', 'inline-flex'); } },
+            { label: 'Justify Center', get: function () { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft === 'auto' && btnLink.style.marginRight === 'auto'; }, action: function () { setBJustify('none', 'auto', 'auto', 'block'); } },
+            { label: 'Justify Right', get: function () { return btnLink.style.float !== 'left' && btnLink.style.float !== 'right' && btnLink.style.marginLeft === 'auto' && (btnLink.style.marginRight === '0px' || btnLink.style.marginRight === '0'); }, action: function () { setBJustify('none', 'auto', '0', 'inline-flex'); } },
             '-',
-            { label: 'Float Left',  get: function() { return btnLink.style.float === 'left'; }, action: function() { setBJustify('left', '0', '10px', 'inline-flex'); }},
-            { label: 'Float Right', get: function() { return btnLink.style.float === 'right'; }, action: function() { setBJustify('right', '10px', '0', 'inline-flex'); }},
+            { label: 'Float Left', get: function () { return btnLink.style.float === 'left'; }, action: function () { setBJustify('left', '0', '10px', 'inline-flex'); } },
+            { label: 'Float Right', get: function () { return btnLink.style.float === 'right'; }, action: function () { setBJustify('right', '10px', '0', 'inline-flex'); } },
         ];
-        toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', bJustifyItems, function(menu) {
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function(mi, i) {
+        toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', bJustifyItems, function (menu) {
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
                 var item = bJustifyItems[i];
                 if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
@@ -2835,7 +3433,7 @@
 
         // 3. Delete
         var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
-        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Button', function() {
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Button', function () {
             self._removeMediaResizeHandle();
             if (btnLink.parentNode) btnLink.parentNode.removeChild(btnLink);
             self._closeButtonPopup();
@@ -2859,9 +3457,15 @@
 
     // -------- Line Height --------
     RichTextEditor.prototype._setLineHeight = function (value) {
-        var sel = window.getSelection();
-        if (!sel || sel.rangeCount === 0) return;
-        var node = sel.anchorNode;
+        // Use savedRange when available (called from dropdown after focus left editor)
+        var node = null;
+        if (this._savedRange && this._savedRange.startContainer) {
+            node = this._savedRange.startContainer;
+        } else {
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return;
+            node = sel.anchorNode;
+        }
         if (!node) return;
         // Walk up to find a block element
         var el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
@@ -3037,7 +3641,17 @@
                 if (!code.trim()) return false;
                 var langClass = lang !== 'plain text' ? ' class="language-' + lang.replace(/\s+/g, '-') + '"' : '';
                 var escaped = escapeHtml(code);
-                self._insertHTML('<pre' + langClass + ' style="background:#1f2330;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;font-size:0.92em;line-height:1.5;margin:0.5em 0;"><code>' + escaped + '</code></pre><p><br></p>');
+
+                var containerHtml = '<div class="rte-code-block-container" contenteditable="false">';
+                containerHtml += '<div class="rte-code-block-header" contenteditable="false">';
+                containerHtml += '<span class="rte-code-block-lang">' + escapeHtml(lang) + '</span>';
+                containerHtml += '<button class="rte-code-block-copy-btn" type="button" onclick="var btn=this; var codeEl=btn.closest(\'.rte-code-block-container\').querySelector(\'code\'); if(codeEl){ navigator.clipboard.writeText(codeEl.textContent).then(function(){ btn.textContent=\'Copied!\'; setTimeout(function(){ btn.textContent=\'Copy\'; }, 2000); }); }">Copy</button>';
+                containerHtml += '</div>';
+                containerHtml += '<pre' + langClass + ' contenteditable="true"><code>' + escaped + '</code></pre>';
+                containerHtml += '</div><p><br></p>';
+
+                self._insertHTML(containerHtml);
+                setTimeout(function () { self._loadPrism(); }, 50);
             },
         });
         setTimeout(function () { codeArea.focus(); }, 30);
@@ -3118,7 +3732,7 @@
         self.showLoading();
         var handler = this.config.file_upload_handler;
         if (typeof handler === 'function') {
-            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch(e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
+            handler(file, function (url) { self.hideLoading(); try { cb(url); } catch (e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
             self.hideLoading();
             alert("File upload not configured.");
@@ -3166,7 +3780,7 @@
         overlay.appendChild(moveHandle);
 
         // ---- 8-point resize handles ----
-        var handles = ['nw','n','ne','e','se','s','sw','w'];
+        var handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
         handles.forEach(function (h) {
             var handle = el('div', { class: 'rte-table-resize-handle rte-rsz-' + h });
             overlay.appendChild(handle);
@@ -3286,9 +3900,9 @@
         if (!rows.length) return;
         var cells = rows[0].cells;
         var tblRect = table.getBoundingClientRect();
-        
+
         // Clear existing column resizers from overlay
-        Array.from(overlay.querySelectorAll('.rte-table-col-resizer')).forEach(function(r) { r.parentNode.removeChild(r); });
+        Array.from(overlay.querySelectorAll('.rte-table-col-resizer')).forEach(function (r) { r.parentNode.removeChild(r); });
 
         for (var i = 0; i < cells.length; i++) {
             (function (idx) {
@@ -3321,10 +3935,10 @@
                     var cx = e.touches ? e.touches[0].clientX : e.clientX;
                     var dx = cx - startX;
                     var newW = Math.max(30, startW + dx);
-                    
+
                     table.style.tableLayout = 'fixed';
                     cell.style.width = newW + 'px';
-                    
+
                     self._updateTableOverlayPosition();
                 }
 
@@ -3344,7 +3958,7 @@
 
     RichTextEditor.prototype._hideTableSelection = function () {
         if (this._selectedTable) {
-            Array.from(this._selectedTable.querySelectorAll('.rte-col-resizer')).forEach(function(r) { r.parentNode.removeChild(r); });
+            Array.from(this._selectedTable.querySelectorAll('.rte-col-resizer')).forEach(function (r) { r.parentNode.removeChild(r); });
         }
         if (this._tableOverlay) {
             if (this._tableOverlay.parentNode) this._tableOverlay.parentNode.removeChild(this._tableOverlay);
@@ -3373,11 +3987,11 @@
         this._repositionFloatTableToolbar(table);
     };
 
-    RichTextEditor.prototype._updatePopupPositions = function() {
+    RichTextEditor.prototype._updatePopupPositions = function () {
         if (this._imagePopup && this._mediaResizeTarget) {
             var rect = this._mediaResizeTarget.getBoundingClientRect();
             var tbW = this._imagePopup.offsetWidth || 240;
-            var left = Math.min(Math.max(rect.left + rect.width/2 - tbW/2, 4), window.innerWidth - tbW - 4);
+            var left = Math.min(Math.max(rect.left + rect.width / 2 - tbW / 2, 4), window.innerWidth - tbW - 4);
             var top = rect.top - 44;
             if (top < 4) top = rect.bottom + 4;
             this._imagePopup.style.left = left + 'px';
@@ -3386,7 +4000,7 @@
         if (this._videoPopup && this._mediaResizeTarget) {
             var rectV = this._mediaResizeTarget.getBoundingClientRect();
             var tbWV = this._videoPopup.offsetWidth || 180;
-            var leftV = Math.min(Math.max(rectV.left + rectV.width/2 - tbWV/2, 4), window.innerWidth - tbWV - 4);
+            var leftV = Math.min(Math.max(rectV.left + rectV.width / 2 - tbWV / 2, 4), window.innerWidth - tbWV - 4);
             var topV = rectV.top - 44;
             if (topV < 4) topV = rectV.bottom + 4;
             this._videoPopup.style.left = leftV + 'px';
@@ -3395,7 +4009,7 @@
         if (this._carouselPopup && this._mediaResizeTarget) {
             var rectC = this._mediaResizeTarget.getBoundingClientRect();
             var tbWC = this._carouselPopup.offsetWidth || 180;
-            var leftC = Math.min(Math.max(rectC.left + rectC.width/2 - tbWC/2, 4), window.innerWidth - tbWC - 4);
+            var leftC = Math.min(Math.max(rectC.left + rectC.width / 2 - tbWC / 2, 4), window.innerWidth - tbWC - 4);
             var topC = rectC.top - 44;
             if (topC < 4) topC = rectC.bottom + 4;
             this._carouselPopup.style.left = leftC + 'px';
@@ -3404,7 +4018,7 @@
         if (this._buttonPopup && this._mediaResizeTarget) {
             var rectB = this._mediaResizeTarget.getBoundingClientRect();
             var tbWB = this._buttonPopup.offsetWidth || 180;
-            var leftB = Math.min(Math.max(rectB.left + rectB.width/2 - tbWB/2, 4), window.innerWidth - tbWB - 4);
+            var leftB = Math.min(Math.max(rectB.left + rectB.width / 2 - tbWB / 2, 4), window.innerWidth - tbWB - 4);
             var topB = rectB.top - 44;
             if (topB < 4) topB = rectB.bottom + 4;
             this._buttonPopup.style.left = leftB + 'px';
@@ -3434,17 +4048,17 @@
 
         var activeMenu = null;
         function closeMenus(e) {
-            if (activeMenu) { 
+            if (activeMenu) {
                 if (e && activeMenu.parentElement.contains(e.target)) return;
-                activeMenu.style.display = 'none'; 
-                activeMenu = null; 
+                activeMenu.style.display = 'none';
+                activeMenu = null;
             }
         }
         document.addEventListener('click', closeMenus);
 
         function createBtn(iconHtml, title, action) {
             var btn = el('button', { type: 'button', class: 'rte-ft-btn', title: title, html: iconHtml });
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 closeMenus();
                 action();
@@ -3456,37 +4070,37 @@
             var btnWrap = el('div', { style: 'position:relative;display:inline-block;' });
             var btn = el('button', { type: 'button', class: 'rte-ft-btn', title: title, html: iconHtml + '<span style="display:inline-block;width:12px;height:12px;margin-left:2px;pointer-events:none;">' + ICON.chevron + '</span>' });
             btn.style.width = '42px'; // wider to fit caret
-            
+
             var menu = el('div', { class: 'rte-ft-dropdown', style: 'min-width: 180px; text-align: left; padding: 4px 0;' });
-            
-            items.forEach(function(item) {
+
+            items.forEach(function (item) {
                 if (item === 'sep') {
                     var sep = el('div', { style: 'height:1px; background:#eef0f3; margin:4px 0;' });
                     menu.appendChild(sep);
                     return;
                 }
-                
+
                 var mItem = el('button', { type: 'button', class: 'rte-ft-dropitem', style: 'display:flex; align-items:center; gap:8px; text-align:left; padding: 6px 14px;' });
                 mItem.appendChild(el('span', { html: item.icon, style: 'width:16px;height:16px;display:inline-block;color:#6b7280;pointer-events:none;' }));
                 mItem.appendChild(el('span', { text: item.label, style: 'pointer-events:none;' }));
-                
+
                 if (item.kind === 'color') {
                     var input = el('input', { type: 'color', value: '#000000', style: 'position:absolute;opacity:0;width:1px;height:1px;' });
                     // init color
                     input.value = item.getValue();
                     mItem.appendChild(input);
-                    mItem.addEventListener('click', function(e) {
+                    mItem.addEventListener('click', function (e) {
                         e.stopPropagation();
                         input.click();
                     });
-                    input.addEventListener('input', function() {
+                    input.addEventListener('input', function () {
                         item.action(this.value);
                     });
-                    input.addEventListener('change', function() {
+                    input.addEventListener('change', function () {
                         closeMenus();
                     });
                 } else {
-                    mItem.addEventListener('click', function(e) {
+                    mItem.addEventListener('click', function (e) {
                         e.stopPropagation();
                         closeMenus();
                         item.action();
@@ -3495,7 +4109,7 @@
                 menu.appendChild(mItem);
             });
 
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var isOpen = (menu.style.display === 'block');
                 closeMenus();
@@ -3521,14 +4135,14 @@
             var defaultBorder = '1px solid #d0d4da';
 
             var minRow = Infinity, maxRow = -1, minCol = Infinity, maxCol = -1;
-            selected.forEach(function(c) {
+            selected.forEach(function (c) {
                 var r = c.parentElement.rowIndex;
                 var col = c.cellIndex;
                 minRow = Math.min(minRow, r); maxRow = Math.max(maxRow, r);
                 minCol = Math.min(minCol, col); maxCol = Math.max(maxCol, col);
             });
 
-            selected.forEach(function(c) {
+            selected.forEach(function (c) {
                 var r = c.parentElement.rowIndex;
                 var col = c.cellIndex;
 
@@ -3579,134 +4193,172 @@
         }
 
         // 1. Table Header (Single Button)
-        toolbar.appendChild(createBtn(ICON.tableHeader, 'Table Header', function() {
+        toolbar.appendChild(createBtn(ICON.tableHeader, 'Table Header', function () {
             self._toggleTableHeader(tbl);
         }));
 
         // 2. Table Cell
         toolbar.appendChild(createDropdown(ICON.tableCellHighlight, 'Table Cell', [
-            { label: 'Merge Cells', icon: ICON.mergeCells, action: function() { self._mergeTableCells(tbl); } },
-            { label: 'Split Cells Vertical', icon: ICON.splitCell, action: function() { self._splitTableCellVertical(tbl); } },
-            { label: 'Split Cells Horizontal', icon: ICON.splitCell, action: function() { self._splitTableCellHorizontal(tbl); } },
+            { label: 'Merge Cells', icon: ICON.mergeCells, action: function () { self._mergeTableCells(tbl); } },
+            { label: 'Split Cells Vertical', icon: ICON.splitCell, action: function () { self._splitTableCellVertical(tbl); } },
+            { label: 'Split Cells Horizontal', icon: ICON.splitCell, action: function () { self._splitTableCellHorizontal(tbl); } },
             'sep',
-            { kind: 'color', label: 'Cell Text Color', icon: ICON.textcolor, getValue: function() { var td = getSelTd(); return td ? td.style.color || '#000000' : '#000000'; }, action: function(val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function(c) { c.style.color = val; }); } else { var td = getSelTd(); if(td) td.style.color = val; } self._syncSource(); } },
-            { kind: 'color', label: 'Cell Back Color', icon: ICON.paint, getValue: function() { var td = getSelTd(); return td ? td.style.backgroundColor || '#ffffff' : '#ffffff'; }, action: function(val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function(c) { c.style.backgroundColor = val; }); } else { var td = getSelTd(); if(td) td.style.backgroundColor = val; } self._syncSource(); } }
+            { kind: 'color', label: 'Cell Text Color', icon: ICON.textcolor, getValue: function () { var td = getSelTd(); return td ? td.style.color || '#000000' : '#000000'; }, action: function (val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function (c) { c.style.color = val; }); } else { var td = getSelTd(); if (td) td.style.color = val; } self._syncSource(); } },
+            { kind: 'color', label: 'Cell Back Color', icon: ICON.paint, getValue: function () { var td = getSelTd(); return td ? td.style.backgroundColor || '#ffffff' : '#ffffff'; }, action: function (val) { var selected = Array.from(tbl.querySelectorAll('.rte-cell-selected')); if (selected.length > 0) { selected.forEach(function (c) { c.style.backgroundColor = val; }); } else { var td = getSelTd(); if (td) td.style.backgroundColor = val; } self._syncSource(); } }
         ]));
 
         // 3. Table Borders
         toolbar.appendChild(createDropdown(ICON.borders, 'Table Borders', [
-            { label: 'Bottom Border', icon: ICON.borderBottom, action: function() { applyBorders('bottom'); } },
-            { label: 'Top Border', icon: ICON.borderTop, action: function() { applyBorders('top'); } },
-            { label: 'Left Border', icon: ICON.borderLeft, action: function() { applyBorders('left'); } },
-            { label: 'Right Border', icon: ICON.borderRight, action: function() { applyBorders('right'); } },
+            { label: 'Bottom Border', icon: ICON.borderBottom, action: function () { applyBorders('bottom'); } },
+            { label: 'Top Border', icon: ICON.borderTop, action: function () { applyBorders('top'); } },
+            { label: 'Left Border', icon: ICON.borderLeft, action: function () { applyBorders('left'); } },
+            { label: 'Right Border', icon: ICON.borderRight, action: function () { applyBorders('right'); } },
             'sep',
-            { label: 'No Border', icon: ICON.borderNone, action: function() { applyBorders('none'); } },
-            { label: 'All Borders', icon: ICON.borderAll, action: function() { applyBorders('all'); } },
-            { label: 'Outside Borders', icon: ICON.borderOutside, action: function() { applyBorders('outside'); } },
-            { label: 'Inside Borders', icon: ICON.borderInside, action: function() { applyBorders('inside'); } },
+            { label: 'No Border', icon: ICON.borderNone, action: function () { applyBorders('none'); } },
+            { label: 'All Borders', icon: ICON.borderAll, action: function () { applyBorders('all'); } },
+            { label: 'Outside Borders', icon: ICON.borderOutside, action: function () { applyBorders('outside'); } },
+            { label: 'Inside Borders', icon: ICON.borderInside, action: function () { applyBorders('inside'); } },
             'sep',
-            { label: 'Inside Horizontal Border', icon: ICON.borderInsideH, action: function() { applyBorders('insideH'); } },
-            { label: 'Inside Vertical Border', icon: ICON.borderInsideV, action: function() { applyBorders('insideV'); } },
+            { label: 'Inside Horizontal Border', icon: ICON.borderInsideH, action: function () { applyBorders('insideH'); } },
+            { label: 'Inside Vertical Border', icon: ICON.borderInsideV, action: function () { applyBorders('insideV'); } },
             'sep',
-            { label: 'Diagonal Down Border', icon: ICON.borderDiagonalDown, action: function() { applyBorders('diagDown'); } },
-            { label: 'Diagonal Up Border', icon: ICON.borderDiagonalUp, action: function() { applyBorders('diagUp'); } }
+            { label: 'Diagonal Down Border', icon: ICON.borderDiagonalDown, action: function () { applyBorders('diagDown'); } },
+            { label: 'Diagonal Up Border', icon: ICON.borderDiagonalUp, action: function () { applyBorders('diagUp'); } }
         ]));
 
         // 4. Table Row
         toolbar.appendChild(createDropdown(ICON.tableRowHighlight, 'Table Row', [
-            { label: 'Insert Row Above', icon: ICON.insertRowBefore, action: function() { self._insertTableRow(tbl, 0); } },
-            { label: 'Insert Row Below', icon: ICON.insertRowAfter, action: function() { self._insertTableRow(tbl, 1); } },
+            { label: 'Insert Row Above', icon: ICON.insertRowBefore, action: function () { self._insertTableRow(tbl, 0); } },
+            { label: 'Insert Row Below', icon: ICON.insertRowAfter, action: function () { self._insertTableRow(tbl, 1); } },
             'sep',
-            { label: 'Delete Row', icon: ICON.deleteRow, action: function() { self._deleteTableRow(tbl); } }
+            { label: 'Delete Row', icon: ICON.deleteRow, action: function () { self._deleteTableRow(tbl); } }
         ]));
 
         // 4. Table Column
         toolbar.appendChild(createDropdown(ICON.tableColHighlight, 'Table Column', [
-            { label: 'Insert Column Left', icon: ICON.insertColBefore, action: function() { self._insertTableCol(tbl, 0); } },
-            { label: 'Insert Column Right', icon: ICON.insertColAfter, action: function() { self._insertTableCol(tbl, 1); } },
+            { label: 'Insert Column Left', icon: ICON.insertColBefore, action: function () { self._insertTableCol(tbl, 0); } },
+            { label: 'Insert Column Right', icon: ICON.insertColAfter, action: function () { self._insertTableCol(tbl, 1); } },
             'sep',
-            { label: 'Delete Column', icon: ICON.deleteCol, action: function() { self._deleteTableCol(tbl); } }
+            { label: 'Delete Column', icon: ICON.deleteCol, action: function () { self._deleteTableCol(tbl); } }
         ]));
 
         // 5. Table
         toolbar.appendChild(createDropdown(ICON.table, 'Table', [
-            { label: 'AutoFit Contents', icon: ICON.tableColWidth, action: function() { 
-                tbl.style.width = 'auto'; 
-                tbl.style.tableLayout = 'auto'; 
-                Array.from(tbl.querySelectorAll('td, th')).forEach(function(c) { c.style.width = ''; });
-                self._updateTableOverlayPosition(); 
-                self._syncSource(); 
-            } },
-            { label: 'AutoFit Window', icon: ICON.tableColWidth, action: function() { 
-                tbl.style.width = '100%'; 
-                tbl.style.tableLayout = 'auto'; 
-                Array.from(tbl.querySelectorAll('td, th')).forEach(function(c) { c.style.width = ''; });
-                self._updateTableOverlayPosition(); 
-                self._syncSource(); 
-            } },
-            { label: 'Fixed Column Width', icon: ICON.tableColWidth, action: function() { 
-                tbl.style.tableLayout = 'fixed'; 
-                // Ensure all cells have a set width based on current size
-                Array.from(tbl.rows[0].cells).forEach(function(c) {
-                    if (!c.style.width) c.style.width = c.offsetWidth + 'px';
-                });
-                self._updateTableOverlayPosition(); 
-                self._syncSource(); 
-            } },
+            {
+                label: 'AutoFit Contents', icon: ICON.tableColWidth, action: function () {
+                    tbl.style.width = 'auto';
+                    tbl.style.tableLayout = 'auto';
+                    Array.from(tbl.querySelectorAll('td, th')).forEach(function (c) { c.style.width = ''; });
+                    self._updateTableOverlayPosition();
+                    self._syncSource();
+                }
+            },
+            {
+                label: 'AutoFit Window', icon: ICON.tableColWidth, action: function () {
+                    tbl.style.width = '100%';
+                    tbl.style.tableLayout = 'auto';
+                    Array.from(tbl.querySelectorAll('td, th')).forEach(function (c) { c.style.width = ''; });
+                    self._updateTableOverlayPosition();
+                    self._syncSource();
+                }
+            },
+            {
+                label: 'Fixed Column Width', icon: ICON.tableColWidth, action: function () {
+                    tbl.style.tableLayout = 'fixed';
+                    // Ensure all cells have a set width based on current size
+                    Array.from(tbl.rows[0].cells).forEach(function (c) {
+                        if (!c.style.width) c.style.width = c.offsetWidth + 'px';
+                    });
+                    self._updateTableOverlayPosition();
+                    self._syncSource();
+                }
+            },
             'sep',
-            { label: 'Atur Ukuran Tabel', icon: ICON.tableCellProp, action: function() { 
-                closeMenus();
-                self._hideFloatTableToolbar();
-
-                var curW = tbl.style.width || tbl.getAttribute('width') || 'auto';
-                var curH = tbl.style.height || tbl.getAttribute('height') || 'auto';
-
-                var wInput = el('input', { type: 'text', class: 'rte-form-input', value: curW, placeholder: 'misal: 100%, 500px, auto' });
-                var hInput = el('input', { type: 'text', class: 'rte-form-input', value: curH, placeholder: 'misal: 300px, auto' });
-
-                var body = el('div', { class: 'rte-form' }, [
-                    el('label', { class: 'rte-form-label', text: 'Lebar Tabel (misal: 100%, 500px, auto)' }),
-                    wInput,
-                    el('label', { class: 'rte-form-label', style: 'margin-top:12px;', text: 'Tinggi Tabel (misal: 300px, auto)' }),
-                    hInput
-                ]);
-
-                openModal({
-                    title: 'Atur Ukuran Tabel',
-                    body: body,
-                    confirmLabel: 'Simpan',
-                    cancelLabel: 'Batal',
-                    onConfirm: function () {
-                        var newW = wInput.value.trim();
-                        var newH = hInput.value.trim();
-
-                        if (newW && newW !== 'auto') {
-                            tbl.style.width = newW;
-                            tbl.removeAttribute('width');
-                        } else {
-                            tbl.style.width = 'auto';
-                            tbl.removeAttribute('width');
-                        }
-
-                        if (newH && newH !== 'auto') {
-                            tbl.style.height = newH;
-                            tbl.removeAttribute('height');
-                        } else {
-                            tbl.style.height = 'auto';
-                            tbl.removeAttribute('height');
-                        }
-
-                        self._updateTableOverlayPosition();
-                        self._syncSource();
-                    }
-                });
-            } },
+            {
+                label: 'Align Left', icon: ICON.alignLeft, action: function () {
+                    tbl.style.marginLeft = '0';
+                    tbl.style.marginRight = 'auto';
+                    self._updateTableOverlayPosition();
+                    self._repositionFloatTableToolbar(tbl);
+                    self._syncSource();
+                }
+            },
+            {
+                label: 'Align Center', icon: ICON.alignCenter, action: function () {
+                    tbl.style.marginLeft = 'auto';
+                    tbl.style.marginRight = 'auto';
+                    self._updateTableOverlayPosition();
+                    self._repositionFloatTableToolbar(tbl);
+                    self._syncSource();
+                }
+            },
+            {
+                label: 'Align Right', icon: ICON.alignRight, action: function () {
+                    tbl.style.marginLeft = 'auto';
+                    tbl.style.marginRight = '0';
+                    self._updateTableOverlayPosition();
+                    self._repositionFloatTableToolbar(tbl);
+                    self._syncSource();
+                }
+            },
             'sep',
-            { label: 'Delete Table', icon: ICON.tableDelete, action: function() { 
-                Swal.fire({ title: 'Hapus Tabel?', text: 'Tindakan ini tidak dapat dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(function (res) {
-                    if (res.isConfirmed) { self._hideTableSelection(); tbl.parentNode.removeChild(tbl); self._syncSource(); }
-                });
-            } }
+            {
+                label: 'Atur Ukuran Tabel', icon: ICON.tableCellProp, action: function () {
+                    closeMenus();
+                    self._hideFloatTableToolbar();
+
+                    var curW = tbl.style.width || tbl.getAttribute('width') || 'auto';
+                    var curH = tbl.style.height || tbl.getAttribute('height') || 'auto';
+
+                    var wInput = el('input', { type: 'text', class: 'rte-form-input', value: curW, placeholder: 'misal: 100%, 500px, auto' });
+                    var hInput = el('input', { type: 'text', class: 'rte-form-input', value: curH, placeholder: 'misal: 300px, auto' });
+
+                    var body = el('div', { class: 'rte-form' }, [
+                        el('label', { class: 'rte-form-label', text: 'Lebar Tabel (misal: 100%, 500px, auto)' }),
+                        wInput,
+                        el('label', { class: 'rte-form-label', style: 'margin-top:12px;', text: 'Tinggi Tabel (misal: 300px, auto)' }),
+                        hInput
+                    ]);
+
+                    openModal({
+                        title: 'Atur Ukuran Tabel',
+                        body: body,
+                        confirmLabel: 'Simpan',
+                        cancelLabel: 'Batal',
+                        onConfirm: function () {
+                            var newW = wInput.value.trim();
+                            var newH = hInput.value.trim();
+
+                            if (newW && newW !== 'auto') {
+                                tbl.style.width = newW;
+                                tbl.removeAttribute('width');
+                            } else {
+                                tbl.style.width = 'auto';
+                                tbl.removeAttribute('width');
+                            }
+
+                            if (newH && newH !== 'auto') {
+                                tbl.style.height = newH;
+                                tbl.removeAttribute('height');
+                            } else {
+                                tbl.style.height = 'auto';
+                                tbl.removeAttribute('height');
+                            }
+
+                            self._updateTableOverlayPosition();
+                            self._syncSource();
+                        }
+                    });
+                }
+            },
+            'sep',
+            {
+                label: 'Delete Table', icon: ICON.tableDelete, action: function () {
+                    Swal.fire({ title: 'Hapus Tabel?', text: 'Tindakan ini tidak dapat dibatalkan.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(function (res) {
+                        if (res.isConfirmed) { self._hideTableSelection(); tbl.parentNode.removeChild(tbl); self._syncSource(); }
+                    });
+                }
+            }
         ]));
 
         toolbar.style.position = 'fixed';
@@ -3719,7 +4371,7 @@
         // Position it immediately after insertion (must be in DOM first for offsetWidth)
         // Use rAF to ensure the browser has painted the element and offsetWidth is accurate
         var self2 = this;
-        requestAnimationFrame(function() {
+        requestAnimationFrame(function () {
             self2._repositionFloatTableToolbar(tbl);
         });
     };
@@ -3825,14 +4477,14 @@
         var distinctRows = new Set();
         var colsInRow = {};
 
-        selected.forEach(function(cell) {
+        selected.forEach(function (cell) {
             var r = cell.parentElement.rowIndex;
             var c = cell.cellIndex;
             minRow = Math.min(minRow, r);
             maxRow = Math.max(maxRow, r);
             minCol = Math.min(minCol, c);
             maxCol = Math.max(maxCol, c);
-            
+
             distinctRows.add(r);
             colsInRow[r] = (colsInRow[r] || 0) + (cell.colSpan || 1);
         });
@@ -3841,14 +4493,14 @@
         var colSpan = Math.max.apply(null, Object.values(colsInRow));
 
         var topCell = null;
-        selected.forEach(function(cell) {
+        selected.forEach(function (cell) {
             if (cell.parentElement.rowIndex === minRow && cell.cellIndex === minCol) {
                 topCell = cell;
             }
         });
         if (!topCell) topCell = selected[0];
 
-        selected.forEach(function(cell) {
+        selected.forEach(function (cell) {
             if (cell !== topCell) {
                 if (cell.innerHTML.trim() !== '' && cell.innerHTML !== '&nbsp;' && cell.innerHTML !== '<br>') {
                     topCell.innerHTML += '<br>' + cell.innerHTML;
@@ -3877,14 +4529,14 @@
             }
         }
         if (!td) {
-             Swal.fire({ title: 'Info', text: 'Pilih satu sel untuk dipisah secara horizontal.', icon: 'info', confirmButtonText: 'OK' });
-             return;
+            Swal.fire({ title: 'Info', text: 'Pilih satu sel untuk dipisah secara horizontal.', icon: 'info', confirmButtonText: 'OK' });
+            return;
         }
-        
+
         var row = td.parentElement;
         var cIdx = td.cellIndex;
         var colspan = td.colSpan || 1;
-        
+
         if (colspan > 1) {
             td.colSpan = colspan - 1;
             var nc = row.insertCell(cIdx + 1);
@@ -3898,7 +4550,7 @@
             nc.style.cssText = td.style.cssText;
             nc.rowSpan = td.rowSpan;
         }
-        
+
         this._clearCellSelection(table);
         this._refreshTableSelection(table);
         this._syncSource();
@@ -3915,10 +4567,10 @@
             }
         }
         if (!td) {
-             Swal.fire({ title: 'Info', text: 'Pilih satu sel untuk dipisah secara vertikal.', icon: 'info', confirmButtonText: 'OK' });
-             return;
+            Swal.fire({ title: 'Info', text: 'Pilih satu sel untuk dipisah secara vertikal.', icon: 'info', confirmButtonText: 'OK' });
+            return;
         }
-        
+
         var rowspan = td.rowSpan || 1;
         if (rowspan > 1) {
             td.rowSpan = rowspan - 1;
@@ -3938,7 +4590,7 @@
             nc.innerHTML = '\u00a0';
             nc.style.cssText = td.style.cssText;
             nc.colSpan = td.colSpan;
-            
+
             // Adjust rowspan of other cells in the original row to maintain grid
             for (var i = 0; i < tr.cells.length; i++) {
                 if (tr.cells[i] !== td) {
@@ -3946,7 +4598,7 @@
                 }
             }
         }
-        
+
         this._clearCellSelection(table);
         this._refreshTableSelection(table);
         this._syncSource();
@@ -3993,14 +4645,14 @@
         if (!toolbar || !table) return;
         var tblRect = table.getBoundingClientRect();
         var spaceAbove = tblRect.top;
-        
+
         toolbar.style.position = 'fixed';
         toolbar.style.zIndex = '99995';
-        
+
         var tbW = toolbar.offsetWidth || 300;
         var tbH = toolbar.offsetHeight || 44;
-        
-        var left = Math.min(Math.max(tblRect.left + tblRect.width/2 - tbW/2, 4), window.innerWidth - tbW - 4);
+
+        var left = Math.min(Math.max(tblRect.left + tblRect.width / 2 - tbW / 2, 4), window.innerWidth - tbW - 4);
         toolbar.style.left = left + 'px';
 
         if (spaceAbove < 60) {
@@ -4268,7 +4920,8 @@
         // ---- Color controls ----
         var ctrlBgColor = el('div', { class: 'rte-popup-row' }, [
             el('label', { text: 'Cell bg:', style: 'min-width:60px;' }),
-            el('input', { type: 'color', value: td.style.backgroundColor || '#ffffff', class: 'rte-popup-color',
+            el('input', {
+                type: 'color', value: td.style.backgroundColor || '#ffffff', class: 'rte-popup-color',
                 onchange: function () {
                     td.style.backgroundColor = this.value;
                     self._syncSource();
@@ -4277,7 +4930,8 @@
         ]);
         var ctrlTextColor = el('div', { class: 'rte-popup-row' }, [
             el('label', { text: 'Text color:', style: 'min-width:60px;' }),
-            el('input', { type: 'color', value: td.style.color || '#222222', class: 'rte-popup-color',
+            el('input', {
+                type: 'color', value: td.style.color || '#222222', class: 'rte-popup-color',
                 onchange: function () {
                     td.style.color = this.value;
                     self._syncSource();
@@ -4481,7 +5135,7 @@
     RichTextEditor.prototype._clearCellSelection = function (table) {
         if (!table) table = this.content;
         var selected = table.querySelectorAll('.rte-cell-selected');
-        selected.forEach(function(td) { td.classList.remove('rte-cell-selected'); });
+        selected.forEach(function (td) { td.classList.remove('rte-cell-selected'); });
     };
 
     RichTextEditor.prototype._updateCellSelection = function (table, startTd, endTd) {
@@ -4542,7 +5196,7 @@
         }
     };
 
-    RichTextEditor.prototype.showLoading = function() {
+    RichTextEditor.prototype.showLoading = function () {
         if (this._loadingOverlay) return;
         this._loadingOverlay = document.createElement('div');
         this._loadingOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;';
@@ -4556,7 +5210,7 @@
         this.wrapper.appendChild(this._loadingOverlay);
     };
 
-    RichTextEditor.prototype.hideLoading = function() {
+    RichTextEditor.prototype.hideLoading = function () {
         if (this._loadingOverlay && this._loadingOverlay.parentNode) {
             this._loadingOverlay.parentNode.removeChild(this._loadingOverlay);
         }
@@ -4616,10 +5270,10 @@
         // media from shifting positions as the zoom level changes.
         // 1000px provides a stable canvas that mimics common container widths.
         var layoutWidth = 1000;
-        
+
         content.style.width = layoutWidth + 'px';
         content.style.minWidth = layoutWidth + 'px';
-        content.style.margin = '0 auto'; 
+        content.style.margin = '0 auto';
         content.style.display = 'flow-root'; // Clear floats internally
 
         if ('zoom' in content.style) {
@@ -4631,7 +5285,7 @@
             content.style.transform = 'scale(' + z + ')';
             content.style.transformOrigin = 'top center';
         }
-        
+
         // Ensure the parent container allows horizontal scrolling 
         // if the zoomed content exceeds the editor width.
         contentWrap.style.overflowX = 'auto';
@@ -4721,7 +5375,7 @@
 
     RichTextEditor.prototype._syncSource = function () {
         var html = this.content.innerHTML;
-        
+
         // Mirror to underlying textarea if any
         if (this._target.tagName === 'TEXTAREA') {
             this._target.value = html;
@@ -4745,9 +5399,9 @@
             if (!btn) return;
             try {
                 btn.classList.toggle('rte-active', document.queryCommandState(map[key]));
-            } catch (e) {}
+            } catch (e) { }
         });
-        
+
         var sel = window.getSelection();
         var node = sel ? sel.anchorNode : null;
         var activeList = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('ol, ul') : null;
@@ -4759,10 +5413,6 @@
             var isMulti = activeList && activeList.tagName === 'OL' && activeList.classList.contains('rte-multilevel-list');
             self._buttons['list_multilevel'].classList.toggle('rte-active', !!isMulti);
         }
-        if (self._buttons['quote']) {
-            var isQuote = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('blockquote') : null;
-            self._buttons['quote'].classList.toggle('rte-active', !!isQuote);
-        }
 
         // Stats
         var text = this.content.textContent || '';
@@ -4770,6 +5420,11 @@
         var chars = text.length;
         var counts = this.statusbar.querySelector('.rte-status-counts');
         if (counts) counts.textContent = words + ' words • ' + chars + ' chars';
+
+        // Update all dropdown button labels to reflect cursor position
+        self._dropdowns.forEach(function (d) {
+            if (d.updateLabel) d.updateLabel();
+        });
     };
 
     RichTextEditor.prototype._bind = function () {
@@ -4780,10 +5435,18 @@
             self._snapshotSelection();
             self._syncSource();
             self._updateState();
-            if (self.config.onchange) try { self.config.onchange(self.getHTMLCode()); } catch (e) {}
+            if (self.config.onchange) try { self.config.onchange(self.getHTMLCode()); } catch (e) { }
         });
         c.addEventListener('keyup', function () { self._snapshotSelection(); self._updateState(); });
         c.addEventListener('mouseup', function () { self._snapshotSelection(); self._updateState(); });
+        c.addEventListener('click', function () { self._snapshotSelection(); self._updateState(); });
+        // selectionchange fires for any caret/selection move including arrow keys held down
+        document.addEventListener('selectionchange', function () {
+            if (document.activeElement === self.content ||
+                (self.content.contains && self.content.contains(document.activeElement))) {
+                self._snapshotSelection();
+            }
+        });
 
         // ---- INTEGRATED TABLE SELECTION: overlay + ONE unified float toolbar ----
         // mousedown on table cell → show overlay + float toolbar (single source of truth)
@@ -4830,14 +5493,20 @@
                 self._closeTablePopup();
             }
             // Coordinate-based hit test for iframes/videos (pointer-events:none makes them
-            // transparent, so click fires on their parent — we detect via bounding rect)
+            // transparent, so click fires on their parent — we detect via bounding rect).
+            // IMPORTANT: skip elements inside a non-active carousel slide (opacity:0 slides
+            // are stacked at the same coordinates and would otherwise be detected first).
             var clickedMedia = null;
             var allMediaEls = c.querySelectorAll('iframe, video');
             for (var mi = 0; mi < allMediaEls.length; mi++) {
-                var mr = allMediaEls[mi].getBoundingClientRect();
+                var mediaEl = allMediaEls[mi];
+                // Skip media inside a carousel slide that is NOT active
+                var parentSlide = mediaEl.closest ? mediaEl.closest('.rte-carousel-slide') : null;
+                if (parentSlide && !parentSlide.classList.contains('active')) continue;
+                var mr = mediaEl.getBoundingClientRect();
                 if (e.clientX >= mr.left && e.clientX <= mr.right &&
-                    e.clientY >= mr.top  && e.clientY <= mr.bottom) {
-                    clickedMedia = allMediaEls[mi];
+                    e.clientY >= mr.top && e.clientY <= mr.bottom) {
+                    clickedMedia = mediaEl;
                     break;
                 }
             }
@@ -4856,10 +5525,15 @@
                 clickedMedia.draggable = true;
                 self._showVideoEditorPopup(clickedMedia);
             } else if (target.tagName === 'IMG') {
-                self._closeVideoPopup();
-                self._closeCarouselPopup();
-                self._closeButtonPopup();
-                self._showImageEditorPopup(target);
+                // Skip if the IMG is inside a non-active carousel slide
+                var imgSlide = target.closest ? target.closest('.rte-carousel-slide') : null;
+                if (imgSlide && !imgSlide.classList.contains('active')) { /* do nothing */ }
+                else {
+                    self._closeVideoPopup();
+                    self._closeCarouselPopup();
+                    self._closeButtonPopup();
+                    self._showImageEditorPopup(target);
+                }
             } else if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') {
                 self._closeImagePopup();
                 self._closeCarouselPopup();
@@ -4897,17 +5571,17 @@
             var isInterceptor = e.target.classList && e.target.classList.contains('rte-iframe-click-interceptor');
             if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'IFRAME' || isInterceptor) {
                 draggingInternalMedia = true;
-                
+
                 var targetMedia = e.target;
                 if (isInterceptor) {
                     targetMedia = e.target.parentNode.querySelector('video, iframe') || e.target.parentNode;
                 }
                 draggedNode = targetMedia.closest('figure') || targetMedia;
-                
+
                 var rect = draggedNode.getBoundingClientRect();
                 dragOffsetX = e.clientX - rect.left;
                 dragOffsetY = e.clientY - rect.top;
-                
+
                 if (e.dataTransfer) {
                     e.dataTransfer.setData('text/plain', ''); // Required by Firefox and sometimes Chrome to actually start drag
                     if (e.dataTransfer.setDragImage) {
@@ -4920,17 +5594,17 @@
 
                 self._closeImagePopup();
                 self._closeVideoPopup();
-                
+
                 if (self._mediaResizeHandle) {
                     self._mediaResizeHandle.style.display = 'none';
                 }
             }
         });
-        
+
         c.addEventListener('dragover', function (e) {
             if (draggingInternalMedia && draggedNode) {
                 e.preventDefault();
-                
+
                 if (draggedNode.style.position === 'absolute') {
                     var cRect = c.getBoundingClientRect();
                     var newLeft = e.clientX - cRect.left - dragOffsetX + c.scrollLeft;
@@ -4939,30 +5613,30 @@
                     draggedNode.style.top = newTop + 'px';
                     return;
                 }
-                
+
                 var cRect = c.getBoundingClientRect();
                 if (e.clientY > cRect.bottom - 40) {
                     var p = document.createElement('p');
                     p.innerHTML = '<br>';
                     c.appendChild(p);
                 }
-                
+
                 var oldDisplay = draggedNode.style.display;
                 draggedNode.style.display = 'none';
-                
+
                 var range = (document.caretRangeFromPoint || document.caretPositionFromPoint)
                     ? (document.caretRangeFromPoint
                         ? document.caretRangeFromPoint(e.clientX, e.clientY)
                         : null)
                     : null;
-                    
+
                 draggedNode.style.display = oldDisplay;
-                    
+
                 if (range && c.contains(range.startContainer)) {
                     var container = range.startContainer;
                     var elNode = container.nodeType === 3 ? container.parentNode : container;
                     var targetFigure = elNode.closest ? elNode.closest('figure, img:not([data-rte-ui]), video:not([data-rte-ui])') : null;
-                    
+
                     if (targetFigure && targetFigure !== draggedNode) {
                         var rect = targetFigure.getBoundingClientRect();
                         var insertAfter = e.clientX > (rect.left + rect.width / 2);
@@ -4980,7 +5654,7 @@
                 }
             }
         });
-        
+
         c.addEventListener('dragend', function (e) {
             if (draggedNode) {
                 draggedNode.style.opacity = draggedNode.dataset.oldOpacity || '';
@@ -4988,12 +5662,12 @@
             }
             draggingInternalMedia = false;
             draggedNode = null;
-            
+
             if (self._mediaResizeHandle) {
                 self._mediaResizeHandle.style.display = '';
             }
             self._removeMediaResizeHandle();
-            
+
             self._syncSource();
         });
 
@@ -5017,7 +5691,7 @@
         });
         c.addEventListener('blur', function () { self._snapshotSelection(); });
         c.addEventListener('focus', function () { self._updateState(); });
-        
+
         // Hide table selection + cell selection when clicking completely outside the editor wrapper
         document.addEventListener('mousedown', function (e) {
             // self.wrapper is the outermost RTE container element
@@ -5102,7 +5776,7 @@
                     var range = sel.getRangeAt(0);
                     if (range.collapsed && range.startContainer) {
                         var node = range.startContainer;
-                        
+
                         function isAtStartOf(el) {
                             var testRange = document.createRange();
                             testRange.setStart(el, 0);
@@ -5142,7 +5816,7 @@
                                     // Manual, 100% clean top-level outdent (avoids browser execCommand layout bugs)
                                     var p = document.createElement('p');
                                     p.style.marginLeft = '1.5rem';
-                                    
+
                                     while (li.firstChild) {
                                         var child = li.firstChild;
                                         if (child.tagName === 'P' || child.tagName === 'DIV') {
@@ -5157,33 +5831,33 @@
                                     if (p.childNodes.length === 0) {
                                         p.appendChild(document.createElement('br'));
                                     }
-                                    
+
                                     var nextLis = [];
                                     var nextSib = li.nextElementSibling;
                                     while (nextSib) {
                                         nextLis.push(nextSib);
                                         nextSib = nextSib.nextElementSibling;
                                     }
-                                    
+
                                     parentList.parentNode.insertBefore(p, parentList.nextSibling);
-                                    
+
                                     if (nextLis.length > 0) {
                                         var newList = document.createElement(parentList.tagName);
                                         newList.className = parentList.className;
                                         if (parentList.getAttribute('type')) newList.setAttribute('type', parentList.getAttribute('type'));
                                         if (parentList.getAttribute('style')) newList.setAttribute('style', parentList.getAttribute('style'));
-                                        
-                                        nextLis.forEach(function(nLi) {
+
+                                        nextLis.forEach(function (nLi) {
                                             newList.appendChild(nLi);
                                         });
                                         p.parentNode.insertBefore(newList, p.nextSibling);
                                     }
-                                    
+
                                     li.parentNode.removeChild(li);
                                     if (parentList.children.length === 0) {
                                         parentList.parentNode.removeChild(parentList);
                                     }
-                                    
+
                                     var newRange = document.createRange();
                                     newRange.selectNodeContents(p);
                                     newRange.collapse(true);
@@ -5216,7 +5890,7 @@
                 var sel = window.getSelection();
                 var node = (sel && sel.rangeCount > 0) ? sel.anchorNode : null;
                 var td = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('td, th') : null;
-                
+
                 if (td) {
                     e.preventDefault();
                     var cells = Array.from(td.closest('table').querySelectorAll('td, th'));
@@ -5252,6 +5926,7 @@
             var nodes = doc.querySelectorAll(tag);
             nodes.forEach(function (n) { n.parentNode.removeChild(n); });
         });
+        this._stripEditorStyles(doc.body);
         var all = doc.body.querySelectorAll('*');
         all.forEach(function (n) {
             // Drop on* event handlers
@@ -5267,9 +5942,9 @@
     // ------- Public API -------
     RichTextEditor.prototype.getHTMLCode = function () {
         if (this.sourceArea.style.display !== 'none') {
-            // Return whatever is in source view
             return this.sourceArea.value;
         }
+        this._stripEditorStyles(this.content);
         return this.content.innerHTML;
     };
     RichTextEditor.prototype.getHTML = RichTextEditor.prototype.getHTMLCode;
@@ -5280,6 +5955,8 @@
             this.sourceArea.value = safe;
         }
         this.content.innerHTML = safe;
+        this._stripEditorStyles(this.content);
+        this._upgradeCarouselCaptions();
         this._syncSource();
         this._updateState();
     };
@@ -5305,6 +5982,180 @@
     RichTextEditor.plugins = RichTextEditor.plugins || {};
     RichTextEditor.registerPlugin = function (name, pluginFn) {
         RichTextEditor.plugins[name] = pluginFn;
+    };
+
+    RichTextEditor.prototype._loadPrism = function () {
+        if (window.Prism) {
+            try {
+                window.Prism.highlightAllUnder(this.content);
+            } catch (e) { }
+            return;
+        }
+        var self = this;
+        // Load CSS
+        if (!document.querySelector('link[href*="prism.min.css"]')) {
+            var link = el('link', {
+                rel: 'stylesheet',
+                href: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css'
+            });
+            document.head.appendChild(link);
+        }
+        // Load JS
+        if (!window.PrismLoading) {
+            window.PrismLoading = true;
+            var script = el('script', {
+                src: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js'
+            });
+            script.onload = function () {
+                var autoloader = el('script', {
+                    src: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js'
+                });
+                autoloader.onload = function () {
+                    if (window.Prism) {
+                        try {
+                            window.Prism.highlightAllUnder(self.content);
+                        } catch (e) { }
+                    }
+                };
+                document.head.appendChild(autoloader);
+            };
+            document.head.appendChild(script);
+        } else {
+            var interval = setInterval(function () {
+                if (window.Prism && window.Prism.plugins && window.Prism.plugins.autoloader) {
+                    clearInterval(interval);
+                    try {
+                        window.Prism.highlightAllUnder(self.content);
+                    } catch (e) { }
+                }
+            }, 100);
+        }
+    };
+
+    RichTextEditor.prototype._upgradeCarouselCaptions = function () {
+        var self = this;
+        var oldCaptions = this.content.querySelectorAll('.rte-carousel-caption');
+        oldCaptions.forEach(function (cap) {
+            var slide = cap.parentElement;
+            if (!slide || !slide.classList.contains('rte-carousel-slide')) return;
+            if (slide.querySelector('.rte-carousel-caption-btn')) {
+                cap.parentNode.removeChild(cap);
+                return;
+            }
+            var text = cap.textContent || '';
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'rte-carousel-caption-btn';
+            btn.title = 'Lihat Keterangan';
+            btn.textContent = '?';
+            btn.onclick = function (e) {
+                e.stopPropagation();
+                var p = btn.nextElementSibling;
+                if (p) {
+                    p.style.display = 'flex';
+                    p.style.opacity = '1';
+                }
+            };
+
+            var popup = document.createElement('div');
+            popup.className = 'rte-carousel-caption-popup';
+            popup.style.display = 'none';
+            popup.style.opacity = '0';
+            popup.style.transition = 'opacity 0.3s ease';
+
+            var closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.className = 'rte-carousel-caption-close';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = function (e) {
+                e.stopPropagation();
+                popup.style.display = 'none';
+                popup.style.opacity = '0';
+            };
+
+            var content = document.createElement('div');
+            content.style.fontSize = '16px';
+            content.style.lineHeight = '1.6';
+            content.style.maxWidth = '80%';
+            content.style.margin = '0 auto';
+            content.style.whiteSpace = 'pre-wrap';
+            content.textContent = text;
+
+            popup.appendChild(closeBtn);
+            popup.appendChild(content);
+
+            slide.replaceChild(popup, cap);
+            slide.insertBefore(btn, popup);
+        });
+
+        // Upgrade code blocks to premium layout dynamically inside the editor
+        var pres = this.content.querySelectorAll('pre');
+        pres.forEach(function (pre) {
+            if (pre.closest('.rte-code-block-container')) return;
+
+            var lang = 'Plain Text';
+            var classes = pre.className.split(/\s+/);
+            classes.forEach(function (c) {
+                if (c.indexOf('language-') === 0) {
+                    lang = c.replace('language-', '').replace('-', ' ');
+                }
+            });
+
+            var container = document.createElement('div');
+            container.className = 'rte-code-block-container';
+            container.setAttribute('contenteditable', 'false');
+
+            var header = document.createElement('div');
+            header.className = 'rte-code-block-header';
+            header.setAttribute('contenteditable', 'false');
+
+            var langLabel = document.createElement('span');
+            langLabel.className = 'rte-code-block-lang';
+            langLabel.textContent = lang;
+
+            var copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'rte-code-block-copy-btn';
+            copyBtn.textContent = 'Copy';
+            copyBtn.onclick = function (e) {
+                e.stopPropagation();
+                var codeEl = container.querySelector('code') || pre;
+                if (codeEl) {
+                    navigator.clipboard.writeText(codeEl.textContent).then(function () {
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(function () { copyBtn.textContent = 'Copy'; }, 2000);
+                    });
+                }
+            };
+
+            header.appendChild(langLabel);
+            header.appendChild(copyBtn);
+            container.appendChild(header);
+
+            var newPre = pre.cloneNode(true);
+            newPre.removeAttribute('style');
+            newPre.setAttribute('contenteditable', 'true');
+
+            var nested = newPre.querySelectorAll('*');
+            nested.forEach(function (el) {
+                el.style.backgroundColor = 'transparent';
+                el.style.background = 'transparent';
+            });
+
+            container.appendChild(newPre);
+            if (pre.parentNode) {
+                pre.parentNode.replaceChild(container, pre);
+            }
+        });
+
+        // Strip any leftover editor selection classes from tables when loaded
+        var selectedCells = this.content.querySelectorAll('.rte-cell-selected');
+        selectedCells.forEach(function (cell) {
+            cell.classList.remove('rte-cell-selected');
+        });
+
+        // Re-trigger Prism syntax highlighting inside the editor
+        setTimeout(function () { self._loadPrism(); }, 50);
     };
 
     global.RichTextEditor = RichTextEditor;

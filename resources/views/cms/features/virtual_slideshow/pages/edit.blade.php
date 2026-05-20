@@ -879,8 +879,8 @@
 @endsection
 
 @push('scripts')
-    <script type="text/javascript" src="{{ asset('cms_rte/rte.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('cms_rte/all_plugins.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('cms_rte/rte.js?v=' . (file_exists(public_path('cms_rte/rte.js')) ? filemtime(public_path('cms_rte/rte.js')) : time())) }}"></script>
+    <script type="text/javascript" src="{{ asset('cms_rte/all_plugins.js?v=' . (file_exists(public_path('cms_rte/all_plugins.js')) ? filemtime(public_path('cms_rte/all_plugins.js')) : time())) }}"></script>
     <style>
         /* Force RTE toolbar into a single scrollable row for captions */
         .rte-caption-container div[class*='rte-commandbar'] {

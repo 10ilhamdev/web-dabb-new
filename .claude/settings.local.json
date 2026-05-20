@@ -8,7 +8,8 @@
       "Bash(php \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan\" cache:clear)",
       "Bash(php \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan\" view:clear)",
       "Bash(php artisan *)",
-      "Bash(dir \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\public\\\\cms_rte\\\\runtime\\\\guest_richtexteditor_content.css\")"
+      "Bash(dir \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\public\\\\cms_rte\\\\runtime\\\\guest_richtexteditor_content.css\")",
+      "Bash(node *)"
     ]
   }
 }

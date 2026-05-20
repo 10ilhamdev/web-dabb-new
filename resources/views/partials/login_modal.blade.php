@@ -228,7 +228,7 @@
                             </div>
                         @endif
                     @else
-                        <p style="font-size:0.8rem;opacity:0.8;margin:0;">{{ __('auth.virtual_room_login_prompt') }}
+                        <p style="font-size:0.8rem;opacity:0.8;margin:0;">{{ $loginModalPrompt ?? __('auth.virtual_room_login_prompt') }}
                         </p>
                     @endif
                 </div>

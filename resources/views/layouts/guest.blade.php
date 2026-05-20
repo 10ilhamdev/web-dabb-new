@@ -34,6 +34,20 @@
     <link rel="stylesheet" href="{{ asset('cms_rte/rte_theme_default.css?v=' . (file_exists(public_path('cms_rte/rte_theme_default.css')) ? filemtime(public_path('cms_rte/rte_theme_default.css')) : time())) }}">
     <!-- Guest-scoped override: removes editor chrome, adapts content styles for guest layout -->
     <link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) : time())) }}">
+    <!-- Prism.js Syntax Highlighting CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <!-- Kill editor-only visual states on guest pages (inline beats external sheet) -->
+    <style>
+        td.rte-cell-selected,
+        th.rte-cell-selected,
+        .rte-cell-selected {
+            outline: none !important;
+            outline-offset: 0 !important;
+            background-color: transparent !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
 
 <body class="@yield('body-class', 'font-sans text-gray-900 antialiased flex flex-col min-h-screen')">
@@ -67,6 +81,59 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
+    @if (session('success') || session('error') || $errors->any() || session('warning') || session('info'))
+        @php
+            $tType = 'info';
+            $tMsg = session('info');
+
+            if (session('success')) {
+                $tType = 'success';
+                $tMsg = session('success');
+            } elseif (session('error') || $errors->any()) {
+                $tType = 'error';
+                $tMsg = session('error') ?? $errors->first();
+            } elseif (session('warning')) {
+                $tType = 'warning';
+                $tMsg = session('warning');
+            }
+        @endphp
+
+        {{-- SweetAlert2 Toast --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: '{{ $tType }}',
+                    title: `{!! addslashes($tMsg) !!}`
+                });
+            });
+        </script>
+    @endif
+
+    <!-- Prism.js Syntax Highlighting JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.Prism) {
+                try {
+                    window.Prism.highlightAll();
+                } catch (e) {}
+            }
+        });
+    </script>
+
     @stack('scripts')
 
     {{-- Login required modal (shown for protected public pages when guest) --}}
@@ -77,9 +144,81 @@
         </script>
     @endif
 
+    {{-- Caption Modal — floats at body level, above everything --}}
+    <div id="rte-caption-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+        <div style="background:#1e293b;border-radius:16px;max-width:540px;width:100%;padding:52px 36px 40px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.6);text-align:center;">
+            <button id="rte-caption-modal-close" style="position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;color:#e2e8f0;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.2s;">&times;</button>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#64748b;margin-bottom:18px;">Keterangan Media</div>
+            <div id="rte-caption-modal-text" style="font-size:16px;line-height:1.8;color:#e2e8f0;white-space:pre-wrap;word-break:break-word;"></div>
+        </div>
+    </div>
+
     {{-- Media Carousel Runtime Logic --}}
     <script>
+        // Caption modal helpers
+        var __captionModal = null;
+        var __captionModalText = null;
+        function __openCaptionModal(text) {
+            if (!__captionModal) { __captionModal = document.getElementById('rte-caption-modal'); }
+            if (!__captionModalText) { __captionModalText = document.getElementById('rte-caption-modal-text'); }
+            if (__captionModal && __captionModalText) {
+                __captionModalText.textContent = text;
+                __captionModal.style.display = 'flex';
+            }
+        }
+        function __closeCaptionModal() {
+            if (!__captionModal) { __captionModal = document.getElementById('rte-caption-modal'); }
+            if (__captionModal) { __captionModal.style.display = 'none'; }
+        }
+        document.getElementById('rte-caption-modal-close').onclick = function() { __closeCaptionModal(); };
+        document.getElementById('rte-caption-modal').onclick = function(e) { if (e.target === this) __closeCaptionModal(); };
+
         window.addEventListener('load', function() {
+
+            // ── 1. Handle OLD format: .rte-carousel-caption div inside slide ──
+            document.querySelectorAll('.rte-carousel-caption').forEach(function(cap) {
+                var slide = cap.parentElement;
+                if (!slide || !slide.classList.contains('rte-carousel-slide')) return;
+                // Extract caption text
+                var captionText = (cap.textContent || '').trim();
+                // Remove old caption from DOM
+                cap.parentNode.removeChild(cap);
+                // Only add button if not already present
+                if (!slide.querySelector('.rte-carousel-caption-btn') && captionText) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'rte-carousel-caption-btn';
+                    btn.title = 'Lihat Keterangan';
+                    btn.textContent = '?';
+                    btn.setAttribute('data-caption', captionText);
+                    btn.onclick = function(e) { e.stopPropagation(); __openCaptionModal(captionText); };
+                    slide.appendChild(btn);
+                }
+            });
+
+            // ── 2. Handle NEW format: .rte-carousel-caption-btn already in HTML ──
+            document.querySelectorAll('.rte-carousel-caption-btn').forEach(function(btn) {
+                // Get caption text from data attribute or sibling popup div
+                var captionText = btn.getAttribute('data-caption') || '';
+                if (!captionText) {
+                    var popup = btn.parentElement && btn.parentElement.querySelector('.rte-carousel-caption-popup');
+                    if (popup) {
+                        // Extract text from inside popup
+                        var textNode = popup.querySelector('div') || popup.lastChild;
+                        captionText = textNode ? (textNode.textContent || '').trim() : '';
+                    }
+                }
+                // Remove old in-slide popup element (no longer needed)
+                var oldPopup = btn.parentElement && btn.parentElement.querySelector('.rte-carousel-caption-popup');
+                if (oldPopup) oldPopup.parentNode.removeChild(oldPopup);
+                // Store and rebind
+                var text = captionText;
+                btn.setAttribute('data-caption', text);
+                btn.onclick = null;
+                btn.addEventListener('click', function(e) { e.stopPropagation(); __openCaptionModal(text); });
+            });
+
+            // ── 3. Carousel slide navigation ──
             var carousels = document.querySelectorAll('.rte-carousel-container');
             carousels.forEach(function(container) {
                 var slides = container.querySelectorAll('.rte-carousel-slide');
@@ -125,6 +264,92 @@
                     v.addEventListener('play', function() { if(timer) clearInterval(timer); });
                 });
             });
+
+            // Upgrade code blocks to premium layout dynamically
+            var pres = document.querySelectorAll('.rte-content pre, .rte-content-body pre, .profile-section-desc pre, .vsshow-section-desc pre, .richtext-guest-view pre');
+            pres.forEach(function(pre) {
+                if (pre.closest('.rte-code-block-container')) return;
+                
+                var lang = 'Plain Text';
+                var classes = pre.className.split(/\s+/);
+                classes.forEach(function(c) {
+                    if (c.indexOf('language-') === 0) {
+                        lang = c.replace('language-', '').replace('-', ' ');
+                    }
+                });
+                
+                var container = document.createElement('div');
+                container.className = 'rte-code-block-container';
+                container.setAttribute('contenteditable', 'false');
+                
+                var header = document.createElement('div');
+                header.className = 'rte-code-block-header';
+                header.setAttribute('contenteditable', 'false');
+                
+                var langLabel = document.createElement('span');
+                langLabel.className = 'rte-code-block-lang';
+                langLabel.textContent = lang;
+                
+                var copyBtn = document.createElement('button');
+                copyBtn.type = 'button';
+                copyBtn.className = 'rte-code-block-copy-btn';
+                copyBtn.textContent = 'Copy';
+                copyBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    var codeEl = container.querySelector('code') || pre;
+                    if (codeEl) {
+                        navigator.clipboard.writeText(codeEl.textContent).then(function() {
+                            copyBtn.textContent = 'Copied!';
+                            setTimeout(function() { copyBtn.textContent = 'Copy'; }, 2000);
+                        });
+                    }
+                };
+                
+                header.appendChild(langLabel);
+                header.appendChild(copyBtn);
+                container.appendChild(header);
+                
+                var newPre = pre.cloneNode(true);
+                newPre.removeAttribute('style');
+                newPre.setAttribute('contenteditable', 'true');
+                
+                var nested = newPre.querySelectorAll('*');
+                nested.forEach(function(el) {
+                    el.style.backgroundColor = 'transparent';
+                    el.style.background = 'transparent';
+                });
+                
+                container.appendChild(newPre);
+                if (pre.parentNode) {
+                    pre.parentNode.replaceChild(container, pre);
+                }
+            });
+
+            // Strip any leftover editor selection classes and inline styles from tables dynamically
+            document.querySelectorAll('td, th, table').forEach(function(n) {
+                if (n.classList.contains('rte-cell-selected')) {
+                    n.classList.remove('rte-cell-selected');
+                }
+                var styleAttr = n.getAttribute('style') || '';
+                if (styleAttr) {
+                    if (styleAttr.indexOf('377dff') !== -1 || styleAttr.indexOf('55, 125, 255') !== -1 || styleAttr.indexOf('55,125,255') !== -1) {
+                        n.style.outline = '';
+                        n.style.outlineColor = '';
+                        n.style.outlineWidth = '';
+                        n.style.outlineStyle = '';
+                        n.style.outlineOffset = '';
+                        var bg = n.style.backgroundColor;
+                        if (bg && (bg.indexOf('55, 125, 255') !== -1 || bg.indexOf('55,125,255') !== -1)) {
+                            n.style.backgroundColor = '';
+                        }
+                    }
+                }
+            });
+            
+            // Re-trigger Prism syntax highlighting after container updates
+            if (window.Prism) {
+                try { window.Prism.highlightAll(); } catch(e) {}
+            }
         });
     </script>
 

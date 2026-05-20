@@ -1361,7 +1361,7 @@ return [
         'list_desc' => 'Urutan akan menentukan posisi tampilan di halaman publik',
         'add_button' => 'Tambah Konten',
         'back' => 'Kembali',
-        
+
         // Table columns
         'col_no' => 'No',
         'col_title' => 'Judul',
@@ -1390,13 +1390,13 @@ return [
         'hint_pdf_edit' => 'Unggah untuk mengganti file lama',
         'current_doc' => 'Dokumen Saat Ini',
         'view_pdf' => 'Lihat File PDF',
-        
+
         'sidebar_title' => 'Pengaturan Halaman',
         'label_order' => 'Urutan',
         'label_date' => 'Tanggal',
         'label_subtitle' => 'Sub-judul / Ringkasan',
         'placeholder_subtitle' => 'Ringkasan singkat berita...',
-        
+
         'btn_save' => 'Simpan Konten',
         'btn_update' => 'Perbarui Konten',
         'btn_cancel' => 'Batal',
@@ -1425,7 +1425,7 @@ return [
         'list_desc' => 'Urutan akan menentukan posisi tampilan di halaman publik',
         'add_button' => 'Tambah Konten',
         'back' => 'Kembali',
-        
+
         // Table columns
         'col_no' => 'No',
         'col_title' => 'Judul',
@@ -1445,6 +1445,7 @@ return [
         // Form
         'create_title' => 'Tambah Konten Layanan Publik',
         'edit_title' => 'Edit Konten Layanan Publik',
+        'label_require_login' => 'Wajib login sebelum mengakses halaman ini',
         'label_type' => 'Tipe Layanan',
         'label_title' => 'Judul',
         'placeholder_title' => 'Masukkan judul konten...',
@@ -1457,13 +1458,13 @@ return [
         'hint_pdf_edit' => 'Unggah untuk mengganti file lama',
         'current_doc' => 'Dokumen Saat Ini',
         'view_pdf' => 'Lihat File PDF',
-        
+
         'sidebar_title' => 'Pengaturan Halaman',
         'label_order' => 'Urutan',
         'label_date' => 'Tanggal',
         'label_subtitle' => 'Sub-judul / Ringkasan',
         'placeholder_subtitle' => 'Ringkasan singkat layanan...',
-        
+
         'btn_save' => 'Simpan Konten',
         'btn_update' => 'Perbarui Konten',
         'btn_cancel' => 'Batal',
@@ -1495,12 +1496,12 @@ return [
         'section1_label_title' => 'Judul Bagian 1 (Opsional, default: Jadwal Kunjungan)',
         'section1_placeholder_title' => 'Jadwal Kunjungan',
         'section1_label_desc' => 'Teks Keterangan Jadwal',
-        
+
         'section2_title' => '2. Pengajuan Kunjungan',
         'section2_label_title' => 'Judul Bagian 2 (Opsional, default: Pengajuan Kunjungan)',
         'section2_placeholder_title' => 'Pengajuan Kunjungan',
         'section2_label_desc' => 'Aturan / Kapasitas Pengajuan',
-        
+
         'section3_title' => '3. Kalender Kunjungan',
         'section3a_title' => '3a. Pengaturan Hari Libur / Tanggal Tutup Khusus',
         'section3a_desc' => 'Tanggal yang diatur di bawah ini adalah hari libur/tutup tambahan (opsional).',
@@ -1512,11 +1513,11 @@ return [
         'placeholder_holiday_reason' => 'Contoh: Libur Nasional / Tutup',
         'btn_delete' => 'Hapus',
         'empty_holidays' => 'Belum ada hari libur khusus yang ditambahkan.',
-        
+
         'section3b_title' => '3b. Pengaturan Jumlah Slot Maksimal Harian',
         'section3b_desc' => 'Tentukan batas kuota maksimal pendaftaran untuk setiap harinya (berlaku otomatis setiap hari jika tidak ada pengaturan khusus di 3c).',
         'label_daily_quota' => 'Jumlah Slot Maksimal Kunjungan / Hari',
-        
+
         'section3c_title' => '3c. Pengaturan Kuota Khusus / Penutupan Slot Jam Tertentu (Pagi / Siang)',
         'section3c_desc' => 'Atur jumlah slot maksimal pendaftar pada tanggal & waktu tertentu (isi 0 jika ingin menutup slot sepenuhnya).',
         'btn_add_close_slot' => 'Tambah Penutupan Slot',
@@ -1530,7 +1531,7 @@ return [
         'label_close_reason' => 'Keterangan / Alasan',
         'placeholder_close_reason' => 'Contoh: Kuota Pagi Penuh',
         'empty_close_slots' => 'Belum ada penutupan slot khusus yang ditambahkan.',
-        
+
         'section4_title' => '4. Pengaturan Daftar Kolom Formulir Kunjungan',
         'btn_add_form_field' => 'Tambah Kolom Form',
         'label_field_id' => 'ID Field (Unik)',
@@ -1548,7 +1549,7 @@ return [
         'label_options_file' => 'Catatan / Format File',
         'placeholder_options_select' => 'Contoh: Edukasi, Penelitian, Kunjungan Kerja',
         'placeholder_options_file' => 'Contoh: Format pdf/doc, max 2MB',
-        
+
         'label_auto_today' => 'Update otomatis ke tanggal hari ini',
         'btn_edit' => 'Edit',
 
@@ -1656,7 +1657,7 @@ return [
         'add_button' => 'Tambah Konten',
         'edit_button' => 'Edit Konten',
         'back' => 'Kembali',
-        
+
         // Table columns
         'col_no' => 'No',
         'col_title' => 'Judul',
@@ -1677,6 +1678,7 @@ return [
         // Form
         'create_title' => 'Tambah Konten Pengelolaan',
         'edit_title' => 'Edit Konten Pengelolaan',
+        'label_require_login' => 'Wajib login sebelum mengakses halaman ini',
         'label_type' => 'Tipe Halaman',
         'label_title' => 'Judul',
         'placeholder_title' => 'Masukkan judul konten...',
@@ -1689,13 +1691,13 @@ return [
         'hint_pdf_edit' => 'Unggah untuk mengganti file lama',
         'current_doc' => 'Dokumen Saat Ini',
         'view_pdf' => 'Lihat File PDF',
-        
+
         'sidebar_title' => 'Pengaturan Halaman',
         'label_order' => 'Urutan',
         'label_date' => 'Tanggal',
         'label_subtitle' => 'Sub-judul / Ringkasan',
         'placeholder_subtitle' => 'Ringkasan singkat...',
-        
+
         'btn_save' => 'Simpan Konten',
         'btn_update' => 'Perbarui Konten',
         'btn_cancel' => 'Batal',
@@ -1866,7 +1868,7 @@ return [
         'add_button' => 'Tambah Kontak',
         'edit_button' => 'Edit Kontak',
         'back' => 'Kembali',
-        
+
         // Table columns
         'col_no' => 'No',
         'col_title' => 'Judul / Nama Kontak',
@@ -1891,13 +1893,13 @@ return [
         'label_gallery' => 'Media Gambar / Foto Kantor',
         'hint_gallery' => 'Klik atau drag gambar ke sini',
         'hint_gallery_sub' => 'Mendukung format jpg, png, webp',
-        
+
         'sidebar_title' => 'Pengaturan Halaman',
         'label_order' => 'Urutan',
         'label_date' => 'Tanggal',
         'label_subtitle' => 'Sub-judul / Ringkasan',
         'placeholder_subtitle' => 'Ringkasan singkat...',
-        
+
         'btn_save' => 'Simpan Kontak',
         'btn_update' => 'Perbarui Kontak',
         'btn_cancel' => 'Batal',

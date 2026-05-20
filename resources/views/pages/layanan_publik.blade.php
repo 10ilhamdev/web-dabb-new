@@ -465,6 +465,23 @@
         $date = ($currentPage->created_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
         $matchTitle = strtolower($currentPage ? $currentPage->title : $feature->name);
 
+        // Determine service layout type: use $currentPage->type from DB first (definitive source),
+        // fall back to title keyword matching only when type is not set
+        $lpType = $currentPage?->type;
+        if (empty($lpType)) {
+            if (str_contains($matchTitle, 'kunjungan') || str_contains($matchTitle, 'penelitian')) {
+                $lpType = 'kunjungan';
+            } elseif (str_contains($matchTitle, 'laraska') || str_contains($matchTitle, 'restorasi')) {
+                $lpType = 'laraska';
+            } elseif (str_contains($matchTitle, 'statis') || str_contains($matchTitle, 'arsip')) {
+                $lpType = 'statis';
+            } elseif (str_contains($matchTitle, 'konsultasi')) {
+                $lpType = 'konsultasi';
+            } else {
+                $lpType = 'perpustakaan';
+            }
+        }
+
         $views = $currentPage ? $currentPage->views : 0;
         $shares = $currentPage ? $currentPage->shares : 0;
         $publishedAt = ($currentPage && !empty($currentPage->extra_data['auto_today_date'])) ? now()->translatedFormat('d F Y') : ($currentPage->published_at ?? $currentPage->created_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
@@ -472,13 +489,13 @@
 
         // Fallback default rich text content to match reference images perfectly if DB is empty
         if (!$currentPage && empty(trim(strip_tags($content)))) {
-            if (str_contains($matchTitle, 'kunjungan') || str_contains($matchTitle, 'penelitian')) {
+            if ($lpType === 'kunjungan') {
                 $content = '<p>Arsip Nasional Republik Indonesia (ANRI) melalui Depot Arsip Berkelanjutan Bandung memberikan kesempatan kepada masyarakat untuk belajar dan mengenal kearsipan secara langsung. Melalui kegiatan kunjungan edukatif ini, diharapkan masyarakat dapat meningkatkan pemahaman dan kesadaran akan pentingnya arsip sebagai sumber informasi dan sejarah. Kunjungan ini juga menjadi sarana pembelajaran mengenai pengelolaan arsip, pemanfaatan arsip statis, serta penelusuran sumber sejarah yang tersimpan di Depot Arsip ANRI Bandung.</p>';
-            } elseif (str_contains($matchTitle, 'laraska') || str_contains($matchTitle, 'restorasi')) {
+            } elseif ($lpType === 'laraska') {
                 $content = '<p>Posisi geografis Indonesia yang berada di garis khatulistiwa serta ancaman ring of fire menjadikan Indonesia sebagai wilayah dengan tingkat kerawanan bencana yang tinggi. Untuk itu, baik bencana hidrometeorologi maupun bencana geologi seperti tektonik dan vulkanik. Bencana hidrometeorologi meliputi banjir, tanah longsor, dan angin puting beliung, sedangkan bencana geologi antara lain gempa bumi dan letusan gunung berapi. Berbagai peristiwa tersebut tidak hanya menimbulkan korban jiwa, tetapi juga berdampak pada kesehatan fisik dan psikologis masyarakat, serta menyebabkan kerusakan infrastruktur, fasilitas umum, kantor pemerintahan, dan pusat layanan publik.<br><br>Dampak bencana paling dirasakan oleh masyarakat dan keluarga sebagai unit terkecil dalam kehidupan berbangsa dan bernegara. Selain gangguan kesehatan dan trauma psikologis, bencana juga berpotensi merusak atau memusnahkan dokumen penting milik pribadi dan keluarga yang memiliki nilai hukum dan administratif.<br><br>Sebagai bentuk kehadiran negara dalam melindungi hak keperdataan masyarakat serta meminimalkan dampak psikologis akibat kehilangan dokumen penting, ANRI melalui program LARASKA (Layanan Restorasi Arsip Keluarga) menyediakan layanan perlindungan dan penyelamatan arsip masyarakat, terdampak bencana. Pelaksanaan layanan ini mengacu pada Peraturan ANRI Nomor 9 Tahun 2019 tentang Standar Pelayanan LARASKA di Lingkungan ANRI. Melalui program ini, masyarakat dapat melakukan perbaikan arsip keluarga secara gratis dengan datang langsung ke kantor DABB di Jl. Raya Derwati, Mekar Jaya, Kec. Rancasari, Kota Bandung.</p>';
-            } elseif (str_contains($matchTitle, 'statis') || str_contains($matchTitle, 'arsip')) {
+            } elseif ($lpType === 'statis') {
                 $content = '<p>Layanan arsip statis adalah penyediaan arsip statis kepada pengguna arsip statis untuk kepentingan pemerintahan, pembangunan, penelitian, dan ilmu pengetahuan untuk kesejahteraan rakyat, sesuai kaidah-kaidah kearsipan demi kemaslahatan bangsa.</p>';
-            } elseif (str_contains($matchTitle, 'konsultasi')) {
+            } elseif ($lpType === 'konsultasi') {
                 $content = '<p>Konsultasi Kearsipan Depot Arsip Berkelanjutan Bandung merupakan layanan pendampingan bagi masyarakat untuk memperoleh informasi dan bimbingan terkait pengelolaan arsip. Melalui layanan ini, pengunjung dapat berkonsultasi mengenai pengelolaan, pemeliharaan, dan pemanfaatan arsip statis, serta penelusuran sumber sejarah yang tersimpan di Depot Arsip ANRI Bandung. Layanan ini bertujuan untuk meningkatkan pemahaman dan kesadaran masyarakat terhadap pentingnya arsip sebagai sumber informasi dan memori kolektif bangsa.</p>';
             } else {
                 $content = '<p>Layanan Perpustakaan DABB menyediakan bahan perpustakaan dan referensi untuk mendukung kegiatan pengarsipan dan penelitian. Layanan ini memberikan akses kepada pengguna untuk membaca, meminjam, dan memanfaatkan koleksi yang tersedia sesuai dengan peraturan yang berlaku.</p>';
@@ -540,47 +557,35 @@
                         </div>
 
                         {{-- Dynamic Service Layouts --}}
-                        @if (str_contains($matchTitle, 'kunjungan') || str_contains($matchTitle, 'penelitian'))
+                        @if ($lpType === 'kunjungan')
                             {{-- Layout 1: Pendaftaran Kunjungan --}}
-                            @if(!isset($currentPage->extra_data['show_jadwal']) || $currentPage->extra_data['show_jadwal'] == 1)
+                            @if((!isset($currentPage->extra_data['show_jadwal']) || $currentPage->extra_data['show_jadwal'] == 1) && !empty($currentPage->extra_data['jadwal_kunjungan']))
                                 @php
                                     $titleJadwal = $locale === 'en' && !empty($currentPage->extra_data['title_jadwal_en'])
                                         ? $currentPage->extra_data['title_jadwal_en']
                                         : (!empty($currentPage->extra_data['title_jadwal']) ? $currentPage->extra_data['title_jadwal'] : __('home.layanan_publik.visiting_hours'));
+                                    $jadwalText = $locale === 'en' && !empty($currentPage->extra_data['jadwal_kunjungan_en'])
+                                        ? $currentPage->extra_data['jadwal_kunjungan_en']
+                                        : $currentPage->extra_data['jadwal_kunjungan'];
                                 @endphp
                                 <h3 class="service-subtitle">{{ $titleJadwal }}</h3>
                                 <div class="service-box">
-                                    @if(!empty($currentPage->extra_data['jadwal_kunjungan']))
-                                        @php
-                                            $jadwalText = $locale === 'en' && !empty($currentPage->extra_data['jadwal_kunjungan_en'])
-                                                ? $currentPage->extra_data['jadwal_kunjungan_en']
-                                                : $currentPage->extra_data['jadwal_kunjungan'];
-                                        @endphp
-                                        {!! nl2br(e($jadwalText)) !!}
-                                    @else
-                                        {!! __('home.layanan_publik.jadwal_kunjungan_default') !!}
-                                    @endif
+                                    {!! nl2br(e($jadwalText)) !!}
                                 </div>
                             @endif
 
-                            @if(!isset($currentPage->extra_data['show_pengajuan']) || $currentPage->extra_data['show_pengajuan'] == 1)
+                            @if((!isset($currentPage->extra_data['show_pengajuan']) || $currentPage->extra_data['show_pengajuan'] == 1) && !empty($currentPage->extra_data['pengajuan_kunjungan']))
                                 @php
                                     $titlePengajuan = $locale === 'en' && !empty($currentPage->extra_data['title_pengajuan_en'])
                                         ? $currentPage->extra_data['title_pengajuan_en']
                                         : (!empty($currentPage->extra_data['title_pengajuan']) ? $currentPage->extra_data['title_pengajuan'] : __('home.layanan_publik.visiting_app'));
+                                    $pengajuanText = $locale === 'en' && !empty($currentPage->extra_data['pengajuan_kunjungan_en'])
+                                        ? $currentPage->extra_data['pengajuan_kunjungan_en']
+                                        : $currentPage->extra_data['pengajuan_kunjungan'];
                                 @endphp
                                 <h3 class="service-subtitle">{{ $titlePengajuan }}</h3>
                                 <div class="service-box">
-                                    @if(!empty($currentPage->extra_data['pengajuan_kunjungan']))
-                                        @php
-                                            $pengajuanText = $locale === 'en' && !empty($currentPage->extra_data['pengajuan_kunjungan_en'])
-                                                ? $currentPage->extra_data['pengajuan_kunjungan_en']
-                                                : $currentPage->extra_data['pengajuan_kunjungan'];
-                                        @endphp
-                                        {!! nl2br(e($pengajuanText)) !!}
-                                    @else
-                                        <p>{{ __('home.layanan_publik.pengajuan_kunjungan_default') }}</p>
-                                    @endif
+                                    {!! nl2br(e($pengajuanText)) !!}
                                 </div>
                             @endif
 
@@ -857,59 +862,40 @@
                                 </form>
                             @endif
 
-                        @elseif (str_contains($matchTitle, 'laraska') || str_contains($matchTitle, 'restorasi'))
+                        @elseif ($lpType === 'laraska')
                             {{-- Layout 2: LARASKA --}}
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
-                            <div class="service-box">
-                                @if(is_array($currentPage->extra_data) && array_key_exists('laraska_hours', $currentPage->extra_data))
+                            @if(!empty($currentPage->extra_data['laraska_hours']))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
+                                <div class="service-box">
                                     {!! nl2br(e($currentPage->extra_data['laraska_hours'] ?? '')) !!}
-                                @else
-                                    {!! __('home.layanan_publik.laraska_hours') !!}
-                                @endif
-                            </div>
-
-                            {{-- Maklumat Box --}}
-                            <div class="p-8 bg-[#1e3a8a] text-white rounded-2xl mb-8 text-center shadow-xl relative overflow-hidden border-4 border-yellow-500">
-                                <h3 class="text-2xl font-bold mb-4 tracking-wider text-yellow-400">{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_title', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_title'] ?? '') : __('home.layanan_publik.maklumat_title') }}</h3>
-                                <p class="text-lg leading-relaxed mb-6 font-medium">{!! (is_array($currentPage->extra_data) && array_key_exists('maklumat_content', $currentPage->extra_data)) ? nl2br(e($currentPage->extra_data['maklumat_content'] ?? '')) : __('home.layanan_publik.maklumat_content') !!}</p>
-                                <div class="text-right text-sm opacity-90 pr-4 font-semibold">
-                                    <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_date', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_date'] ?? '') : __('home.layanan_publik.maklumat_date') }}</p>
-                                    <p>{{ (is_array($currentPage->extra_data) && array_key_exists('maklumat_director', $currentPage->extra_data)) ? ($currentPage->extra_data['maklumat_director'] ?? '') : __('home.layanan_publik.maklumat_director') }}</p>
                                 </div>
-                            </div>
+                            @endif
 
-                            {{-- Mekanisme Flowchart --}}
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
-                            <div class="flowchart-box">
-                                <div class="flowchart-title">{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_mech_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_mech_title'] ?? '') : __('home.layanan_publik.laraska_mech_title') }}</div>
-                                <div class="flowchart-steps">
-                                    @if(isset($currentPage->extra_data['laraska_steps']) && is_array($currentPage->extra_data['laraska_steps']))
+                            @if(!empty($currentPage->extra_data['maklumat_title']))
+                                <div class="p-8 bg-[#1e3a8a] text-white rounded-2xl mb-8 text-center shadow-xl relative overflow-hidden border-4 border-yellow-500">
+                                    <h3 class="text-2xl font-bold mb-4 tracking-wider text-yellow-400">{{ $currentPage->extra_data['maklumat_title'] ?? '' }}</h3>
+                                    <p class="text-lg leading-relaxed mb-6 font-medium">{!! nl2br(e($currentPage->extra_data['maklumat_content'] ?? '')) !!}</p>
+                                    <div class="text-right text-sm opacity-90 pr-4 font-semibold">
+                                        <p>{{ $currentPage->extra_data['maklumat_date'] ?? '' }}</p>
+                                        <p>{{ $currentPage->extra_data['maklumat_director'] ?? '' }}</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if(!empty($currentPage->extra_data['laraska_steps']))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
+                                <div class="flowchart-box">
+                                    <div class="flowchart-title">{{ $currentPage->extra_data['laraska_mech_title'] ?? '' }}</div>
+                                    <div class="flowchart-steps">
                                         @foreach($currentPage->extra_data['laraska_steps'] as $step)
                                             <div class="flow-step">
                                                 <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
                                                 <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
                                             </div>
                                         @endforeach
-                                    @else
-                                        <div class="flow-step">
-                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_title'] ?? '') : __('home.layanan_publik.laraska_step1_title') }}</h4>
-                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step1_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step1_desc'] ?? '') : __('home.layanan_publik.laraska_step1_desc') }}</p>
-                                        </div>
-                                        <div class="flow-step">
-                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_title'] ?? '') : __('home.layanan_publik.laraska_step2_title') }}</h4>
-                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step2_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step2_desc'] ?? '') : __('home.layanan_publik.laraska_step2_desc') }}</p>
-                                        </div>
-                                        <div class="flow-step">
-                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_title'] ?? '') : __('home.layanan_publik.laraska_step3_title') }}</h4>
-                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step3_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step3_desc'] ?? '') : __('home.layanan_publik.laraska_step3_desc') }}</p>
-                                        </div>
-                                        <div class="flow-step">
-                                            <h4>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_title', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_title'] ?? '') : __('home.layanan_publik.laraska_step4_title') }}</h4>
-                                            <p>{{ (is_array($currentPage->extra_data) && array_key_exists('laraska_step4_desc', $currentPage->extra_data)) ? ($currentPage->extra_data['laraska_step4_desc'] ?? '') : __('home.layanan_publik.laraska_step4_desc') }}</p>
-                                        </div>
-                                    @endif
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
 
                             @if(!empty($currentPage->extra_data['file']))
                                 @php
@@ -932,198 +918,138 @@
                                 </a>
                             @endif
 
-                        @elseif (str_contains($matchTitle, 'statis') || (str_contains($matchTitle, 'arsip') && !str_contains($matchTitle, 'konsultasi')))
+                        @elseif ($lpType === 'statis')
                             {{-- Layout 3: Layanan Arsip Statis --}}
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
-                            <div class="service-box">
-                                @if($currentPage && is_array($currentPage->extra_data) && (array_key_exists('statis_hours', $currentPage->extra_data) || array_key_exists('statis_hours_en', $currentPage->extra_data)))
+                            @if(!empty($currentPage->extra_data['statis_hours']))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
+                                <div class="service-box">
                                     {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_hours_en'] ?? $currentPage->extra_data['statis_hours'] ?? '') : ($currentPage->extra_data['statis_hours'] ?? ''))) !!}
-                                @else
-                                    {!! __('home.layanan_publik.statis_hours') !!}
-                                @endif
-                            </div>
-
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.archive_order') }}</h3>
-                            <div class="service-box">
-                                @if($currentPage && is_array($currentPage->extra_data) && (array_key_exists('statis_order_hours', $currentPage->extra_data) || array_key_exists('statis_order_hours_en', $currentPage->extra_data)))
-                                    {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_order_hours_en'] ?? $currentPage->extra_data['statis_order_hours'] ?? '') : ($currentPage->extra_data['statis_order_hours'] ?? ''))) !!}
-                                @else
-                                    {!! __('home.layanan_publik.statis_order_hours') !!}
-                                @endif
-                            </div>
-
-                            @if(($currentPage && isset($currentPage->extra_data['statis_stages']) && is_array($currentPage->extra_data['statis_stages']) && count($currentPage->extra_data['statis_stages']) > 0) || ($currentPage && !isset($currentPage->extra_data['statis_stages'])))
-                                <h3 class="service-subtitle">{{ __('home.layanan_publik.stages') }}</h3>
-                                <div class="circles-wrapper">
-                                    @if(isset($currentPage->extra_data['statis_stages']) && is_array($currentPage->extra_data['statis_stages']))
-                                        @foreach($currentPage->extra_data['statis_stages'] as $index => $stage)
-                                            <div class="circle-step">
-                                                <div class="circle-num">{{ $index + 1 }}</div>
-                                                <div class="circle-text">{{ app()->getLocale() == 'en' ? ($stage['title_en'] ?? $stage['title'] ?? '') : ($stage['title'] ?? '') }}</div>
-                                            </div>
-                                            @if(!$loop->last)
-                                                <div class="circle-arrow">➔</div>
-                                            @endif
-                                        @endforeach
-                                    @else
-                                        <div class="circle-step">
-                                            <div class="circle-num">1</div>
-                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage1_en'] ?? $currentPage->extra_data['statis_stage1'] ?? __('home.layanan_publik.statis_stage1')) : ($currentPage->extra_data['statis_stage1'] ?? __('home.layanan_publik.statis_stage1')) }}</div>
-                                        </div>
-                                        <div class="circle-arrow">➔</div>
-                                        <div class="circle-step">
-                                            <div class="circle-num">2</div>
-                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage2_en'] ?? $currentPage->extra_data['statis_stage2'] ?? __('home.layanan_publik.statis_stage2')) : ($currentPage->extra_data['statis_stage2'] ?? __('home.layanan_publik.statis_stage2')) }}</div>
-                                        </div>
-                                        <div class="circle-arrow">➔</div>
-                                        <div class="circle-step">
-                                            <div class="circle-num">3</div>
-                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage3_en'] ?? $currentPage->extra_data['statis_stage3'] ?? __('home.layanan_publik.statis_stage3')) : ($currentPage->extra_data['statis_stage3'] ?? __('home.layanan_publik.statis_stage3')) }}</div>
-                                        </div>
-                                        <div class="circle-arrow">➔</div>
-                                        <div class="circle-step">
-                                            <div class="circle-num">4</div>
-                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage4_en'] ?? $currentPage->extra_data['statis_stage4'] ?? __('home.layanan_publik.statis_stage4')) : ($currentPage->extra_data['statis_stage4'] ?? __('home.layanan_publik.statis_stage4')) }}</div>
-                                        </div>
-                                        <div class="circle-arrow">➔</div>
-                                        <div class="circle-step">
-                                            <div class="circle-num">5</div>
-                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_stage5_en'] ?? $currentPage->extra_data['statis_stage5'] ?? __('home.layanan_publik.statis_stage5')) : ($currentPage->extra_data['statis_stage5'] ?? __('home.layanan_publik.statis_stage5')) }}</div>
-                                        </div>
-                                    @endif
                                 </div>
                             @endif
 
-                            @php
-                                $hasMech1 = ($currentPage && isset($currentPage->extra_data['statis_mech1_steps']) && is_array($currentPage->extra_data['statis_mech1_steps']) && count($currentPage->extra_data['statis_mech1_steps']) > 0) || ($currentPage && !isset($currentPage->extra_data['statis_mech1_steps']));
-                                $hasMech2 = ($currentPage && isset($currentPage->extra_data['statis_mech2_steps']) && is_array($currentPage->extra_data['statis_mech2_steps']) && count($currentPage->extra_data['statis_mech2_steps']) > 0) || ($currentPage && !isset($currentPage->extra_data['statis_mech2_steps']));
-                            @endphp
+                            @if(!empty($currentPage->extra_data['statis_order_hours']))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.archive_order') }}</h3>
+                                <div class="service-box">
+                                    {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_order_hours_en'] ?? $currentPage->extra_data['statis_order_hours'] ?? '') : ($currentPage->extra_data['statis_order_hours'] ?? ''))) !!}
+                                </div>
+                            @endif
 
-                            @if($hasMech1 || $hasMech2)
+                            @if(!empty($currentPage->extra_data['statis_stages']))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.stages') }}</h3>
+                                <div class="circles-wrapper">
+                                    @foreach($currentPage->extra_data['statis_stages'] as $index => $stage)
+                                        <div class="circle-step">
+                                            <div class="circle-num">{{ $index + 1 }}</div>
+                                            <div class="circle-text">{{ app()->getLocale() == 'en' ? ($stage['title_en'] ?? $stage['title'] ?? '') : ($stage['title'] ?? '') }}</div>
+                                        </div>
+                                        @if(!$loop->last)
+                                            <div class="circle-arrow">➔</div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            @if(!empty($currentPage->extra_data['statis_mech1_steps']))
                                 <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
-
-                                @if($hasMech1)
-                                    {{-- Langsung --}}
-                                    <div class="flowchart-box mb-4">
-                                        <div class="flowchart-title">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_title_en'] ?? $currentPage->extra_data['statis_mech1_title'] ?? __('home.layanan_publik.statis_mech1_title')) : ($currentPage->extra_data['statis_mech1_title'] ?? __('home.layanan_publik.statis_mech1_title')) }}</div>
-                                        <div class="flowchart-steps">
-                                            @if(isset($currentPage->extra_data['statis_mech1_steps']) && is_array($currentPage->extra_data['statis_mech1_steps']))
-                                                @foreach($currentPage->extra_data['statis_mech1_steps'] as $step)
-                                                    <div class="flow-step">
-                                                        <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
-                                                        <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
-                                                    </div>
-                                                @endforeach
-                                            @else
-                                                <div class="flow-step">
-                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_req_title_en'] ?? $currentPage->extra_data['statis_mech1_req_title'] ?? __('home.layanan_publik.statis_mech1_req_title')) : ($currentPage->extra_data['statis_mech1_req_title'] ?? __('home.layanan_publik.statis_mech1_req_title')) }}</h4>
-                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_req_desc_en'] ?? $currentPage->extra_data['statis_mech1_req_desc'] ?? __('home.layanan_publik.statis_mech1_req_desc')) : ($currentPage->extra_data['statis_mech1_req_desc'] ?? __('home.layanan_publik.statis_mech1_req_desc')) }}</p>
-                                                </div>
-                                                <div class="flow-step">
-                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_stage_title_en'] ?? $currentPage->extra_data['statis_mech1_stage_title'] ?? __('home.layanan_publik.statis_mech1_stage_title')) : ($currentPage->extra_data['statis_mech1_stage_title'] ?? __('home.layanan_publik.statis_mech1_stage_title')) }}</h4>
-                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_stage_desc_en'] ?? $currentPage->extra_data['statis_mech1_stage_desc'] ?? __('home.layanan_publik.statis_mech1_stage_desc')) : ($currentPage->extra_data['statis_mech1_stage_desc'] ?? __('home.layanan_publik.statis_mech1_stage_desc')) }}</p>
-                                                </div>
-                                            @endif
-                                        </div>
+                                <div class="flowchart-box mb-4">
+                                    <div class="flowchart-title">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech1_title_en'] ?? $currentPage->extra_data['statis_mech1_title'] ?? '') : ($currentPage->extra_data['statis_mech1_title'] ?? '') }}</div>
+                                    <div class="flowchart-steps">
+                                        @foreach($currentPage->extra_data['statis_mech1_steps'] as $step)
+                                            <div class="flow-step">
+                                                <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
+                                                <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
+                                            </div>
+                                        @endforeach
                                     </div>
+                                </div>
 
-                                    @if(!empty($currentPage->extra_data['statis_direct_pdf']))
-                                        @php
-                                            $filePath1 = $currentPage->extra_data['statis_direct_pdf'];
-                                            $fullPath1 = public_path('storage/' . $filePath1);
-                                            $storagePath1 = storage_path('app/public/' . $filePath1);
-                                            $fileSizeBytes1 = Storage::disk('public')->exists($filePath1) ? Storage::disk('public')->size($filePath1) : (file_exists($fullPath1) ? filesize($fullPath1) : (file_exists($storagePath1) ? filesize($storagePath1) : 0));
-                                            if ($fileSizeBytes1 >= 1048576) {
-                                                $fileSizeStr1 = round($fileSizeBytes1 / 1048576, 1) . ' MB';
-                                            } elseif ($fileSizeBytes1 > 0) {
-                                                $fileSizeStr1 = round($fileSizeBytes1 / 1024, 0) . ' KB';
-                                            } else {
-                                                $fileSizeStr1 = '0 KB';
-                                            }
-                                            $customFileName1 = !empty($currentPage->extra_data['statis_direct_pdf_name']) ? $currentPage->extra_data['statis_direct_pdf_name'] : basename($filePath1);
-                                        @endphp
-                                        <a href="{{ asset('storage/' . $filePath1) }}" target="_blank" class="btn-download-pdf">
-                                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                                            <span>{{ $customFileName1 }} ({{ $fileSizeStr1 }})</span>
-                                        </a>
-                                    @endif
-                                @endif
-
-                                @if($hasMech2)
-                                    {{-- Tidak Langsung --}}
-                                    <div class="flowchart-box mb-4" style="background: linear-gradient(135deg, #0f172a, #334155);">
-                                        <div class="flowchart-title">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_title_en'] ?? $currentPage->extra_data['statis_mech2_title'] ?? __('home.layanan_publik.statis_mech2_title')) : ($currentPage->extra_data['statis_mech2_title'] ?? __('home.layanan_publik.statis_mech2_title')) }}</div>
-                                        <div class="flowchart-steps">
-                                            @if(isset($currentPage->extra_data['statis_mech2_steps']) && is_array($currentPage->extra_data['statis_mech2_steps']))
-                                                @foreach($currentPage->extra_data['statis_mech2_steps'] as $step)
-                                                    <div class="flow-step">
-                                                        <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
-                                                        <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
-                                                    </div>
-                                                @endforeach
-                                            @else
-                                                <div class="flow-step">
-                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_online_title_en'] ?? $currentPage->extra_data['statis_mech2_online_title'] ?? __('home.layanan_publik.statis_mech2_online_title')) : ($currentPage->extra_data['statis_mech2_online_title'] ?? __('home.layanan_publik.statis_mech2_online_title')) }}</h4>
-                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_online_desc_en'] ?? $currentPage->extra_data['statis_mech2_online_desc'] ?? __('home.layanan_publik.statis_mech2_online_desc')) : ($currentPage->extra_data['statis_mech2_online_desc'] ?? __('home.layanan_publik.statis_mech2_online_desc')) }}</p>
-                                                </div>
-                                                <div class="flow-step">
-                                                    <h4>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_send_title_en'] ?? $currentPage->extra_data['statis_mech2_send_title'] ?? __('home.layanan_publik.statis_mech2_send_title')) : ($currentPage->extra_data['statis_mech2_send_title'] ?? __('home.layanan_publik.statis_mech2_send_title')) }}</h4>
-                                                    <p>{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_send_desc_en'] ?? $currentPage->extra_data['statis_mech2_send_desc'] ?? __('home.layanan_publik.statis_mech2_send_desc')) : ($currentPage->extra_data['statis_mech2_send_desc'] ?? __('home.layanan_publik.statis_mech2_send_desc')) }}</p>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
+                                @if(!empty($currentPage->extra_data['statis_direct_pdf']))
+                                    @php
+                                        $filePath1 = $currentPage->extra_data['statis_direct_pdf'];
+                                        $fullPath1 = public_path('storage/' . $filePath1);
+                                        $storagePath1 = storage_path('app/public/' . $filePath1);
+                                        $fileSizeBytes1 = Storage::disk('public')->exists($filePath1) ? Storage::disk('public')->size($filePath1) : (file_exists($fullPath1) ? filesize($fullPath1) : (file_exists($storagePath1) ? filesize($storagePath1) : 0));
+                                        if ($fileSizeBytes1 >= 1048576) {
+                                            $fileSizeStr1 = round($fileSizeBytes1 / 1048576, 1) . ' MB';
+                                        } elseif ($fileSizeBytes1 > 0) {
+                                            $fileSizeStr1 = round($fileSizeBytes1 / 1024, 0) . ' KB';
+                                        } else {
+                                            $fileSizeStr1 = '0 KB';
+                                        }
+                                        $customFileName1 = !empty($currentPage->extra_data['statis_direct_pdf_name']) ? $currentPage->extra_data['statis_direct_pdf_name'] : basename($filePath1);
+                                    @endphp
+                                    <a href="{{ asset('storage/' . $filePath1) }}" target="_blank" class="btn-download-pdf">
+                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                        <span>{{ $customFileName1 }} ({{ $fileSizeStr1 }})</span>
+                                    </a>
                                 @endif
                             @endif
 
-                            @if(!empty($currentPage->extra_data['statis_indirect_pdf']))
-                                @php
-                                    $filePath2 = $currentPage->extra_data['statis_indirect_pdf'];
-                                    $fullPath2 = public_path('storage/' . $filePath2);
-                                    $storagePath2 = storage_path('app/public/' . $filePath2);
-                                    $fileSizeBytes2 = Storage::disk('public')->exists($filePath2) ? Storage::disk('public')->size($filePath2) : (file_exists($fullPath2) ? filesize($fullPath2) : (file_exists($storagePath2) ? filesize($storagePath2) : 0));
-                                    if ($fileSizeBytes2 >= 1048576) {
-                                        $fileSizeStr2 = round($fileSizeBytes2 / 1048576, 1) . ' MB';
-                                    } elseif ($fileSizeBytes2 > 0) {
-                                        $fileSizeStr2 = round($fileSizeBytes2 / 1024, 0) . ' KB';
-                                    } else {
-                                        $fileSizeStr2 = '0 KB';
-                                    }
-                                    $customFileName2 = !empty($currentPage->extra_data['statis_indirect_pdf_name']) ? $currentPage->extra_data['statis_indirect_pdf_name'] : basename($filePath2);
-                                @endphp
-                                <a href="{{ asset('storage/' . $filePath2) }}" target="_blank" class="btn-download-pdf">
-                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                                    <span>{{ $customFileName2 }} ({{ $fileSizeStr2 }})</span>
-                                </a>
+                            @if(!empty($currentPage->extra_data['statis_mech2_steps']))
+                                @if(empty($currentPage->extra_data['statis_mech1_steps']))
+                                    <h3 class="service-subtitle">{{ __('home.layanan_publik.mechanism') }}</h3>
+                                @endif
+                                <div class="flowchart-box mb-4" style="background: linear-gradient(135deg, #0f172a, #334155);">
+                                    <div class="flowchart-title">{{ app()->getLocale() == 'en' ? ($currentPage->extra_data['statis_mech2_title_en'] ?? $currentPage->extra_data['statis_mech2_title'] ?? '') : ($currentPage->extra_data['statis_mech2_title'] ?? '') }}</div>
+                                    <div class="flowchart-steps">
+                                        @foreach($currentPage->extra_data['statis_mech2_steps'] as $step)
+                                            <div class="flow-step">
+                                                <h4>{{ app()->getLocale() == 'en' ? ($step['title_en'] ?? $step['title'] ?? '') : ($step['title'] ?? '') }}</h4>
+                                                <p>{{ app()->getLocale() == 'en' ? ($step['desc_en'] ?? $step['desc'] ?? '') : ($step['desc'] ?? '') }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                @if(!empty($currentPage->extra_data['statis_indirect_pdf']))
+                                    @php
+                                        $filePath2 = $currentPage->extra_data['statis_indirect_pdf'];
+                                        $fullPath2 = public_path('storage/' . $filePath2);
+                                        $storagePath2 = storage_path('app/public/' . $filePath2);
+                                        $fileSizeBytes2 = Storage::disk('public')->exists($filePath2) ? Storage::disk('public')->size($filePath2) : (file_exists($fullPath2) ? filesize($fullPath2) : (file_exists($storagePath2) ? filesize($storagePath2) : 0));
+                                        if ($fileSizeBytes2 >= 1048576) {
+                                            $fileSizeStr2 = round($fileSizeBytes2 / 1048576, 1) . ' MB';
+                                        } elseif ($fileSizeBytes2 > 0) {
+                                            $fileSizeStr2 = round($fileSizeBytes2 / 1024, 0) . ' KB';
+                                        } else {
+                                            $fileSizeStr2 = '0 KB';
+                                        }
+                                        $customFileName2 = !empty($currentPage->extra_data['statis_indirect_pdf_name']) ? $currentPage->extra_data['statis_indirect_pdf_name'] : basename($filePath2);
+                                    @endphp
+                                    <a href="{{ asset('storage/' . $filePath2) }}" target="_blank" class="btn-download-pdf">
+                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                        <span>{{ $customFileName2 }} ({{ $fileSizeStr2 }})</span>
+                                    </a>
+                                @endif
                             @endif
 
-                        @elseif (str_contains($matchTitle, 'konsultasi'))
+                        @elseif ($lpType === 'konsultasi')
                             {{-- Layout 4: Konsultasi Kearsipan --}}
-                            <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_types') }}</h3>
-                            <div class="service-box">
-                                @if($currentPage && is_array($currentPage->extra_data) && (array_key_exists('consultation_desc', $currentPage->extra_data) || array_key_exists('consultation_desc_en', $currentPage->extra_data)))
+                            @if(!empty($currentPage->extra_data['consultation_desc']))
+                                <h3 class="service-subtitle">{{ __('home.layanan_publik.consultation_types') }}</h3>
+                                <div class="service-box">
                                     {!! nl2br(e(app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_desc_en'] ?? $currentPage->extra_data['consultation_desc'] ?? '') : ($currentPage->extra_data['consultation_desc'] ?? ''))) !!}
-                                @else
-                                    <p>{{ __('home.layanan_publik.consultation_desc') }}</p>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
 
-                            @if(!isset($currentPage->extra_data['show_consultation_form']) || $currentPage->extra_data['show_consultation_form'] == 1)
+                            @if(empty($currentPage->extra_data['show_consultation_form']) || $currentPage->extra_data['show_consultation_form'] == 1)
                                 @php
-                                    $formTitle = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['consultation_form_title'])
+                                    $formTitle = !empty($currentPage->extra_data['consultation_form_title'])
                                         ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_form_title_en'] ?? $currentPage->extra_data['consultation_form_title']) : $currentPage->extra_data['consultation_form_title'])
-                                        : __('home.layanan_publik.consultation_form');
+                                        : '';
 
-                                    $formSend = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['consultation_form_send'])
+                                    $formSend = !empty($currentPage->extra_data['consultation_form_send'])
                                         ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_form_send_en'] ?? $currentPage->extra_data['consultation_form_send']) : $currentPage->extra_data['consultation_form_send'])
-                                        : __('home.layanan_publik.consultation_form_send');
+                                        : '';
 
-                                    $formSuccess = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['consultation_success'])
+                                    $formSuccess = !empty($currentPage->extra_data['consultation_success'])
                                         ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['consultation_success_en'] ?? $currentPage->extra_data['consultation_success']) : $currentPage->extra_data['consultation_success'])
-                                        : __('home.layanan_publik.consultation_success');
+                                        : '';
                                 @endphp
 
-                                <h3 class="service-subtitle">{{ $formTitle }}</h3>
+                                @if(!empty($formTitle))
+                                    <h3 class="service-subtitle">{{ $formTitle }}</h3>
+                                @endif
                                 <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); var form = this; var fd = new FormData(form); fd.append('_token', '{{ csrf_token() }}'); fetch('{{ route('public.consultation.store') }}', { method: 'POST', body: fd }).then(res => res.json()).then(data => { Swal.fire({ title: '{{ app()->getLocale() == 'en' ? 'Success!' : 'Berhasil!' }}', text: data.message || '{{ addslashes($formSuccess) }}', icon: 'success', confirmButtonColor: '#174E93' }); form.reset(); }).catch(err => { Swal.fire({ title: 'Oops!', text: 'Terjadi kesalahan saat mengirim formulir.', icon: 'error', confirmButtonColor: '#174E93' }); });">
                                     @if(!empty($currentPage->extra_data['consultation_form_fields']) && is_array($currentPage->extra_data['consultation_form_fields']))
                                         @foreach($currentPage->extra_data['consultation_form_fields'] as $field)
@@ -1191,7 +1117,6 @@
                         @else
                             {{-- Layout 5: Perpustakaan --}}
                             @php
-                                $hasLibData = $currentPage && is_array($currentPage->extra_data) && (array_key_exists('lib_obj1', $currentPage->extra_data) || array_key_exists('lib_objs', $currentPage->extra_data));
                                 $libObjs = [];
                                 if ($currentPage && is_array($currentPage->extra_data)) {
                                     if (!empty($currentPage->extra_data['lib_objs']) && is_array($currentPage->extra_data['lib_objs'])) {
@@ -1201,17 +1126,7 @@
                                                 $libObjs[] = $text;
                                             }
                                         }
-                                    } else {
-                                        $o1 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_obj1_en'] ?? $currentPage->extra_data['lib_obj1'] ?? '') : ($currentPage->extra_data['lib_obj1'] ?? '');
-                                        $o2 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_obj2_en'] ?? $currentPage->extra_data['lib_obj2'] ?? '') : ($currentPage->extra_data['lib_obj2'] ?? '');
-                                        $o3 = app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_obj3_en'] ?? $currentPage->extra_data['lib_obj3'] ?? '') : ($currentPage->extra_data['lib_obj3'] ?? '');
-                                        if ($o1) $libObjs[] = $o1;
-                                        if ($o2) $libObjs[] = $o2;
-                                        if ($o3) $libObjs[] = $o3;
                                     }
-                                }
-                                if (empty($libObjs) && !$hasLibData) {
-                                    $libObjs = [__('home.layanan_publik.lib_obj1'), __('home.layanan_publik.lib_obj2'), __('home.layanan_publik.lib_obj3')];
                                 }
                             @endphp
                             @if(!empty($libObjs))
@@ -1223,19 +1138,19 @@
                                 </div>
                             @endif
 
-                            <div class="mb-8">
-                                @php
-                                    $libBtn = $hasLibData ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_visit_btn_en'] ?? $currentPage->extra_data['lib_visit_btn'] ?? '') : ($currentPage->extra_data['lib_visit_btn'] ?? '')) : __('home.layanan_publik.lib_visit_btn');
+                            @php
+                                    $libBtn = !empty($currentPage->extra_data['lib_visit_btn']) ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_visit_btn_en'] ?? $currentPage->extra_data['lib_visit_btn'] ?? '') : ($currentPage->extra_data['lib_visit_btn'] ?? '')) : '';
                                     $libUrl = $currentPage && is_array($currentPage->extra_data) && !empty($currentPage->extra_data['lib_redirect_url']) ? $currentPage->extra_data['lib_redirect_url'] : '';
                                 @endphp
                                 @if($libBtn !== '')
-                                    @if(!empty($libUrl))
-                                        <a href="{{ $libUrl }}" target="_blank" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider">{{ $libBtn }}</a>
-                                    @else
-                                        <a href="#" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider" onclick="event.preventDefault(); Swal.fire({ title: 'Informasi', text: '{{ __('home.layanan_publik.lib_redirect') }}', icon: 'info', confirmButtonColor: '#174E93' });">{{ $libBtn }}</a>
-                                    @endif
+                                    <div class="mb-8">
+                                        @if(!empty($libUrl))
+                                            <a href="{{ $libUrl }}" target="_blank" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider">{{ $libBtn }}</a>
+                                        @else
+                                            <a href="#" class="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all text-sm uppercase tracking-wider" onclick="event.preventDefault(); Swal.fire({ title: 'Informasi', text: '{{ __('home.layanan_publik.lib_redirect') }}', icon: 'info', confirmButtonColor: '#174E93' });">{{ $libBtn }}</a>
+                                        @endif
+                                    </div>
                                 @endif
-                            </div>
 
                             @php
                                 $libCards = [];
@@ -1259,13 +1174,6 @@
                                         if ($c2Title || $c2Desc) $libCards[] = ['title' => $c2Title, 'desc' => $c2Desc];
                                         if ($c3Title || $c3Desc) $libCards[] = ['title' => $c3Title, 'desc' => $c3Desc];
                                     }
-                                }
-                                if (empty($libCards) && !$hasLibData) {
-                                    $libCards = [
-                                        ['title' => __('home.layanan_publik.lib_card1_title'), 'desc' => __('home.layanan_publik.lib_card1_desc')],
-                                        ['title' => __('home.layanan_publik.lib_card2_title'), 'desc' => __('home.layanan_publik.lib_card2_desc')],
-                                        ['title' => __('home.layanan_publik.lib_card3_title'), 'desc' => __('home.layanan_publik.lib_card3_desc')],
-                                    ];
                                 }
                                 // Icons array for variety
                                 $cardIcons = [
@@ -1291,7 +1199,7 @@
                             @endif
 
                             @php
-                                $libHours = $hasLibData ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_hours_en'] ?? $currentPage->extra_data['lib_hours'] ?? '') : ($currentPage->extra_data['lib_hours'] ?? '')) : __('home.layanan_publik.statis_hours');
+                                $libHours = !empty($currentPage->extra_data['lib_hours']) ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_hours_en'] ?? $currentPage->extra_data['lib_hours'] ?? '') : ($currentPage->extra_data['lib_hours'] ?? '')) : '';
                             @endphp
                             @if($libHours !== '')
                                 <h3 class="service-subtitle">{{ __('home.layanan_publik.service_hours') }}</h3>
@@ -1319,9 +1227,7 @@
                                         if ($r3) $libRules[] = $r3;
                                     }
                                 }
-                                if (empty($libRules) && !$hasLibData) {
-                                    $libRules = [__('home.layanan_publik.lib_rule1'), __('home.layanan_publik.lib_rule2'), __('home.layanan_publik.lib_rule3')];
-                                }
+
                             @endphp
                             @if(!empty($libRules))
                                 <h3 class="service-subtitle">{{ __('home.layanan_publik.rules') }}</h3>
@@ -1349,7 +1255,7 @@
                                 }
                             @endphp
 
-                            @if(!$hasLibData || !empty($displayLibPhotos))
+                            @if(!empty($displayLibPhotos))
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
                                     @if(!empty($displayLibPhotos))
                                         @php $totalPhotos = count($displayLibPhotos); @endphp
@@ -1370,7 +1276,7 @@
                             @endif
 
                             @php
-                                $libProcTitle = $hasLibData ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc_title_en'] ?? $currentPage->extra_data['lib_proc_title'] ?? '') : ($currentPage->extra_data['lib_proc_title'] ?? '')) : __('home.layanan_publik.lib_proc_title');
+                                $libProcTitle = !empty($currentPage->extra_data['lib_proc_title']) ? (app()->getLocale() == 'en' ? ($currentPage->extra_data['lib_proc_title_en'] ?? $currentPage->extra_data['lib_proc_title'] ?? '') : ($currentPage->extra_data['lib_proc_title'] ?? '')) : '';
                                 $libProcs = [];
                                 if ($currentPage && is_array($currentPage->extra_data)) {
                                     if (!empty($currentPage->extra_data['lib_procs']) && is_array($currentPage->extra_data['lib_procs'])) {
@@ -1396,16 +1302,8 @@
                                         if ($p4Title || $p4Desc) $libProcs[] = ['title' => $p4Title, 'desc' => $p4Desc];
                                     }
                                 }
-                                if (empty($libProcs) && !$hasLibData) {
-                                    $libProcs = [
-                                        ['title' => __('home.layanan_publik.lib_proc1_title'), 'desc' => __('home.layanan_publik.lib_proc1_desc')],
-                                        ['title' => __('home.layanan_publik.lib_proc2_title'), 'desc' => __('home.layanan_publik.lib_proc2_desc')],
-                                        ['title' => __('home.layanan_publik.lib_proc3_title'), 'desc' => __('home.layanan_publik.lib_proc3_desc')],
-                                        ['title' => __('home.layanan_publik.lib_proc4_title'), 'desc' => __('home.layanan_publik.lib_proc4_desc')],
-                                    ];
-                                }
                             @endphp
-                            @if($libProcTitle !== '' || !empty($libProcs))
+                            @if(!empty($libProcs))
                                 {{-- Prosedur Infographic --}}
                                 @if($libProcTitle !== '')
                                     <h3 class="service-subtitle">{{ $libProcTitle }}</h3>
@@ -1436,7 +1334,7 @@
                                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                                     <span>{{ $libPdfName }} ({{ $libPdfSizeStr }})</span>
                                 </a>
-                            @elseif(!$hasLibData)
+                            @elseif(!empty($currentPage->extra_data['lib_pdf']))
                                 <a href="#" class="btn-download-pdf" onclick="event.preventDefault(); Swal.fire({ title: '{{ __('home.layanan_publik.downloading_pdf') }}', text: '{{ __('home.layanan_publik.lib_pdf') }} {{ __('home.layanan_publik.downloading_pdf_desc') }}', icon: 'info', confirmButtonColor: '#174E93' });">
                                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                                     <span>{{ __('home.layanan_publik.lib_pdf') }}</span>
