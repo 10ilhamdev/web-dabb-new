@@ -86,7 +86,13 @@
         color: inherit;
         display: block;
         width: 340px; /* Normal size */
+        max-width: 100%;
         flex-shrink: 0;
+    }
+    @media (max-width: 480px) {
+        .vss-room-card {
+            width: 100% !important;
+        }
     }
     .vss-room-card:hover {
         transform: translateY(-4px);

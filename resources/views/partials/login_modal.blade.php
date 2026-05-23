@@ -7,20 +7,81 @@
       $loginModalRoomNames – array of room/page names for carousel (nullable)
       $loginModalRoomName – fallback single room name (nullable)
 --}}
+<style>
+    /* Ensure card stays clickable above backdrop on all viewports */
+    #loginRequiredModal .lrm-backdrop {
+        z-index: 1 !important;
+    }
+    #loginRequiredModal .lrm-card {
+        z-index: 2 !important;
+    }
+
+    /* Mobile responsive overrides for #loginRequiredModal (inline styles -> !important) */
+    @media (max-width: 768px) {
+        #loginRequiredModal {
+            padding: 0.75rem !important;
+            align-items: center !important;
+        }
+        #loginRequiredModal .lrm-card {
+            flex-direction: column !important;
+            width: 100% !important;
+            max-width: 360px !important;
+            min-height: 0 !important;
+            border-radius: 0.875rem !important;
+            max-height: calc(100vh - 1.5rem) !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        #loginRequiredModal .lrm-banner-side {
+            display: none !important;
+        }
+        #loginRequiredModal .lrm-form-side {
+            padding: 1.25rem 1.125rem !important;
+            flex: 1 1 auto !important;
+        }
+        #loginRequiredModal .lrm-form-side h2 {
+            font-size: 0.95rem !important;
+            margin-bottom: 0.35rem !important;
+        }
+        #loginRequiredModal .lrm-form-side h3 {
+            font-size: 0.9rem !important;
+        }
+        #loginRequiredModal .lrm-form-side p {
+            font-size: 0.72rem !important;
+        }
+        #loginRequiredModal .lrm-form-side input {
+            font-size: 16px !important;
+            padding: 8px 10px !important;
+        }
+        #loginRequiredModal .lrm-form-side button[type="submit"],
+        #loginRequiredModal .lrm-form-side a[href*="google"] {
+            padding: 9px !important;
+            font-size: 13px !important;
+        }
+    }
+    @media (max-width: 400px) {
+        #loginRequiredModal .lrm-card {
+            max-width: 100% !important;
+        }
+        #loginRequiredModal .lrm-form-side {
+            padding: 1rem 0.875rem !important;
+        }
+    }
+</style>
 <div id="loginRequiredModal"
     style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;"
     aria-modal="true" role="dialog">
 
     {{-- Backdrop --}}
-    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);"></div>
+    <div class="lrm-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);"></div>
 
     {{-- Card — compact size --}}
-    <div
+    <div class="lrm-card"
         style="position:relative;background:#fff;border-radius:1.5rem;width:100%;max-width:720px;
                 display:flex;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);min-height:400px;">
 
         {{-- ─── Left: Login Form ────────────────────────────────── --}}
-        <div
+        <div class="lrm-form-side"
             style="flex:1;padding:2.25rem 2.5rem;display:flex;flex-direction:column;justify-content:center;min-width:0;">
 
             <h2 style="color:#6c757d;font-size:1.15rem;font-weight:800;margin:0 0 0.75rem;">{{ __('auth.welcome') }}</h2>
@@ -105,7 +166,7 @@
         </div>
 
         {{-- ─── Right: Dynamic preview (carousel if multiple, single if one) ─── --}}
-        <div
+        <div class="lrm-banner-side"
             style="flex:1;position:relative;overflow:hidden;min-height:400px;display:flex;flex-direction:column;background:#000;">
 
             @php

@@ -190,7 +190,18 @@
         }
 
         @media (max-width: 1024px) {
-            .pub-container { grid-template-columns: 1fr; }
+            .pub-container { grid-template-columns: 1fr 240px; }
+        }
+        @media (max-width: 991px) {
+            .pub-container { grid-template-columns: 1fr; gap: 2rem; }
+            .detail-main { grid-column: 1 / -1; }
+            .news-sidebar {
+                grid-column: 1 / -1;
+                position: static !important;
+                max-height: none !important;
+                overflow: visible !important;
+                min-width: 0 !important;
+            }
         }
     </style>
 @endpush

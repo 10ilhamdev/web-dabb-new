@@ -17,7 +17,8 @@ class TrackPageView
         $excludedPaths = [
             'cms/*', 'api/*', 'login', 'register', 'password/*', 'email/*',
             'dashboard', 'dashboard/*', 'profile', 'profile/*', 'storage/*',
-            'lang/*', 'vss-image-proxy*'
+            'lang/*', 'vss-image-proxy*', '.well-known*', '.well-known/*',
+            'favicon.ico', '_debugbar/*'
         ];
 
         // Only track GET requests for public HTML pages

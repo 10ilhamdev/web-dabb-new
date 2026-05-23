@@ -291,3 +291,90 @@
         padding: 40px 30px;
     }
 }
+
+/* Enhanced mobile responsive */
+@media (max-width: 640px) {
+    .login-breadcrumb {
+        padding: 10px 0;
+        font-size: 13px;
+    }
+    .login-breadcrumb .container {
+        padding: 0 4%;
+    }
+    .login-hero {
+        height: 90px;
+    }
+    .login-hero .container {
+        padding: 0 4%;
+    }
+    .login-hero h1 {
+        font-size: 24px;
+        letter-spacing: 1px;
+    }
+    .login-main-wrapper {
+        padding: 20px 4%;
+    }
+    .login-card {
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    .login-form-side {
+        padding: 28px 20px;
+    }
+    .login-form-side h2 {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+    .login-form-side h3 {
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+    .login-form-side p.subtitle {
+        font-size: 12px;
+        margin-bottom: 18px;
+    }
+    .login-form-group {
+        margin-bottom: 12px;
+    }
+    .login-form-group label {
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+    .login-input {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+    .login-forgot {
+        font-size: 11px;
+        margin-bottom: 16px;
+    }
+    .btn-submit,
+    .btn-google {
+        padding: 10px;
+        font-size: 13px;
+    }
+    .login-divider {
+        margin: 16px 0;
+        font-size: 12px;
+    }
+    .login-register-text {
+        margin-top: 14px;
+        font-size: 12px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 400px) {
+    .login-hero h1 {
+        font-size: 20px;
+    }
+    .login-form-side {
+        padding: 24px 16px;
+    }
+    .login-form-side h2 {
+        font-size: 20px;
+    }
+    .login-form-side h3 {
+        font-size: 16px;
+    }
+}

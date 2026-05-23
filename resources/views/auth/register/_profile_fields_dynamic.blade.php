@@ -63,8 +63,9 @@
     @php $value = old($col->column_name); @endphp
     @if($col->column_name === 'tanggal_lahir')
         @php $labelDate = isset($colLabel) ? $colLabel($col->column_name) : ($col->column_label ?? str()->headline($col->column_name)); @endphp
-        <label for="{{ $col->column_name }}" class="{{ !$col->is_nullable ? 'required' : '' }}">{{ $labelDate }}</label>
-        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px;">
+        <div style="display: contents;">
+            <label for="{{ $col->column_name }}" class="{{ !$col->is_nullable ? 'required' : '' }}">{{ $labelDate }}</label>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
             @foreach($dateFields as $dcol)
                 @if($dcol->column_name === 'tempat_lahir')
                     @php
@@ -81,12 +82,15 @@
                         {{ !$dcol->is_nullable ? 'required' : '' }}>
                 @endif
             @endforeach
-            <input type="date"
-                name="{{ $col->column_name }}"
-                id="{{ $col->column_name }}"
-                class="login-input"
-                value="{{ $value }}"
-                {{ !$col->is_nullable ? 'required' : '' }}>
+            <div class="date-input-wrapper">
+                <input type="date"
+                    name="{{ $col->column_name }}"
+                    id="{{ $col->column_name }}"
+                    class="login-input"
+                    value="{{ $value }}"
+                    {{ !$col->is_nullable ? 'required' : '' }}>
+            </div>
+            </div>
         </div>
     @endif
 @endforeach
@@ -101,9 +105,9 @@
     @endphp
 
     @if($isGender)
-        <div style="grid-column: 1 / -1;">
+        <div style="display: contents;">
             <label class="{{ !$col->is_nullable ? 'required' : '' }}">{{ $label }}</label>
-            <div class="radio-group">
+            <div class="radio-group" style="align-items: flex-start;">
                 @foreach($options as $option)
                     <label class="radio-item">
                         <input type="radio" name="{{ $col->column_name }}" value="{{ $option }}"

@@ -76,6 +76,21 @@
     .form-grid label {
         margin-top: 10px;
     }
+
+    .form-grid hr {
+        margin: 20px 0;
+    }
+
+    /* File upload - stack on mobile */
+    .file-upload-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .file-upload-btn {
+        text-align: center;
+        justify-content: center;
+    }
 }
 
 .form-grid label {
@@ -91,11 +106,24 @@
     margin-left: 3px;
 }
 
+.date-input-wrapper {
+    position: relative;
+}
+.date-input-wrapper input[type="date"],
+.date-input-wrapper input[type="datetime-local"] {
+    width: 100%;
+    box-sizing: border-box;
+    /* Ensure native date picker icon is clickable on mobile */
+    min-height: 44px;
+}
+
 .radio-group {
     display: flex;
-    gap: 20px;
     align-items: center;
-    height: 44px;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .radio-item {
@@ -104,6 +132,7 @@
     gap: 8px;
     font-size: 14px;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 /* File Input Styling */
@@ -177,4 +206,59 @@ input[type="file"] {
 
 .btn-submit-form:hover {
     background: #0466AC;
+}
+
+/* ==========================================
+   RESPONSIVE ENHANCEMENTS
+   ========================================== */
+
+/* Tablet */
+@media (max-width: 900px) {
+    .register-card {
+        border-radius: 24px;
+        max-width: 100%;
+        min-height: auto;
+    }
+    .login-banner-side[style*="flex: 0.8"] {
+        display: none !important;
+    }
+    .login-form-side[style*="padding: 50px 60px"] {
+        padding: 40px 30px !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    .register-card {
+        border-radius: 16px;
+        min-height: auto;
+    }
+    .login-form-side {
+        padding: 28px 20px !important;
+    }
+    .login-form-side h2[style*="font-size: 26px"] {
+        font-size: 22px !important;
+        margin-bottom: 8px !important;
+    }
+    .login-form-side p[style*="margin-bottom: 40px"] {
+        margin-bottom: 28px !important;
+    }
+    .login-main-wrapper[style*="padding: 40px"] {
+        padding: 20px 4% !important;
+    }
+    .login-hero[style*="height: 200px"] {
+        height: 120px !important;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 400px) {
+    .login-form-side {
+        padding: 24px 16px !important;
+    }
+    .btn-submit-form {
+        width: 100%;
+        float: none;
+        margin-top: 16px;
+    }
 }

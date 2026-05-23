@@ -19,9 +19,9 @@ return [
     'feature_strip' => [
         'left' => 'Kunjungi pameran arsip virtual dan juga pameran kontemporer onsite yang tersedia di Depot Arsip Berkelanjutan Bandung.',
         'middle' => 'Kunjungi Pameran',
-        'middle_link' => '/pameran-arsip-virtual/pameran-arsip-virtual-real',
+        'middle_link' => '/pameran-arsip-virtual/pameran-arsip-virtual-360',
         'right_button' => 'Layanan Publik',
-        'right_button_link' => '/layanan-publik/layanan-penelitian',
+        'right_button_link' => '/layanan-publik/layanan-pendaftaran-kunjungan',
         'right_text' => 'Jelajahi berbagai fasilitas layanan kami. Daftarkan kunjungan Anda, manfaatkan layanan perawatan arsip (LARASKA), atau ajukan konsultasi kearsipan langsung kepada ahlinya.',
         'related_links' => [
             [
@@ -160,13 +160,10 @@ Disclaimer | #',
         'hotspot_count' => ':count hotspot',
         'room_title' => 'Ruangan',
     ],
-
-    // Instagram section (used in welcome.blade.php)
     'ig_username' => 'arsipnasionalri',
     'ig_name' => 'Arsip Nasional Republik Indonesia',
     'ig_stats' => 'postingan · pengikut · mengikuti',
     'ig_follow_btn' => 'Ikuti Kami',
-
     'virtual_slideshow' => [
         'hero_desc' => 'Jelajahi pameran arsip virtual dengan berbagai konten interaktif',
         'select_exhibition' => 'Pilih Pameran',
@@ -334,4 +331,3 @@ Disclaimer | #',
         'link_copied_desc' => 'Tautan telah berhasil disalin.',
     ],
 ];
-

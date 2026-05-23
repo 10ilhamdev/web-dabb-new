@@ -425,6 +425,9 @@ $(function () {
             };
             var pieChart = new ApexCharts(document.querySelector("#pieChart"), pieOptions);
             pieChart.render();
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+            }, 150);
         }
 
         if (document.querySelector("#lineChart") && lineSeries.length) {
@@ -438,13 +441,23 @@ $(function () {
                 colors: ['#0ea5e9'],
                 fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] } },
                 stroke: { curve: 'smooth', width: 3 },
-                xaxis: { categories: lineLabels, labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' } } },
+                xaxis: {
+                    categories: lineLabels,
+                    tickAmount: window.innerWidth < 768 ? 6 : undefined,
+                    labels: {
+                        hideOverlappingLabels: true,
+                        style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' }
+                    }
+                },
                 yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } } },
                 grid: { borderColor: '#f1f5f9', strokeDashArray: 3 },
                 tooltip: { x: { show: true }, y: { formatter: function(v) { return v + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } } }
             };
             var lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);
             lineChart.render();
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+            }, 150);
         }
     }
 });

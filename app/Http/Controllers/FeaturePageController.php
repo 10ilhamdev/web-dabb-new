@@ -336,7 +336,7 @@ class FeaturePageController extends Controller
                     $requiresLoginModal = true;
                     $loginModalRoomName = app()->getLocale() === 'en' && $currentPage->title_en ? $currentPage->title_en : $currentPage->title;
                 } else {
-                    \App\Models\LayananPublik::where('id', $currentPage->id)->increment('views');
+                    \Illuminate\Support\Facades\DB::table('layanan_publiks')->where('id', $currentPage->id)->increment('views');
                     $currentPage->views++;
                 }
             }
@@ -381,7 +381,7 @@ class FeaturePageController extends Controller
                     $requiresLoginModal = true;
                     $loginModalRoomName = app()->getLocale() === 'en' && $currentPage->name_en ? $currentPage->name_en : $currentPage->name;
                 } else {
-                    \App\Models\Pengelolaan::where('id', $currentPage->id)->increment('views');
+                    \Illuminate\Support\Facades\DB::table('pengelolaans')->where('id', $currentPage->id)->increment('views');
                     $currentPage->views++;
                 }
             }
@@ -414,7 +414,7 @@ class FeaturePageController extends Controller
             $pageNum = $pageNum ?? 1;
             $currentPage = $pages->values()->get($pageNum - 1);
             if ($currentPage) {
-                \App\Models\KontakKami::where('id', $currentPage->id)->increment('views');
+                \Illuminate\Support\Facades\DB::table('kontak_kami')->where('id', $currentPage->id)->increment('views');
                 $currentPage->views++;
             }
 
@@ -937,7 +937,7 @@ class FeaturePageController extends Controller
         $locale = app()->getLocale();
 
         // Increment views
-        \App\Models\Publication::where('id', $publication->id)->increment('views');
+        \Illuminate\Support\Facades\DB::table('publications')->where('id', $publication->id)->increment('views');
         $publication->views++;
 
         // Popular news for sidebar
@@ -959,7 +959,7 @@ class FeaturePageController extends Controller
     public function publicIncrementShares(Request $request, $id)
     {
         $publication = Publication::findOrFail($id);
-        \App\Models\Publication::where('id', $publication->id)->increment('shares');
+        \Illuminate\Support\Facades\DB::table('publications')->where('id', $publication->id)->increment('shares');
         $publication->shares++;
         return response()->json(['success' => true, 'shares' => $publication->shares]);
     }
@@ -967,7 +967,7 @@ class FeaturePageController extends Controller
     public function publicIncrementLayananPublikShares(Request $request, $id)
     {
         $layananPublik = \App\Models\LayananPublik::findOrFail($id);
-        \App\Models\LayananPublik::where('id', $layananPublik->id)->increment('shares');
+        \Illuminate\Support\Facades\DB::table('layanan_publiks')->where('id', $layananPublik->id)->increment('shares');
         $layananPublik->shares++;
         return response()->json(['success' => true, 'shares' => $layananPublik->shares]);
     }
@@ -975,7 +975,7 @@ class FeaturePageController extends Controller
     public function publicIncrementPengelolaanShares(Request $request, $id)
     {
         $pengelolaan = \App\Models\Pengelolaan::findOrFail($id);
-        \App\Models\Pengelolaan::where('id', $pengelolaan->id)->increment('shares');
+        \Illuminate\Support\Facades\DB::table('pengelolaans')->where('id', $pengelolaan->id)->increment('shares');
         $pengelolaan->shares++;
         return response()->json(['success' => true, 'shares' => $pengelolaan->shares]);
     }
@@ -983,7 +983,7 @@ class FeaturePageController extends Controller
     public function publicIncrementKontakKamiShares(Request $request, $id)
     {
         $kontakKami = \App\Models\KontakKami::findOrFail($id);
-        \App\Models\KontakKami::where('id', $kontakKami->id)->increment('shares');
+        \Illuminate\Support\Facades\DB::table('kontak_kami')->where('id', $kontakKami->id)->increment('shares');
         $kontakKami->shares++;
         return response()->json(['success' => true, 'shares' => $kontakKami->shares]);
     }

@@ -95,3 +95,33 @@
 }
 .preview-rot-btn:hover  { background: rgba(255, 255, 255, 0.2); }
 .preview-rot-btn.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+
+.preview-rot-container {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .room3d-preview-wrap {
+        height: 300px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .preview-rot-container {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 90%;
+        gap: 4px;
+        bottom: 8px;
+    }
+    .preview-rot-btn {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+}

@@ -454,7 +454,27 @@
         }
         .btn-sidebar-more:hover { background: #e2e8f0; color: #1a202c; }
 
-        @media (max-width: 1024px) { .pub-container { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) {
+            .pub-container { grid-template-columns: 1fr 240px; }
+        }
+        @media (max-width: 991px) {
+            .pub-container { grid-template-columns: 1fr; gap: 2rem; }
+            .detail-main { grid-column: 1 / -1; }
+            .news-sidebar {
+                grid-column: 1 / -1;
+                position: static !important;
+                max-height: none !important;
+                overflow: visible !important;
+                min-width: 0 !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .calendar-grid { gap: 0.25rem; }
+            .calendar-date { font-size: 0.85rem; }
+            .captcha-box { width: 100%; box-sizing: border-box; }
+            .circles-wrapper { flex-direction: column; gap: 1.5rem; }
+            .circle-arrow { display: none; }
+        }
     </style>
 @endpush
 

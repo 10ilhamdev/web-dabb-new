@@ -227,6 +227,7 @@ function renderWallItems() {
         el.appendChild(handle);
 
         el.addEventListener('mousedown', (e) => handleMouseDown(e, item.id));
+        el.addEventListener('touchstart', (e) => handleTouchStart(e, item.id), { passive: false });
 
         wallEditor.appendChild(el);
     });
@@ -370,6 +371,86 @@ function handleMouseUp() {
     isResizing = false;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+
+    // Update memory
+    if (activeItem) {
+        activeItem.position_x = parseFloat(document.getElementById('propX').value);
+        activeItem.position_y = parseFloat(document.getElementById('propY').value);
+        activeItem.width      = parseFloat(document.getElementById('propW').value);
+        activeItem.height     = parseFloat(document.getElementById('propH').value);
+    }
+}
+
+function handleTouchStart(e, id) {
+    if (e.touches.length > 1) return;
+    const touch = e.touches[0];
+    e.stopPropagation();
+    selectItem(id);
+
+    const el = document.getElementById('media-' + id);
+    if (!el) return;
+
+    if (e.target.classList.contains('resize-handle')) {
+        isResizing = true;
+    } else {
+        isDragging = true;
+    }
+
+    startX = touch.clientX;
+    startY = touch.clientY;
+
+    originalLeft   = parseFloat(el.style.left) || 0;
+    originalTop    = parseFloat(el.style.top) || 0;
+    originalWidth  = parseFloat(el.style.width) || 0;
+    originalHeight = parseFloat(el.style.height) || 0;
+
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+}
+
+function handleTouchMove(e) {
+    if (!activeItem) return;
+    if (e.touches.length > 1) return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    const wallEditor = document.getElementById('wallEditor');
+    const rect = wallEditor.getBoundingClientRect();
+
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    const pctX = (deltaX / rect.width) * 100;
+    const pctY = (deltaY / rect.height) * 100;
+
+    const el = document.getElementById('media-' + activeMediaId);
+    if (!el) return;
+
+    if (isDragging) {
+        let newLeft = Math.max(0, Math.min(100, originalLeft + pctX));
+        let newTop  = Math.max(0, Math.min(100, originalTop + pctY));
+
+        el.style.left = newLeft + '%';
+        el.style.top  = newTop + '%';
+
+        syncProperties(newLeft, newTop, parseFloat(el.style.width), parseFloat(el.style.height));
+
+    } else if (isResizing) {
+        let newWidth  = Math.max(5, Math.min(100, originalWidth + pctX));
+        let newHeight = Math.max(5, Math.min(100, originalHeight + pctY));
+
+        el.style.width  = newWidth + '%';
+        el.style.height = newHeight + '%';
+
+        syncProperties(parseFloat(el.style.left), parseFloat(el.style.top), newWidth, newHeight);
+    }
+}
+
+function handleTouchEnd(e) {
+    isDragging = false;
+    isResizing = false;
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
 
     // Update memory
     if (activeItem) {

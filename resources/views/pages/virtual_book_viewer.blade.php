@@ -90,13 +90,43 @@
             width: 100%;
             /* 550x733 ratio per page -> 1100x733 total = ~1.5 ratio */
             /* Scale width dynamically based on available height to ensure it fits without scrolling */
-            max-width: min(1200px, calc((100vh - 180px) * 1.5));
+            max-width: min(1200px, calc((100vh - 180px) * 1.5), 100%);
             margin: 0 auto;
             display: block;
             position: relative;
             padding: 10px 0;
             box-sizing: border-box;
             transition: max-width 0.3s ease;
+        }
+
+        @media (max-width: 640px) {
+            .viewer-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.75rem 1rem;
+                align-items: center;
+            }
+            .viewer-title {
+                font-size: 0.95rem;
+                order: -1;
+                flex: none;
+            }
+            .viewer-back {
+                font-size: 0.85rem;
+                flex: none;
+            }
+            .vb-controls button {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            .vb-search input {
+                width: 50px;
+                font-size: 0.8rem;
+            }
+            .vb-search button {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
         }
 
         /* Single page (portrait) mode: wrapper is ~90vw so one page is rendered

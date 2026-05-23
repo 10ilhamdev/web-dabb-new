@@ -113,7 +113,6 @@
         border-bottom: none;
     }
     .metadata-label {
-        width: 220px;
         font-weight: 700;
         color: #334155;
     }
@@ -174,22 +173,33 @@
         .book-info-side {
             width: 100%;
         }
-        .metadata-table td {
-            display: block;
-            text-align: left;
-            padding: 0.35rem 0;
-        }
-        .metadata-label {
-            width: 100%;
-            padding-top: 0.75rem;
-        }
-        .metadata-separator {
-            display: none;
-        }
         .metadata-table tr {
-            display: block;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: baseline;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 0.75rem;
+            gap: 0;
+        }
+        .metadata-table td {
+            display: block;
+            padding: 0;
+        }
+        .metadata-label {
+            width: auto;
+            padding-top: 0;
+            flex-shrink: 0;
+        }
+        .metadata-separator {
+            display: inline;
+            padding: 0 4px;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+        .metadata-value {
+            flex: 1;
+            min-width: 0;
         }
     }
 </style>

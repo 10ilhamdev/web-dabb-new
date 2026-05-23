@@ -729,10 +729,30 @@ body.rte-body-fullscreen {
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    /* Mobile: fit screen */
+    max-height: 85vh;
+    margin: auto;
 }
 
 .rte-modal-wide {
     max-width: 720px;
+}
+
+/* Mobile responsive */
+@media (max-width: 639px) {
+    .rte-modal-backdrop {
+        padding: 0;
+        align-items: flex-end;
+    }
+    .rte-modal,
+    .rte-modal.rte-modal-wide {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 16px 16px 0 0;
+        width: 100%;
+        position: relative;
+        margin: auto auto 0;
+    }
 }
 
 .rte-modal-header {
@@ -2000,4 +2020,46 @@ body.rte-body-fullscreen {
 
 .rte-carousel-caption-close:hover {
     color: #ff3b30 !important;
+}
+
+/* ===== RichTextEditor Mobile Responsiveness Override ===== */
+@media (max-width: 768px) {
+    /* Prevent wrapping, allow horizontal swipe-scrolling */
+    .rte-tb-top,
+    .rte-tb-bottom {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none !important; /* Firefox */
+        gap: 0 !important;
+        align-items: center !important;
+    }
+    
+    .rte-tb-top::-webkit-scrollbar,
+    .rte-tb-bottom::-webkit-scrollbar {
+        display: none !important; /* Chrome, Safari, Opera */
+    }
+
+    .rte-tb-row {
+        flex-wrap: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+
+    .rte-tb-group {
+        border-right: 1px solid #e2e8f0 !important;
+        flex-wrap: nowrap !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+    }
+
+    /* Make the entire editor shorter vertically so it fits well on phone screen height */
+    .richtexteditor {
+        min-height: 350px !important;
+    }
+    
+    /* Ensure content wrapper doesn't expand too much */
+    .rte-content-wrap {
+        min-height: 150px !important;
+    }
 }

@@ -92,6 +92,11 @@
             border-radius: 6px;
             overflow: hidden;
         }
+        @media (max-width: 480px) {
+            #propertiesPanel .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
     </style>
 @endpush
 
@@ -136,10 +141,10 @@
         <input type="hidden" name="auto_thumbnail" id="autoThumbnailInput">
         <input type="hidden" name="remove_thumbnail" id="removeThumbnailInput" value="0">
 
-        <div class="flex gap-6 items-start" style="flex-wrap: nowrap;">
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
 
             <!-- Left Column: Form, Colors, Media, Hotspot -->
-            <div class="space-y-6" style="width: 38%; min-width: 350px; flex-shrink: 0;">
+            <div class="space-y-6 w-full lg:w-[38%] lg:shrink-0">
 
                 <!-- Basic Information -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -416,7 +421,7 @@
             </div>
 
             <!-- Right Column: 3D Preview + Wall Editor -->
-            <div class="w-full space-y-6" style="width: 62%;">
+            <div class="w-full space-y-6 lg:w-[62%]">
 
                 <!-- 3D Preview -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -446,8 +451,7 @@
                             </div>
                         </div>
 
-                        <div
-                            style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:10;">
+                        <div class="preview-rot-container">
                             <button type="button" class="preview-rot-btn active"
                                 onclick="rotatePreview('default', this)">{{ __('cms.virtual_3d_rooms.preview_btn_default') }}</button>
                             <button type="button" class="preview-rot-btn"

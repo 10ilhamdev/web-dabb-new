@@ -24,10 +24,15 @@
 
 .vt-rooms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
     max-width: 1200px;
     margin: 0 auto;
+}
+@media (max-width: 480px) {
+    .vt-rooms-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .vt-room-card {
@@ -238,13 +243,35 @@
     font-size: 0.85rem; font-weight: 500; border-radius: 6px; white-space: nowrap; pointer-events: none;
     border: 1px solid rgba(255,255,255,0.2);
 }
-#vt3d-hint {
-    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    color: white; padding: 10px 20px; border-radius: 30px;
-    font-size: 0.85rem; pointer-events: none; opacity: 0.9;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+/* Mobile responsive for 3D viewer */
+@media (max-width: 640px) {
+    #vt3d-topbar {
+        height: 52px !important;
+        padding: 0 12px !important;
+    }
+    #vt3d-room-title {
+        font-size: 0.85rem !important;
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #vt3d-view-btns {
+        display: none !important;
+    }
+    #vt3d-close-btn {
+        width: 36px !important;
+        height: 36px !important;
+        flex-shrink: 0;
+    }
+    #vt3d-hint {
+        bottom: 20px !important;
+        font-size: 0.75rem !important;
+        padding: 8px 16px !important;
+    }
+    .vsshow-popup-card {
+        width: 95% !important;
+    }
 }
 
 /* ======== INFO POPUP STYLES (From Slideshow) ======== */

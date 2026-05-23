@@ -510,18 +510,29 @@
         backdrop.addEventListener('mousedown', function (e) { if (e.target === backdrop) close(); });
         document.body.appendChild(backdrop);
 
-        // --- Draggable modal ---
+        // --- Draggable modal (centered using flexbox) ---
         var isDragging = false;
         var dragOffX = 0, dragOffY = 0;
 
-        // Calculate initial centered position AFTER dialog is in DOM
-        var initLeft = (backdrop.clientWidth - dialog.offsetWidth) / 2;
-        var initTop = (backdrop.clientHeight - dialog.offsetHeight) / 2;
-        dialog.style.position = 'absolute';
-        dialog.style.left = initLeft + 'px';
-        dialog.style.top = initTop + 'px';
+        // On mobile (< 640px), center using flexbox. On desktop, use absolute positioning for drag
+        var isMobile = window.innerWidth < 640;
+        if (isMobile) {
+            // Mobile: let flexbox handle centering
+            dialog.style.position = 'relative';
+            dialog.style.margin = 'auto';
+        } else {
+            // Desktop: calculate centered position for dragging
+            var initLeft = (backdrop.clientWidth - dialog.offsetWidth) / 2;
+            var initTop = (backdrop.clientHeight - dialog.offsetHeight) / 2;
+            dialog.style.position = 'absolute';
+            dialog.style.left = Math.max(initLeft, 16) + 'px';
+            dialog.style.top = Math.max(initTop, 16) + 'px';
+            dialog.style.maxHeight = (backdrop.clientHeight - 32) + 'px';
+            dialog.style.overflow = 'auto';
+        }
 
         function onDragStart(e) {
+            if (isMobile) return; // No dragging on mobile
             var target = e.target;
             // Don't start drag if clicking a button, input, or the close button
             while (target && target !== dialog) {

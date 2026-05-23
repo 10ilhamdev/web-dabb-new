@@ -36,10 +36,23 @@
 
 <body class="text-gray-800 antialiased overflow-hidden">
     <!-- Alpine Root Component for Sidebar State -->
-    <div x-data="{ sidebarOpen: true }" class="flex h-screen bg-[#F4F6F9]">
+    <div x-data="{ sidebarOpen: window.innerWidth >= 1024 }" class="flex h-screen bg-[#F4F6F9]">
+
+        <!-- Sidebar Mobile Backdrop -->
+        <div x-show="sidebarOpen" 
+             class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+             @click="sidebarOpen = false"
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             x-cloak>
+        </div>
 
         <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'w-64' : 'w-20'"
+        <aside :class="sidebarOpen ? 'sidebar-open' : 'sidebar-closed'"
             class="sidebar text-white transition-all duration-300 ease-in-out flex flex-col h-full z-20 shrink-0">
 
             <!-- Logo Section -->
@@ -242,9 +255,9 @@
 
             <!-- Top Header -->
             <header
-                class="bg-white border-b border-gray-100 flex items-center justify-between px-6 py-4 shrink-0 shadow-sm relative z-10">
+                class="bg-white border-b border-gray-100 flex items-center justify-between px-3.5 py-3 sm:px-6 sm:py-4 shrink-0 shadow-sm relative z-10">
                 <!-- Left: Hamburger & Breadcrumb -->
-                <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-3 sm:space-x-6 min-w-0">
                     <button @click="sidebarOpen = !sidebarOpen"
                         class="text-white bg-[#174E93] hover:bg-blue-800 p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,69 +266,71 @@
                         </svg>
                     </button>
                     <!-- Header slot for optional page title/breadcrumb -->
-                    <div class="hidden sm:block">
+                    <div class="min-w-0">
                         @hasSection('header')
                             @yield('header')
                         @else
-                            <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1">
-                                @hasSection('breadcrumb_items')
-                                    @yield('breadcrumb_items')
-                                @else
-                                    @hasSection('breadcrumb_parent')
-                                        @hasSection('breadcrumb_parent_url')
-                                            <a href="@yield('breadcrumb_parent_url')"
-                                                class="text-gray-400 hover:text-gray-600 transition-colors">
-                                                @yield('breadcrumb_parent')
-                                            </a>
-                                        @else
-                                            <span class="text-gray-400">@yield('breadcrumb_parent')</span>
-                                        @endif
+                            <div class="text-[11px] sm:text-[13px] text-gray-500 font-medium flex items-center gap-1 min-w-0">
+                                <span class="hidden md:inline-flex items-center gap-1 min-w-0">
+                                    @hasSection('breadcrumb_items')
+                                        @yield('breadcrumb_items')
                                     @else
-                                        <a href="{{ route('dashboard') }}"
-                                            class="text-gray-400 hover:text-gray-600 transition-colors">
-                                            {{ __('dashboard.header.breadcrumb_home') }}
-                                        </a>
+                                        @hasSection('breadcrumb_parent')
+                                            @hasSection('breadcrumb_parent_url')
+                                                <a href="@yield('breadcrumb_parent_url')"
+                                                    class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                    @yield('breadcrumb_parent')
+                                                </a>
+                                            @else
+                                                <span class="text-gray-400">@yield('breadcrumb_parent')</span>
+                                            @endif
+                                        @else
+                                            <a href="{{ route('dashboard') }}"
+                                                class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                {{ __('dashboard.header.breadcrumb_home') }}
+                                            </a>
+                                        @endif
                                     @endif
-                                @endif
-                                <span class="text-gray-300">/</span>
-                                <span class="text-[#0ea5e9]">@yield('breadcrumb_active', __('dashboard.header.breadcrumb_home'))</span>
+                                    <span class="text-gray-300">/</span>
+                                </span>
+                                <span class="text-[#0ea5e9] truncate max-w-[100px] xs:max-w-none sm:max-w-none">@yield('breadcrumb_active', __('dashboard.header.breadcrumb_home'))</span>
                             </div>
                         @endif
                     </div>
                 </div>
 
                 <!-- Right: Language & Profile -->
-                <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-3 sm:space-x-6 min-w-0">
                     <!-- Language Switcher -->
-                    <div class="flex items-center space-x-2 text-[13px] font-semibold tracking-wide">
+                    <div class="flex items-center space-x-1.5 text-[12px] sm:text-[13px] font-semibold tracking-wide shrink-0">
                         <a href="{{ route('locale.switch', 'id') }}"
-                            class="px-2 py-1 rounded transition-colors {{ app()->getLocale() === 'id' ? 'bg-[#174E93] text-white' : 'text-gray-400 hover:text-gray-800 hover:bg-gray-100' }}">
+                            class="px-1.5 py-0.5 rounded transition-colors {{ app()->getLocale() === 'id' ? 'bg-[#174E93] text-white' : 'text-gray-400 hover:text-gray-800 hover:bg-gray-100' }}">
                             ID
                         </a>
                         <span class="text-gray-300">|</span>
                         <a href="{{ route('locale.switch', 'en') }}"
-                            class="px-2 py-1 rounded transition-colors {{ app()->getLocale() === 'en' ? 'bg-[#174E93] text-white' : 'text-gray-400 hover:text-gray-800 hover:bg-gray-100' }}">
+                            class="px-1.5 py-0.5 rounded transition-colors {{ app()->getLocale() === 'en' ? 'bg-[#174E93] text-white' : 'text-gray-400 hover:text-gray-800 hover:bg-gray-100' }}">
                             EN
                         </a>
                     </div>
 
-                    <div x-data="{ profileOpen: false }" class="relative flex items-center pl-4 border-l border-gray-200">
+                    <div x-data="{ profileOpen: false }" class="relative flex items-center pl-3 sm:pl-4 border-l border-gray-200 min-w-0">
                         <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false"
-                            class="flex items-center focus:outline-none w-full text-left">
+                            class="flex items-center focus:outline-none w-full text-left min-w-0">
                             <div
                                 class="flex items-center justify-center w-[40px] h-[40px] p-[2px] bg-white border border-gray-200 rounded-full shadow-sm shrink-0">
                                 <img class="w-full h-full rounded-full object-cover block"
                                     src="{{ auth()->user()->photo ? asset('storage/' . auth()->user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name ?? 'User') . '&background=E5E7EB&color=374151&bold=true' }}"
                                     alt="Avatar">
                             </div>
-                            <div class="ml-3 flex flex-col" style="line-height: 1.2;">
+                            <div class="ml-2 sm:ml-3 flex flex-col min-w-0" style="line-height: 1.2;">
                                 <span
-                                    class="text-[13px] font-semibold text-gray-800">{{ auth()->user()->name ?? __('dashboard.profile.default_name') }}</span>
+                                    class="text-[13px] font-semibold text-gray-800 truncate max-w-[75px] sm:max-w-none">{{ auth()->user()->name ?? __('dashboard.profile.default_name') }}</span>
                                 <span
-                                    class="text-[11px] text-gray-500">{{ is_null(auth()->user()->password) ? __('dashboard.profile.password_not_set') : __("dashboard.roles." . auth()->user()->role) }}</span>
+                                    class="text-[11px] text-gray-500 truncate max-w-[75px] sm:max-w-none">{{ is_null(auth()->user()->password) ? __('dashboard.profile.password_not_set') : __("dashboard.roles." . auth()->user()->role) }}</span>
                             </div>
                             <div
-                                class="ml-4 p-1 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 focus:outline-none">
+                                class="hidden sm:inline-flex ml-4 p-1 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 focus:outline-none shrink-0">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7"></path>
@@ -383,7 +398,7 @@
             </header>
 
             <!-- Page Content -->
-            <div id="mainContent" class="flex-1 overflow-x-hidden overflow-y-auto bg-[#F4F6FA] p-6 lg:p-8">
+            <div id="mainContent" class="flex-1 overflow-x-hidden overflow-y-auto bg-[#F4F6FA] p-4 sm:p-6 lg:p-8">
                 <main class="max-w-7xl mx-auto w-full">
                     @if (isset($slot) && !$__env->yieldContent('content'))
                         {{-- Component mode: used by <x-app-layout> --}}

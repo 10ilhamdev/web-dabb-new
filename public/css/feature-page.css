@@ -341,4 +341,53 @@
     .section-images-4cols {
         grid-template-columns: 1fr;
     }
+    .section-img-wrap img {
+        height: 180px;
+    }
+}
+
+/* Fix images not showing / being cut off on mobile */
+@media (max-width: 640px) {
+    .section-img-wrap {
+        overflow: hidden;
+        /* Ensure image is always fully visible */
+    }
+    .section-img-wrap img {
+        max-height: 220px;
+        object-fit: cover;
+        width: 100%;
+        height: auto;
+        /* Fallback for tall images */
+        aspect-ratio: 4/3;
+    }
+    /* Ensure the modal image is fully visible */
+    .feature-image-modal .modal-content {
+        max-width: 100vw;
+        max-height: 100vh;
+        width: auto;
+        height: auto;
+    }
+    .feature-image-modal .close-modal {
+        top: 10px;
+        right: 20px;
+        font-size: 32px;
+        z-index: 10;
+    }
+}
+
+/* Table responsive - horizontal scroll for tables on mobile */
+@media (max-width: 768px) {
+    .feature-content table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+        border-collapse: collapse;
+    }
+    .feature-content table tbody,
+    .feature-content table tr,
+    .feature-content table td,
+    .feature-content table th {
+        display: block;
+    }
 }

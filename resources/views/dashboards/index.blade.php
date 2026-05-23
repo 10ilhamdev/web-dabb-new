@@ -9,9 +9,9 @@
 @endsection
 
 @section('content')
-    <div class="mb-6">
+    <div class="mb-4 sm:mb-6">
         {{-- Dynamic greeting from lang file: dashboard.welcome.greeting_{role} --}}
-        <h1 class="text-[22px] font-bold text-[#1E293B] mb-2">
+        <h1 class="text-lg sm:text-xl md:text-[22px] font-bold text-[#1E293B] mb-1 sm:mb-2">
             @php
                 $greetingKey = "dashboard.welcome.greeting_{$role}";
                 $greeting = __($greetingKey, ['name' => $user->name]);
@@ -164,12 +164,12 @@
 
         {{-- ===== ADMIN: Chart with dynamic roles ===== --}}
         @if (in_array($role, ['admin', 'pegawai']))
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.admin.chart.title') }}</h2>
+            <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.admin.chart.title') }}</h2>
                     {{-- Timeframe selector for ApexCharts --}}
-                    <div class="flex flex-col gap-3">
-                        <div class="flex justify-between items-center flex-wrap gap-3">
+                    <div class="flex flex-col gap-2 sm:gap-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                             <div class="text-[11px] font-semibold text-gray-800">
                                 {{ __('dashboard.admin.chart.user_type') }}</div>
                              <select id="chartTimeframe"
@@ -180,9 +180,9 @@
                                 <option value="year">{{ __('dashboard.admin.chart.filter_year') }}</option>
                             </select>
                         </div>
-                        <div class="flex items-center gap-5 text-[11px] font-medium text-gray-600" style="gap: 20px;">
+                        <div class="flex flex-wrap items-center gap-3 sm:gap-5 text-[11px] font-medium text-gray-600">
                             {{-- Guest (always first) --}}
-                            <div class="flex items-center gap-2" style="gap: 8px;">
+                            <div class="flex items-center gap-1 sm:gap-2">
                                 <span
                                     style="width:12px;height:12px;min-width:12px;border-radius:999px;background-color:{{ $guestColor ?? '#cececeff' }};display:inline-block;"></span>
                                 <span>{{ __('dashboard.admin.chart.unregistered_user') }}</span>
@@ -190,7 +190,7 @@
                             {{-- Registered roles — dynamic from DB --}}
                             @foreach($chartRoles as $roleItem)
                             @php $roleColor = $chartColors[$roleItem->name] ?? '#6B7280'; @endphp
-                            <div class="flex items-center gap-2" style="gap: 8px;">
+                            <div class="flex items-center gap-1 sm:gap-2">
                                 <span
                                     style="width:12px;height:12px;min-width:12px;border-radius:999px;background-color:{{ $roleColor }};display:inline-block;"></span>
                                 <span>{{ $roleItem->i18nLabel() }}</span>
@@ -199,7 +199,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full relative" style="height: 350px;">
+                <div class="w-full relative" style="height: 300px; min-height: 250px;">
                     <div id="visitorChart"></div>
                 </div>
             </div>
@@ -207,9 +207,9 @@
 
         {{-- ===== NON-ADMIN: User's own visit chart ===== --}}
         @if (!in_array($role, ['admin', 'pegawai']))
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.user_chart.title') }}</h2>
+            <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-800" id="chartTitle">{{ __('dashboard.user_chart.title') }}</h2>
                     <select id="chartTimeframe"
                         class="text-xs border border-gray-200 rounded-lg pl-3 pr-10 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer bg-white">
                         <option value="day" selected>{{ __('dashboard.user_chart.filter_day') }}</option>
@@ -218,7 +218,7 @@
                         <option value="year">{{ __('dashboard.user_chart.filter_year') }}</option>
                     </select>
                 </div>
-                <div class="w-full relative" style="height: 350px;">
+                <div class="w-full relative" style="height: 300px; min-height: 250px;">
                     <div id="visitorChart"></div>
                 </div>
             </div>
@@ -341,7 +341,11 @@ document.addEventListener('DOMContentLoaded', function() {
             fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] } },
             xaxis: {
                 categories: getCategories(tf),
-                labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter, sans-serif' } },
+                tickAmount: window.innerWidth < 768 ? 6 : undefined,
+                labels: { 
+                    hideOverlappingLabels: true,
+                    style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter, sans-serif' } 
+                },
                 axisBorder: { show: false },
                 axisTicks: { show: false },
             },
@@ -356,7 +360,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         chartInstance = new ApexCharts(chartEl, options);
-            chartInstance.render();
+        chartInstance.render();
+        setTimeout(function() {
+            window.dispatchEvent(new Event('resize'));
+        }, 150);
     }
 
     renderChart(getTimeframe());
@@ -458,7 +465,11 @@ document.addEventListener('DOMContentLoaded', function() {
             fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] } },
             xaxis: {
                 categories: getCategories(tf),
-                labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter, sans-serif' } },
+                tickAmount: window.innerWidth < 768 ? 6 : undefined,
+                labels: { 
+                    hideOverlappingLabels: true,
+                    style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter, sans-serif' } 
+                },
                 axisBorder: { show: false },
                 axisTicks: { show: false },
             },
@@ -474,6 +485,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chartInstance = new ApexCharts(chartEl, options);
         chartInstance.render();
+        setTimeout(function() {
+            window.dispatchEvent(new Event('resize'));
+        }, 150);
     }
 
     renderChart(getTimeframe());

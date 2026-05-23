@@ -28,7 +28,7 @@
         <div class="register-card">
 
             <!-- Left Side: Form Area -->
-            <div class="login-form-side" style="padding: 50px 60px;">
+            <div class="login-form-side" style="padding: 50px 60px;" id="register-form-side">
                 <h2 style="font-size: 26px; margin-bottom: 10px; color: #495057;">{{ __('auth.register_heading') }}</h2>
                 <p class="subtitle" style="margin-bottom: 40px;">{{ __('auth.register_subtitle') }}</p>
 
@@ -141,7 +141,7 @@
             </div>
 
             <!-- Right Side: Image Banner -->
-            <div class="login-banner-side" style="flex: 0.8;">
+            <div class="login-banner-side register-banner" style="flex: 0.8;">
                 <div class="banner-overlay-logo">
                     <img src="{{ asset('image/logo_anri.png') }}" alt="ANRI Logo">
                     <div class="banner-overlay-text">

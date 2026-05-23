@@ -58,10 +58,10 @@
         @csrf
         @method('PUT')
 
-        <div class="flex gap-6 items-start" style="flex-wrap: nowrap;">
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
 
             <!-- Left Column: Form Fields -->
-            <div class="space-y-6" style="width: 38%; min-width: 380px; flex-shrink: 0;">
+            <div class="space-y-6 w-full lg:w-[38%] lg:shrink-0">
 
                 <!-- Multiple Image Upload Section -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -259,8 +259,8 @@
             </div>
 
             <!-- Right Column: Live Preview -->
-            <div class="flex-1" style="width: 62%;">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sticky top-6">
+            <div class="w-full lg:w-[62%]">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 lg:sticky lg:top-6">
                     <h3 class="text-sm font-semibold text-gray-800 mb-1">{{ __('cms.virtual_book_pages.preview_title') }}
                     </h3>
                     <p class="text-xs text-gray-500 mb-2">{{ __('cms.virtual_book_pages.preview_hint') }}</p>

@@ -11,13 +11,13 @@
 <div class="space-y-6">
 
     <!-- Page Header -->
-    <div class="flex items-center gap-3">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800">{{ __('cms.home.title') }}: {{ $feature->name }}</h1>
-            <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.home.desc') }}</p>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 sm:mb-0">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 truncate">{{ __('cms.home.title') }}: {{ $feature->name }}</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ __('cms.home.desc') }}</p>
         </div>
         <a href="{{ url($feature->path) }}" target="_blank"
-            class="ml-auto inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#174E93] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100">
+            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-[#174E93] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100 shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
             </svg>
@@ -45,8 +45,8 @@
                         <p class="text-xs text-gray-500">{{ __('cms.home.hero.desc') }}</p>
                     </div>
                 </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
+                <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="lg:col-span-2">
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.hero.hero_title') }}</label>
                         <input type="text" name="hero_title" value="{{ $idContent['hero_title'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
@@ -67,7 +67,7 @@
                             elseif (in_array($heroExt, ['jpg','jpeg','png','webp','gif','avif'])) $heroBgType = 'image';
                         }
                     @endphp
-                    <div class="md:col-span-2">
+                    <div class="lg:col-span-2">
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Background Hero (Gambar atau Video)</label>
 
                         @if($heroBgPath)
@@ -123,7 +123,7 @@
                         <p class="text-xs text-gray-500">{{ __('cms.home.feature_strip.desc') }}</p>
                     </div>
                 </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.feature_strip.left') }}</label>
                         <textarea name="feature_strip[left]" rows="3"
@@ -168,13 +168,13 @@
                         <p class="text-xs text-gray-500">{{ __('cms.home.info.desc') }}</p>
                     </div>
                 </div>
-                <div class="p-6 space-y-4">
+                <div class="p-4 sm:p-6 space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.section') }}</label>
                         <input type="text" name="sections[info_title]" value="{{ $idContent['sections']['info_title'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.image1') }}</label>
                             @if(!empty($idContent['sections']['info_image_1']))
@@ -192,7 +192,7 @@
                                 class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y">{{ $idContent['sections']['info_1'] ?? '' }}</textarea>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.image2') }}</label>
                             @if(!empty($idContent['sections']['info_image_2']))
@@ -386,13 +386,13 @@
                         <p class="text-xs text-gray-500">{{ __('cms.home.stats.desc') }}</p>
                     </div>
                 </div>
-                <div class="p-6 space-y-4">
+                <div class="p-4 sm:p-6 space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.section_titles.stats') }}</label>
                         <input type="text" name="sections[stats]" value="{{ $idContent['sections']['stats'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.stats.total') }}</label>
                             <input type="text" name="stats[total]" value="{{ $idContent['stats']['total'] ?? '' }}"
@@ -435,13 +435,13 @@
                         <p class="text-xs text-gray-500">{{ __('cms.home.youtube.desc') }}</p>
                     </div>
                 </div>
-                <div class="p-6 space-y-4">
+                <div class="p-4 sm:p-6 space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.section_titles.youtube') }}</label>
                         <input type="text" name="sections[youtube]" value="{{ $idContent['sections']['youtube'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="youtube-fields">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="youtube-fields">
                         @php
                             $youtubeIds = $idContent['youtube_ids'] ?? [];
                             // Show at least one empty field if no youtube IDs exist
@@ -513,7 +513,7 @@
                         <p class="text-xs text-gray-500">{{ __('cms.home.instagram.desc') }}</p>
                     </div>
                 </div>
-                <div class="p-6 space-y-4">
+                <div class="p-4 sm:p-6 space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.section_titles.instagram') }}</label>
                         <input type="text" name="sections[instagram]" value="{{ $idContent['sections']['instagram'] ?? '' }}"
@@ -583,13 +583,13 @@
             </div>
 
             <!-- Save Button -->
-            <div class="flex items-center justify-end gap-3 pb-4">
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-2 sm:gap-3 pb-4 px-4 sm:px-6">
                 <a href="{{ route('cms.features.index') }}"
-                    class="px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors">
+                    class="w-full sm:w-auto px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors text-center">
                     {{ __('cms.common.back') }}
                 </a>
                 <button type="submit"
-                    class="px-6 py-2.5 text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors shadow-sm">
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors shadow-sm">
                     {{ __('cms.common.save_content') }}
                 </button>
             </div>

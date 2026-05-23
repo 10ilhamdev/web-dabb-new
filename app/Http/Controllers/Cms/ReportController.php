@@ -486,9 +486,9 @@ class ReportController extends Controller
             $cached = \Illuminate\Support\Facades\Cache::get("online_user_{$u->id}");
             if ($cached && $cached >= $fiveMinAgo) {
                 $onlineUserIds[] = $u->id;
-                $u->last_activity = Carbon::createFromTimestamp($cached)->format('H:i:s');
+                $u->last_activity = Carbon::createFromTimestamp($cached, 'Asia/Jakarta')->format('H:i:s');
             } else {
-                $u->last_activity = $cached ? Carbon::createFromTimestamp($cached)->format('d M Y H:i:s') : '-';
+                $u->last_activity = $cached ? Carbon::createFromTimestamp($cached, 'Asia/Jakarta')->format('d M Y H:i:s') : '-';
             }
         }
         

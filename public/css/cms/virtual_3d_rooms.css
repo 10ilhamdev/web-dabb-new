@@ -167,3 +167,19 @@
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 768px) {
+    .wall-panel {
+        min-height: unset !important;
+        aspect-ratio: 16/9 !important;
+        width: 100% !important;
+    }
+    
+    .wall-tab-btn {
+        flex: 1 1 auto;
+        padding: 6px 4px;
+        font-size: 11px;
+        justify-content: center;
+        text-align: center;
+    }
+}

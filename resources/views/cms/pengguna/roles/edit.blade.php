@@ -121,7 +121,7 @@
 
             {{-- Columns Section --}}
             <div class="px-6 py-5 border-t border-gray-100">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                     <div>
                         <h3 class="text-base font-semibold text-gray-800">{{ __('cms.roles.columns_title') }}</h3>
                         <p class="text-sm text-gray-500">{{ __('cms.roles.columns_desc') }}</p>

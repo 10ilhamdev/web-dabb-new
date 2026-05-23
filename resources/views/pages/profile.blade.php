@@ -117,12 +117,17 @@
         }
 
         @media (max-width: 768px) {
-            .guest-dynamic-grid {
-                grid-template-columns: 1fr !important;
+            .profile-section {
+                width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
             }
-            .guest-dynamic-img-col {
-                min-width: 0 !important;
-                align-items: center !important;
+            .profile-section .container {
+                width: 1170px !important;
+                max-width: none !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+                box-sizing: border-box !important;
             }
         }
 
@@ -449,7 +454,7 @@
                                         $mt = $oY;
                                         $styleStr = "position: relative; border-radius: 0.75rem; overflow: visible !important; width: {$w}px; height: {$h}px; margin: {$mt}px {$mr}px 0 0; z-index: 10;";
                                     @endphp
-                                    <div style="{!! $styleStr !!}">
+                                    <div class="guest-img-wrapper" style="{!! $styleStr !!}">
                                         <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalX }}% {{ $focalY }}%; display: block; border-radius: 0.75rem;">
                                     </div>
                                 @endforeach
@@ -549,7 +554,7 @@
                                         $mt = $oY;
                                         $styleStr = "position: relative; border-radius: 0.75rem; overflow: visible !important; width: {$w}px; height: {$h}px; margin: {$mt}px {$mr}px 0 0; z-index: 10;";
                                     @endphp
-                                    <div style="{!! $styleStr !!}">
+                                    <div class="guest-img-wrapper" style="{!! $styleStr !!}">
                                         <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalX }}% {{ $focalY }}%; display: block; border-radius: 0.75rem;">
                                     </div>
                                 @endforeach
@@ -660,7 +665,7 @@
                                         $mt = $oY;
                                         $styleStr = "position: relative; border-radius: 0.75rem; overflow: visible !important; width: {$w}px; height: {$h}px; margin: {$mt}px {$mr}px 0 0; z-index: 10;";
                                     @endphp
-                                    <div style="{!! $styleStr !!}">
+                                    <div class="guest-img-wrapper" style="{!! $styleStr !!}">
                                         <img src="{{ asset('storage/' . $img) }}" alt="{{ $pageTitle }}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{ $focalX }}% {{ $focalY }}%; display: block; border-radius: 0.75rem;">
                                     </div>
                                 @endforeach

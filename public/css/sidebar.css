@@ -70,3 +70,193 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* ===== Desktop Sidebar Collapse Width ===== */
+@media (min-width: 1024px) {
+    .sidebar.sidebar-open {
+        width: 16rem !important; /* w-64 */
+    }
+    .sidebar.sidebar-closed {
+        width: 5rem !important; /* w-20 */
+    }
+}
+
+/* ===== Mobile Responsive Styles ===== */
+@media (max-width: 1023px) {
+    /* Sidebar on mobile: fixed overlay drawer */
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 50 !important;
+        height: 100% !important;
+        width: 280px !important;
+        max-width: 85vw;
+        overflow: hidden !important;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease-in-out !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0) !important;
+    }
+
+    .sidebar.sidebar-closed {
+        transform: translateX(-100%) !important;
+    }
+
+    /* Compact layout adjustments on mobile screens to maximize viewable area */
+    .sidebar .sidebar-link {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    /* Ensure sidebar content is scrollable on mobile */
+    .sidebar nav {
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        margin-top: 1rem !important;
+    }
+
+    .sidebar nav > * + * {
+        margin-top: 8px !important;
+    }
+
+    .sidebar > div:last-child {
+        padding-top: 8px !important;
+        padding-bottom: 16px !important;
+    }
+
+    .sidebar > div:last-child > * + * {
+        margin-top: 8px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Smaller sidebar on very small screens */
+    .sidebar {
+        width: 260px !important;
+        max-width: 80vw;
+    }
+
+    /* Adjust logo size on mobile */
+    .sidebar img[alt="Logo ANRI"] {
+        height: 32px !important;
+    }
+
+    /* Adjust text sizes in sidebar */
+    .sidebar-link span {
+        font-size: 13px !important;
+    }
+
+    .cms-dropdown a {
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+    }
+}
+
+/* ===== Global CMS Page Mobile Overrides ===== */
+@media (max-width: 1023px) {
+    /* Make card bodies containing tables scrollable horizontally so they don't break page layout */
+    .bg-white.rounded-xl.shadow-sm.border.border-gray-100 {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    
+    /* Ensure the direct parent div of the table handles horizontal overflow nicely */
+    .bg-white.rounded-xl.shadow-sm.border.border-gray-100 > div {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* DataTables container */
+    .dataTables_wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        min-width: 600px; /* Prevent table headers/columns from collapsing */
+    }
+}
+
+@media (max-width: 768px) {
+    /* Stack card headers vertically on mobile if they contain title + button */
+    .px-6.py-5.border-b.border-gray-100.flex.items-start.justify-between,
+    .px-6.py-5.border-b.border-gray-100.flex.items-center.justify-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+    
+    .px-6.py-5.border-b.border-gray-100.flex.items-start.justify-between a,
+    .px-6.py-5.border-b.border-gray-100.flex.items-center.justify-between a,
+    .px-6.py-5.border-b.border-gray-100.flex.items-start.justify-between button,
+    .px-6.py-5.border-b.border-gray-100.flex.items-center.justify-between button {
+        width: 100% !important;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* Stack main page header sections on mobile */
+    .space-y-6 > .flex.items-center.justify-between,
+    .space-y-6 > .flex.justify-between.items-center,
+    #mainContent main .flex.items-center.justify-between:first-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+    }
+    
+    .space-y-6 > .flex.items-center.justify-between > .flex.items-center.gap-3:last-child,
+    .space-y-6 > .flex.justify-between.items-center > .flex.items-center.gap-3:last-child,
+    #mainContent main .flex.items-center.justify-between:first-child > .flex.items-center.gap-3:last-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 0.5rem !important;
+    }
+    
+    .space-y-6 > .flex.items-center.justify-between > .flex.items-center.gap-3:last-child a,
+    .space-y-6 > .flex.items-center.justify-between > .flex.items-center.gap-3:last-child button,
+    .space-y-6 > .flex.justify-between.items-center > .flex.items-center.gap-3:last-child a,
+    .space-y-6 > .flex.justify-between.items-center > .flex.items-center.gap-3:last-child button,
+    #mainContent main .flex.items-center.justify-between:first-child > .flex.items-center.gap-3:last-child a,
+    #mainContent main .flex.items-center.justify-between:first-child > .flex.items-center.gap-3:last-child button,
+    .space-y-6 > .flex.items-center.justify-between > a,
+    .space-y-6 > .flex.items-center.justify-between > button,
+    .space-y-6 > .flex.justify-between.items-center > a,
+    .space-y-6 > .flex.justify-between.items-center > button,
+    #mainContent main .flex.items-center.justify-between:first-child > a,
+    #mainContent main .flex.items-center.justify-between:first-child > button {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Stack dynamial form flex item rows (e.g. holidays list, slots closed) on mobile */
+    .flex.items-center.gap-3.mb-3.p-3,
+    .flex.items-center.gap-3.p-3 {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* Force child fields to full width */
+    .flex.items-center.gap-3.mb-3.p-3 > div,
+    .flex.items-center.gap-3.p-3 > div {
+        width: 100% !important;
+    }
+    
+    /* But keep button icons row-aligned if they are inside a flex-row */
+    .flex.items-center.gap-3.mb-3.p-3 .flex-row,
+    .flex.items-center.gap-3.p-3 .flex-row {
+        flex-direction: row !important;
+    }
+}

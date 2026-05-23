@@ -422,7 +422,11 @@ $(function () {
                 legend: { show: false },
                 xaxis: {
                     categories: barLabels,
-                    labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 } }
+                    tickAmount: window.innerWidth < 768 ? 6 : undefined,
+                    labels: {
+                        hideOverlappingLabels: true,
+                        style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 }
+                    }
                 },
                 yaxis: {
                     labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } }
@@ -433,6 +437,9 @@ $(function () {
 
             var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
             barChart.render();
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+            }, 150);
         }
     }
 });

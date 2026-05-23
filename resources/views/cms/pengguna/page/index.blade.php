@@ -254,6 +254,22 @@
             background: #174E93 !important;
             color: white !important;
         }
+
+        .pengguna-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .pengguna-stats-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        @media (min-width: 1024px) {
+            .pengguna-stats-grid {
+                grid-template-columns: repeat({{ $allRoles->count() + 1 }}, minmax(0, 1fr));
+            }
+        }
     </style>
 @endpush
 
@@ -280,7 +296,7 @@
         </div>
 
         {{-- Dynamic Stats Cards (built from DB roles + verified count) --}}
-        <div style="display:grid;grid-template-columns:repeat({{ $allRoles->count() + 1 }}, minmax(0, 1fr));gap:0.75rem;">
+        <div class="pengguna-stats-grid">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-start justify-between gap-2">
                 <div>
                     <p class="text-sm text-gray-500">{{ __('cms.pengguna.stats_total') }}</p>

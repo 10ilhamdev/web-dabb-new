@@ -193,14 +193,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
 
         // Touch Events for mobile
+        let lastTouchDist = 0;
         wrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                // Pinch zoom start
+                lastTouchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                isDragging = false;
+                return;
+            }
             isDragging = true;
             dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             scene.style.transition = 'none';
-        });
+        }, { passive: true });
 
-        window.addEventListener('touchmove', (e) => {
+        wrapper.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                // Pinch zoom
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                if (lastTouchDist > 0) {
+                    const delta = (lastTouchDist - dist) * 2;
+                    currentZoom = Math.max(200, Math.min(1200, currentZoom + delta));
+                    updateSceneTransform();
+                }
+                lastTouchDist = dist;
+                e.preventDefault();
+                return;
+            }
             if (!isDragging) return;
             // Prevent scrolling while panning 3D viewer
             e.preventDefault();
@@ -220,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
             previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         }, { passive: false });
 
-        window.addEventListener('touchend', (e) => {
+        wrapper.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) lastTouchDist = 0;
             if (isDragging) {
                 isDragging = false;
                 scene.style.transition = 'transform 0.4s ease-out';
@@ -248,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const rect = activeDoor.getBoundingClientRect();
                             if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
                                 touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                                
+
                                 const doorWall = activeDoor.dataset.wall;
                                 let rotY = ((currentRotationY % 360) + 360) % 360;
                                 let isFacing = false;
@@ -256,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (doorWall === 'front') isFacing = (rotY < 90 || rotY > 270);
                                 if (doorWall === 'left')  isFacing = (rotY > 0 && rotY < 180);
                                 if (doorWall === 'right') isFacing = (rotY > 180 && rotY < 360);
-                                
+
                                 if (isFacing) {
                                     window.handleDoorClick(e, activeDoor);
                                 }

@@ -454,7 +454,11 @@ $(function () {
                 stroke: { curve: 'smooth', width: 3 },
                 xaxis: {
                     categories: lineLabels,
-                    labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 } }
+                    tickAmount: window.innerWidth < 768 ? 6 : undefined,
+                    labels: {
+                        hideOverlappingLabels: true,
+                        style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 }
+                    }
                 },
                 yaxis: {
                     forceNiceScale: true,
@@ -471,6 +475,9 @@ $(function () {
 
             var lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);
             lineChart.render();
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+            }, 150);
         }
     }
 });

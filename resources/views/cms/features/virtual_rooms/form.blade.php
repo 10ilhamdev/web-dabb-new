@@ -63,10 +63,10 @@
             @method('PUT')
         @endif
 
-        <div class="flex gap-6 items-start" style="flex-wrap: nowrap;">
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
 
             <!-- Left Column: Form & Hotspots -->
-            <div class="space-y-6" style="width: 38%; min-width: 350px; flex-shrink: 0;">
+            <div class="space-y-6 w-full lg:w-[38%] lg:shrink-0">
 
                 <!-- Basic Information -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -147,13 +147,12 @@
             </div>
 
             <!-- Right Column: 360 Preview -->
-            <div class="w-full" style="width: 62%;">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sticky top-6">
+            <div class="w-full lg:w-[62%]">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 lg:sticky lg:top-6">
                     <h3 class="text-sm font-semibold text-gray-800 mb-1">{{ __('cms.virtual_rooms.preview_title') }}</h3>
                     <p class="text-xs text-gray-500 mb-4">{{ __('cms.virtual_rooms.preview_desc') }}</p>
 
-                    <div class="w-full bg-gray-900 rounded-xl overflow-hidden relative" id="panorama-container"
-                        style="height: 550px;">
+                    <div class="w-full bg-gray-900 rounded-xl overflow-hidden relative h-[300px] sm:h-[450px] lg:h-[550px]" id="panorama-container">
                         <!-- Pannellum viewer mounts here -->
                         <div id="panorama" class="w-full h-full"></div>
 
