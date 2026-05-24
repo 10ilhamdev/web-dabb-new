@@ -12,7 +12,7 @@ class ResetPasswordANRI extends Notification
     /**
      * The password reset token.
      */
-    protected string $token;
+    public string $token;
 
     /**
      * Create a new notification instance.

@@ -13,12 +13,13 @@ class TrackPageView
     {
         $response = $next($request);
 
-        // Exclude internal paths, APIs, assets, and auth routes
         $excludedPaths = [
             'cms/*', 'api/*', 'login', 'register', 'password/*', 'email/*',
             'dashboard', 'dashboard/*', 'profile', 'profile/*', 'storage/*',
             'lang/*', 'vss-image-proxy*', '.well-known*', '.well-known/*',
-            'favicon.ico', '_debugbar/*'
+            'favicon.ico', '_debugbar/*',
+            'forgot-password', 'reset-password/*', 'verify-email/*', 'verification-status',
+            'css/*', 'js/*', 'images/*', 'img/*', 'assets/*'
         ];
 
         // Only track GET requests for public HTML pages

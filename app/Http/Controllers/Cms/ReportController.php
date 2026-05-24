@@ -21,7 +21,15 @@ class ReportController extends Controller
         $user = $request->user();
         $role = $user?->role ?? 'admin';
         $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
-        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        $hasOwnPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.own'));
+
+        if (!$hasAllPermission && !$hasOwnPermission) {
+            abort(403, 'Anda tidak memiliki akses ke halaman laporan.');
+        }
+
+        $isAdminOrPegawai = $hasAllPermission;
 
         $tf = $request->input('tf', 'day'); // day, week, month, year, custom
         $startDate = $request->input('start_date');
@@ -139,7 +147,15 @@ class ReportController extends Controller
         $user = $request->user();
         $role = $user?->role ?? 'admin';
         $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
-        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        $hasOwnPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.own'));
+
+        if (!$hasAllPermission && !$hasOwnPermission) {
+            abort(403, 'Anda tidak memiliki akses ke halaman laporan.');
+        }
+
+        $isAdminOrPegawai = $hasAllPermission;
 
         $tf = $request->input('tf', 'day'); // day, week, month, year, custom
         $startDate = $request->input('start_date');
@@ -149,6 +165,19 @@ class ReportController extends Controller
         if (!$isAdminOrPegawai && $user) {
             $query->where('user_id', $user->id);
         }
+
+        // Only include official website pages
+        $query->where(function ($q) {
+            $q->where('path', '/')
+              ->orWhere('path', 'like', 'profil%')
+              ->orWhere('path', 'like', '%pameran-arsip%')
+              ->orWhere('path', 'like', '%pengumuman%')
+              ->orWhere('path', 'like', '%berita%')
+              ->orWhere('path', 'like', '%galeri%')
+              ->orWhere('path', 'like', '%layanan-publik%')
+              ->orWhere('path', 'like', '%pengelolaan%')
+              ->orWhere('path', 'like', '%kontak-kami%');
+        });
 
         $now = Carbon::now();
 
@@ -181,7 +210,15 @@ class ReportController extends Controller
         $user = $request->user();
         $role = $user?->role ?? 'admin';
         $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
-        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        $hasOwnPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.own'));
+
+        if (!$hasAllPermission && !$hasOwnPermission) {
+            abort(403, 'Anda tidak memiliki akses ke halaman laporan.');
+        }
+
+        $isAdminOrPegawai = $hasAllPermission;
 
         $tf = $request->input('tf', 'day'); // day, week, month, year, custom
         $startDate = $request->input('start_date');
@@ -191,6 +228,19 @@ class ReportController extends Controller
         if (!$isAdminOrPegawai && $user) {
             $query->where('user_id', $user->id);
         }
+
+        // Only include official website pages
+        $query->where(function ($q) {
+            $q->where('path', '/')
+              ->orWhere('path', 'like', 'profil%')
+              ->orWhere('path', 'like', '%pameran-arsip%')
+              ->orWhere('path', 'like', '%pengumuman%')
+              ->orWhere('path', 'like', '%berita%')
+              ->orWhere('path', 'like', '%galeri%')
+              ->orWhere('path', 'like', '%layanan-publik%')
+              ->orWhere('path', 'like', '%pengelolaan%')
+              ->orWhere('path', 'like', '%kontak-kami%');
+        });
 
         $now = Carbon::now();
 
@@ -217,6 +267,7 @@ class ReportController extends Controller
         // Define page mapping
         $pages = [
             'beranda' => ['label' => 'Beranda', 'match' => '/', 'count' => 0],
+            'profil' => ['label' => 'Profil', 'match' => 'profil', 'count' => 0],
             'pameran' => ['label' => 'Pameran Arsip', 'match' => 'pameran-arsip', 'count' => 0],
             'pengumuman' => ['label' => 'Pengumuman', 'match' => 'pengumuman', 'count' => 0],
             'berita' => ['label' => 'Berita', 'match' => 'berita', 'count' => 0],
@@ -233,13 +284,10 @@ class ReportController extends Controller
                 $normalizedPath = '/';
             }
 
-            // Skip main menus that have no pages of their own
-            if ($normalizedPath === 'pameran-arsip' || $normalizedPath === 'layanan-publik' || $normalizedPath === 'pengelolaan') {
-                continue;
-            }
-
             if ($normalizedPath === '/') {
                 $pages['beranda']['count']++;
+            } elseif (str_contains($normalizedPath, 'profil')) {
+                $pages['profil']['count']++;
             } elseif (str_contains($normalizedPath, 'pameran-arsip')) {
                 $pages['pameran']['count']++;
             } elseif (str_contains($normalizedPath, 'pengumuman')) {
@@ -286,7 +334,15 @@ class ReportController extends Controller
         $user = $request->user();
         $role = $user?->role ?? 'admin';
         $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
-        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        $hasOwnPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.own'));
+
+        if (!$hasAllPermission && !$hasOwnPermission) {
+            abort(403, 'Anda tidak memiliki akses ke halaman laporan.');
+        }
+
+        $isAdminOrPegawai = $hasAllPermission;
 
         $tf = $request->input('tf', 'day'); // day, week, month, year, custom
         $startDate = $request->input('start_date');
@@ -296,6 +352,19 @@ class ReportController extends Controller
         if (!$isAdminOrPegawai && $user) {
             $query->where('user_id', $user->id);
         }
+
+        // Only include official website pages
+        $query->where(function ($q) {
+            $q->where('path', '/')
+              ->orWhere('path', 'like', 'profil%')
+              ->orWhere('path', 'like', '%pameran-arsip%')
+              ->orWhere('path', 'like', '%pengumuman%')
+              ->orWhere('path', 'like', '%berita%')
+              ->orWhere('path', 'like', '%galeri%')
+              ->orWhere('path', 'like', '%layanan-publik%')
+              ->orWhere('path', 'like', '%pengelolaan%')
+              ->orWhere('path', 'like', '%kontak-kami%');
+        });
 
         $now = Carbon::now();
 
@@ -324,6 +393,7 @@ class ReportController extends Controller
         // Define page mapping
         $pages = [
             'beranda' => ['label' => 'Beranda', 'match' => '/', 'count' => 0],
+            'profil' => ['label' => 'Profil', 'match' => 'profil', 'count' => 0],
             'pameran' => ['label' => 'Pameran Arsip', 'match' => 'pameran-arsip', 'count' => 0],
             'pengumuman' => ['label' => 'Pengumuman', 'match' => 'pengumuman', 'count' => 0],
             'berita' => ['label' => 'Berita', 'match' => 'berita', 'count' => 0],
@@ -343,14 +413,11 @@ class ReportController extends Controller
                 $normalizedPath = '/';
             }
 
-            // Skip main menus that have no pages of their own
-            if ($normalizedPath === 'pameran-arsip' || $normalizedPath === 'layanan-publik' || $normalizedPath === 'pengelolaan') {
-                continue;
-            }
-
             // Determine category
             if ($normalizedPath === '/') {
                 $category = 'beranda';
+            } elseif (str_contains($normalizedPath, 'profil')) {
+                $category = 'profil';
             } elseif (str_contains($normalizedPath, 'pameran-arsip')) {
                 $category = 'pameran';
             } elseif (str_contains($normalizedPath, 'pengumuman')) {
@@ -366,7 +433,7 @@ class ReportController extends Controller
             } elseif (str_contains($normalizedPath, 'kontak-kami')) {
                 $category = 'kontak';
             } else {
-                continue; // Skip other unmatched pages
+                continue; // Ignore any unmapped pages
             }
 
             // Create unique key for this IP, Date, and specific Path
@@ -376,7 +443,9 @@ class ReportController extends Controller
 
         // Increment counts based on unique page visits
         foreach ($uniquePageVisits as $category) {
-            $pages[$category]['count']++;
+            if (isset($pages[$category])) {
+                $pages[$category]['count']++;
+            }
         }
 
         $barLabels = array_column($pages, 'label');
@@ -412,7 +481,15 @@ class ReportController extends Controller
         $user = $request->user();
         $role = $user?->role ?? 'admin';
         $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
-        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        $hasOwnPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.own'));
+
+        if (!$hasAllPermission && !$hasOwnPermission) {
+            abort(403, 'Anda tidak memiliki akses ke halaman laporan.');
+        }
+
+        $isAdminOrPegawai = $hasAllPermission;
 
         $tf = $request->input('tf', 'day'); // day, week, month, year, custom
         $startDate = $request->input('start_date');
@@ -465,7 +542,15 @@ class ReportController extends Controller
         $user = $request->user();
         $role = $user?->role ?? 'admin';
         $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
-        $isAdminOrPegawai = in_array($role, ['admin', 'pegawai'], true) || ($userRoleObj && $userRoleObj->hasPermission('cms.reports'));
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        $hasOwnPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.own'));
+
+        if (!$hasAllPermission && !$hasOwnPermission) {
+            abort(403, 'Anda tidak memiliki akses ke halaman laporan.');
+        }
+
+        $isAdminOrPegawai = $hasAllPermission;
 
         $tf = $request->input('tf', 'day'); // day, week, month, year, custom
         $startDate = $request->input('start_date');
@@ -496,7 +581,19 @@ class ReportController extends Controller
         $onlineCount = $onlineUsersList->count();
 
         // Base Query untuk filter TF
-        $baseQuery = PageView::whereNotNull('user_id');
+        // Hanya hitung PageView dari halaman website publik (konsisten dengan laporan pengunjung)
+        $baseQuery = PageView::query()
+            ->where(function ($q) {
+                $q->where('path', '/')
+                  ->orWhere('path', 'like', 'profil%')
+                  ->orWhere('path', 'like', '%pameran-arsip%')
+                  ->orWhere('path', 'like', '%pengumuman%')
+                  ->orWhere('path', 'like', '%berita%')
+                  ->orWhere('path', 'like', '%galeri%')
+                  ->orWhere('path', 'like', '%layanan-publik%')
+                  ->orWhere('path', 'like', '%pengelolaan%')
+                  ->orWhere('path', 'like', '%kontak-kami%');
+            });
         if (!$isAdminOrPegawai && $user) {
             $baseQuery->where('user_id', $user->id);
         }
@@ -565,13 +662,17 @@ class ReportController extends Controller
 
         $todayActivityLogs = $activitySummary->map(function ($row) use ($baseQuery) {
             $latestView = (clone $baseQuery)
-                ->where('user_id', $row->user_id)
+                ->when($row->user_id, function($q) use ($row) {
+                    $q->where('user_id', $row->user_id);
+                }, function($q) {
+                    $q->whereNull('user_id');
+                })
                 ->latest('created_at')
                 ->first();
 
             return [
-                'name' => $row->user?->name ?? 'Pengguna #' . $row->user_id,
-                'role' => $row->user?->role ?? 'user',
+                'name' => $row->user?->name ?? ($row->user_id ? 'Pengguna #' . $row->user_id : 'Pengunjung Umum (Guest)'),
+                'role' => $row->user?->role ?? ($row->user_id ? 'user' : 'guest'),
                 'total_views' => $row->page_views,
                 'last_path' => $latestView?->path ?? '/',
                 'last_activity' => $latestView?->created_at ? $latestView->created_at->format('H:i:s') : '-',
@@ -580,6 +681,7 @@ class ReportController extends Controller
 
         return view('cms.reports.online', compact(
             'role',
+            'hasAllPermission',
             'tf',
             'startDate',
             'endDate',

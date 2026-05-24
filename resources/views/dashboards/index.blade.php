@@ -132,7 +132,7 @@
                         </div>
                     </div>
                     <div class="mt-4 text-right">
-                        <a href="#chartTitle"
+                        <a href="{{ route('cms.reports.pengunjung') }}"
                             class="text-[11px] font-medium text-gray-400 hover:text-blue-500">{{ __('dashboard.user_stats.view_details') }}</a>
                     </div>
                 </div>
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                     <div class="mt-4 text-right">
-                        <a href="#chartTitle"
+                        <a href="{{ route('cms.reports.pengunjung') }}"
                             class="text-[11px] font-medium text-gray-400 hover:text-blue-500">{{ __('dashboard.user_stats.view_details') }}</a>
                     </div>
                 </div>

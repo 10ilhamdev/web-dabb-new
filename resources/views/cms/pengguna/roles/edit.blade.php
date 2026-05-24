@@ -358,16 +358,100 @@
                             </label>
                             @if (isset($menu['children']))
                                 <div class="ml-5 space-y-1.5 permissions-children" data-parent="{{ $key }}">
-                                    @foreach ($menu['children'] as $childKey => $childLabel)
-                                        @php $checked = $rolePerms[$childKey] ?? true; @endphp
-                                        <label class="inline-flex items-center gap-2 cursor-pointer">
-                                            <input type="hidden" name="permissions[{{ $childKey }}]" value="0">
-                                            <input type="checkbox" name="permissions[{{ $childKey }}]" value="1"
-                                                class="child-permission w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                                data-parent="{{ $key }}"
-                                                {{ $checked ? 'checked' : '' }}>
-                                            <span class="text-sm text-gray-700">{{ $childLabel }}</span>
-                                        </label>
+                                    @foreach ($menu['children'] as $childKey => $childVal)
+                                        @if (is_array($childVal))
+                                            @php
+                                                $checked = $rolePerms[$childKey] ?? true;
+                                                if (is_array($childVal) && !empty($childVal['exclusive'])) {
+                                                    $anySubChecked = false;
+                                                    foreach ($childVal['sub_permissions'] as $subKey => $subLabel) {
+                                                        if (!empty($rolePerms[$subKey])) {
+                                                            $anySubChecked = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if ($anySubChecked) {
+                                                        $checked = true;
+                                                    }
+                                                }
+                                            @endphp
+                                            <div class="space-y-1.5 border-l-2 border-gray-200 pl-3">
+                                                <label class="inline-flex items-center gap-2 cursor-pointer w-full">
+                                                    <input type="hidden" name="permissions[{{ $childKey }}]" value="0">
+                                                    <input type="checkbox" name="permissions[{{ $childKey }}]" value="1"
+                                                        class="child-permission w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                        data-parent="{{ $key }}"
+                                                        data-menu-key="{{ $childKey }}"
+                                                        onchange="toggleSubPermissions(this, '{{ $childKey }}')"
+                                                        {{ $checked ? 'checked' : '' }}>
+                                                    <span class="text-sm font-medium text-gray-800">{{ $childVal['label'] }}</span>
+                                                </label>
+                                                <div class="ml-4 space-y-1.5 sub-permissions-container" data-child-parent="{{ $childKey }}">
+                                                        @php
+                                                            $isExclusive = !empty($childVal['exclusive']);
+                                                        @endphp
+                                                        @if($isExclusive)
+                                                            {{-- Exclusive group: render as radio (pilih satu) --}}
+                                                            @php
+                                                                // Cari sub_permission mana yang aktif (all > own)
+                                                                $activeSubKey = null;
+                                                                foreach ($childVal['sub_permissions'] as $sk => $sl) {
+                                                                    if (!empty($rolePerms[$sk])) {
+                                                                        $activeSubKey = $sk;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                                // Jika tidak ada yang tersimpan, default ke yang pertama
+                                                                if (!$activeSubKey) {
+                                                                    $activeSubKey = array_key_first($childVal['sub_permissions']);
+                                                                }
+                                                            @endphp
+                                                            <input type="hidden" name="permissions[{{ $childKey }}]" value="0">
+                                                            @foreach ($childVal['sub_permissions'] as $subKey => $subLabel)
+                                                                <label class="inline-flex items-center gap-2 cursor-pointer">
+                                                                    <input type="radio" name="exclusive_perm[{{ $childKey }}]" value="{{ $subKey }}"
+                                                                        class="excl-radio w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                                        data-parent="{{ $childKey }}"
+                                                                        data-excl-group="{{ $childKey }}"
+                                                                        onchange="syncExclusivePermission(this)"
+                                                                        {{ $subKey === $activeSubKey ? 'checked' : '' }}>
+                                                                    <span class="text-sm text-gray-700">{{ $subLabel }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                            {{-- Hidden checkboxes diatur JS berdasarkan radio --}}
+                                                            @foreach ($childVal['sub_permissions'] as $subKey => $subLabel)
+                                                                <input type="hidden" name="permissions[{{ $subKey }}]" value="0" id="excl_hidden_{{ $subKey }}">
+                                                                <input type="checkbox" name="permissions[{{ $subKey }}]" value="1"
+                                                                    id="excl_cb_{{ $subKey }}"
+                                                                    class="hidden"
+                                                                    {{ $subKey === $activeSubKey ? 'checked' : '' }}>
+                                                            @endforeach
+                                                        @else
+                                                            @foreach ($childVal['sub_permissions'] as $subKey => $subLabel)
+                                                                @php $subChecked = $rolePerms[$subKey] ?? true; @endphp
+                                                                <label class="inline-flex items-center gap-2 cursor-pointer">
+                                                                    <input type="hidden" name="permissions[{{ $subKey }}]" value="0">
+                                                                    <input type="checkbox" name="permissions[{{ $subKey }}]" value="1"
+                                                                        class="sub-permission w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                        data-parent="{{ $childKey }}"
+                                                                        {{ $subChecked ? 'checked' : '' }}>
+                                                                    <span class="text-sm text-gray-700">{{ $subLabel }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        @endif
+                                                    </div>
+                                            </div>
+                                        @else
+                                            @php $checked = $rolePerms[$childKey] ?? true; @endphp
+                                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                                                <input type="hidden" name="permissions[{{ $childKey }}]" value="0">
+                                                <input type="checkbox" name="permissions[{{ $childKey }}]" value="1"
+                                                    class="child-permission w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                    data-parent="{{ $key }}"
+                                                    {{ $checked ? 'checked' : '' }}>
+                                                <span class="text-sm text-gray-700">{{ $childVal }}</span>
+                                            </label>
+                                        @endif
                                     @endforeach
                                 </div>
                             @else
@@ -1062,10 +1146,91 @@
             const children = document.querySelectorAll(`.child-permission[data-parent="${parentKey}"]`);
             children.forEach(child => {
                 child.checked = checkbox.checked;
+                if (child.hasAttribute('data-menu-key')) {
+                    toggleSubPermissions(child, child.getAttribute('data-menu-key'));
+                }
             });
         }
 
+        function toggleSubPermissions(checkbox, childKey) {
+            const subPerms = document.querySelectorAll(`.sub-permission[data-parent="${childKey}"]`);
+            subPerms.forEach(sub => {
+                // Jangan ubah radio exclusive — hanya checkbox biasa
+                if (sub.type === 'radio') return;
+                sub.checked = checkbox.checked;
+            });
+
+            // Sync exclusive radio group state
+            syncExclusiveGroupState(checkbox);
+        }
+
+        function syncExclusiveGroupState(childCheckbox) {
+            const childKey = childCheckbox.getAttribute('data-menu-key') || childCheckbox.dataset.menuKey;
+            if (!childKey) return;
+
+            const radios = document.querySelectorAll(`input[type="radio"][data-excl-group="${childKey}"]`);
+            if (radios.length === 0) return;
+
+            if (childCheckbox.checked) {
+                // Enable radios
+                radios.forEach(r => {
+                    r.disabled = false;
+                });
+                // Sync the hidden checkboxes based on the checked radio
+                const checkedRadio = document.querySelector(`input[type="radio"][data-excl-group="${childKey}"]:checked`);
+                if (checkedRadio) {
+                    syncExclusivePermission(checkedRadio);
+                } else if (radios.length > 0) {
+                    radios[0].checked = true;
+                    syncExclusivePermission(radios[0]);
+                }
+            } else {
+                // Disable radios
+                radios.forEach(r => {
+                    r.disabled = true;
+                });
+                // Uncheck all hidden checkboxes so they submit 0
+                radios.forEach(r => {
+                    const cb = document.getElementById('excl_cb_' + r.value);
+                    if (cb) cb.checked = false;
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Level 3 (sub-permission) changes Level 2 (child-permission)
+            document.querySelectorAll('.sub-permission').forEach(sub => {
+                sub.addEventListener('change', function() {
+                    // Lewati radio exclusive — mereka tidak langsung update parent
+                    if (this.type === 'radio') return;
+                    const childKey = this.dataset.parent;
+                    const childCheckbox = document.querySelector(`.child-permission[data-menu-key="${childKey}"]`);
+                    const siblings = document.querySelectorAll(`.sub-permission[data-parent="${childKey}"]:not([type="radio"])`);
+                    const allChecked = Array.from(siblings).every(s => s.checked);
+                    const anyChecked = Array.from(siblings).some(s => s.checked);
+                    if (childCheckbox) {
+                        childCheckbox.checked = allChecked;
+                        childCheckbox.indeterminate = anyChecked && !allChecked;
+                        // Propagate up to Level 1
+                        childCheckbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+
+            // Level 3 excl-radio: update parent indeterminate state saja
+            document.querySelectorAll('.excl-radio').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const childKey = this.dataset.parent;
+                    const childCheckbox = document.querySelector(`.child-permission[data-menu-key="${childKey}"]`);
+                    if (childCheckbox && !childCheckbox.checked) {
+                        childCheckbox.checked = true;
+                        childCheckbox.indeterminate = false;
+                        childCheckbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+
+            // Level 2 (child-permission) changes Level 1 (menu-permission)
             document.querySelectorAll('.child-permission').forEach(child => {
                 child.addEventListener('change', function() {
                     const parentKey = this.dataset.parent;
@@ -1078,6 +1243,22 @@
                         parentCheckbox.indeterminate = anyChecked && !allChecked;
                     }
                 });
+            });
+
+            // Initialize all indeterminate states on page load
+            document.querySelectorAll('.child-permission').forEach(checkbox => {
+                const childKey = checkbox.dataset.menuKey;
+                if (childKey) {
+                    const subPerms = document.querySelectorAll(`.sub-permission[data-parent="${childKey}"]`);
+                    if (subPerms.length > 0) {
+                        const allChecked = Array.from(subPerms).every(c => c.checked);
+                        const anyChecked = Array.from(subPerms).some(c => c.checked);
+                        checkbox.checked = allChecked;
+                        checkbox.indeterminate = anyChecked && !allChecked;
+                    }
+                }
+                // Sync exclusive groups on load
+                syncExclusiveGroupState(checkbox);
             });
 
             document.querySelectorAll('.menu-permission-checkbox').forEach(checkbox => {
@@ -1242,5 +1423,27 @@
             div.textContent = str;
             return div.innerHTML;
         }
+
+        /**
+         * Untuk sub_permissions exclusive (radio): saat radio berubah,
+         * aktifkan checkbox hidden yang sesuai dan non-aktifkan sisanya.
+         */
+        function syncExclusivePermission(radio) {
+            const group = radio.dataset.exclGroup;
+            if (!group) return;
+            const selectedValue = radio.value;
+
+            // Temukan semua radio dalam group yang sama
+            document.querySelectorAll(`input[type="radio"][data-excl-group="${group}"]`).forEach(function(r) {
+                const cbId = 'excl_cb_' + r.value;
+                const cb = document.getElementById(cbId);
+                if (cb) cb.checked = (r.value === selectedValue);
+            });
+        }
+
+        // Inisialisasi state awal exclusive permissions saat halaman load
+        document.querySelectorAll('input[type="radio"][data-excl-group]').forEach(function(radio) {
+            if (radio.checked) syncExclusivePermission(radio);
+        });
     </script>
 @endpush

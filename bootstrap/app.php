@@ -19,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // === TAMBAHKAN BARIS INI UNTUK MEMPERBAIKI MASALAH TUNNEL / EXPOSE ===
         $middleware->trustProxies(at: '*');
 
+        $middleware->validateCsrfTokens(except: [
+            'logout',
+        ]);
+
         $middleware->web(append: [
             SetLocale::class,
             TrackPageView::class,

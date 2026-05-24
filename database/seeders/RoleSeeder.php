@@ -64,7 +64,7 @@ class RoleSeeder extends Seeder
 
             // Seed default permissions for admin
             if ($role->name === 'admin') {
-                $adminPerms = ['dashboard', 'cms.features', 'cms.footer', 'cms.disclaimer', 'cms.reports', 'pengguna.users', 'pengguna.roles'];
+                $adminPerms = ['dashboard', 'cms.features', 'cms.footer', 'cms.disclaimer', 'cms.reports', 'cms.reports.all', 'cms.reports.own', 'pengguna.users', 'pengguna.roles'];
                 foreach ($adminPerms as $perm) {
                     RolePermission::firstOrCreate([
                         'role_id' => $role->id,
@@ -77,8 +77,21 @@ class RoleSeeder extends Seeder
 
             // Seed default permissions for pegawai
             if ($role->name === 'pegawai') {
-                $pegawaiPerms = ['dashboard', 'cms.reports'];
+                $pegawaiPerms = ['dashboard', 'cms.reports', 'cms.reports.all', 'cms.reports.own'];
                 foreach ($pegawaiPerms as $perm) {
+                    RolePermission::firstOrCreate([
+                        'role_id' => $role->id,
+                        'menu_key' => $perm,
+                    ], [
+                        'can_access' => true,
+                    ]);
+                }
+            }
+
+            // Seed default permissions for non-admin/pegawai roles (umum, pelajar_mahasiswa, instansi_swasta)
+            if (in_array($role->name, ['umum', 'pelajar_mahasiswa', 'instansi_swasta'], true)) {
+                $userPerms = ['dashboard', 'cms.reports', 'cms.reports.own'];
+                foreach ($userPerms as $perm) {
                     RolePermission::firstOrCreate([
                         'role_id' => $role->id,
                         'menu_key' => $perm,

@@ -101,6 +101,7 @@
                 @endphp
 
                 <!-- Laporan -->
+                @if (!$userRole || $userRole->hasPermission('cms.reports.all') || $userRole->hasPermission('cms.reports.own'))
                 <div x-data="{ open: {{ request()->routeIs('cms.reports.*') ? 'true' : 'false' }} }">
                     <button @click="open = !open"
                         class="sidebar-link w-full flex items-center px-3 py-3 rounded-lg text-[#b8cdef] hover:text-white group {{ request()->routeIs('cms.reports.*') ? 'active text-white' : '' }}">
@@ -129,7 +130,7 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
                         class="cms-dropdown mt-2 ml-9 mr-1 py-2 px-1 space-y-1">
-
+ 
                         <a href="{{ route('cms.reports.kunjungan') }}"
                             class="flex items-center px-3 py-2 text-[13px] rounded-md {{ request()->routeIs('cms.reports.kunjungan') ? 'active-item' : 'text-white/70 hover:text-white font-medium' }}">
                             {{ __('dashboard.sidebar.reports_kunjungan') }}
@@ -148,6 +149,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
 
                 <!-- CMS -->
                 @if (!$userRole || $userRole->hasPermission('cms.features') || $userRole->hasPermission('cms.footer') || $userRole->hasPermission('cms.disclaimer'))
@@ -611,17 +613,31 @@
     @if (session('success') || session('error') || $errors->any() || session('warning') || session('info'))
         @php
             $tType = 'info';
-            $tMsg = session('info');
+            $rawMsg = session('info');
 
             if (session('success')) {
                 $tType = 'success';
-                $tMsg = session('success');
+                $rawMsg = session('success');
             } elseif (session('error') || $errors->any()) {
                 $tType = 'error';
-                $tMsg = session('error') ?? $errors->first();
+                $rawMsg = session('error') ?? $errors->first();
             } elseif (session('warning')) {
                 $tType = 'warning';
-                $tMsg = session('warning');
+                $rawMsg = session('warning');
+            }
+
+            // Translate helper for session status strings
+            $tMsg = $rawMsg;
+            if ($rawMsg) {
+                $dashKey = 'dashboard.profile.' . str_replace('-', '_', $rawMsg);
+                $authKey = 'auth.' . $rawMsg;
+                if (__($dashKey) !== $dashKey) {
+                    $tMsg = __($dashKey);
+                } elseif (__($authKey) !== $authKey) {
+                    $tMsg = __($authKey);
+                } else {
+                    $tMsg = __($rawMsg);
+                }
             }
         @endphp
 

@@ -45,7 +45,8 @@
                     <button type="button" @click="showCustom = false" class="px-2 py-1 text-gray-400 hover:text-gray-600 text-xs shrink-0" title="{{ __('cms.reports.btn_cancel') }}">✕</button>
                 </form>
             </div>
-        </div>        <!-- Summary Cards Grid -->
+        </div>        @if($hasAllPermission)
+        <!-- Summary Cards Grid (Admin/Pegawai Only) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
             <!-- Card 1: Realtime Online -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-all">
@@ -98,6 +99,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Full Width Card: Peak Online Hours Detail -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8 hover:shadow-md transition-all">
@@ -111,10 +113,12 @@
                         <p class="text-xs text-gray-400 mt-1">{{ __('cms.reports.online_stat_peak_desc') }}</p>
                     </div>
                 </div>
+                @if($hasAllPermission)
                 <div class="flex items-center gap-4 bg-amber-50/50 px-5 py-3 rounded-2xl border border-amber-100/50 shrink-0 self-start md:self-auto">
                     <div class="text-3xl font-extrabold text-amber-600">{{ number_format($maxOnline) }}</div>
                     <div class="text-xs font-semibold text-amber-700 uppercase tracking-wider leading-tight">{!! __('cms.reports.peak_active_users') !!}</div>
                 </div>
+                @endif
             </div>
 
             <div class="mt-6">
@@ -152,6 +156,8 @@
         </div>
 
         <!-- Grid Tables: Realtime Users & Activity Logs -->
+        @if($hasAllPermission)
+        {{-- Admin/Pegawai: Tampilkan Daftar Pengguna Online + Riwayat Aktivitas Semua User --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left: Real-time Online Users List -->
             <div class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
@@ -255,6 +261,101 @@
                 </div>
             </div>
         </div>
+        @else
+        {{-- User Biasa: Tampilkan Data Diri Sendiri + Riwayat Aktivitas Sendiri --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left: Profil Saya -->
+            <div class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.my_profile_title') }}</h2>
+                    <p class="text-xs text-gray-400">{{ __('cms.reports.my_profile_sub') }}</p>
+                </div>
+
+                @php $me = $onlineUsersList->first(); @endphp
+                <div class="flex flex-col items-center gap-4 py-4">
+                    <!-- Avatar -->
+                    <div class="w-20 h-20 rounded-full bg-[#174E93]/10 text-[#174E93] flex items-center justify-center font-bold text-2xl uppercase shrink-0 border-4 border-[#174E93]/20">
+                        {{ substr(auth()->user()->name ?? 'U', 0, 2) }}
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-gray-800 text-lg leading-tight">{{ auth()->user()->name }}</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider mt-0.5">{{ auth()->user()->role }}</div>
+                        <div class="text-xs text-gray-500 mt-1">{{ auth()->user()->email }}</div>
+                    </div>
+
+                    @if($me)
+                        <!-- Status Online -->
+                        <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                            <span class="text-xs font-semibold text-emerald-700">Online &bull; {{ $me['last_activity'] }}</span>
+                        </div>
+                    @else
+                        <div class="inline-flex items-center gap-2 bg-gray-100 border border-gray-200 px-4 py-2 rounded-full">
+                            <span class="w-2 h-2 rounded-full bg-gray-400 shrink-0"></span>
+                            <span class="text-xs font-semibold text-gray-500">{{ __('cms.reports.empty_online') }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Statistik Singkat -->
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    @php $myLog = $todayActivityLogs->first(); @endphp
+                    <div class="bg-blue-50/60 rounded-xl p-3 text-center border border-blue-100/60">
+                        <div class="text-2xl font-extrabold text-blue-600">{{ $myLog ? number_format($myLog['total_views']) : 0 }}</div>
+                        <div class="text-[11px] text-blue-500 font-medium mt-0.5">{{ __('cms.reports.col_page_views') }}</div>
+                    </div>
+                    <div class="bg-amber-50/60 rounded-xl p-3 text-center border border-amber-100/60">
+                        <div class="text-2xl font-extrabold text-amber-600">{{ $peakHourLabel }}</div>
+                        <div class="text-[11px] text-amber-500 font-medium mt-0.5">{{ __('cms.reports.online_stat_peak') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Riwayat Aktivitas Saya -->
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.my_activity_title') }}</h2>
+                    <p class="text-xs text-gray-400">{{ __('cms.reports.my_activity_sub') }}</p>
+                </div>
+
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse dataTable" id="tableActivity">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-[12px] font-semibold text-gray-500 uppercase bg-gray-50/50">
+                                <th class="py-3 px-4 rounded-l-xl">{{ __('cms.reports.col_no') }}</th>
+                                <th class="py-3 px-4 text-center">{{ __('cms.reports.col_page_views') }}</th>
+                                <th class="py-3 px-4 rounded-r-xl">{{ __('cms.reports.col_last_access') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-[13px] text-gray-600 divide-y divide-gray-50">
+                            @forelse($todayActivityLogs as $index => $log)
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="py-3.5 px-4 font-medium text-gray-900">{{ $loop->iteration }}</td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-600 min-w-[2.5rem]">
+                                            {{ number_format($log['total_views']) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-xs text-gray-500">
+                                        <div class="font-medium text-blue-600 truncate max-w-xs mb-0.5" title="{{ $log['last_path'] }}">
+                                            {{ $log['last_path'] }}
+                                        </div>
+                                        <div class="text-[11px] text-gray-400">
+                                            {{ $log['last_activity'] }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="py-8 text-center text-gray-400">{{ __('cms.reports.empty_activity') }}</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 @endsection
 

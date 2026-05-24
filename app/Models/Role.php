@@ -41,10 +41,6 @@ class Role extends Model
 
     public function hasPermission(string $menuKey): bool
     {
-        // Admin always has all permissions
-        if ($this->name === 'admin') {
-            return true;
-        }
         
         $permission = $this->permissions()->where('menu_key', $menuKey)->first();
         return $permission ? $permission->can_access : false;

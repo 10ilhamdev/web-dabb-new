@@ -12,6 +12,7 @@ return new class extends Migration
         Schema::create('virtual_slideshow_slides', function (Blueprint $table) {
             $table->id();
             $table->foreignId('feature_id')->constrained('features')->onDelete('cascade');
+            $table->unsignedBigInteger('feature_page_id')->nullable();
             $table->foreign('feature_page_id')
                 ->references('id')
                 ->on('virtual_slideshow_pages')

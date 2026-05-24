@@ -25,10 +25,6 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        // Admin always has access to everything
-        if ($user->role === 'admin') {
-            return $next($request);
-        }
 
         // Check if any of the provided roles is actually a menu_key (contains dot notation)
         $menuKeys = array_filter($roles, fn($r) => str_contains($r, '.'));
