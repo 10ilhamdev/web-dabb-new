@@ -321,6 +321,7 @@ Disclaimer | #',
         'statis_indirect_pdf' => 'Indirect_Service_Mechanism_DABB_2025.pdf (1.4 MB)',
         'lib_pdf' => 'DABB_2025_Library_Service_Mechanism.pdf (1.4 MB)',
         'captcha_warning' => 'Please complete the Captcha first.',
+        'form_success_message' => 'Visit registration form submitted successfully!',
     ],
     'kontak_kami' => [
         'address' => 'Alamat Lengkap',

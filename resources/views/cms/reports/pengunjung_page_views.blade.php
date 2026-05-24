@@ -18,10 +18,10 @@
             <div>
                 <a href="{{ route('cms.reports.pengunjung') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600 mb-2 transition-colors">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Kembali
+                    {{ __('cms.reports.btn_back') }}
                 </a>
-                <h1 class="text-[22px] font-bold text-[#1E293B] mb-1">Monitoring Pengunjung (Page Views)</h1>
-                <p class="text-gray-500 text-sm">Monitoring statistik total kunjungan halaman website.</p>
+                <h1 class="text-[22px] font-bold text-[#1E293B] mb-1">{{ __('cms.reports.page_views_header_title') }}</h1>
+                <p class="text-gray-500 text-sm">{{ __('cms.reports.page_views_header_desc') }}</p>
             </div>
 
             <!-- Filter Controls -->

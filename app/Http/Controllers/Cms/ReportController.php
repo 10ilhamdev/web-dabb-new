@@ -37,7 +37,7 @@ class ReportController extends Controller
 
         $query = VisitRegistration::query();
         if (!$isAdminOrPegawai && $user) {
-            $query->where('email', $user->email);
+            $query->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
         }
 
         $now = Carbon::now();
@@ -59,66 +59,152 @@ class ReportController extends Controller
         }
 
         // Summary stats
-        $totalKunjungan = (clone $query)->sum('visitor_count');
-        $totalEdukasi = (clone $query)->where('visit_purpose', 'edukasi')->sum('visitor_count');
-        $totalPenelitian = (clone $query)->where('visit_purpose', 'penelitian')->sum('visitor_count');
-        $totalKunker = (clone $query)->where('visit_purpose', 'kunker')->sum('visitor_count');
+        $totalKunjungan = (int) (clone $query)->sum('visitor_count');
 
-        // Pie chart data
-        $pieData = [
-            $totalEdukasi,
-            $totalPenelitian,
-            $totalKunker,
-        ];
-        $pieLabels = [
-            __('home.layanan_publik.form_purpose_edukasi', ['default' => 'Edukasi']),
-            __('home.layanan_publik.form_purpose_penelitian', ['default' => 'Penelitian']),
-            __('home.layanan_publik.form_purpose_kunker', ['default' => 'Kunjungan Kerja']),
-        ];
+        // Fetch dynamic visit purposes from DB to include 0-count ones
+        $purposeCounts = (clone $query)
+            ->selectRaw('LOWER(visit_purpose) as purpose, SUM(visitor_count) as total')
+            ->groupBy('purpose')
+            ->pluck('total', 'purpose')
+            ->toArray();
+
+        // Get all configured purposes from LayananPublik CMS
+        $kunjunganPage = \App\Models\LayananPublik::where('type', 'kunjungan')
+            ->orWhere('title', 'like', '%kunjungan%')
+            ->first();
+        
+        $configuredPurposes = [];
+        if ($kunjunganPage && !empty($kunjunganPage->extra_data['form_fields'])) {
+            foreach ($kunjunganPage->extra_data['form_fields'] as $field) {
+                if (($field['id'] ?? '') === 'visit_purpose' && !empty($field['options'])) {
+                    $opts = array_map('trim', explode(',', $field['options']));
+                    foreach ($opts as $opt) {
+                        $configuredPurposes[strtolower($opt)] = $opt;
+                    }
+                }
+            }
+        }
+        
+        // Add default ones if empty
+        if (empty($configuredPurposes)) {
+            $configuredPurposes = [
+                'edukasi' => 'Edukasi',
+                'penelitian' => 'Penelitian',
+                'kunker' => 'Kunjungan Kerja'
+            ];
+        }
+
+        // Default stats for the top 3 cards (get first 3 configured)
+        $confKeys = array_keys($configuredPurposes);
+        $totalEdukasi = $purposeCounts[$confKeys[0] ?? 'edukasi'] ?? 0;
+        $totalPenelitian = $purposeCounts[$confKeys[1] ?? 'penelitian'] ?? 0;
+        $totalKunker = $purposeCounts[$confKeys[2] ?? 'kunker'] ?? 0;
+
+        // Color Palette
+        $palette = ['#22c55e', '#a855f7', '#f59e0b', '#3b82f6', '#ec4899', '#14b8a6', '#f43f5e', '#8b5cf6'];
+        $purposeColors = [];
+        
+        // Pie chart data (Dynamic)
+        $pieData = [];
+        $pieLabels = [];
+        $pieColors = [];
+        $i = 0;
+        foreach ($configuredPurposes as $purposeKey => $purposeLabel) {
+            $count = $purposeCounts[$purposeKey] ?? 0;
+            $pieData[] = (int) $count;
+            $pieLabels[] = $purposeLabel;
+            
+            $color = $palette[$i % count($palette)];
+            $pieColors[] = $color;
+            $purposeColors[$purposeKey] = [
+                'label' => $purposeLabel,
+                'color' => $color,
+                'bg_class' => 'bg-opacity-10', // To be styled dynamically
+                'text_color' => $color
+            ];
+            $i++;
+        }
+
 
         // Line chart data (Dynamic date range based on tf)
         $lineLabels = [];
         $lineSeries = [];
 
-        if ($tf === 'custom' && $startDate && $endDate) {
-            $start = Carbon::parse($startDate)->startOfDay();
-            $end = Carbon::parse($endDate)->endOfDay();
-        } elseif ($tf === 'day') {
-            $start = Carbon::now()->startOfDay();
-            $end = Carbon::now()->endOfDay();
-        } elseif ($tf === 'week') {
-            $start = Carbon::now()->subDays(7)->startOfDay();
-            $end = Carbon::now()->endOfDay();
-        } elseif ($tf === 'month') {
-            $start = Carbon::now()->subDays(30)->startOfDay();
-            $end = Carbon::now()->endOfDay();
-        } elseif ($tf === 'year') {
-            $start = Carbon::now()->subDays(365)->startOfDay();
-            $end = Carbon::now()->endOfDay();
-        } else {
-            $start = Carbon::now()->startOfDay();
-            $end = Carbon::now()->endOfDay();
-        }
-
-        // Cap at 365 days to prevent performance issues on massive ranges
-        $diffDays = $start->diffInDays($end);
-        if ($diffDays > 365) {
-            $start = (clone $end)->subDays(365)->startOfDay();
-            $diffDays = 365;
-        }
-
-        for ($i = 0; $i <= $diffDays; $i++) {
-            $current = (clone $start)->addDays($i)->toDateString();
-            $lineLabels[] = Carbon::parse($current)->format('d M');
-            $subQ = VisitRegistration::whereDate('created_at', $current);
+        if ($tf === 'day') {
+            // Group by hour for today
+            $today = Carbon::today()->toDateString();
+            $hourlyQuery = VisitRegistration::whereDate('created_at', $today);
             if (!$isAdminOrPegawai && $user) {
-                $subQ->where('email', $user->email);
+                $hourlyQuery->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
             }
-            $lineSeries[] = (int) $subQ->sum('visitor_count');
+            $hourlyCounts = $hourlyQuery
+                ->selectRaw('HOUR(created_at) as hr, SUM(visitor_count) as total')
+                ->groupBy('hr')
+                ->pluck('total', 'hr')
+                ->toArray();
+
+            $lineLabels = array_map(fn($h) => str_pad($h, 2, '0', STR_PAD_LEFT) . ':00', range(0, 23));
+            $lineSeries = array_map(fn($h) => (int) ($hourlyCounts[$h] ?? 0), range(0, 23));
+
+        } elseif ($tf === 'year') {
+            // Group by month for the last 12 months
+            $yearAgo = Carbon::now()->subDays(365)->startOfDay();
+            $monthlyQuery = VisitRegistration::where('created_at', '>=', $yearAgo);
+            if (!$isAdminOrPegawai && $user) {
+                $monthlyQuery->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+            }
+            $monthlyCounts = $monthlyQuery
+                ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as mth, SUM(visitor_count) as total')
+                ->groupBy('mth')
+                ->pluck('total', 'mth')
+                ->toArray();
+
+            for ($i = 11; $i >= 0; $i--) {
+                $m = Carbon::now()->subMonths($i);
+                $key = $m->format('Y-m');
+                $lineLabels[] = $m->translatedFormat('M Y');
+                $lineSeries[] = (int) ($monthlyCounts[$key] ?? 0);
+            }
+
+        } else {
+            // Group by day for week, month, and custom
+            if ($tf === 'custom' && $startDate && $endDate) {
+                $start = Carbon::parse($startDate)->startOfDay();
+                $end = Carbon::parse($endDate)->endOfDay();
+            } elseif ($tf === 'week') {
+                $start = Carbon::now()->subDays(7)->startOfDay();
+                $end = Carbon::now()->endOfDay();
+            } else { // month or default fallback
+                $start = Carbon::now()->subDays(30)->startOfDay();
+                $end = Carbon::now()->endOfDay();
+            }
+
+            $diffDays = $start->diffInDays($end);
+            if ($diffDays > 365) {
+                $start = (clone $end)->subDays(365)->startOfDay();
+                $diffDays = 365;
+            }
+
+            for ($i = 0; $i <= $diffDays; $i++) {
+                $current = (clone $start)->addDays($i)->toDateString();
+                $lineLabels[] = Carbon::parse($current)->format('d M');
+                $subQ = VisitRegistration::whereDate('created_at', $current);
+                if (!$isAdminOrPegawai && $user) {
+                    $subQ->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+                }
+                $lineSeries[] = (int) $subQ->sum('visitor_count');
+            }
         }
 
         // All data for DataTables client-side handling
         $registrations = (clone $query)->latest()->get();
+
+        $currentPage = \App\Models\LayananPublik::where('type', 'kunjungan')->first() 
+            ?? \App\Models\LayananPublik::where('title', 'like', '%kunjungan%')->first();
+        $formFields = [];
+        if ($currentPage && !empty($currentPage->extra_data['form_fields'])) {
+            $formFields = $currentPage->extra_data['form_fields'];
+        }
 
         return view('cms.reports.kunjungan', compact(
             'role',
@@ -132,10 +218,87 @@ class ReportController extends Controller
             'totalKunker',
             'pieData',
             'pieLabels',
+            'pieColors',
+            'purposeColors',
+            'configuredPurposes',
             'lineLabels',
             'lineSeries',
-            'registrations'
+            'registrations',
+            'formFields'
         ));
+    }
+
+    /**
+     * Update status pendaftaran kunjungan (disetujui/ditolak) dan kirim email
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $user = $request->user();
+        $role = $user?->role ?? 'admin';
+        $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        if (!$hasAllPermission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki hak akses untuk mengubah status permohonan.'
+            ], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $registration = VisitRegistration::findOrFail($id);
+        
+        $status = $request->input('status');
+        $keterangan = $request->input('keterangan');
+
+        $registration->update([
+            'status' => $status,
+            'keterangan' => $keterangan,
+        ]);
+
+        // Kirim email notifikasi
+        try {
+            \Illuminate\Support\Facades\Notification::route('mail', $registration->email)
+                ->notify(new \App\Notifications\VisitStatusNotification($registration, $status, $keterangan));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email update status kunjungan: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status pendaftaran kunjungan berhasil diperbarui dan email notifikasi telah dikirim.',
+            'registration' => $registration
+        ]);
+    }
+
+    /**
+     * Hapus data pendaftaran kunjungan
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+        $role = $user?->role ?? 'admin';
+        $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        if (!$hasAllPermission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki hak akses untuk menghapus data pendaftaran kunjungan.'
+            ], 403);
+        }
+
+        $registration = VisitRegistration::findOrFail($id);
+        $registration->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pendaftaran kunjungan berhasil dihapus.'
+        ]);
     }
 
     /**
@@ -497,7 +660,7 @@ class ReportController extends Controller
 
         $query = ArchivalConsultation::query();
         if (!$isAdminOrPegawai && $user) {
-            $query->where('email', $user->email);
+            $query->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
         }
 
         $now = Carbon::now();

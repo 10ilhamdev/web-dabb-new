@@ -25,6 +25,8 @@ return new class extends Migration
             $table->integer('visitor_count')->default(1);
             $table->string('visit_purpose'); // edukasi / penelitian / kunker
             $table->string('surat_file')->nullable();
+            $table->string('status')->default('pending'); // pending, approved, rejected
+            $table->text('keterangan')->nullable();
             $table->json('form_data')->nullable(); // for dynamic fields
             $table->timestamps();
         });

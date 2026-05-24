@@ -651,11 +651,97 @@
                                         let currentMonth = {{ $currentMonth }}; // 1-12
                                         const liburDates = {!! json_encode($liburDates) !!};
                                         const tutupSlots = {!! json_encode($tutupSlots) !!};
-                                        const kuotaHarian = {{ $kuotaHarian }};
+                                        const kuotaHarian = {{ $kuotaHarian ?? 5 }};
+                                        const bookings = {!! json_encode($bookings ?? []) !!};
                                         const monthNamesEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                                         const monthNamesId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                                         const isEn = '{{ $locale }}' === 'en';
                                         const monthNames = isEn ? monthNamesEn : monthNamesId;
+
+                                        window.bookings = bookings;
+
+                                        window.validateFormQuota = function() {
+                                            let dateEl = document.getElementById('form_visit_date') || document.querySelector('[name="visit_date"]') || document.querySelector('[name="date"]');
+                                            let timeEl = document.getElementById('form_visit_time') || document.querySelector('[name="visit_time"]') || document.querySelector('[name="time"]');
+                                            let countEl = document.getElementById('form_visitor_count') || document.querySelector('[name="visitor_count"]') || document.querySelector('[name="count"]');
+
+                                            if (!dateEl || !dateEl.value) return true;
+
+                                            const dateStr = dateEl.value;
+                                            const timeStr = timeEl ? (timeEl.value.toLowerCase().includes('siang') ? 'siang' : 'pagi') : 'pagi';
+                                            const countVal = countEl ? parseInt(countEl.value) || 0 : 1;
+
+                                            const hasTutup = !!tutupSlots[dateStr];
+                                            const tutupInfo = hasTutup ? tutupSlots[dateStr] : [];
+
+                                            let maxQuota = kuotaHarian;
+                                            let usePerSession = false;
+
+                                            if (hasTutup) {
+                                                const fullSlot = tutupInfo.find(ti => ti.slot === 'full');
+                                                const pagiSlot = tutupInfo.find(ti => ti.slot === 'pagi');
+                                                const siangSlot = tutupInfo.find(ti => ti.slot === 'siang');
+
+                                                if (fullSlot) {
+                                                    maxQuota = parseInt(fullSlot.max_quota);
+                                                    usePerSession = true;
+                                                }
+                                                if (timeStr === 'pagi' && pagiSlot) {
+                                                    maxQuota = parseInt(pagiSlot.max_quota);
+                                                    usePerSession = true;
+                                                } else if (timeStr === 'siang' && siangSlot) {
+                                                    maxQuota = parseInt(siangSlot.max_quota);
+                                                    usePerSession = true;
+                                                }
+                                            }
+
+                                            const slotLabel = (timeStr === 'siang') ? (isEn ? 'afternoon' : 'siang') : (isEn ? 'morning' : 'pagi');
+
+                                            if (maxQuota === 0) {
+                                                Swal.fire({
+                                                    title: isEn ? 'Slot Closed' : 'Slot Ditutup',
+                                                    text: isEn
+                                                        ? `The ${slotLabel} slot on ${dateStr} is closed.`
+                                                        : `Slot ${slotLabel} pada tanggal ${dateStr} ditutup.`,
+                                                    icon: 'warning',
+                                                    confirmButtonColor: '#174E93'
+                                                });
+                                                if (timeEl) timeEl.value = '';
+                                                return false;
+                                            }
+
+                                            const dateBookings = window.bookings[dateStr] || {};
+                                            let remaining;
+                                            if (usePerSession) {
+                                                // Per-sesi (dari 3c tutup_slots)
+                                                const booked = parseInt(dateBookings[timeStr] || 0);
+                                                remaining = Math.max(0, maxQuota - booked);
+                                            } else {
+                                                // Total harian (3b kuota_harian), pagi+siang berbagi pool
+                                                const totalBooked = parseInt(dateBookings['pagi'] || 0) + parseInt(dateBookings['siang'] || 0);
+                                                remaining = Math.max(0, kuotaHarian - totalBooked);
+                                            }
+
+                                            if (countVal > remaining) {
+                                                const limitLabel = usePerSession
+                                                    ? (isEn ? `slot ${slotLabel}` : `slot ${slotLabel}`)
+                                                    : (isEn ? 'today' : 'hari ini');
+                                                Swal.fire({
+                                                    title: isEn ? 'Quota Exceeded' : 'Kuota Tidak Mencukupi',
+                                                    text: isEn
+                                                        ? `Visitor count (${countVal} people) exceeds remaining quota for ${limitLabel} (${remaining} left, max ${maxQuota}).`
+                                                        : `Jumlah peserta (${countVal} orang) melebihi sisa kuota ${limitLabel} (${remaining} orang tersisa, maks ${maxQuota}).`,
+                                                    icon: 'warning',
+                                                    confirmButtonColor: '#174E93'
+                                                });
+                                                if (countEl) {
+                                                    countEl.value = remaining > 0 ? remaining : 1;
+                                                }
+                                                return false;
+                                            }
+
+                                            return true;
+                                        };
 
                                         function renderCalendar() {
                                             const titleDisplay = document.getElementById('calendar-title-display');
@@ -686,8 +772,10 @@
                                                 const dayStr = String(d).padStart(2, '0');
                                                 const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
 
-                                                const isLibur = !!liburDates[dateStr];
-                                                const liburReason = isLibur ? liburDates[dateStr] : '';
+                                                const dayOfWeek = new Date(currentYear, currentMonth - 1, d).getDay(); // 0: Sunday, 6: Saturday
+                                                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                                                const isLibur = !!liburDates[dateStr] || isWeekend;
+                                                const liburReason = isLibur ? (liburDates[dateStr] || (isEn ? 'Weekend' : 'Akhir Pekan')) : '';
                                                 const hasTutup = !!tutupSlots[dateStr];
                                                 const tutupInfo = hasTutup ? tutupSlots[dateStr] : [];
 
@@ -695,34 +783,84 @@
                                                 let title = '';
 
                                                 if (isLibur) {
-                                                    className += ' holiday bg-red-100 text-red-600 font-bold cursor-not-allowed';
-                                                    title = (isEn ? 'Holiday: ' : 'Libur: ') + liburReason;
-                                                } else if (hasTutup) {
-                                                    const tutupSlotTypes = tutupInfo.map(ti => ti.slot);
-                                                    const fullSlot = tutupInfo.find(ti => ti.slot === 'full');
-                                                    const pagiSlot = tutupInfo.find(ti => ti.slot === 'pagi');
-                                                    const siangSlot = tutupInfo.find(ti => ti.slot === 'siang');
-
-                                                    const isFullClosed = (fullSlot && fullSlot.max_quota == 0) ||
-                                                                        (tutupSlotTypes.includes('full') && (!fullSlot || fullSlot.max_quota == 0)) ||
-                                                                        (tutupSlotTypes.includes('pagi') && (!pagiSlot || pagiSlot.max_quota == 0) && tutupSlotTypes.includes('siang') && (!siangSlot || siangSlot.max_quota == 0));
-
-                                                    if (isFullClosed) {
-                                                        className += ' booked bg-gray-200 text-gray-500 line-through cursor-not-allowed';
-                                                        title = isEn ? 'Registration Fully Closed' : 'Pendaftaran Ditutup Penuh';
-                                                    } else {
-                                                        className += ' partial-booked bg-yellow-100 text-yellow-800 cursor-pointer';
-                                                        let details = [];
-                                                        tutupInfo.forEach(ti => {
-                                                            let slotName = ti.slot.charAt(0).toUpperCase() + ti.slot.slice(1);
-                                                            let quotaStr = (ti.max_quota && ti.max_quota > 0) ? ` (Kuota Maks: ${ti.max_quota})` : " (Ditutup)";
-                                                            details.push(`${slotName}${quotaStr}`);
-                                                        });
-                                                        title = (isEn ? 'Quota/Time Settings: ' : 'Pengaturan Kuota/Waktu: ') + details.join(', ');
-                                                    }
+                                                     className += ' holiday bg-red-100 text-red-600 font-bold cursor-not-allowed';
+                                                     title = (isEn ? 'Holiday: ' : 'Libur: ') + liburReason;
                                                 } else {
-                                                    className += ' hover:bg-blue-50 cursor-pointer';
-                                                    title = (isEn ? 'Available - Daily Max Quota: ' : 'Tersedia - Kuota Maksimal Harian: ') + kuotaHarian + (isEn ? ' Visits' : ' Kunjungan');
+                                                     const dateBookings = window.bookings[dateStr] || {};
+                                                     const pagiBooked = parseInt(dateBookings['pagi'] || 0);
+                                                     const siangBooked = parseInt(dateBookings['siang'] || 0);
+
+                                                     let pagiMax, siangMax, pagiRemaining, siangRemaining, pagiClosed, siangClosed;
+                                                     let usePerSession = false;
+
+                                                     if (hasTutup) {
+                                                         const fullSlot = tutupInfo.find(ti => ti.slot === 'full');
+                                                         const pagiSlot = tutupInfo.find(ti => ti.slot === 'pagi');
+                                                         const siangSlot = tutupInfo.find(ti => ti.slot === 'siang');
+
+                                                         pagiMax = kuotaHarian;
+                                                         siangMax = kuotaHarian;
+
+                                                         if (fullSlot) {
+                                                             pagiMax = parseInt(fullSlot.max_quota);
+                                                             siangMax = parseInt(fullSlot.max_quota);
+                                                             usePerSession = true;
+                                                         }
+                                                         if (pagiSlot) {
+                                                             pagiMax = parseInt(pagiSlot.max_quota);
+                                                             usePerSession = true;
+                                                         }
+                                                         if (siangSlot) {
+                                                             siangMax = parseInt(siangSlot.max_quota);
+                                                             usePerSession = true;
+                                                         }
+                                                     }
+
+                                                     if (usePerSession) {
+                                                         pagiRemaining = Math.max(0, pagiMax - pagiBooked);
+                                                         siangRemaining = Math.max(0, siangMax - siangBooked);
+                                                         pagiClosed = pagiMax === 0 || pagiRemaining === 0;
+                                                         siangClosed = siangMax === 0 || siangRemaining === 0;
+                                                     } else {
+                                                         // Total harian (3b), pagi+siang berbagi pool kuotaHarian
+                                                         const totalBooked = pagiBooked + siangBooked;
+                                                         const totalRemaining = Math.max(0, kuotaHarian - totalBooked);
+                                                         pagiMax = kuotaHarian;
+                                                         pagiRemaining = totalRemaining;
+                                                         siangRemaining = totalRemaining;
+                                                         pagiClosed = totalRemaining === 0;
+                                                         siangClosed = totalRemaining === 0;
+                                                     }
+
+                                                     if (pagiClosed && siangClosed) {
+                                                         className += ' booked bg-gray-200 text-gray-500 line-through cursor-not-allowed';
+                                                         title = isEn ? 'Registration Closed / Full' : 'Pendaftaran Ditutup / Kuota Habis';
+                                                     } else if (pagiClosed || siangClosed) {
+                                                         className += ' partial-booked bg-yellow-100 text-yellow-800 cursor-pointer';
+                                                         let details = [];
+                                                         if (usePerSession) {
+                                                             if (pagiMax === 0) {
+                                                                 details.push(isEn ? 'Morning: Closed' : 'Pagi: Ditutup');
+                                                             } else {
+                                                                 details.push((isEn ? 'Morning: ' : 'Pagi: ') + `${pagiRemaining} left (Max: ${pagiMax})`);
+                                                             }
+                                                             if (siangMax === 0) {
+                                                                 details.push(isEn ? 'Afternoon: Closed' : 'Siang: Ditutup');
+                                                             } else {
+                                                                 details.push((isEn ? 'Afternoon: ' : 'Siang: ') + `${siangRemaining} left (Max: ${siangMax})`);
+                                                             }
+                                                         } else {
+                                                             details.push((isEn ? 'Remaining: ' : 'Sisa: ') + pagiRemaining + (isEn ? ' of ' : ' dari ') + kuotaHarian);
+                                                         }
+                                                         title = (isEn ? 'Remaining Quota: ' : 'Sisa Kuota: ') + details.join(', ');
+                                                     } else {
+                                                         className += ' hover:bg-blue-50 cursor-pointer';
+                                                         if (usePerSession) {
+                                                             title = (isEn ? 'Available - Remaining: Morning ' : 'Tersedia - Sisa: Pagi ') + pagiRemaining + (isEn ? ', Afternoon ' : ', Siang ') + siangRemaining;
+                                                         } else {
+                                                             title = (isEn ? 'Available - Remaining Quota: ' : 'Tersedia - Sisa Kuota: ') + pagiRemaining + (isEn ? ' people' : ' orang') + ' (Max: ' + kuotaHarian + ')';
+                                                         }
+                                                     }
                                                 }
 
                                                 html += `<div class="${className}" title="${title}" data-date="${dateStr}">${d}</div>`;
@@ -735,10 +873,12 @@
                                                     if (!this.classList.contains('cursor-not-allowed')) {
                                                         gridDisplay.querySelectorAll('.calendar-date').forEach(item => item.classList.remove('selected'));
                                                         this.classList.add('selected');
-                                                        let dtInput = document.getElementById('form_visit_date');
-                                                        if (dtInput) {
-                                                            dtInput.value = this.getAttribute('data-date');
-                                                        }
+                                                        document.querySelectorAll('#form_visit_date, [name="visit_date"], [name="date"], .dynamic-date-target').forEach(dtInput => {
+                                                            if (dtInput) {
+                                                                dtInput.value = this.getAttribute('data-date');
+                                                                dtInput.dispatchEvent(new Event('change'));
+                                                            }
+                                                        });
                                                     } else {
                                                         Swal.fire({
                                                             title: isEn ? 'Information' : 'Informasi',
@@ -746,31 +886,123 @@
                                                             icon: 'info',
                                                             confirmButtonColor: '#174E93'
                                                         });
-                                                    }
-                                                });
-                                            });
-                                        }
+                                                     }
+                                                 });
+                                             });
+                                         }
 
-                                        window.changeCalendarMonth = function(offset) {
-                                            currentMonth += offset;
-                                            if (currentMonth > 12) {
-                                                currentMonth = 1;
-                                                currentYear++;
-                                            } else if (currentMonth < 1) {
-                                                currentMonth = 12;
-                                                currentYear--;
-                                            }
-                                            renderCalendar();
-                                        };
+                                         window.renderCalendar = renderCalendar;
 
-                                        renderCalendar();
-                                    });
-                                </script>
+                                         window.changeCalendarMonth = function(offset) {
+                                             currentMonth += offset;
+                                             if (currentMonth > 12) {
+                                                 currentMonth = 1;
+                                                 currentYear++;
+                                             } else if (currentMonth < 1) {
+                                                 currentMonth = 12;
+                                                 currentYear--;
+                                             }
+                                             renderCalendar();
+                                         };
+
+                                         renderCalendar();
+
+                                         setTimeout(() => {
+                                             let dateEl = document.getElementById('form_visit_date') || document.querySelector('[name="visit_date"]') || document.querySelector('[name="date"]') || document.querySelector('.dynamic-date-target');
+                                             let timeEl = document.getElementById('form_visit_time') || document.querySelector('[name="visit_time"]') || document.querySelector('[name="time"]');
+                                             let countEl = document.getElementById('form_visitor_count') || document.querySelector('[name="visitor_count"]') || document.querySelector('[name="count"]');
+
+                                             if (dateEl) {
+                                                 dateEl.addEventListener('change', window.validateFormQuota);
+                                             }
+                                             if (timeEl) {
+                                                 timeEl.addEventListener('change', window.validateFormQuota);
+                                             }
+                                             if (countEl) {
+                                                 countEl.addEventListener('input', window.validateFormQuota);
+                                                 countEl.addEventListener('change', window.validateFormQuota);
+                                             }
+                                         }, 500);
+
+                                         window.handleVisitFormSubmit = function(form, event) {
+                                             event.preventDefault();
+                                             if (typeof window.validateFormQuota === 'function' && !window.validateFormQuota()) {
+                                                 return false;
+                                             }
+                                             if (typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) {
+                                                 Swal.fire({
+                                                     title: 'Oops!',
+                                                     text: '{{ __('home.layanan_publik.captcha_warning') }}',
+                                                     icon: 'warning',
+                                                     confirmButtonColor: '#174E93'
+                                                 });
+                                                 return false;
+                                             }
+                                             var fd = new FormData(form);
+                                             fd.append('_token', '{{ csrf_token() }}');
+                                             fetch('{{ route('public.visit.store') }}', {
+                                                 method: 'POST',
+                                                 body: fd
+                                             })
+                                             .then(res => res.json())
+                                             .then(data => {
+                                                 if (data.success) {
+                                                     const dateInput = document.getElementById('form_visit_date') || document.querySelector('[name="visit_date"]') || document.querySelector('[name="date"]') || document.querySelector('.dynamic-date-target');
+                                                     const timeInput = document.getElementById('form_visit_time') || document.querySelector('[name="visit_time"]') || document.querySelector('[name="time"]');
+                                                     const countInput = document.getElementById('form_visitor_count') || document.querySelector('[name="visitor_count"]') || document.querySelector('[name="count"]');
+                                                     if (dateInput && dateInput.value && timeInput && countInput) {
+                                                         const dStr = dateInput.value;
+                                                         const tStr = timeInput.value.toLowerCase().includes('siang') ? 'siang' : 'pagi';
+                                                         const cVal = parseInt(countInput.value) || 1;
+                                                         if (!window.bookings[dStr]) {
+                                                             window.bookings[dStr] = {};
+                                                         }
+                                                         window.bookings[dStr][tStr] = (window.bookings[dStr][tStr] || 0) + cVal;
+                                                     }
+                                                     Swal.fire({
+                                                         title: 'Berhasil!',
+                                                         text: data.message || 'Formulir berhasil dikirim!',
+                                                         icon: 'success',
+                                                         confirmButtonColor: '#174E93'
+                                                     });
+                                                     form.reset();
+                                                     if (typeof window.renderCalendar === 'function') {
+                                                         window.renderCalendar();
+                                                     }
+                                                     if (typeof grecaptcha !== 'undefined') {
+                                                         grecaptcha.reset();
+                                                     }
+                                                     let fileChosenText = document.getElementById('file_chosen_text');
+                                                     if (fileChosenText) {
+                                                         fileChosenText.innerText = '{{ __('home.layanan_publik.no_file') }}';
+                                                     }
+                                                     document.querySelectorAll('.calendar-date').forEach(el => el.classList.remove('selected'));
+                                                 } else {
+                                                     Swal.fire({
+                                                         title: 'Gagal!',
+                                                         text: data.message || 'Terjadi kesalahan.',
+                                                         icon: 'error',
+                                                         confirmButtonColor: '#174E93'
+                                                     });
+                                                 }
+                                             })
+                                             .catch(err => {
+                                                 Swal.fire({
+                                                     title: 'Oops!',
+                                                     text: 'Terjadi kesalahan saat mengirim formulir.',
+                                                     icon: 'error',
+                                                     confirmButtonColor: '#174E93'
+                                                 });
+                                             });
+                                             return false;
+                                         };
+                                     });
+                                 </script>
                             @endif
 
                             {{-- Form --}}
                             @if(!isset($currentPage->extra_data['show_form']) || $currentPage->extra_data['show_form'] == 1)
-                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="event.preventDefault(); if(typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) { Swal.fire({ title: 'Oops!', text: '{{ __('home.layanan_publik.captcha_warning') }}', icon: 'warning', confirmButtonColor: '#174E93' }); return false; } var form = this; var fd = new FormData(form); fd.append('_token', '{{ csrf_token() }}'); fetch('{{ route('public.visit.store') }}', { method: 'POST', body: fd }).then(res => res.json()).then(data => { Swal.fire({ title: 'Berhasil!', text: data.message || 'Formulir berhasil dikirim!', icon: 'success', confirmButtonColor: '#174E93' }); form.reset(); if(typeof grecaptcha !== 'undefined') grecaptcha.reset(); }).catch(err => { Swal.fire({ title: 'Oops!', text: 'Terjadi kesalahan saat mengirim formulir.', icon: 'error', confirmButtonColor: '#174E93' }); });">
+                                <form action="#" method="POST" enctype="multipart/form-data" class="service-form" onsubmit="return window.handleVisitFormSubmit(this, event);">
                                     @if(!empty($currentPage->extra_data['form_fields']) && is_array($currentPage->extra_data['form_fields']))
                                         @foreach($currentPage->extra_data['form_fields'] as $field)
                                             @php
@@ -778,11 +1010,25 @@
                                                 $fieldLabel = $locale === 'en' && !empty($field['label_en']) ? $field['label_en'] : ($field['label'] ?? '');
                                                 $fieldType = $field['type'] ?? 'text';
                                                 $isRequired = !empty($field['required']) && $field['required'] !== 'false' && $field['required'] !== false && $field['required'] != 0;
+
+                                                // Prefill login user data
+                                                $val = '';
+                                                if (auth()->check()) {
+                                                    $fieldIdLower = strtolower($field['id'] ?? '');
+                                                    $fieldLabelLower = strtolower($fieldLabel);
+                                                    if ($fieldIdLower === 'email' || str_contains($fieldIdLower, 'email') || str_contains($fieldLabelLower, 'email')) {
+                                                        $val = auth()->user()->email;
+                                                    } elseif ($fieldIdLower === 'name' || $fieldIdLower === 'nama' || str_contains($fieldIdLower, 'nama') || str_contains($fieldLabelLower, 'nama') || str_contains($fieldLabelLower, 'name')) {
+                                                        $val = auth()->user()->name;
+                                                    } elseif ($fieldIdLower === 'phone' || $fieldIdLower === 'telepon' || str_contains($fieldIdLower, 'phone') || str_contains($fieldIdLower, 'telp') || str_contains($fieldIdLower, 'wa') || str_contains($fieldIdLower, 'whatsapp') || str_contains($fieldLabelLower, 'telepon') || str_contains($fieldLabelLower, 'handphone') || str_contains($fieldLabelLower, 'whatsapp')) {
+                                                        $val = auth()->user()->phone ?? auth()->user()->whatsapp ?? '';
+                                                    }
+                                                }
                                             @endphp
                                             <div class="form-group">
                                                 <label class="form-label" for="{{ $fieldId }}">{{ $fieldLabel }} @if($isRequired)<span class="required">*</span>@endif</label>
                                                 @if($fieldType === 'textarea')
-                                                    <textarea id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" rows="3" @if($isRequired) required @endif></textarea>
+                                                    <textarea id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" rows="3" @if($isRequired) required @endif>{{ $val }}</textarea>
                                                 @elseif($fieldType === 'select')
                                                     @php
                                                         $optionsStr = $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : ($field['options'] ?? '');
@@ -794,19 +1040,23 @@
                                                             <option value="{{ $opt }}">{{ $opt }}</option>
                                                         @endforeach
                                                     </select>
-                                                @elseif($fieldType === 'file')
-                                                    <div>
-                                                        <div class="form-file-wrap">
-                                                            <button type="button" class="btn-choose-file" onclick="document.getElementById('{{ $fieldId }}').click()">{{ __('home.layanan_publik.choose_file') }}</button>
-                                                            <span id="{{ $fieldId }}_text">{{ __('home.layanan_publik.no_file') }}</span>
-                                                            <input type="file" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="hidden" onchange="document.getElementById('{{ $fieldId }}_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'" @if($isRequired) required @endif>
-                                                        </div>
-                                                        @if(!empty($field['options']))
-                                                            <div class="file-hint">{{ $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : $field['options'] }}</div>
-                                                        @endif
-                                                    </div>
+                                                 @elseif($fieldType === 'file')
+                                                     <div>
+                                                         <div class="form-file-wrap">
+                                                             <button type="button" class="btn-choose-file" onclick="document.getElementById('{{ $fieldId }}').click()">{{ __('home.layanan_publik.choose_file') }}</button>
+                                                             <span id="{{ $fieldId }}_text">{{ __('home.layanan_publik.no_file') }}</span>
+                                                             <input type="file" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="hidden" onchange="document.getElementById('{{ $fieldId }}_text').innerText = this.files[0] ? this.files[0].name : '{{ __('home.layanan_publik.no_file') }}'" @if($isRequired) required @endif>
+                                                         </div>
+                                                         @if(!empty($field['options']))
+                                                             <div class="file-hint">{{ $locale === 'en' && !empty($field['options_en']) ? $field['options_en'] : $field['options'] }}</div>
+                                                         @endif
+                                                     </div>
                                                 @else
-                                                    <input type="{{ $fieldType }}" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" @if($isRequired) required @endif @if($fieldType === 'number') min="1" @endif>
+                                                    @if($fieldType === 'date')
+                                                        <input type="text" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input cursor-pointer dynamic-date-target" readonly placeholder="{{ $locale === 'en' ? 'Select date from calendar' : 'Pilih tanggal dari kalender' }}" @if($isRequired) required @endif value="{{ $val }}">
+                                                    @else
+                                                        <input type="{{ $fieldType }}" id="{{ $fieldId }}" name="{{ $field['id'] ?? '' }}" class="form-input" @if($isRequired) required @endif @if($fieldType === 'number') min="1" @endif value="{{ $val }}">
+                                                    @endif
                                                 @endif
                                             </div>
                                         @endforeach
@@ -814,11 +1064,11 @@
                                         {{-- Fallback to default static form if no dynamic fields configured --}}
                                         <div class="form-group">
                                             <label class="form-label" for="form_name">{{ __('home.layanan_publik.form_name') }} <span class="required">*</span></label>
-                                            <input type="text" id="form_name" name="name" class="form-input" required>
+                                            <input type="text" id="form_name" name="name" class="form-input" value="{{ auth()->check() ? auth()->user()->name : '' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_email">{{ __('home.layanan_publik.form_email') }} <span class="required">*</span></label>
-                                            <input type="email" id="form_email" name="email" class="form-input" required>
+                                            <input type="email" id="form_email" name="email" class="form-input" value="{{ auth()->check() ? auth()->user()->email : '' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_phone_office">{{ __('home.layanan_publik.form_phone_office') }}</label>
@@ -826,7 +1076,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_phone">{{ __('home.layanan_publik.form_phone') }} <span class="required">*</span></label>
-                                            <input type="text" id="form_phone" name="phone" class="form-input" required>
+                                            <input type="text" id="form_phone" name="phone" class="form-input" value="{{ auth()->check() ? (auth()->user()->phone ?? auth()->user()->whatsapp ?? '') : '' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_institution">{{ __('home.layanan_publik.form_institution') }} <span class="required">*</span></label>
@@ -838,7 +1088,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_visit_date">{{ __('home.layanan_publik.form_visit_date') }} <span class="required">*</span></label>
-                                            <input type="date" id="form_visit_date" name="visit_date" class="form-input" required>
+                                            <input type="text" id="form_visit_date" name="visit_date" class="form-input cursor-pointer dynamic-date-target" readonly placeholder="{{ $locale === 'en' ? 'Select date from calendar' : 'Pilih tanggal dari kalender' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label" for="form_visit_time">{{ __('home.layanan_publik.form_visit_time') }} <span class="required">*</span></label>

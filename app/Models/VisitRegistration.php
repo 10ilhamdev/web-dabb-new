@@ -17,6 +17,8 @@ class VisitRegistration extends Model
         'visitor_count',
         'visit_purpose',
         'surat_file',
+        'status',
+        'keterangan',
         'form_data',
     ];
 

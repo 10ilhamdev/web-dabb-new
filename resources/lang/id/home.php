@@ -321,6 +321,7 @@ Disclaimer | #',
         'statis_indirect_pdf' => 'Mekanisme_Layanan_TidakLangsung_DABB_2025.pdf (1.4 MB)',
         'lib_pdf' => 'Mekanisme_Layanan_Perpustakaan_DABB_2025.pdf (1.4 MB)',
         'captcha_warning' => 'Silakan selesaikan Captcha terlebih dahulu.',
+        'form_success_message' => 'Formulir pendaftaran kunjungan berhasil dikirim!',
     ],
     'kontak_kami' => [
         'address' => 'Alamat Lengkap',

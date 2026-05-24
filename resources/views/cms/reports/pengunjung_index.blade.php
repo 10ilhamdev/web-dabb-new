@@ -16,7 +16,7 @@
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
             <div>
                 <h1 class="text-[22px] font-bold text-[#1E293B] mb-1">{{ __('dashboard.sidebar.reports_pengunjung') }}</h1>
-                <p class="text-gray-500 text-sm">Pilih jenis metrik pengunjung yang ingin dianalisis.</p>
+                <p class="text-gray-500 text-sm">{{ __('cms.reports.pengunjung_index_subtitle') }}</p>
             </div>
 
             <!-- Filter Controls -->
@@ -55,8 +55,8 @@
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900">Total Kunjungan (Page Views)</h2>
-                        <p class="text-sm text-gray-500 mt-1">Total halaman yang diakses pengunjung. 1 pengunjung bisa menghasilkan banyak page views.</p>
+                        <h2 class="text-xl font-bold text-gray-900">{{ __('cms.reports.page_views_title') }}</h2>
+                        <p class="text-sm text-gray-500 mt-1">{{ __('cms.reports.page_views_desc') }}</p>
                     </div>
                     <div class="text-4xl font-extrabold text-[#174E93] my-4">
                         {{ number_format($totalPageViews) }} <span class="text-base font-medium text-gray-400">views</span>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                     <a href="{{ route('cms.reports.pengunjung.page_views', ['tf' => $tf, 'start_date' => $startDate, 'end_date' => $endDate]) }}" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-blue-600 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">
-                        Lihat Detail
+                        {{ __('cms.reports.btn_view_detail') }}
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                 </div>
@@ -77,8 +77,8 @@
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900">Total Pengunjung Unik</h2>
-                        <p class="text-sm text-gray-500 mt-1">Dihitung berdasarkan IP unik pengunjung per harinya. Menunjukkan jumlah individu aktual.</p>
+                        <h2 class="text-xl font-bold text-gray-900">{{ __('cms.reports.unique_visitors_title') }}</h2>
+                        <p class="text-sm text-gray-500 mt-1">{{ __('cms.reports.unique_visitors_desc') }}</p>
                     </div>
                     <div class="text-4xl font-extrabold text-emerald-600 my-4">
                         {{ number_format($totalUniqueVisitors) }} <span class="text-base font-medium text-gray-400">pengunjung</span>
@@ -86,7 +86,7 @@
                 </div>
                 <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                     <a href="{{ route('cms.reports.pengunjung.unique', ['tf' => $tf, 'start_date' => $startDate, 'end_date' => $endDate]) }}" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-emerald-600 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">
-                        Lihat Detail
+                        {{ __('cms.reports.btn_view_detail') }}
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                 </div>

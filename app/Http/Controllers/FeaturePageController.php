@@ -346,6 +346,26 @@ class FeaturePageController extends Controller
             $popularNews = $sidebarData['popularNews'];
             $pameranArsip = $sidebarData['pameranArsip'];
 
+            $kuotaHarian = 5; // default fallback
+            if ($currentPage && isset($currentPage->extra_data)) {
+                $kuotaHarian = (int) ($currentPage->extra_data['kuota_harian'] ?? 5);
+            }
+
+            $bookings = \App\Models\VisitRegistration::where('visit_date', '>=', now()->toDateString())
+                ->where('visit_date', '<=', now()->addMonths(2)->toDateString())
+                ->whereNotIn('status', ['rejected'])
+                ->select('visit_date', 'visit_time')
+                ->selectRaw('SUM(visitor_count) as total_visitors')
+                ->groupBy('visit_date', 'visit_time')
+                ->get()
+                ->groupBy(function($item) {
+                    return \Carbon\Carbon::parse($item->visit_date)->toDateString();
+                })
+                ->map(function ($group) {
+                    return $group->pluck('total_visitors', 'visit_time')->toArray();
+                })
+                ->toArray();
+
             return view('pages.layanan_publik', [
                 'feature'             => $feature,
                 'pages'               => $pages,
@@ -361,6 +381,8 @@ class FeaturePageController extends Controller
                 'loginModalRoomNames' => $loginModalRoomNames,
                 'loginModalRoomName'  => $loginModalRoomName,
                 'loginModalPrompt'    => $loginModalPrompt,
+                'bookings'            => $bookings,
+                'kuotaHarian'         => $kuotaHarian,
             ]);
         }
 

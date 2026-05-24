@@ -11,12 +11,12 @@ function escapeHtml(str) {
 
 function readTableData(dt) {
     var headers = [], rows = [];
-    dt.columns([0,1,2,3,4,5]).header().each(function(th){
+    dt.columns([0,1,2,3,4,5,6]).header().each(function(th){
         headers.push((th.innerText || th.textContent || "").trim());
     });
     dt.rows({ search: "applied" }).every(function(){
         var $node = $(dt.row(this).node()), $cells = $node.find("td"), row = [];
-        for (var c = 0; c < 6; c++) {
+        for (var c = 0; c < 7; c++) {
             var cellText = $cells.eq(c).text().trim().replace(/\s+/g, ' ');
             row.push(cellText);
         }
@@ -83,7 +83,7 @@ function downloadBlob(blob, filename) {
 function buildTableHTML(dt) {
     var data = readTableData(dt);
     var colNames = data.headers;
-    var colWidths = [35, 150, 120, 100, 70, 90];
+    var colWidths = [30, 130, 110, 90, 55, 75, 75];
 
     var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
     html += "<thead><tr style=\"background:#174E93;color:white;\">";
@@ -157,7 +157,7 @@ function exportToWord(dt) {
 
 function exportToPDF(dt) {
     var data = readTableData(dt);
-    var colWidths = [25, 140, 130, 90, 60, 80];
+    var colWidths = [20, 130, 110, 85, 50, 70, 70];
 
     var body = [
         data.headers.map(function(h, i) {
@@ -356,7 +356,7 @@ $(function () {
     var i18n = window.kunjunganI18n || {};
 
     var table = $("#tableKunjungan").DataTable({
-        columnDefs: [{ orderable: false, targets: [6] }],
+        columnDefs: [{ orderable: false, targets: [7] }],
         order: [],
         language: {
             search: "",
@@ -399,10 +399,10 @@ $(function () {
 
     // ApexCharts Initialization
     if (window.kunjunganChartData) {
-        var pieData = window.kunjunganChartData.pieData || [];
+        var pieData = (window.kunjunganChartData.pieData || []).map(Number);
         var pieLabels = window.kunjunganChartData.pieLabels || [];
         var lineLabels = window.kunjunganChartData.lineLabels || [];
-        var lineSeries = window.kunjunganChartData.lineSeries || [];
+        var lineSeries = (window.kunjunganChartData.lineSeries || []).map(Number);
 
         if (document.querySelector("#pieChart") && pieData.length) {
             var pieOptions = {
@@ -413,14 +413,14 @@ $(function () {
                     toolbar: { show: true, tools: { download: true } }
                 },
                 labels: pieLabels,
-                colors: ['#22c55e', '#a855f7', '#f59e0b'],
+                colors: window.kunjunganChartData.pieColors && window.kunjunganChartData.pieColors.length ? window.kunjunganChartData.pieColors : ['#22c55e', '#a855f7', '#f59e0b'],
                 legend: {
                     position: 'bottom',
                     fontSize: '12px',
                     fontFamily: 'Inter, sans-serif',
                     markers: { width: 12, height: 12, radius: 12 }
                 },
-                dataLabels: { enabled: true, formatter: function(val, opts) { return opts.w.config.series[opts.seriesIndex] + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } },
+                dataLabels: { enabled: true, formatter: function(val, opts) { return (opts.w.globals.series[opts.seriesIndex] !== undefined ? opts.w.globals.series[opts.seriesIndex] : val) + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } },
                 tooltip: { y: { formatter: function(val) { return val + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } } }
             };
             var pieChart = new ApexCharts(document.querySelector("#pieChart"), pieOptions);
@@ -443,14 +443,23 @@ $(function () {
                 stroke: { curve: 'smooth', width: 3 },
                 xaxis: {
                     categories: lineLabels,
-                    tickAmount: window.innerWidth < 768 ? 6 : undefined,
+                    tickAmount: window.innerWidth < 768 ? 6 : (lineLabels.length > 15 ? 15 : undefined),
                     labels: {
                         hideOverlappingLabels: true,
+                        rotate: -45,
+                        rotateAlways: false,
                         style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' }
                     }
                 },
-                yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } } },
-                grid: { borderColor: '#f1f5f9', strokeDashArray: 3 },
+                yaxis: {
+                    labels: {
+                        style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' },
+                        formatter: function(v) { return Math.round(v); }
+                    },
+                    forceNiceScale: true,
+                    decimalsInFloat: 0
+                },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { top: 20 } },
                 tooltip: { x: { show: true }, y: { formatter: function(v) { return v + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } } }
             };
             var lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);

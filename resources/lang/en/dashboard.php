@@ -6,6 +6,7 @@ return [
         'reports' => 'Reports',
         'reports_kunjungan' => 'Visit Reports',
         'reports_pengunjung' => 'Website Visitor Monitoring',
+        'reports_online' => 'Online Users Report',
         'reports_konsultasi' => 'Archival Consultation Reports',
         'cms' => 'CMS',
         'cms_features' => 'Feature Management',

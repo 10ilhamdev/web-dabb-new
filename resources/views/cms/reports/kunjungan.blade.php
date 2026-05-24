@@ -11,7 +11,11 @@
 @endsection
 
 @section('content')
-    <div class="mb-8" x-data="{ tf: '{{ $tf }}', showCustom: {{ $tf === 'custom' ? 'true' : 'false' }}, selectedReg: null, showModal: false }">
+    @php
+        $userRole = auth()->user() ? \App\Models\Role::where('name', auth()->user()->role)->first() : null;
+        $hasAllPermission = ($userRole && $userRole->hasPermission('cms.reports.all'));
+    @endphp
+    <div class="mb-8" x-data="kunjunganReportComponent()">
         <!-- Title & Description -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
@@ -166,6 +170,7 @@
                             <th class="py-3 px-4">{{ __('cms.reports.col_date_time') }}</th>
                             <th class="py-3 px-4 text-center">{{ __('cms.reports.col_count') }}</th>
                             <th class="py-3 px-4">{{ __('cms.reports.col_purpose') }}</th>
+                            <th class="py-3 px-4 text-center">Status</th>
                             <th class="py-3 px-4 text-center rounded-r-xl">{{ __('cms.reports.col_action') }}</th>
                         </tr>
                     </thead>
@@ -186,18 +191,29 @@
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-medium text-gray-800">{{ $reg->visit_date ? $reg->visit_date->format('d M Y') : '-' }}</div>
-                                    <div class="text-xs text-gray-400 uppercase">{{ $reg->visit_time ? __('cms.reports.time_' . strtolower($reg->visit_time)) : __('cms.reports.time_pagi') }}</div>
+                                    <div class="text-xs text-gray-400 font-medium">{{ $reg->visit_time ? __('home.layanan_publik.form_time_' . strtolower($reg->visit_time)) : __('home.layanan_publik.form_time_pagi') }}</div>
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     <span class="px-2.5 py-1 bg-blue-50 text-[#174E93] font-bold rounded-lg text-xs">{{ $reg->visitor_count }} {{ __('cms.reports.label_org') }}</span>
                                 </td>
-                                <td class="py-3.5 px-4 uppercase text-xs font-semibold">
-                                    @if($reg->visit_purpose == 'edukasi')
-                                        <span class="text-green-600 bg-green-50 px-2.5 py-1 rounded-lg">{{ __('cms.reports.purpose_edukasi') }}</span>
-                                    @elseif($reg->visit_purpose == 'penelitian')
-                                        <span class="text-purple-600 bg-purple-50 px-2.5 py-1 rounded-lg">{{ __('cms.reports.purpose_penelitian') }}</span>
+                                <td class="py-3.5 px-4 text-xs font-semibold">
+                                     @php
+                                         $purposeLower = strtolower($reg->visit_purpose ?? '');
+                                         $colorData = $purposeColors[$purposeLower] ?? null;
+                                     @endphp
+                                     @if($colorData)
+                                         <span class="px-2.5 py-1 rounded-lg whitespace-nowrap inline-block" style="color: {{ $colorData['color'] }}; background-color: {{ $colorData['color'] }}1A;">{{ $colorData['label'] }}</span>
+                                     @else
+                                         <span class="text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg whitespace-nowrap inline-block">{{ ucwords(str_replace('_', ' ', $reg->visit_purpose ?? '-')) }}</span>
+                                     @endif
+                                </td>
+                                <td class="py-3.5 px-4 text-center text-xs font-bold">
+                                    @if($reg->status === 'approved')
+                                        <span class="text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg whitespace-nowrap inline-block">{{ app()->getLocale() === 'en' ? 'Approved' : 'Disetujui' }}</span>
+                                    @elseif($reg->status === 'rejected')
+                                        <span class="text-red-600 bg-red-50 px-2.5 py-1 rounded-lg whitespace-nowrap inline-block">{{ app()->getLocale() === 'en' ? 'Rejected' : 'Ditolak' }}</span>
                                     @else
-                                        <span class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg">{{ __('cms.reports.purpose_kunker') }}</span>
+                                        <span class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg whitespace-nowrap inline-block">{{ app()->getLocale() === 'en' ? 'Pending' : 'Menunggu' }}</span>
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
@@ -210,12 +226,31 @@
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                             </a>
                                         @endif
+                                        @if($hasAllPermission && $reg->status === 'pending')
+                                            <button @click="updateVisitStatus({{ json_encode($reg) }}, 'approved')" class="p-1.5 bg-gray-100 hover:bg-emerald-100 text-gray-600 hover:text-emerald-600 rounded-lg transition-colors" title="Setujui Kunjungan">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </button>
+                                            <button @click="updateVisitStatus({{ json_encode($reg) }}, 'rejected')" class="p-1.5 bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 rounded-lg transition-colors" title="Tolak Kunjungan">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        @endif
+                                        @if($hasAllPermission)
+                                            <button @click="deleteVisitReg({{ $reg->id }}, '{{ addslashes($reg->name) }}')" class="p-1.5 bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 rounded-lg transition-colors" title="Hapus Data">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-gray-400">{{ __('cms.reports.empty_kunjungan') }}</td>
+                                <td colspan="8" class="py-8 text-center text-gray-400">{{ __('cms.reports.empty_kunjungan') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -225,7 +260,7 @@
 
         <!-- Detail Modal -->
         <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showModal = false">
-            <div x-show="showModal" x-transition.opacity.scale.95 class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 overflow-hidden">
+            <div x-show="showModal" x-transition.opacity.scale.95 class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
                     <h3 class="text-lg font-bold text-gray-900">{{ __('cms.reports.modal_kunjungan_title') }}</h3>
                     <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg focus:outline-none">
@@ -236,50 +271,76 @@
                 <div class="space-y-4 text-sm" x-if="selectedReg">
                     <template x-if="selectedReg">
                         <div class="space-y-3">
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_name') }}</span>
-                                <span class="col-span-2 text-gray-800 font-bold" x-text="selectedReg.name"></span>
+                                <span class="sm:col-span-2 text-gray-800 font-bold" x-text="selectedReg.name"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_email') }}</span>
-                                <span class="col-span-2 text-gray-800" x-text="selectedReg.email"></span>
+                                <span class="sm:col-span-2 text-gray-800" x-text="selectedReg.email"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_phone') }}</span>
-                                <span class="col-span-2 text-gray-800" x-text="selectedReg.phone || '-'"></span>
+                                <span class="sm:col-span-2 text-gray-800" x-text="selectedReg.phone || '-'"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_inst') }}</span>
-                                <span class="col-span-2 text-gray-800" x-text="selectedReg.institution || '-'"></span>
+                                <span class="sm:col-span-2 text-gray-800" x-text="selectedReg.institution || '-'"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_position') }}</span>
-                                <span class="col-span-2 text-gray-800" x-text="selectedReg.position || '-'"></span>
+                                <span class="sm:col-span-2 text-gray-800" x-text="selectedReg.position || '-'"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_visit_date') }}</span>
-                                <span class="col-span-2 text-gray-800 font-medium" x-text="selectedReg.visit_date ? selectedReg.visit_date.substring(0,10) : '-'"></span>
+                                <span class="sm:col-span-2 text-gray-800 font-medium" x-text="selectedReg.visit_date ? selectedReg.visit_date.substring(0,10) : '-'"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_visit_time') }}</span>
-                                <span class="col-span-2 text-gray-800 uppercase font-medium" x-text="selectedReg.visit_time ? (selectedReg.visit_time.toLowerCase() == 'siang' ? @json(__('cms.reports.time_siang')) : @json(__('cms.reports.time_pagi'))) : @json(__('cms.reports.time_pagi'))"></span>
+                                <span class="sm:col-span-2 text-gray-800 font-medium" x-text="selectedReg.visit_time ? (selectedReg.visit_time.toLowerCase() == 'siang' ? translations.time_siang : translations.time_pagi) : translations.time_pagi"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_visitor_count') }}</span>
-                                <span class="col-span-2 text-blue-600 font-bold" x-text="(selectedReg.visitor_count || 1) + ' ' + @json(__('cms.reports.label_org_full'))"></span>
+                                <span class="sm:col-span-2 text-blue-600 font-bold" x-text="(selectedReg.visitor_count || 1) + ' ' + translations.label_org_full"></span>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_purpose') }}</span>
-                                <span class="col-span-2 text-gray-800 uppercase font-semibold" x-text="selectedReg.visit_purpose ? (selectedReg.visit_purpose == 'edukasi' ? @json(__('cms.reports.purpose_edukasi')) : (selectedReg.visit_purpose == 'penelitian' ? @json(__('cms.reports.purpose_penelitian')) : @json(__('cms.reports.purpose_kunker')))) : '-'"></span>
+                                <span class="sm:col-span-2 text-gray-800 font-semibold" x-text="
+                                    !selectedReg.visit_purpose ? '-' :
+                                    (selectedReg.visit_purpose.toLowerCase() == 'edukasi' ? translations.purpose_edukasi : 
+                                    (selectedReg.visit_purpose.toLowerCase() == 'penelitian' ? translations.purpose_penelitian : 
+                                    (selectedReg.visit_purpose.toLowerCase() == 'kunker' ? translations.purpose_kunker : 
+                                    selectedReg.visit_purpose)))
+                                "></span>
                             </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+                                <span class="font-semibold text-gray-500">{{ __('cms.reports.status') }}</span>
+                                <span class="sm:col-span-2 text-gray-800 font-bold" x-text="selectedReg.status === 'approved' ? translations.status_approved : (selectedReg.status === 'rejected' ? translations.status_rejected : translations.status_pending)"></span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2" x-show="selectedReg.keterangan">
+                                <span class="font-semibold text-gray-500">{{ __('cms.reports.remarks') }}</span>
+                                <span class="sm:col-span-2 text-gray-800" x-text="selectedReg.keterangan || '-'"></span>
+                            </div>
+
+                            <template x-if="selectedReg.surat_file">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+                                    <span class="font-semibold text-gray-500">{{ __('cms.reports.file_attachment') }}</span>
+                                    <div class="sm:col-span-2">
+                                        <a :href="'/storage/' + selectedReg.surat_file" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-100 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                            {{ __('cms.reports.view_file') }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </template>
 
                             <template x-if="selectedReg.form_data">
                                 <div class="mt-4 pt-2 border-t border-gray-100">
                                     <h4 class="font-bold text-gray-700 mb-2">{{ __('cms.reports.modal_form_data') }}</h4>
                                     <div class="bg-gray-50 p-3 rounded-xl space-y-2 text-xs">
                                         <template x-for="(val, key) in selectedReg.form_data" :key="key">
-                                            <div class="flex flex-col border-b border-gray-200/60 pb-1.5 last:border-0 last:pb-0">
-                                                <span class="font-bold text-gray-500 capitalize" x-text="key.replace(/_/g, ' ')"></span>
+                                            <div x-show="isFieldActive(key) && typeof val !== 'object'" class="flex flex-col border-b border-gray-200/60 pb-1.5 last:border-0 last:pb-0">
+                                                <span class="font-bold text-gray-500" x-text="getFormFieldLabel(key)"></span>
                                                 <span class="text-gray-800 mt-0.5" x-text="val || '-'"></span>
                                             </div>
                                         </template>
@@ -307,6 +368,155 @@
     <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2.7/build/vfs_fonts.js"></script>
 
     <script>
+        function kunjunganReportComponent() {
+            return {
+                tf: '{{ $tf }}', 
+                showCustom: {{ $tf === 'custom' ? 'true' : 'false' }}, 
+                selectedReg: null, 
+                showModal: false,
+                translations: {
+                    time_pagi: @json(__('home.layanan_publik.form_time_pagi')),
+                    time_siang: @json(__('home.layanan_publik.form_time_siang')),
+                    label_org_full: @json(__('cms.reports.label_org_full')),
+                    purpose_edukasi: @json(__('cms.reports.purpose_edukasi')),
+                    purpose_penelitian: @json(__('cms.reports.purpose_penelitian')),
+                    purpose_kunker: @json(__('cms.reports.purpose_kunker')),
+                    status_approved: @json(__('cms.reports.status_approved')),
+                    status_rejected: @json(__('cms.reports.status_rejected')),
+                    status_pending: @json(__('cms.reports.status_pending'))
+                },
+                isFieldActive(key) {
+                    const fields = window.formFields || [];
+                    return fields.some(f => f.id === key || f.name === key);
+                },
+                getFormFieldLabel(key) {
+                    const locale = '{{ app()->getLocale() }}';
+                    const fields = window.formFields || [];
+                    const field = fields.find(f => f.id === key || f.name === key);
+                    if (field) {
+                        if (locale === 'en' && field.label_en) {
+                            return field.label_en;
+                        }
+                        return field.label || field.id;
+                    }
+                    const commonTranslations = {
+                        'name': { id: 'Nama Lengkap', en: 'Full Name' },
+                        'email': { id: 'Surel / Email', en: 'Email' },
+                        'phone': { id: 'Telepon / WhatsApp', en: 'Phone / WhatsApp' },
+                        'institution': { id: 'Instansi / Organisasi', en: 'Institution / Organization' },
+                        'position': { id: 'Jabatan / Pekerjaan', en: 'Position' },
+                        'visit_date': { id: 'Tanggal Kunjungan', en: 'Visit Date' },
+                        'visit_time': { id: 'Waktu Kunjungan', en: 'Visit Time' },
+                        'visitor_count': { id: 'Jumlah Peserta', en: 'Visitor Count' },
+                        'visit_purpose': { id: 'Tujuan Kunjungan', en: 'Visit Purpose' },
+                        'surat_file': { id: 'Surat Permohonan', en: 'Request Letter' }
+                    };
+                    if (commonTranslations[key]) {
+                        return locale === 'en' ? commonTranslations[key].en : commonTranslations[key].id;
+                    }
+                    return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                },
+                updateVisitStatus(reg, newStatus) {
+                    const statusText = newStatus === 'approved' ? 'menyetujui' : 'menolak';
+                    const confirmButtonColor = newStatus === 'approved' ? '#10B981' : '#EF4444';
+                    const confirmButtonText = newStatus === 'approved' ? 'Setujui' : 'Tolak';
+                    
+                    Swal.fire({
+                        title: `Konfirmasi ${newStatus === 'approved' ? 'Persetujuan' : 'Penolakan'}`,
+                        text: `Apakah Anda yakin ingin ${statusText} permohonan kunjungan dari ${reg.name}?`,
+                        input: 'textarea',
+                        inputPlaceholder: 'Tulis catatan/keterangan tambahan di sini (opsional)...',
+                        inputAttributes: {
+                            autocapitalize: 'off'
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: confirmButtonText,
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: confirmButtonColor,
+                        cancelButtonColor: '#6B7280',
+                        showLoaderOnConfirm: true,
+                        preConfirm: (keterangan) => {
+                            return fetch(`/cms/reports/kunjungan/${reg.id}/status`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    status: newStatus,
+                                    keterangan: keterangan
+                                })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(response.statusText);
+                                }
+                                return response.json();
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage(`Request failed: ${error}`);
+                            });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value && result.value.success) {
+                            Swal.fire({
+                                title: 'Sukses!',
+                                text: result.value.message,
+                                icon: 'success',
+                                confirmButtonColor: '#174E93'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                },
+                deleteVisitReg(id, name) {
+                    Swal.fire({
+                        title: 'Hapus Data?',
+                        html: `Anda akan menghapus data pendaftaran kunjungan dari <strong>${name}</strong>.<br><span class="text-sm text-red-500">Tindakan ini tidak dapat dibatalkan.</span>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Hapus',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#EF4444',
+                        cancelButtonColor: '#6B7280',
+                        showLoaderOnConfirm: true,
+                        preConfirm: () => {
+                            return fetch(`/cms/reports/kunjungan/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error(response.statusText);
+                                return response.json();
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage(`Gagal menghapus: ${error}`);
+                            });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value && result.value.success) {
+                            Swal.fire({
+                                title: 'Berhasil Dihapus!',
+                                text: result.value.message,
+                                icon: 'success',
+                                confirmButtonColor: '#174E93'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            };
+        }
+
         window.kunjunganI18n = {
             btnExport: @json(__('cms.pengguna.btn_export')),
             btnCopy: @json(__('cms.pengguna.btn_copy')),
@@ -332,9 +542,11 @@
         window.kunjunganChartData = {
             pieData: @json($pieData),
             pieLabels: @json($pieLabels),
+            pieColors: @json($pieColors),
             lineLabels: @json($lineLabels),
             lineSeries: @json($lineSeries),
         };
+        window.formFields = @json($formFields ?? []);
     </script>
-    <script src="{{ asset('js/cms/features/reports/kunjungan.js') }}"></script>
+    <script src="{{ asset('js/cms/features/reports/kunjungan.js') }}" defer></script>
 @endpush

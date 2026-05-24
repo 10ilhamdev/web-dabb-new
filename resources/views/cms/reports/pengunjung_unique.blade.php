@@ -18,10 +18,10 @@
             <div>
                 <a href="{{ route('cms.reports.pengunjung') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-emerald-600 mb-2 transition-colors">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Kembali
+                    {{ __('cms.reports.btn_back') }}
                 </a>
-                <h1 class="text-[22px] font-bold text-[#1E293B] mb-1">Monitoring Pengunjung (Unique Visitors)</h1>
-                <p class="text-gray-500 text-sm">Monitoring statistik pengunjung unik (berdasarkan IP) per harinya.</p>
+                <h1 class="text-[22px] font-bold text-[#1E293B] mb-1">{{ __('cms.reports.unique_visitors_header_title') }}</h1>
+                <p class="text-gray-500 text-sm">{{ __('cms.reports.unique_visitors_header_desc') }}</p>
             </div>
 
             <!-- Filter Controls -->
@@ -61,7 +61,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <div class="text-3xl font-bold text-gray-900 leading-tight">{{ number_format($totalViews) }}</div>
-                            <div class="text-xs font-medium text-gray-500 mt-1">Total Pengunjung Unik</div>
+                            <div class="text-xs font-medium text-gray-500 mt-1">{{ __('cms.reports.unique_visitors_title') }}</div>
                         </div>
                         <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600 shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -180,9 +180,9 @@
             btnPdf: {!! json_encode(__('cms.pengguna.btn_pdf')) !!},
             btnPrint: {!! json_encode(__('cms.pengguna.btn_print')) !!},
             dtSearchPlaceholder: {!! json_encode(__('cms.datatable.search_placeholder')) !!},
-            title: 'Laporan Pengunjung Unik',
-            seriesName: 'Jumlah Pengunjung',
-            tooltipUnit: 'Pengunjung',
+            title: {!! json_encode(__('cms.reports.chart_unique_title')) !!},
+            seriesName: {!! json_encode(__('cms.reports.chart_unique_series')) !!},
+            tooltipUnit: {!! json_encode(__('cms.reports.chart_unique_unit')) !!},
         };
 
         window.LaravelDT = {
