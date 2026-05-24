@@ -39,6 +39,8 @@ return new class extends Migration
             $table->text('detail');
             $table->string('attachment')->nullable();
             $table->json('form_data')->nullable(); // for dynamic fields
+            $table->boolean('is_replied')->default(false);
+            $table->text('reply_message')->nullable();
             $table->timestamps();
         });
     }

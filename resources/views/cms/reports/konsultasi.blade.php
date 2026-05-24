@@ -11,7 +11,84 @@
 @endsection
 
 @section('content')
-    <div class="mb-8" x-data="{ tf: '{{ $tf }}', showCustom: {{ $tf === 'custom' ? 'true' : 'false' }}, selectedCon: null, showModal: false }">
+    <div class="mb-8" x-data="{ 
+        tf: '{{ $tf }}', 
+        showCustom: {{ $tf === 'custom' ? 'true' : 'false' }}, 
+        selectedCon: null, 
+        formFields: {{ json_encode($formFields) }},
+        showModal: false,
+        showReplyModal: false,
+        selectedConForReply: null,
+        replyMessage: '',
+        isReplying: false,
+        isDeleting: false,
+        sendReply() {
+            if (!this.replyMessage.trim()) return;
+            this.isReplying = true;
+            fetch(`/cms/reports/konsultasi/${this.selectedConForReply.id}/reply`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content')
+                },
+                body: JSON.stringify({ message: this.replyMessage })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.isReplying = false;
+                if (data.success) {
+                    this.showReplyModal = false;
+                    Swal.fire({ title: '{{ __('cms.reports.swal_success') }}', text: data.message, icon: 'success', confirmButtonColor: '#174E93' }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({ title: '{{ __('cms.reports.swal_fail') }}', text: data.message, icon: 'error', confirmButtonColor: '#174E93' });
+                }
+            })
+            .catch(err => {
+                this.isReplying = false;
+                Swal.fire({ title: '{{ __('cms.reports.swal_error') }}', text: '{{ __('cms.reports.swal_error_sys') }}', icon: 'error', confirmButtonColor: '#174E93' });
+            });
+        },
+        deleteKonsultasi(id) {
+            Swal.fire({
+                title: '{{ __('cms.reports.swal_del_title') }}',
+                text: '{{ __('cms.reports.swal_del_text') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '{{ __('cms.reports.swal_del_confirm') }}',
+                cancelButtonText: '{{ __('cms.reports.swal_cancel') }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.isDeleting = true;
+                    fetch(`/cms/reports/konsultasi/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content')
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isDeleting = false;
+                        if (data.success) {
+                            Swal.fire({ title: '{{ __('cms.reports.swal_deleted') }}', text: data.message, icon: 'success', confirmButtonColor: '#174E93' }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({ title: '{{ __('cms.reports.swal_fail') }}', text: data.message, icon: 'error', confirmButtonColor: '#174E93' });
+                        }
+                    })
+                    .catch(err => {
+                        this.isDeleting = false;
+                        Swal.fire({ title: '{{ __('cms.reports.swal_error') }}', text: '{{ __('cms.reports.swal_error_sys') }}', icon: 'error', confirmButtonColor: '#174E93' });
+                    });
+                }
+            });
+        }
+    }">
         <!-- Title & Filter Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
@@ -84,6 +161,7 @@
                             <th class="py-3 px-4">{{ __('cms.reports.col_contact') }}</th>
                             <th class="py-3 px-4">{{ __('cms.reports.col_topic') }}</th>
                             <th class="py-3 px-4 text-center">{{ __('cms.reports.col_submit_date') }}</th>
+                            <th class="py-3 px-4 text-center">{{ __('cms.reports.status') }}</th>
                             <th class="py-3 px-4 text-center rounded-r-xl">{{ __('cms.reports.col_action') }}</th>
                         </tr>
                     </thead>
@@ -103,21 +181,43 @@
                                     <div class="text-xs text-gray-400">{{ $con->phone ?: '-' }}</div>
                                 </td>
                                 <td class="py-3.5 px-4">
-                                    <div class="font-medium text-gray-800 max-w-xs truncate" title="{{ $con->consultation_topic }}">{{ $con->consultation_topic ?: '-' }}</div>
+                                    <div class="font-medium text-gray-800 max-w-xs truncate" title="{{ $con->detail }}">{{ $con->detail ?: '-' }}</div>
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="font-medium text-gray-800">{{ $con->created_at ? $con->created_at->format('d M Y') : '-' }}</div>
                                     <div class="text-xs text-gray-400">{{ $con->created_at ? $con->created_at->format('H:i') : '' }}</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-center text-xs font-bold">
+                                    @if($con->is_replied)
+                                        <span class="text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg whitespace-nowrap inline-block">{{ __('cms.reports.status_replied') }}</span>
+                                    @else
+                                        <span class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg whitespace-nowrap inline-block">{{ __('cms.reports.status_waiting') }}</span>
+                                    @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         <button @click="selectedCon = {{ json_encode($con) }}; showModal = true" class="p-1.5 bg-gray-100 hover:bg-purple-100 text-gray-600 hover:text-purple-600 rounded-lg transition-colors" title="{{ __('cms.reports.btn_detail') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                         </button>
+                                        
+                                        @if($hasAllPermission)
+                                            @if(!$con->is_replied)
+                                                <button @click="selectedConForReply = {{ json_encode($con) }}; replyMessage = ''; showReplyModal = true" class="p-1.5 bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-[#174E93] rounded-lg transition-colors" title="{{ __('cms.reports.btn_reply') }}">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                                                </button>
+                                            @endif
+                                        @endif
+                                        
                                         @if($con->surat_file)
                                             <a href="{{ asset('storage/' . $con->surat_file) }}" target="_blank" class="p-1.5 bg-gray-100 hover:bg-green-100 text-gray-600 hover:text-green-600 rounded-lg transition-colors" title="{{ __('cms.reports.btn_download_attachment') }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                             </a>
+                                        @endif
+
+                                        @if($hasAllPermission)
+                                            <button @click="deleteKonsultasi({{ $con->id }})" class="p-1.5 bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 rounded-lg transition-colors" title="{{ __('cms.reports.btn_delete') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -171,18 +271,29 @@
                             </div>
                             <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
                                 <span class="font-semibold text-gray-500">{{ __('cms.reports.modal_topic') }}</span>
-                                <span class="col-span-2 text-gray-800 font-semibold" x-text="selectedCon.consultation_topic || '-'"></span>
+                                <span class="col-span-2 text-gray-800 font-semibold" x-text="selectedCon.detail || '-'"></span>
                             </div>
+
+                            @if($hasAllPermission)
+                            <template x-if="selectedCon.is_replied">
+                                <div class="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2 bg-blue-50/50 -mx-4 px-4 pt-2">
+                                    <span class="font-semibold text-blue-700">Balasan Admin</span>
+                                    <span class="col-span-2 text-blue-900" x-text="selectedCon.reply_message || '-'"></span>
+                                </div>
+                            </template>
+                            @endif
 
                             <template x-if="selectedCon.form_data">
                                 <div class="mt-4 pt-2 border-t border-gray-100">
                                     <h4 class="font-bold text-gray-700 mb-2">{{ __('cms.reports.modal_form_data') }}</h4>
                                     <div class="bg-gray-50 p-3 rounded-xl space-y-2 text-xs">
-                                        <template x-for="(val, key) in selectedCon.form_data" :key="key">
-                                            <div class="flex flex-col border-b border-gray-200/60 pb-1.5 last:border-0 last:pb-0">
-                                                <span class="font-bold text-gray-500 capitalize" x-text="key.replace(/_/g, ' ')"></span>
-                                                <span class="text-gray-800 mt-0.5" x-text="val || '-'"></span>
-                                            </div>
+                                        <template x-for="field in formFields" :key="field.name">
+                                            <template x-if="selectedCon.form_data && selectedCon.form_data[field.name]">
+                                                <div class="flex flex-col border-b border-gray-200/60 pb-1.5 last:border-0 last:pb-0">
+                                                    <span class="font-bold text-gray-500 capitalize" x-text="field.label"></span>
+                                                    <span class="text-gray-800 mt-0.5" x-text="selectedCon.form_data[field.name] || '-'"></span>
+                                                </div>
+                                            </template>
                                         </template>
                                     </div>
                                 </div>
@@ -193,6 +304,45 @@
 
                 <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end gap-3">
                     <button @click="showModal = false" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors text-sm">{{ __('cms.reports.btn_close') }}</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply Modal -->
+        <div x-show="showReplyModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="if(!isReplying) showReplyModal = false">
+            <div x-show="showReplyModal" x-transition.opacity.scale.95 class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 overflow-hidden">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('cms.reports.reply_modal_title') }}</h3>
+                    <button @click="showReplyModal = false" :disabled="isReplying" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg focus:outline-none disabled:opacity-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4" x-if="selectedConForReply">
+                    <template x-if="selectedConForReply">
+                        <div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">{{ __('cms.reports.reply_modal_to') }}</label>
+                                <div class="bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600" x-text="selectedConForReply.name + ' (' + selectedConForReply.email + ')'"></div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">{{ __('cms.reports.reply_modal_msg') }}</label>
+                                <textarea x-model="replyMessage" rows="5" class="w-full form-input rounded-xl text-sm border-gray-200 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('cms.reports.reply_modal_placeholder') }}"></textarea>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end gap-3">
+                    <button @click="showReplyModal = false" :disabled="isReplying" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors text-sm disabled:opacity-50">{{ __('cms.reports.swal_cancel') }}</button>
+                    <button @click="sendReply()" :disabled="isReplying || !replyMessage.trim()" class="px-5 py-2 bg-[#174E93] hover:bg-blue-800 text-white font-semibold rounded-xl transition-colors text-sm flex items-center gap-2 disabled:opacity-50">
+                        <span x-show="!isReplying">{{ __('cms.reports.btn_send_reply') }}</span>
+                        <span x-show="isReplying">{{ __('cms.reports.btn_sending') }}</span>
+                        <svg x-show="isReplying" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>

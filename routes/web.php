@@ -102,6 +102,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengunjung/page-views', [App\Http\Controllers\Cms\ReportController::class, 'pengunjungPageViews'])->name('pengunjung.page_views');
         Route::get('/pengunjung/unique', [App\Http\Controllers\Cms\ReportController::class, 'pengunjungUnique'])->name('pengunjung.unique');
         Route::get('/konsultasi', [App\Http\Controllers\Cms\ReportController::class, 'konsultasi'])->name('konsultasi');
+        Route::post('/konsultasi/{id}/reply', [App\Http\Controllers\Cms\ReportController::class, 'replyKonsultasi'])->name('konsultasi.reply');
+        Route::delete('/konsultasi/{id}', [App\Http\Controllers\Cms\ReportController::class, 'destroyKonsultasi'])->name('konsultasi.destroy');
         Route::get('/online', [App\Http\Controllers\Cms\ReportController::class, 'online'])->name('online');
     });
 

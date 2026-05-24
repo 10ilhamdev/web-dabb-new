@@ -684,6 +684,13 @@ class ReportController extends Controller
         $totalKonsultasi = (clone $query)->count();
         $consultations = (clone $query)->latest()->get();
 
+        $currentPage = \App\Models\LayananPublik::where('type', 'konsultasi')->first() 
+            ?? \App\Models\LayananPublik::where('title', 'like', '%konsultasi%')->first();
+        $formFields = [];
+        if ($currentPage && !empty($currentPage->extra_data['form_fields'])) {
+            $formFields = $currentPage->extra_data['form_fields'];
+        }
+
         return view('cms.reports.konsultasi', compact(
             'role',
             'tf',
@@ -691,7 +698,9 @@ class ReportController extends Controller
             'endDate',
             'subtitle',
             'totalKonsultasi',
-            'consultations'
+            'consultations',
+            'formFields',
+            'hasAllPermission'
         ));
     }
 
@@ -817,30 +826,45 @@ class ReportController extends Controller
         $avgOnlinePerHour = $activeHoursCount > 0 ? round(array_sum($lineSeries) / $activeHoursCount, 1) : 0;
 
         // 4. User Activity Logs for DataTable
-        $activitySummary = (clone $baseQuery)
-            ->with('user')
-            ->selectRaw('user_id, COUNT(*) as page_views, MAX(created_at) as last_access')
-            ->groupBy('user_id')
-            ->get();
+        if ($hasAllPermission) {
+            $activitySummary = (clone $baseQuery)
+                ->with('user')
+                ->selectRaw('user_id, COUNT(*) as page_views, MAX(created_at) as last_access')
+                ->groupBy('user_id')
+                ->get();
 
-        $todayActivityLogs = $activitySummary->map(function ($row) use ($baseQuery) {
-            $latestView = (clone $baseQuery)
-                ->when($row->user_id, function($q) use ($row) {
-                    $q->where('user_id', $row->user_id);
-                }, function($q) {
-                    $q->whereNull('user_id');
-                })
-                ->latest('created_at')
-                ->first();
+            $todayActivityLogs = $activitySummary->map(function ($row) use ($baseQuery) {
+                $latestView = (clone $baseQuery)
+                    ->when($row->user_id, function($q) use ($row) {
+                        $q->where('user_id', $row->user_id);
+                    }, function($q) {
+                        $q->whereNull('user_id');
+                    })
+                    ->latest('created_at')
+                    ->first();
 
-            return [
-                'name' => $row->user?->name ?? ($row->user_id ? 'Pengguna #' . $row->user_id : 'Pengunjung Umum (Guest)'),
-                'role' => $row->user?->role ?? ($row->user_id ? 'user' : 'guest'),
-                'total_views' => $row->page_views,
-                'last_path' => $latestView?->path ?? '/',
-                'last_activity' => $latestView?->created_at ? $latestView->created_at->format('H:i:s') : '-',
-            ];
-        });
+                return [
+                    'name' => $row->user?->name ?? ($row->user_id ? 'Pengguna #' . $row->user_id : 'Pengunjung Umum (Guest)'),
+                    'role' => $row->user?->role ?? ($row->user_id ? 'user' : 'guest'),
+                    'total_views' => $row->page_views,
+                    'last_path' => $latestView?->path ?? '/',
+                    'last_activity' => $latestView?->created_at ? $latestView->created_at->format('H:i:s') : '-',
+                ];
+            });
+        } else {
+            $activitySummary = (clone $baseQuery)
+                ->selectRaw('path, COUNT(*) as page_views, MAX(created_at) as last_access')
+                ->groupBy('path')
+                ->get();
+
+            $todayActivityLogs = $activitySummary->map(function ($row) {
+                return [
+                    'last_path' => $row->path,
+                    'total_views' => $row->page_views,
+                    'last_activity' => \Carbon\Carbon::parse($row->last_access)->format('H:i:s'),
+                ];
+            })->sortByDesc('last_access')->values();
+        }
 
         return view('cms.reports.online', compact(
             'role',
@@ -861,5 +885,87 @@ class ReportController extends Controller
             'avgOnlinePerHour',
             'todayActivityLogs'
         ));
+    }
+
+    /**
+     * Balas pesan Konsultasi Kearsipan
+     */
+    public function replyKonsultasi(Request $request, $id)
+    {
+        $user = $request->user();
+        $role = $user?->role ?? 'admin';
+        $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        if (!$hasAllPermission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki hak akses untuk membalas konsultasi.'
+            ], 403);
+        }
+
+        $request->validate([
+            'message' => 'required|string'
+        ]);
+
+        $consultation = ArchivalConsultation::findOrFail($id);
+
+        if ($consultation->is_replied) {
+            return response()->json([
+                'success' => false,
+                'message' => __('cms.reports.msg_replied_already')
+            ], 400);
+        }
+
+        try {
+            \Illuminate\Support\Facades\Notification::route('mail', $consultation->email)
+                ->notify(new \App\Notifications\ConsultationReplyNotification($consultation, $request->input('message')));
+
+            $consultation->is_replied = true;
+            $consultation->reply_message = $request->input('message');
+            $consultation->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => __('cms.reports.msg_reply_success')
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => __('cms.reports.msg_reply_fail')
+            ], 500);
+        }
+    }
+
+    /**
+     * Hapus data Konsultasi Kearsipan
+     */
+    public function destroyKonsultasi(Request $request, $id)
+    {
+        $user = $request->user();
+        $role = $user?->role ?? 'admin';
+        $userRoleObj = $user ? \App\Models\Role::where('name', $role)->first() : null;
+
+        $hasAllPermission = ($userRoleObj && $userRoleObj->hasPermission('cms.reports.all'));
+        if (!$hasAllPermission) {
+            return response()->json([
+                'success' => false,
+                'message' => __('cms.reports.msg_del_no_access')
+            ], 403);
+        }
+
+        $consultation = ArchivalConsultation::findOrFail($id);
+
+        if ($consultation->attachment) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($consultation->attachment);
+        }
+
+        $consultation->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => __('cms.reports.msg_del_success')
+        ]);
     }
 }

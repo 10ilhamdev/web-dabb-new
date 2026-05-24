@@ -299,9 +299,9 @@
 
                 <!-- Statistik Singkat -->
                 <div class="mt-6 grid grid-cols-2 gap-3">
-                    @php $myLog = $todayActivityLogs->first(); @endphp
+                    @php $totalMyViews = collect($todayActivityLogs)->sum('total_views'); @endphp
                     <div class="bg-blue-50/60 rounded-xl p-3 text-center border border-blue-100/60">
-                        <div class="text-2xl font-extrabold text-blue-600">{{ $myLog ? number_format($myLog['total_views']) : 0 }}</div>
+                        <div class="text-2xl font-extrabold text-blue-600">{{ number_format($totalMyViews) }}</div>
                         <div class="text-[11px] text-blue-500 font-medium mt-0.5">{{ __('cms.reports.col_page_views') }}</div>
                     </div>
                     <div class="bg-amber-50/60 rounded-xl p-3 text-center border border-amber-100/60">

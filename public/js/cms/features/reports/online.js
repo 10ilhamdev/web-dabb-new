@@ -466,7 +466,7 @@ $(function () {
                     tickAmount: tickCount,
                     labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } }
                 },
-                grid: { borderColor: '#f1f5f9', strokeDashArray: 3 },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { top: 15, right: 10, bottom: 0, left: 10 } },
                 tooltip: {
                     x: { show: true },
                     y: { formatter: function(val) { return val + ' ' + (window.onlineI18n?.tooltipUnit || 'Pengguna'); } }

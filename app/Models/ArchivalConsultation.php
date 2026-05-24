@@ -13,6 +13,7 @@ class ArchivalConsultation extends Model
         'detail',
         'attachment',
         'form_data',
+        'is_replied',
     ];
 
     protected $casts = [
