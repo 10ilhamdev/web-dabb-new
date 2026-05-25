@@ -402,7 +402,8 @@ $(function () {
         var pieData = (window.kunjunganChartData.pieData || []).map(Number);
         var pieLabels = window.kunjunganChartData.pieLabels || [];
         var lineLabels = window.kunjunganChartData.lineLabels || [];
-        var lineSeries = (window.kunjunganChartData.lineSeries || []).map(Number);
+        var lineSeriesApproved = (window.kunjunganChartData.lineSeriesApproved || []).map(Number);
+        var lineSeriesRejected = (window.kunjunganChartData.lineSeriesRejected || []).map(Number);
 
         if (document.querySelector("#pieChart") && pieData.length) {
             var pieOptions = {
@@ -430,9 +431,10 @@ $(function () {
             }, 150);
         }
 
-        if (document.querySelector("#lineChart") && lineSeries.length) {
-            var lineOptions = {
-                series: [{ name: window.kunjunganI18n?.lineSeriesName || 'Peserta Kunjungan', data: lineSeries }],
+        // Approved Visit Chart
+        if (document.querySelector("#lineChartApproved") && lineSeriesApproved.length) {
+            var lineOptionsApproved = {
+                series: [{ name: window.kunjunganI18n?.lineSeriesApprovedName || 'Disetujui', data: lineSeriesApproved }],
                 chart: {
                     type: 'area',
                     height: 280,
@@ -462,8 +464,48 @@ $(function () {
                 grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { top: 20 } },
                 tooltip: { x: { show: true }, y: { formatter: function(v) { return v + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } } }
             };
-            var lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);
-            lineChart.render();
+            var lineChartApproved = new ApexCharts(document.querySelector("#lineChartApproved"), lineOptionsApproved);
+            lineChartApproved.render();
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+            }, 150);
+        }
+
+        // Rejected Visit Chart
+        if (document.querySelector("#lineChartRejected") && lineSeriesRejected.length) {
+            var lineOptionsRejected = {
+                series: [{ name: window.kunjunganI18n?.lineSeriesRejectedName || 'Ditolak', data: lineSeriesRejected }],
+                chart: {
+                    type: 'area',
+                    height: 280,
+                    toolbar: { show: true }
+                },
+                colors: ['#ef4444'],
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] } },
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: {
+                    categories: lineLabels,
+                    tickAmount: window.innerWidth < 768 ? 6 : (lineLabels.length > 15 ? 15 : undefined),
+                    labels: {
+                        hideOverlappingLabels: true,
+                        rotate: -45,
+                        rotateAlways: false,
+                        style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' }
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: { colors: '#94a3b8', fontSize: '11px', fontFamily: 'Inter' },
+                        formatter: function(v) { return Math.round(v); }
+                    },
+                    forceNiceScale: true,
+                    decimalsInFloat: 0
+                },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { top: 20 } },
+                tooltip: { x: { show: true }, y: { formatter: function(v) { return v + ' ' + (window.kunjunganI18n?.labelOrg || 'org'); } } }
+            };
+            var lineChartRejected = new ApexCharts(document.querySelector("#lineChartRejected"), lineOptionsRejected);
+            lineChartRejected.render();
             setTimeout(function() {
                 window.dispatchEvent(new Event('resize'));
             }, 150);

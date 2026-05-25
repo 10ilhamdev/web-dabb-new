@@ -58,7 +58,7 @@ Route::get('/halaman/{feature}/{pageNum?}', [FeaturePageController::class, 'publ
 Route::post('/layanan-publik/visit', [App\Http\Controllers\PublicServiceSubmissionController::class, 'storeVisit'])->name('public.visit.store');
 Route::post('/layanan-publik/consultation', [App\Http\Controllers\PublicServiceSubmissionController::class, 'storeConsultation'])->name('public.consultation.store');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [RoleDashboardController::class, 'index'])->name('dashboard');
 
     // Dynamic dashboard routes — registered from roles table at boot time

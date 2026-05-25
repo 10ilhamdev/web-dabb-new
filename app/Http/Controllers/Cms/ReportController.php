@@ -128,32 +128,60 @@ class ReportController extends Controller
 
         // Line chart data (Dynamic date range based on tf)
         $lineLabels = [];
-        $lineSeries = [];
+        $lineSeriesApproved = [];
+        $lineSeriesRejected = [];
 
         if ($tf === 'day') {
             // Group by hour for today
             $today = Carbon::today()->toDateString();
-            $hourlyQuery = VisitRegistration::whereDate('created_at', $today);
+            
+            // Approved
+            $hourlyQueryApproved = VisitRegistration::whereDate('created_at', $today)->where('status', 'approved');
             if (!$isAdminOrPegawai && $user) {
-                $hourlyQuery->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+                $hourlyQueryApproved->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
             }
-            $hourlyCounts = $hourlyQuery
+            $hourlyCountsApproved = $hourlyQueryApproved
+                ->selectRaw('HOUR(created_at) as hr, SUM(visitor_count) as total')
+                ->groupBy('hr')
+                ->pluck('total', 'hr')
+                ->toArray();
+
+            // Rejected
+            $hourlyQueryRejected = VisitRegistration::whereDate('created_at', $today)->where('status', 'rejected');
+            if (!$isAdminOrPegawai && $user) {
+                $hourlyQueryRejected->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+            }
+            $hourlyCountsRejected = $hourlyQueryRejected
                 ->selectRaw('HOUR(created_at) as hr, SUM(visitor_count) as total')
                 ->groupBy('hr')
                 ->pluck('total', 'hr')
                 ->toArray();
 
             $lineLabels = array_map(fn($h) => str_pad($h, 2, '0', STR_PAD_LEFT) . ':00', range(0, 23));
-            $lineSeries = array_map(fn($h) => (int) ($hourlyCounts[$h] ?? 0), range(0, 23));
+            $lineSeriesApproved = array_map(fn($h) => (int) ($hourlyCountsApproved[$h] ?? 0), range(0, 23));
+            $lineSeriesRejected = array_map(fn($h) => (int) ($hourlyCountsRejected[$h] ?? 0), range(0, 23));
 
         } elseif ($tf === 'year') {
             // Group by month for the last 12 months
             $yearAgo = Carbon::now()->subDays(365)->startOfDay();
-            $monthlyQuery = VisitRegistration::where('created_at', '>=', $yearAgo);
+            
+            // Approved
+            $monthlyQueryApproved = VisitRegistration::where('created_at', '>=', $yearAgo)->where('status', 'approved');
             if (!$isAdminOrPegawai && $user) {
-                $monthlyQuery->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+                $monthlyQueryApproved->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
             }
-            $monthlyCounts = $monthlyQuery
+            $monthlyCountsApproved = $monthlyQueryApproved
+                ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as mth, SUM(visitor_count) as total')
+                ->groupBy('mth')
+                ->pluck('total', 'mth')
+                ->toArray();
+
+            // Rejected
+            $monthlyQueryRejected = VisitRegistration::where('created_at', '>=', $yearAgo)->where('status', 'rejected');
+            if (!$isAdminOrPegawai && $user) {
+                $monthlyQueryRejected->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+            }
+            $monthlyCountsRejected = $monthlyQueryRejected
                 ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as mth, SUM(visitor_count) as total')
                 ->groupBy('mth')
                 ->pluck('total', 'mth')
@@ -163,7 +191,8 @@ class ReportController extends Controller
                 $m = Carbon::now()->subMonths($i);
                 $key = $m->format('Y-m');
                 $lineLabels[] = $m->translatedFormat('M Y');
-                $lineSeries[] = (int) ($monthlyCounts[$key] ?? 0);
+                $lineSeriesApproved[] = (int) ($monthlyCountsApproved[$key] ?? 0);
+                $lineSeriesRejected[] = (int) ($monthlyCountsRejected[$key] ?? 0);
             }
 
         } else {
@@ -188,11 +217,20 @@ class ReportController extends Controller
             for ($i = 0; $i <= $diffDays; $i++) {
                 $current = (clone $start)->addDays($i)->toDateString();
                 $lineLabels[] = Carbon::parse($current)->format('d M');
-                $subQ = VisitRegistration::whereDate('created_at', $current);
+                
+                // Approved
+                $subQApproved = VisitRegistration::whereDate('created_at', $current)->where('status', 'approved');
                 if (!$isAdminOrPegawai && $user) {
-                    $subQ->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+                    $subQApproved->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
                 }
-                $lineSeries[] = (int) $subQ->sum('visitor_count');
+                $lineSeriesApproved[] = (int) $subQApproved->sum('visitor_count');
+
+                // Rejected
+                $subQRejected = VisitRegistration::whereDate('created_at', $current)->where('status', 'rejected');
+                if (!$isAdminOrPegawai && $user) {
+                    $subQRejected->where(DB::raw('LOWER(trim(email))'), strtolower(trim($user->email)));
+                }
+                $lineSeriesRejected[] = (int) $subQRejected->sum('visitor_count');
             }
         }
 
@@ -222,7 +260,8 @@ class ReportController extends Controller
             'purposeColors',
             'configuredPurposes',
             'lineLabels',
-            'lineSeries',
+            'lineSeriesApproved',
+            'lineSeriesRejected',
             'registrations',
             'formFields'
         ));

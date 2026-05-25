@@ -137,16 +137,32 @@
                 </div>
             </div>
 
-            <!-- Line Chart: Tren Kunjungan -->
+            <!-- Line Chart: Tren Kunjungan Disetujui -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between lg:col-span-2">
                 <div class="mb-4 flex justify-between items-center">
                     <div>
-                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.chart_trend_title') }}</h2>
-                        <p class="text-xs text-gray-400">{{ __('cms.reports.chart_trend_sub') }}</p>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.chart_trend_approved_title', ['default' => 'Tren Kunjungan Disetujui']) }}</h2>
+                        <p class="text-xs text-gray-400">{{ __('cms.reports.chart_trend_approved_sub', ['default' => 'Grafik jumlah peserta kunjungan yang disetujui']) }}</p>
                     </div>
                 </div>
                 <div class="w-full relative" style="height: 280px;">
-                    <div id="lineChart"></div>
+                    <div id="lineChartApproved"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejected Chart Grid Row -->
+        <div class="grid grid-cols-1 gap-6 mb-8">
+            <!-- Line Chart: Tren Kunjungan Ditolak -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div class="mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.chart_trend_rejected_title', ['default' => 'Tren Kunjungan Ditolak']) }}</h2>
+                        <p class="text-xs text-gray-400">{{ __('cms.reports.chart_trend_rejected_sub', ['default' => 'Grafik jumlah peserta kunjungan yang ditolak']) }}</p>
+                    </div>
+                </div>
+                <div class="w-full relative" style="height: 280px;">
+                    <div id="lineChartRejected"></div>
                 </div>
             </div>
         </div>
@@ -528,7 +544,8 @@
             dtSearchPlaceholder: @json(__('cms.datatable.search_placeholder')),
             title: @json(__('cms.reports.kunjungan_title')),
             labelOrg: @json(__('cms.reports.label_org')),
-            lineSeriesName: @json(__('cms.reports.chart_trend_title')),
+            lineSeriesApprovedName: @json(__('cms.reports.chart_trend_approved_title', ['default' => 'Disetujui'])),
+            lineSeriesRejectedName: @json(__('cms.reports.chart_trend_rejected_title', ['default' => 'Ditolak'])),
         };
 
         window.LaravelDT = {
@@ -544,7 +561,8 @@
             pieLabels: @json($pieLabels),
             pieColors: @json($pieColors),
             lineLabels: @json($lineLabels),
-            lineSeries: @json($lineSeries),
+            lineSeriesApproved: @json($lineSeriesApproved),
+            lineSeriesRejected: @json($lineSeriesRejected),
         };
         window.formFields = @json($formFields ?? []);
     </script>
