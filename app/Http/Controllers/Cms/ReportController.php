@@ -753,37 +753,25 @@ class ReportController extends Controller
         $onlineCount = $onlineUsersList->count();
 
         // Base Query untuk filter TF
-        // Hanya hitung PageView dari halaman website publik (konsisten dengan laporan pengunjung)
-        $baseQuery = PageView::query()
-            ->where(function ($q) {
-                $q->where('path', '/')
-                  ->orWhere('path', 'like', 'profil%')
-                  ->orWhere('path', 'like', '%pameran-arsip%')
-                  ->orWhere('path', 'like', '%pengumuman%')
-                  ->orWhere('path', 'like', '%berita%')
-                  ->orWhere('path', 'like', '%galeri%')
-                  ->orWhere('path', 'like', '%layanan-publik%')
-                  ->orWhere('path', 'like', '%pengelolaan%')
-                  ->orWhere('path', 'like', '%kontak-kami%');
-            });
+        $baseQuery = PageView::query();
         if (!$isAdminOrPegawai && $user) {
             $baseQuery->where('user_id', $user->id);
         }
 
         $subtitle = __('dashboard.admin.chart.filter_day', ['default' => 'Hari Ini']);
         if ($tf === 'custom' && $startDate && $endDate) {
-            $baseQuery->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+            $baseQuery->whereBetween('viewed_date', [$startDate, $endDate]);
             $subtitle = 'Periode: ' . Carbon::parse($startDate)->format('d M Y') . ' - ' . Carbon::parse($endDate)->format('d M Y');
         } elseif ($tf === 'day') {
-            $baseQuery->whereDate('created_at', $now->toDateString());
+            $baseQuery->where('viewed_date', $now->toDateString());
         } elseif ($tf === 'week') {
-            $baseQuery->where('created_at', '>=', (clone $now)->subDays(7));
+            $baseQuery->where('viewed_date', '>=', (clone $now)->subDays(7)->toDateString());
             $subtitle = __('dashboard.admin.chart.filter_week', ['default' => '7 Hari Terakhir']);
         } elseif ($tf === 'month') {
-            $baseQuery->where('created_at', '>=', (clone $now)->subDays(30));
+            $baseQuery->where('viewed_date', '>=', (clone $now)->subDays(30)->toDateString());
             $subtitle = __('dashboard.admin.chart.filter_month', ['default' => '30 Hari Terakhir']);
         } elseif ($tf === 'year') {
-            $baseQuery->where('created_at', '>=', (clone $now)->subDays(365));
+            $baseQuery->where('viewed_date', '>=', (clone $now)->subDays(365)->toDateString());
             $subtitle = __('dashboard.admin.chart.filter_year', ['default' => '1 Tahun Terakhir']);
         }
 

@@ -127,10 +127,21 @@ class PenggunaController extends Controller
             $enumOptions[$r->name] = $this->buildRoleEnumOptions($r);
         }
 
+        // Load profile dynamically based on user's role
+        $profile = null;
+        $roleModel = $allRoles->firstWhere('name', $pengguna->role);
+        if ($roleModel && $roleModel->relation_name) {
+            try {
+                $profile = $pengguna->{$roleModel->relation_name};
+            } catch (\Throwable) {
+                $profile = null;
+            }
+        }
+
         return view('cms.pengguna.page.edit', [
             'user' => $pengguna,
             'allRoles' => $allRoles,
-            'profile' => $pengguna->profile,
+            'profile' => $profile,
             'enumOptions' => $enumOptions,
         ]);
     }
@@ -169,7 +180,15 @@ class PenggunaController extends Controller
             }
 
             // Update user
-            $userPayload = collect($data)->only(['name', 'username', 'email', 'role', 'photo'])->all();
+            $userPayload = collect($data)->only(['name', 'username', 'email', 'role'])->all();
+
+            if ($request->hasFile('photo')) {
+                $userPayload['photo'] = $data['photo'];
+            }
+
+            if (empty($userPayload['username'])) {
+                $userPayload['username'] = $pengguna->username;
+            }
 
             if (!empty($data['password'])) {
                 $userPayload['password'] = Hash::make($data['password']);
@@ -221,7 +240,14 @@ class PenggunaController extends Controller
 
         $profileColumns = $roleModel->profileColumns();
         $tableName = $roleModel->table_name;
-        $profileId = $existing?->profile?->id;
+        $profileId = null;
+        if ($existing && $roleModel->relation_name) {
+            try {
+                $profileId = $existing->{$roleModel->relation_name}?->id;
+            } catch (\Throwable) {
+                $profileId = null;
+            }
+        }
 
         foreach ($profileColumns as $col) {
             $field = $col->column_name;
@@ -249,11 +275,6 @@ class PenggunaController extends Controller
                 continue;
             }
 
-            // Unique constraint: dynamically from role_columns is_unique flag
-            if ($col->is_unique && $profileId) {
-                $rule[] = Rule::unique($tableName, $field)->ignore($profileId);
-            }
-
             // Generate rule based on type
             $rule = match ($type) {
                 'varchar', 'char' => $isNullable
@@ -276,6 +297,15 @@ class PenggunaController extends Controller
                     ? ['nullable', 'string']
                     : ['required', 'string'],
             };
+
+            // Unique constraint: dynamically from role_columns is_unique flag
+            if ($col->is_unique) {
+                $uniqueRule = Rule::unique($tableName, $field);
+                if ($profileId) {
+                    $uniqueRule->ignore($profileId);
+                }
+                $rule[] = $uniqueRule;
+            }
 
             $rules[$field] = $rule;
         }
@@ -366,28 +396,29 @@ class PenggunaController extends Controller
 
         // Collect profile data from role_columns
         $profileColumns = $roleModel->profileColumns();
-        $profileColumnNames = $profileColumns->pluck('column_name')->toArray();
         $skipFields = ['user_id', 'id', 'created_at', 'updated_at', 'name', 'email', 'password', 'photo'];
 
         $payload = [];
-        foreach ($profileColumnNames as $field) {
+        foreach ($profileColumns as $col) {
+            $field = $col->column_name;
             if (in_array($field, $skipFields)) continue;
 
-            // Check if field exists in data (handles checkbox/radio edge cases)
-            if (isset($data[$field])) {
+            if ($col->column_type === 'blob') {
+                if (array_key_exists($field, $fileData)) {
+                    $payload[$field] = $fileData[$field];
+                } elseif (!$isUpdate) {
+                    $payload[$field] = null;
+                }
+                continue;
+            }
+
+            if (array_key_exists($field, $data)) {
                 $payload[$field] = $data[$field];
-            } elseif ($field === 'username' && isset($data['username'])) {
-                // Username might be needed on profile table depending on role
             }
         }
 
-        // Merge file data
-        foreach ($fileData as $field => $path) {
-            $payload[$field] = $path;
-        }
-
         // Create or update profile
-        if (method_exists($user, $relation)) {
+        if (method_exists($user, $relation) || \App\Models\Role::where('relation_name', $relation)->exists()) {
             $user->{$relation}()->updateOrCreate(
                 ['user_id' => $user->id],
                 $payload

@@ -17,6 +17,14 @@ Schedule::command('npm:build')
     ->everyMinute()
     ->appendOutputTo(storage_path('logs/scheduler-npm-build.log'));
 
+// Bersihkan semua cache aplikasi setiap 1 jam untuk mencegah aplikasi lag
+// Melakukan: cache:clear, config:clear, route:clear, view:clear, event:clear,
+// component:clear, symfony:cache:clear, dan optimize:clear
+Schedule::command('cache:optimize')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler-cache-optimize.log'));
+
 // Hapus semua file log setiap 10 menit untuk meringankan beban sistem
 // Mengarahkan output langsung ke stdout terminal (php://stdout)
 Schedule::command('log:clear')

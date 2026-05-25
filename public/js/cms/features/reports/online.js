@@ -350,134 +350,145 @@ function exportToPrint(dt) {
 }
 
 $(function () {
-    $.fn.dataTable.ext.errMode = 'none';
-
     var i18n = window.onlineI18n || {};
 
     // 1. Table Realtime (No Export Buttons needed, just simple search & pagination)
     if ($("#tableRealtime").length) {
-        $("#tableRealtime").DataTable({
-            order: [],
-            language: {
-                search: "",
-                searchPlaceholder: window.LaravelDT?.dtSearchPlaceholder || i18n.dtSearchPlaceholder || "Cari...",
-                lengthMenu: "_MENU_",
-                info:        window.LaravelDT?.dtInfo        || "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                infoEmpty:   window.LaravelDT?.dtInfoEmpty   || "Tidak ada data",
-                infoFiltered:window.LaravelDT?.dtInfoFiltered || "(difilter dari _MAX_ total data)",
-                zeroRecords: window.LaravelDT?.dtZeroRecords || "Tidak ada data ditemukan",
-                paginate: {
-                    first: "&laquo;",
-                    previous: "&lsaquo;",
-                    next: "&rsaquo;",
-                    last: "&raquo;",
+        try {
+            if ($.fn.dataTable) $.fn.dataTable.ext.errMode = 'none';
+            $("#tableRealtime").DataTable({
+                order: [],
+                language: {
+                    search: "",
+                    searchPlaceholder: window.LaravelDT?.dtSearchPlaceholder || i18n.dtSearchPlaceholder || "Cari...",
+                    lengthMenu: "_MENU_",
+                    info:        window.LaravelDT?.dtInfo        || "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    infoEmpty:   window.LaravelDT?.dtInfoEmpty   || "Tidak ada data",
+                    infoFiltered:window.LaravelDT?.dtInfoFiltered || "(difilter dari _MAX_ total data)",
+                    zeroRecords: window.LaravelDT?.dtZeroRecords || "Tidak ada data ditemukan",
+                    paginate: {
+                        first: "&laquo;",
+                        previous: "&lsaquo;",
+                        next: "&rsaquo;",
+                        last: "&raquo;",
+                    },
                 },
-            },
-            dom:
-                '<"dt-top-row"<"dataTables_length"l><"dt-top-right"f>>' +
-                "t" +
-                '<"dt-bottom-row"<"dataTables_info"i><"dataTables_paginate"p>>',
-        });
+                dom:
+                    '<"dt-top-row"<"dataTables_length"l><"dt-top-right"f>>' +
+                    "t" +
+                    '<"dt-bottom-row"<"dataTables_info"i><"dataTables_paginate"p>>',
+            });
+        } catch(e) {}
     }
 
     // 2. Table Activity (With Export Buttons)
     if ($("#tableActivity").length) {
-        $("#tableActivity").DataTable({
-            order: [],
-            language: {
-                search: "",
-                searchPlaceholder: window.LaravelDT?.dtSearchPlaceholder || i18n.dtSearchPlaceholder || "Cari...",
-                lengthMenu: "_MENU_",
-                info:        window.LaravelDT?.dtInfo        || "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                infoEmpty:   window.LaravelDT?.dtInfoEmpty   || "Tidak ada data",
-                infoFiltered:window.LaravelDT?.dtInfoFiltered || "(difilter dari _MAX_ total data)",
-                zeroRecords: window.LaravelDT?.dtZeroRecords || "Tidak ada data ditemukan",
-                paginate: {
-                    first: "&laquo;",
-                    previous: "&lsaquo;",
-                    next: "&rsaquo;",
-                    last: "&raquo;",
+        try {
+            if ($.fn.dataTable) $.fn.dataTable.ext.errMode = 'none';
+            $("#tableActivity").DataTable({
+                order: [],
+                language: {
+                    search: "",
+                    searchPlaceholder: window.LaravelDT?.dtSearchPlaceholder || i18n.dtSearchPlaceholder || "Cari...",
+                    lengthMenu: "_MENU_",
+                    info:        window.LaravelDT?.dtInfo        || "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    infoEmpty:   window.LaravelDT?.dtInfoEmpty   || "Tidak ada data",
+                    infoFiltered:window.LaravelDT?.dtInfoFiltered || "(difilter dari _MAX_ total data)",
+                    zeroRecords: window.LaravelDT?.dtZeroRecords || "Tidak ada data ditemukan",
+                    paginate: {
+                        first: "&laquo;",
+                        previous: "&lsaquo;",
+                        next: "&rsaquo;",
+                        last: "&raquo;",
+                    },
                 },
-            },
-            dom:
-                '<"dt-top-row"<"dataTables_length"l><"dt-top-right"fB>>' +
-                "t" +
-                '<"dt-bottom-row"<"dataTables_info"i><"dataTables_paginate"p>>',
-            buttons: [
-                {
-                    extend: "collection",
-                    text:
-                        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' +
-                        "</svg> " + (i18n.btnExport || "Export"),
-                    className: "btn-export-dropdown",
-                    buttons: [
-                        { text: i18n.btnCopy  || "Copy",   action: function(e, dt){ exportToCopy(dt);  } },
-                        { text: i18n.btnCsv   || "CSV",    action: function(e, dt){ exportToCSV(dt);   } },
-                        { text: i18n.btnExcel || "Excel",  action: function(e, dt){ exportToExcel(dt); } },
-                        { text: i18n.btnWord  || "Word",   action: function(e, dt){ exportToWord(dt);  } },
-                        { text: i18n.btnPdf   || "PDF",    action: function(e, dt){ exportToPDF(dt);   } },
-                        { text: i18n.btnPrint || "Print",  action: function(e, dt){ exportToPrint(dt); } },
-                    ],
-                },
-            ],
-        });
+                dom:
+                    '<"dt-top-row"<"dataTables_length"l><"dt-top-right"fB>>' +
+                    "t" +
+                    '<"dt-bottom-row"<"dataTables_info"i><"dataTables_paginate"p>>',
+                buttons: [
+                    {
+                        extend: "collection",
+                        text:
+                            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' +
+                            "</svg> " + (i18n.btnExport || "Export"),
+                        className: "btn-export-dropdown",
+                        buttons: [
+                            { text: i18n.btnCopy  || "Copy",   action: function(e, dt){ exportToCopy(dt);  } },
+                            { text: i18n.btnCsv   || "CSV",    action: function(e, dt){ exportToCSV(dt);   } },
+                            { text: i18n.btnExcel || "Excel",  action: function(e, dt){ exportToExcel(dt); } },
+                            { text: i18n.btnWord  || "Word",   action: function(e, dt){ exportToWord(dt);  } },
+                            { text: i18n.btnPdf   || "PDF",    action: function(e, dt){ exportToPDF(dt);   } },
+                            { text: i18n.btnPrint || "Print",  action: function(e, dt){ exportToPrint(dt); } },
+                        ],
+                    },
+                ],
+            });
+        } catch(e) {}
     }
 
-    // 3. ApexCharts Initialization
-    if (window.onlineChartData) {
-        var lineLabels = window.onlineChartData.lineLabels || [];
-        var lineSeries = window.onlineChartData.lineSeries || [];
-
-        if (document.querySelector("#lineChart") && lineSeries.length) {
-            var maxVal = Math.max.apply(null, lineSeries.concat([1]));
-            var tickCount = Math.min(maxVal, 5);
-
-            var lineOptions = {
-                series: [{ name: window.onlineI18n?.seriesName || 'Pengguna Aktif', data: lineSeries }],
-                chart: {
-                    type: 'area',
-                    height: 380,
-                    toolbar: { show: true, tools: { download: true } }
-                },
-                colors: ['#0ea5e9'],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.4,
-                        opacityTo: 0.05,
-                        stops: [0, 90, 100]
-                    }
-                },
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 3 },
-                xaxis: {
-                    categories: lineLabels,
-                    tickAmount: window.innerWidth < 768 ? 6 : undefined,
-                    labels: {
-                        hideOverlappingLabels: true,
-                        style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 }
-                    }
-                },
-                yaxis: {
-                    forceNiceScale: true,
-                    decimalsInFloat: 0,
-                    tickAmount: tickCount,
-                    labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } }
-                },
-                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { top: 15, right: 10, bottom: 0, left: 10 } },
-                tooltip: {
-                    x: { show: true },
-                    y: { formatter: function(val) { return val + ' ' + (window.onlineI18n?.tooltipUnit || 'Pengguna'); } }
-                }
-            };
-
-            var lineChart = new ApexCharts(document.querySelector("#lineChart"), lineOptions);
-            lineChart.render();
-            setTimeout(function() {
-                window.dispatchEvent(new Event('resize'));
-            }, 150);
-        }
-    }
+    // 3. ApexCharts Initialization (independent, tidak terpengaruh error DataTables)
+    initOnlineChart();
 });
+
+function initOnlineChart() {
+    if (typeof ApexCharts === 'undefined') return;
+    if (!window.onlineChartData) return;
+
+    var lineLabels = window.onlineChartData.lineLabels || [];
+    var lineSeries = window.onlineChartData.lineSeries || [];
+    var chartEl = document.querySelector("#lineChart");
+    if (!chartEl || !lineSeries.length) return;
+
+    var maxVal = Math.max.apply(null, lineSeries.concat([1]));
+    var tickCount = Math.min(maxVal, 5);
+
+    var lineOptions = {
+        series: [{ name: window.onlineI18n?.seriesName || 'Pengguna Aktif', data: lineSeries }],
+        chart: {
+            type: 'area',
+            height: 385,
+            toolbar: { show: true, tools: { download: true } },
+            redrawOnParentResize: true,
+        },
+        colors: ['#0ea5e9'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.4,
+                opacityTo: 0.05,
+                stops: [0, 90, 100]
+            }
+        },
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 3 },
+        xaxis: {
+            categories: lineLabels,
+            tickAmount: window.innerWidth < 768 ? 6 : undefined,
+            labels: {
+                hideOverlappingLabels: true,
+                style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 },
+                rotate: window.innerWidth < 640 ? -45 : 0,
+            }
+        },
+        yaxis: {
+            forceNiceScale: true,
+            decimalsInFloat: 0,
+            tickAmount: tickCount,
+            labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } }
+        },
+        grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { top: 15, right: 10, bottom: 0, left: 10 } },
+        tooltip: {
+            x: { show: true },
+            y: { formatter: function(val) { return val + ' ' + (window.onlineI18n?.tooltipUnit || 'Pengguna'); } }
+        }
+    };
+
+    var lineChart = new ApexCharts(chartEl, lineOptions);
+    lineChart.render();
+    setTimeout(function() {
+        window.dispatchEvent(new Event('resize'));
+    }, 150);
+}

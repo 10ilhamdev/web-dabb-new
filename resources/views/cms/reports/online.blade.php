@@ -150,7 +150,7 @@
                 <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.chart_online_title') }}</h2>
                 <p class="text-xs text-gray-400">{{ __('cms.reports.chart_online_sub') }}</p>
             </div>
-            <div class="w-full relative my-auto" style="min-height: 380px;">
+            <div class="w-full relative" style="height: 400px;">
                 <div id="lineChart"></div>
             </div>
         </div>

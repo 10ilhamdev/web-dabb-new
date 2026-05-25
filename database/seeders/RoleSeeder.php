@@ -49,7 +49,7 @@ class RoleSeeder extends Seeder
             [
                 'name' => 'instansi_swasta',
                 'label' => 'Instansi / Swasta',
-                'table_name' => 'user_instansis',
+                'table_name' => 'user_instansi_swasta',
                 'relation_name' => 'userInstansi',
                 'is_system' => true,
                 'description' => 'Instansi atau perusahaan swasta',

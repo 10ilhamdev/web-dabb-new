@@ -199,7 +199,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full relative" style="height: 300px; min-height: 250px;">
+                <div class="w-full relative overflow-hidden" style="height: 340px; min-height: 300px;">
                     <div id="visitorChart"></div>
                 </div>
             </div>
@@ -218,7 +218,7 @@
                         <option value="year">{{ __('dashboard.user_chart.filter_year') }}</option>
                     </select>
                 </div>
-                <div class="w-full relative" style="height: 300px; min-height: 250px;">
+                <div class="w-full relative overflow-hidden" style="height: 340px; min-height: 300px;">
                     <div id="visitorChart"></div>
                 </div>
             </div>

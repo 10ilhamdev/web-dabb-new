@@ -146,6 +146,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserInstansiSwasta::class);
     }
 
+    public function userInstansiSwasta()
+    {
+        return $this->hasOne(UserInstansiSwasta::class);
+    }
+
+
     public function userAdmin()
     {
         return $this->hasOne(UserAdmin::class);
