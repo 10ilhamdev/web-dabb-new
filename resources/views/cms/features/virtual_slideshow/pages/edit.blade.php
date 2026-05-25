@@ -220,12 +220,12 @@
                 {{-- Toggle untuk text_carousel: Gambar atau Video --}}
                 <div id="carouselMediaToggle" class="flex gap-4 mb-3 hidden">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="carousel_media_type" value="images" checked
+                        <input type="radio" name="carousel_media_type" value="images" {{ old('carousel_media_type', $slide->info_popup['carousel_media_type'] ?? 'images') === 'images' ? 'checked' : '' }}
                             onchange="toggleCarouselMediaType('images')">
                         <span class="text-sm text-gray-700">{{ __('cms.virtual_slideshow.media_type_images') }}</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="carousel_media_type" value="videos"
+                        <input type="radio" name="carousel_media_type" value="videos" {{ old('carousel_media_type', $slide->info_popup['carousel_media_type'] ?? 'images') === 'videos' ? 'checked' : '' }}
                             onchange="toggleCarouselMediaType('videos')">
                         <span class="text-sm text-gray-700">{{ __('cms.virtual_slideshow.media_type_videos') }}</span>
                     </label>
@@ -976,27 +976,27 @@
             var singleDiv = document.createElement('div');
             singleDiv.className = 'caption-single-section';
             singleDiv.style.display = existingMode === 'single' ? 'block' : 'none';
+            
+            var singleWrap = document.createElement('div');
+            singleWrap.className = 'rte-compact-container';
+            
             var singleInput = document.createElement('textarea');
             singleInput.name = singleName;
             singleInput.className = 'form-input rte-caption-editor';
             singleInput.placeholder = singlePlaceholder;
             singleInput.rows = 3;
             singleInput.value = existingSingle;
-            singleDiv.appendChild(singleInput);
+            
+            singleWrap.appendChild(singleInput);
+            singleDiv.appendChild(singleWrap);
             containerEl.appendChild(singleDiv);
 
             // Function to safely initialize RTE on an element
-            function attachRTE(el) {
+            function attachRTE(el, initialVal) {
                 if (typeof RichTextEditor === 'undefined') {
-                    setTimeout(function() { attachRTE(el); }, 200);
+                    setTimeout(function() { attachRTE(el, initialVal); }, 200);
                     return;
                 }
-                
-                // Wrap in a compact container to force size via CSS
-                var wrap = document.createElement('div');
-                wrap.className = 'rte-compact-container';
-                el.parentNode.insertBefore(wrap, el);
-                wrap.appendChild(el);
                 
                 var editor = new RichTextEditor(el, {
                     base_url: '/cms_rte',
@@ -1005,6 +1005,25 @@
                     showStatusBar: false,
                     toolbar: "bold,italic,underline,|,forecolor,backcolor,|,justifyleft,justifycenter,|,insertorderedlist,insertunorderedlist,|,link,insertimage,|,undo,redo,codeview"
                 });
+
+                function setContentSafe(val) {
+                    try {
+                        if (typeof editor.setHTMLCode === 'function') {
+                            editor.setHTMLCode(val);
+                        } else if (typeof editor.setHTML === 'function') {
+                            editor.setHTML(val);
+                        }
+                    } catch (e) {
+                        console.warn('attachRTE setHTML error:', e);
+                    }
+                }
+
+                if (initialVal) {
+                    setContentSafe(initialVal);
+                    setTimeout(function() { setContentSafe(initialVal); }, 300);
+                    setTimeout(function() { setContentSafe(initialVal); }, 800);
+                }
+
                 if (!window.allRteInstances) window.allRteInstances = [];
                 window.allRteInstances.push(editor);
                 return editor;
@@ -1013,7 +1032,7 @@
             // Initialize RTE for single input if visible
             var singleEditor = null;
             if (existingMode === 'single') {
-                singleEditor = attachRTE(singleInput);
+                singleEditor = attachRTE(singleInput, existingSingle);
             }
 
             var multiDiv = document.createElement('div');
@@ -1041,13 +1060,15 @@
                     (q || '').replace(/"/g, '&quot;') + '">' +
                     '<label style="font-size:0.75rem;color:#6b7280;margin:6px 0 2px;display:block;">' + __t.answer +
                     '</label>' +
+                    '<div class="rte-compact-container">' +
                     '<textarea name="' + qaBaseName + '[answer]" placeholder="' + __t.answer + '..." class="rte-caption-editor">' + (a || '').replace(
-                        /</g, '&lt;') + '</textarea>';
+                        /</g, '&lt;') + '</textarea>' +
+                    '</div>';
                 qaList.appendChild(pair);
 
                 // Attach RTE to answer textarea
                 var aTextarea = pair.querySelector('textarea[name$="[answer]"]');
-                if (aTextarea) attachRTE(aTextarea);
+                if (aTextarea) attachRTE(aTextarea, a);
             }
 
             if (existingQa.length > 0) {
@@ -1078,7 +1099,7 @@
                     singleDiv.style.display = 'block';
                     multiDiv.style.display = 'none';
                     if (!singleEditor) {
-                        singleEditor = attachRTE(singleInput);
+                        singleEditor = attachRTE(singleInput, singleInput.value);
                     }
                 }
             });
@@ -1204,8 +1225,17 @@
 
                     if (carouselToggle) carouselToggle.classList.remove('hidden');
 
-                    if (hasExistingVideoUrls || hasExistingUploadedVideos) {
-                        // Use videos mode if there are existing video URLs or uploads
+                    var savedType = '{{ $slide->info_popup['carousel_media_type'] ?? '' }}';
+                    var selectedType = 'images';
+                    if (savedType === 'videos') {
+                        selectedType = 'videos';
+                    } else if (savedType === 'images') {
+                        selectedType = 'images';
+                    } else if (hasExistingVideoUrls || hasExistingUploadedVideos) {
+                        selectedType = 'videos';
+                    }
+
+                    if (selectedType === 'videos') {
                         imageSections.classList.add('hidden');
                         videoSections.classList.remove('hidden');
                         var vidRadio = carouselToggle ? carouselToggle.querySelector('input[value="videos"]') :

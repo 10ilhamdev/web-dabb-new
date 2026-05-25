@@ -539,27 +539,27 @@
             var singleDiv = document.createElement('div');
             singleDiv.className = 'caption-single-section';
             singleDiv.style.display = existingMode === 'single' ? 'block' : 'none';
+            
+            var singleWrap = document.createElement('div');
+            singleWrap.className = 'rte-compact-container';
+            
             var singleInput = document.createElement('textarea');
             singleInput.name = singleName;
             singleInput.className = 'form-input rte-caption-editor';
             singleInput.placeholder = singlePlaceholder;
             singleInput.rows = 3;
             singleInput.value = existingSingle;
-            singleDiv.appendChild(singleInput);
+            
+            singleWrap.appendChild(singleInput);
+            singleDiv.appendChild(singleWrap);
             containerEl.appendChild(singleDiv);
 
             // Function to safely initialize RTE on an element
-            function attachRTE(el) {
+            function attachRTE(el, initialVal) {
                 if (typeof RichTextEditor === 'undefined') {
-                    setTimeout(function() { attachRTE(el); }, 200);
+                    setTimeout(function() { attachRTE(el, initialVal); }, 200);
                     return;
                 }
-                
-                // Wrap in a compact container to force size via CSS
-                var wrap = document.createElement('div');
-                wrap.className = 'rte-compact-container';
-                el.parentNode.insertBefore(wrap, el);
-                wrap.appendChild(el);
                 
                 var editor = new RichTextEditor(el, {
                     base_url: '/cms_rte',
@@ -568,6 +568,24 @@
                     showStatusBar: false,
                     toolbar: "bold,italic,underline,|,forecolor,backcolor,|,justifyleft,justifycenter,|,insertorderedlist,insertunorderedlist,|,link,insertimage,|,undo,redo,codeview"
                 });
+
+                function setContentSafe(val) {
+                    try {
+                        if (typeof editor.setHTMLCode === 'function') {
+                            editor.setHTMLCode(val);
+                        } else if (typeof editor.setHTML === 'function') {
+                            editor.setHTML(val);
+                        }
+                    } catch (e) {
+                        console.warn('attachRTE setHTML error:', e);
+                    }
+                }
+
+                if (initialVal) {
+                    setContentSafe(initialVal);
+                    setTimeout(function() { setContentSafe(initialVal); }, 300);
+                    setTimeout(function() { setContentSafe(initialVal); }, 800);
+                }
                 
                 if (!window.allRteInstances) window.allRteInstances = [];
                 window.allRteInstances.push(editor);
@@ -577,7 +595,7 @@
             // Initialize RTE for single input if visible
             var singleEditor = null;
             if (existingMode === 'single') {
-                singleEditor = attachRTE(singleInput);
+                singleEditor = attachRTE(singleInput, existingSingle);
             }
 
             // Multi Q&A section
@@ -622,6 +640,9 @@
                 aLabel.style.cssText = 'font-size:0.75rem;color:#6b7280;margin:6px 0 2px;display:block;';
                 aLabel.textContent = 'Jawaban';
 
+                var aWrap = document.createElement('div');
+                aWrap.className = 'rte-compact-container';
+
                 var aTextarea = document.createElement('textarea');
                 aTextarea.name = qaBaseName + '[answer]';
                 aTextarea.className = 'rte-caption-editor';
@@ -632,11 +653,12 @@
                 pair.appendChild(qLabel);
                 pair.appendChild(qInput);
                 pair.appendChild(aLabel);
-                pair.appendChild(aTextarea);
+                aWrap.appendChild(aTextarea);
+                pair.appendChild(aWrap);
                 qaList.appendChild(pair);
 
                 // Attach RTE to answer textarea
-                attachRTE(aTextarea);
+                attachRTE(aTextarea, a);
             }
 
             // Pre-populate existing Q&A items
@@ -999,6 +1021,18 @@
 
             function extractWidgetState(widgetContainer) {
                 if (!widgetContainer) return '';
+                
+                // Sync all active RichTextEditor instances first
+                if (window.allRteInstances && window.allRteInstances.length > 0) {
+                    window.allRteInstances.forEach(function(editor) {
+                        try {
+                            if (document.body.contains(editor.getTargetElement())) {
+                                editor.save();
+                            }
+                        } catch (err) {}
+                    });
+                }
+
                 var modeSelect = widgetContainer.querySelector('select[name^="info_popup_mode_"]');
                 if (!modeSelect) return '';
                 if (modeSelect.value === 'single') {
@@ -1693,28 +1727,23 @@
                 var popupRows = document.getElementById('carouselVideoInfoPopupRows');
                 var hint = document.getElementById('noCarouselVideosHint');
 
-                // Save current caption values before clearing - but only for videos with valid URLs
-                popupRows.querySelectorAll('select[name^="info_popup_mode_carousel_videos"]').forEach(function(select) {
-                    var match = select.name.match(/info_popup_mode_carousel_videos\[([^\]]+)\]/);
-                    if (match) {
-                        var key = match[1];
-                        var isUrlVideo = key.startsWith('url_');
-
-                        // For URL videos, check if corresponding URL input has value
-                        if (isUrlVideo) {
-                            var urlIndex = parseInt(key.substring(4)); // Extract index from 'url_0' format
-                            var urlInput = document.querySelector(
-                                'input[name="carousel_video_urls[]"][data-index="' + urlIndex + '"]');
-                            if (!urlInput || !urlInput.value.trim()) {
-                                // Skip saving caption for deleted/empty URL videos
-                                delete keptCarouselCaptions[key];
-                                return;
-                            }
+                // Save current caption values before clearing by reading widget state using data attributes
+                popupRows.querySelectorAll('[data-url-slot-index]').forEach(function(container) {
+                    var slotIdx = parseInt(container.getAttribute('data-url-slot-index'));
+                    if (!isNaN(slotIdx)) {
+                        var urlInput = document.querySelector(
+                            'input[name^="carousel_video_urls"][data-index="' + slotIdx + '"]');
+                        if (urlInput && urlInput.value.trim()) {
+                            keptCarouselCaptions['url_' + slotIdx] = extractWidgetState(container);
+                        } else {
+                            delete keptCarouselCaptions['url_' + slotIdx];
                         }
-
-                        var widgetContainer = select.parentElement.parentElement;
-                        var state = extractWidgetState(widgetContainer);
-                        keptCarouselCaptions[key] = state;
+                    }
+                });
+                popupRows.querySelectorAll('[data-upload-slot-index]').forEach(function(container) {
+                    var slotIdx = parseInt(container.getAttribute('data-upload-slot-index'));
+                    if (!isNaN(slotIdx)) {
+                        keptCarouselCaptions['newUpload_' + slotIdx] = extractWidgetState(container);
                     }
                 });
 
@@ -1836,7 +1865,8 @@
                         rowLabel.textContent = 'Video ' + (displayIndex + 1);
                         row.appendChild(rowLabel);
                         var widgetContainer = document.createElement('div');
-                        var savedCaption = keptCarouselCaptions[captionKey] || null;
+                        widgetContainer.setAttribute('data-url-slot-index', video.urlIndex);
+                        var savedCaption = keptCarouselCaptions['url_' + video.urlIndex] || null;
                         createCaptionWidget(widgetContainer, 'info_popup_carousel_videos', captionKey,
                             savedCaption, {
                                 singlePlaceholder: 'Keterangan video ' + (displayIndex + 1) +
@@ -1884,7 +1914,9 @@
                             rowLabel.textContent = 'Video ' + (displayIndex + 1);
                             row.appendChild(rowLabel);
                             var widgetContainer = document.createElement('div');
-                            var savedCaption = keptCarouselCaptions[captionKey] || null;
+                            widgetContainer.setAttribute('data-upload-slot-index', video.newUploadIndex);
+                            widgetContainer.setAttribute('data-upload-backend-idx', video.newUploadIndex);
+                            var savedCaption = keptCarouselCaptions['newUpload_' + video.newUploadIndex] || null;
                             createCaptionWidget(widgetContainer, 'info_popup_carousel_videos', captionKey,
                                 savedCaption, {
                                     singlePlaceholder: 'Keterangan video ' + (displayIndex + 1) +

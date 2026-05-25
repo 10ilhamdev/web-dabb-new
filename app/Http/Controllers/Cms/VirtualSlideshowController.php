@@ -173,8 +173,8 @@ class VirtualSlideshowController extends Controller
 
         $useImages = in_array($slideType, $imageTypes);
         $useVideo = in_array($slideType, $videoTypes);
-        $useCarouselVideo = in_array($slideType, $carouselVideoTypes) && !$usesImagesForCarousel;
-        $useCarouselImages = $usesImagesForCarousel;
+        $useCarouselVideo = in_array($slideType, $carouselVideoTypes);
+        $useCarouselImages = in_array($slideType, $carouselVideoTypes);
 
         // Add new uploads manually into an ordered list first
         $newUploadList = [];
@@ -433,6 +433,7 @@ class VirtualSlideshowController extends Controller
         if ($useCarouselVideo) {
             // Store normalized order for reconstruction on load
             $infoPopup['carousel_video_order'] = $unifiedOrder;
+            $infoPopup['carousel_media_type'] = $validated['carousel_media_type'] ?? 'images';
 
             if (!empty($validated['info_popup_carousel_videos'])) {
                 $infoPopup['carousel_videos'] = [];
@@ -666,8 +667,8 @@ class VirtualSlideshowController extends Controller
 
         $useImages = in_array($slideType, $imageTypes);
         $useVideo = in_array($slideType, $videoTypes);
-        $useCarouselVideo = in_array($slideType, $carouselVideoTypes) && !$usesImagesForCarousel;
-        $useCarouselImages = $usesImagesForCarousel;
+        $useCarouselVideo = in_array($slideType, $carouselVideoTypes);
+        $useCarouselImages = in_array($slideType, $carouselVideoTypes);
 
         // Get existing images from form (only enabled inputs will be submitted)
         // Preserve original indices so unified_image_order existingIndex references remain valid
@@ -1112,6 +1113,7 @@ class VirtualSlideshowController extends Controller
         if ($useCarouselVideo) {
             // Always store the normalized order for proper reconstruction on load
             $infoPopup['carousel_video_order'] = $unifiedOrder;
+            $infoPopup['carousel_media_type'] = $validated['carousel_media_type'] ?? 'images';
 
             if (!empty($validated['info_popup_carousel_videos'])) {
                 $infoPopup['carousel_videos'] = [];

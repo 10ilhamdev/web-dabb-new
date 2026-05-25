@@ -295,7 +295,7 @@
                                             // Fallback: generic top-level iteration for other slide types
                                             // (e.g. video slides where "0", "1" are direct string captions)
                                             foreach ($slide->info_popup as $key => $entry) {
-                                                if (in_array($key, ['carousel_video_order', 'carousel_videos', 'unified_image_order'], true)) {
+                                                if (in_array($key, ['carousel_video_order', 'carousel_videos', 'unified_image_order', 'carousel_media_type'], true)) {
                                                     continue;
                                                 }
                                                 if (is_string($entry)) {

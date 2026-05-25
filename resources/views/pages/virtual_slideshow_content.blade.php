@@ -473,6 +473,8 @@
             }
             $carouselVideoUrls = $slide->carousel_video_urls ?? [];
             $hasCarouselVideos = !empty($carouselVideoFiles) || !empty($carouselVideoUrls);
+            $carouselVideoOrder = $popup['carousel_video_order'] ?? null;
+            $carouselVideoRenderIdx = 0;
         @endphp
         <div class="vsshow-split {{ $slide->layout === 'right' ? 'vsshow-split-right' : '' }}{{ $slide->layout === 'center' ? ' vsshow-split-center' : '' }}">
             {{-- Text --}}
@@ -492,240 +494,220 @@
 
             {{-- Carousel (Images or Videos) --}}
             <div class="vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="5">
-                @if(count($allImages) > 0)
-                {{-- Image Carousel --}}
+                @if(count($allImages) > 0 || $hasCarouselVideos)
                 <div class="vsshow-carousel">
                     <div class="vsshow-carousel-track">
-                        @php
-                            $unifiedImageOrder = $popup['unified_image_order'] ?? null;
-                            $carouselRenderIdx = 0;
-                        @endphp
-                        @if($unifiedImageOrder && is_array($unifiedImageOrder))
-                            @foreach($unifiedImageOrder as $orderItem)
-                                @php
-                                    $itemType = $orderItem['type'] ?? null;
-                                    $imgSrc = null;
-                                    $itemCaption = '';
+                        {{-- 1. Image Carousel Slides --}}
+                        @if(count($allImages) > 0)
+                            @php
+                                $unifiedImageOrder = $popup['unified_image_order'] ?? null;
+                                $carouselRenderIdx = 0;
+                            @endphp
+                            @if($unifiedImageOrder && is_array($unifiedImageOrder))
+                                @foreach($unifiedImageOrder as $orderItem)
+                                    @php
+                                        $itemType = $orderItem['type'] ?? null;
+                                        $imgSrc = null;
+                                        $itemCaption = '';
 
-                                    if ($itemType === 'upload') {
-                                        $idx = $orderItem['uploadIndex'] ?? 0;
-                                        $imgPath = $images[$idx] ?? null;
-                                        if ($imgPath) {
-                                            $imgSrc = asset('storage/'.$imgPath);
-                                            $itemCaption = $popup[(string)$carouselRenderIdx] ?? '';
+                                        if ($itemType === 'upload') {
+                                            $idx = $orderItem['uploadIndex'] ?? 0;
+                                            $imgPath = $images[$idx] ?? null;
+                                            if ($imgPath) {
+                                                $imgSrc = asset('storage/'.$imgPath);
+                                                $itemCaption = $popup[(string)$carouselRenderIdx] ?? '';
+                                            }
+                                        } elseif ($itemType === 'url') {
+                                            $idx = $orderItem['urlIndex'] ?? 0;
+                                            $imgPath = $imageUrls[$idx] ?? null;
+                                            if ($imgPath) {
+                                                $imgSrc = vssProcessImageUrl($imgPath);
+                                                $itemCaption = $popup[(string)$carouselRenderIdx] ?? '';
+                                            }
                                         }
-                                    } elseif ($itemType === 'url') {
-                                        $idx = $orderItem['urlIndex'] ?? 0;
-                                        $imgPath = $imageUrls[$idx] ?? null;
-                                        if ($imgPath) {
-                                            $imgSrc = vssProcessImageUrl($imgPath);
-                                            $itemCaption = $popup[(string)$carouselRenderIdx] ?? '';
-                                        }
-                                    }
+                                    @endphp
+                                    @if($imgSrc)
+                                    <div class="vsshow-carousel-slide">
+                                        <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
+                                        @if(!empty($itemCaption))
+                                        <button class="vsshow-info-btn"
+                                            data-popup="{{ vssPopupData($itemCaption) }}"
+                                            data-img-src="{{ $imgSrc }}"
+                                            title="{{ __('home.virtual_slideshow.info') }}">?</button>
+                                        @endif
+                                    </div>
+                                    @php $carouselRenderIdx++; @endphp
+                                    @endif
+                                @endforeach
+                            @else
+                                @php
+                                    $uploadedCount = count($images);
                                 @endphp
-                                @if($imgSrc)
+                                @foreach($allImages as $imgIdx => $imgPath)
                                 <div class="vsshow-carousel-slide">
+                                    @php
+                                        $isUploadedImage = $imgIdx < $uploadedCount;
+                                        $imgSrc = vssProcessImageUrl($imgPath);
+                                    @endphp
                                     <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
-                                    @if(!empty($itemCaption))
+                                    @if(!empty($popup[$imgIdx]) || !empty($popup[(string)$imgIdx]))
                                     <button class="vsshow-info-btn"
-                                        data-popup="{{ vssPopupData($itemCaption) }}"
+                                        data-popup="{{ vssPopupData($popup[$imgIdx] ?? $popup[(string)$imgIdx] ?? '') }}"
                                         data-img-src="{{ $imgSrc }}"
                                         title="{{ __('home.virtual_slideshow.info') }}">?</button>
                                     @endif
                                 </div>
-                                @php $carouselRenderIdx++; @endphp
-                                @endif
-                            @endforeach
-                        @else
-                            @php
-                                $uploadedCount = count($images);
-                            @endphp
-                            @foreach($allImages as $imgIdx => $imgPath)
-                            <div class="vsshow-carousel-slide">
-                                @php
-                                    $isUploadedImage = $imgIdx < $uploadedCount;
-                                    $imgSrc = vssProcessImageUrl($imgPath);
-                                @endphp
-                                <div style="width:100%;height:100%;background-image:url('{{ $imgSrc }}');background-size:contain;background-position:center;background-repeat:no-repeat;"></div>
-                                @if(!empty($popup[$imgIdx]) || !empty($popup[(string)$imgIdx]))
-                                <button class="vsshow-info-btn"
-                                    data-popup="{{ vssPopupData($popup[$imgIdx] ?? $popup[(string)$imgIdx] ?? '') }}"
-                                    data-img-src="{{ $imgSrc }}"
-                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
-                                @endif
-                            </div>
-                            @endforeach
+                                @endforeach
+                            @endif
                         @endif
-                    </div>
 
-                    @if(count($allImages) > 1)
-                    <button class="vsshow-carousel-btn prev" aria-label="{{ __('home.virtual_slideshow.prev') }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <button class="vsshow-carousel-btn next" aria-label="{{ __('home.virtual_slideshow.next') }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                    <button class="vsshow-carousel-btn pause-play" aria-label="{{ __('home.virtual_slideshow.pause') }}">
-                        <svg class="pause-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <svg class="play-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </button>
-                    @endif
-
-                    <div class="vsshow-carousel-dots">
-                        @foreach($allImages as $imgIdx => $_)
-                        <span class="vsshow-dot {{ $imgIdx === 0 ? 'active' : '' }}" data-idx="{{ $imgIdx }}"></span>
-                        @endforeach
-                    </div>
-                </div>
-                @elseif($hasCarouselVideos)
-                {{-- Video Carousel - Use carousel_video_order for consistent ordering and correct caption keys --}}
-                <div class="vsshow-carousel">
-                    <div class="vsshow-carousel-track">
-                        @php
-                            $carouselVideoOrder = $popup['carousel_video_order'] ?? null;
-                            $carouselVideoCaptions = $popup['carousel_videos'] ?? [];
-                            $carouselRenderIdx = 0;
-                        @endphp
-                        @if($carouselVideoOrder && is_array($carouselVideoOrder))
-                            {{-- Use carousel_video_order: URLs and uploads are mixed per the saved order --}}
-                            @foreach($carouselVideoOrder as $orderItem)
-                                @php
-                                    $itemType = $orderItem['type'] ?? null;
-                                    $itemCaption = '';
-                                @endphp
-                                @if($itemType === 'url')
+                        {{-- 2. Video Carousel Slides --}}
+                        @if($hasCarouselVideos)
+                            @php
+                                $carouselVideoOrder = $popup['carousel_video_order'] ?? null;
+                                $carouselVideoCaptions = $popup['carousel_videos'] ?? [];
+                                $carouselVideoRenderIdx = 0;
+                            @endphp
+                            @if($carouselVideoOrder && is_array($carouselVideoOrder))
+                                @foreach($carouselVideoOrder as $orderItem)
                                     @php
-                                        $urlIdx = $orderItem['urlIndex'] ?? 0;
-                                        $vidUrl = $carouselVideoUrls[$urlIdx] ?? null;
-                                        $itemCaption = $carouselVideoCaptions['url_' . $urlIdx] ?? '';
+                                        $itemType = $orderItem['type'] ?? null;
+                                        $itemCaption = '';
                                     @endphp
-                                    @if($vidUrl)
-                                        <div class="vsshow-carousel-slide">
-                                            @php
-                                                $vidEmbedUrl = vssYouTubeEmbed($vidUrl);
-                                                $vidUrlType = vssVideoUrlType($vidUrl);
-                                            @endphp
-                                            @if($vidUrlType === 'youtube')
-                                            <div class="vsshow-video-iframe-wrap">
-                                                <iframe src="{{ $vidEmbedUrl }}" allowfullscreen allow="autoplay; encrypted-media"
-                                                    title="{{ $title ?? 'Video ' . ($carouselRenderIdx + 1) }}" style="border:0;"></iframe>
+                                    @if($itemType === 'url')
+                                        @php
+                                            $urlIdx = $orderItem['urlIndex'] ?? 0;
+                                            $vidUrl = $carouselVideoUrls[$urlIdx] ?? null;
+                                            $itemCaption = $carouselVideoCaptions['url_' . $urlIdx] ?? '';
+                                        @endphp
+                                        @if($vidUrl)
+                                            <div class="vsshow-carousel-slide">
+                                                @php
+                                                    $vidEmbedUrl = vssYouTubeEmbed($vidUrl);
+                                                    $vidUrlType = vssVideoUrlType($vidUrl);
+                                                @endphp
+                                                @if($vidUrlType === 'youtube')
+                                                <div class="vsshow-video-iframe-wrap">
+                                                    <iframe src="{{ $vidEmbedUrl }}" allowfullscreen allow="autoplay; encrypted-media"
+                                                        title="{{ $title ?? 'Video ' . ($carouselVideoRenderIdx + 1) }}" style="border:0;"></iframe>
+                                                </div>
+                                                @elseif($vidUrlType === 'google_drive')
+                                                <video controls style="width:100%;max-height:420px;display:block;background:#000;"
+                                                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                                    <source src="{{ vssGoogleDriveStreamUrl($vidUrl) }}" type="video/mp4">
+                                                </video>
+                                                <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
+                                                    <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                                    <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
+                                                    <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
+                                                </div>
+                                                @elseif($vidUrlType === 'direct_video')
+                                                <video controls style="width:100%;max-height:420px;display:block;background:#000;">
+                                                    <source src="{{ $vidUrl }}" type="video/mp4">
+                                                    {{ __('home.virtual_slideshow.video_unsupported') }}
+                                                </video>
+                                                @else
+                                                <div class="vsshow-video-iframe-wrap">
+                                                    <iframe src="{{ $vidUrl }}" allowfullscreen allow="autoplay; encrypted-media"
+                                                        title="{{ $title ?? 'Video ' . ($carouselVideoRenderIdx + 1) }}" style="border:0;"></iframe>
+                                                </div>
+                                                @endif
+                                                @if(!empty($itemCaption))
+                                                <button class="vsshow-info-btn"
+                                                    data-popup="{{ vssPopupData($itemCaption) }}"
+                                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
+                                                @endif
                                             </div>
-                                            @elseif($vidUrlType === 'google_drive')
-                                            <video controls style="width:100%;max-height:420px;display:block;background:#000;"
-                                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                                                <source src="{{ vssGoogleDriveStreamUrl($vidUrl) }}" type="video/mp4">
-                                            </video>
-                                            <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
-                                                <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                                <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
-                                                <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
+                                            @php $carouselVideoRenderIdx++; @endphp
+                                        @endif
+                                    @elseif($itemType === 'upload' || $itemType === 'newUpload')
+                                        @php
+                                            $uploadIndex = $orderItem['uploadIndex'] ?? $orderItem['newUploadIndex'] ?? 0;
+                                            $vidFile = $carouselVideoFiles[$uploadIndex] ?? null;
+                                            $itemCaption = $carouselVideoCaptions['upload_' . $uploadIndex] ?? ($carouselVideoCaptions['newUpload_' . $uploadIndex] ?? '');
+                                        @endphp
+                                        @if($vidFile)
+                                            <div class="vsshow-carousel-slide">
+                                                <video controls style="width:100%;max-height:300px;display:block;background:#000;">
+                                                    <source src="{{ asset('storage/' . $vidFile) }}" type="video/mp4">
+                                                    {{ __('home.virtual_slideshow.video_unsupported') }}
+                                                </video>
+                                                @if(!empty($itemCaption))
+                                                <button class="vsshow-info-btn"
+                                                    data-popup="{{ vssPopupData($itemCaption) }}"
+                                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
+                                                @endif
                                             </div>
-                                            @elseif($vidUrlType === 'direct_video')
-                                            <video controls style="width:100%;max-height:420px;display:block;background:#000;">
-                                                <source src="{{ $vidUrl }}" type="video/mp4">
-                                                {{ __('home.virtual_slideshow.video_unsupported') }}
-                                            </video>
-                                            @else
-                                            {{-- Generic URL - embed via iframe --}}
-                                            <div class="vsshow-video-iframe-wrap">
-                                                <iframe src="{{ $vidUrl }}" allowfullscreen allow="autoplay; encrypted-media"
-                                                    title="{{ $title ?? 'Video ' . ($carouselRenderIdx + 1) }}" style="border:0;"></iframe>
-                                            </div>
-                                            @endif
-                                            @if(!empty($itemCaption))
-                                            <button class="vsshow-info-btn"
-                                                data-popup="{{ vssPopupData($itemCaption) }}"
-                                                title="{{ __('home.virtual_slideshow.info') }}">?</button>
-                                            @endif
-                                        </div>
-                                        @php $carouselRenderIdx++; @endphp
+                                            @php $carouselVideoRenderIdx++; @endphp
+                                        @endif
                                     @endif
-                                @elseif($itemType === 'upload' || $itemType === 'newUpload')
+                                @endforeach
+                            @else
+                                @foreach($carouselVideoUrls as $vidIdx => $vidUrl)
+                                <div class="vsshow-carousel-slide">
                                     @php
-                                        $uploadIndex = $orderItem['uploadIndex'] ?? $orderItem['newUploadIndex'] ?? 0;
-                                        $vidFile = $carouselVideoFiles[$uploadIndex] ?? null;
-                                        $itemCaption = $carouselVideoCaptions['upload_' . $uploadIndex] ?? ($carouselVideoCaptions['newUpload_' . $uploadIndex] ?? '');
+                                        $vidEmbedUrl = vssYouTubeEmbed($vidUrl);
+                                        $vidUrlType = vssVideoUrlType($vidUrl);
                                     @endphp
-                                    @if($vidFile)
-                                        <div class="vsshow-carousel-slide">
-                                            <video controls style="width:100%;max-height:300px;display:block;background:#000;">
-                                                <source src="{{ asset('storage/' . $vidFile) }}" type="video/mp4">
-                                                {{ __('home.virtual_slideshow.video_unsupported') }}
-                                            </video>
-                                            @if(!empty($itemCaption))
-                                            <button class="vsshow-info-btn"
-                                                data-popup="{{ vssPopupData($itemCaption) }}"
-                                                title="{{ __('home.virtual_slideshow.info') }}">?</button>
-                                            @endif
-                                        </div>
-                                        @php $carouselRenderIdx++; @endphp
+                                    @if($vidUrlType === 'youtube')
+                                    <div class="vsshow-video-iframe-wrap">
+                                        <iframe src="{{ $vidEmbedUrl }}" allowfullscreen allow="autoplay; encrypted-media"
+                                            title="{{ $title ?? 'Video ' . ($vidIdx + 1) }}" style="border:0;"></iframe>
+                                    </div>
+                                    @elseif($vidUrlType === 'google_drive')
+                                    <video controls style="width:100%;max-height:420px;display:block;background:#000;"
+                                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                        <source src="{{ vssGoogleDriveStreamUrl($vidUrl) }}" type="video/mp4">
+                                    </video>
+                                    <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
+                                        <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                        <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
+                                        <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
+                                    </div>
+                                    @elseif($vidUrlType === 'direct_video')
+                                    <video controls style="width:100%;max-height:420px;display:block;background:#000;">
+                                        <source src="{{ $vidUrl }}" type="video/mp4">
+                                        {{ __('home.virtual_slideshow.video_unsupported') }}
+                                    </video>
+                                    @else
+                                    <div class="vsshow-video-iframe-wrap">
+                                        <iframe src="{{ $vidUrl }}" allowfullscreen allow="autoplay; encrypted-media"
+                                            title="{{ $title ?? 'Video ' . ($vidIdx + 1) }}" style="border:0;"></iframe>
+                                    </div>
                                     @endif
-                                @endif
-                            @endforeach
-                        @else
-                            {{-- Fallback: render URLs first, then uploads (legacy behavior) --}}
-                            @foreach($carouselVideoUrls as $vidIdx => $vidUrl)
-                            <div class="vsshow-carousel-slide">
-                                @php
-                                    $vidEmbedUrl = vssYouTubeEmbed($vidUrl);
-                                    $vidUrlType = vssVideoUrlType($vidUrl);
-                                @endphp
-                                @if($vidUrlType === 'youtube')
-                                <div class="vsshow-video-iframe-wrap">
-                                    <iframe src="{{ $vidEmbedUrl }}" allowfullscreen allow="autoplay; encrypted-media"
-                                        title="{{ $title ?? 'Video ' . ($vidIdx + 1) }}" style="border:0;"></iframe>
+                                    @if(!empty($carouselVideoCaptions['url_' . $vidIdx]))
+                                    <button class="vsshow-info-btn"
+                                        data-popup="{{ vssPopupData($carouselVideoCaptions['url_' . $vidIdx]) }}"
+                                        title="{{ __('home.virtual_slideshow.info') }}">?</button>
+                                    @endif
                                 </div>
-                                @elseif($vidUrlType === 'google_drive')
-                                <video controls style="width:100%;max-height:420px;display:block;background:#000;"
-                                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                                    <source src="{{ vssGoogleDriveStreamUrl($vidUrl) }}" type="video/mp4">
-                                </video>
-                                <div style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:200px;background:#000;color:#fff;border-radius:12px;">
-                                    <svg style="width:48px;height:48px;margin-bottom:8px;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                    <p style="margin:0;">{{ __('home.virtual_slideshow.video_cannot_play') }}</p>
-                                    <a href="{{ $vidUrl }}" target="_blank" rel="noopener" style="color:#60a5fa;margin-top:8px;text-decoration:underline;">{{ __('home.virtual_slideshow.open_in_gdrive') }}</a>
+                                @endforeach
+                                @foreach($carouselVideoFiles as $vidIdx => $vidFile)
+                                <div class="vsshow-carousel-slide">
+                                    <video controls style="width:100%;max-height:300px;display:block;background:#000;">
+                                        <source src="{{ asset('storage/' . $vidFile) }}" type="video/mp4">
+                                        {{ __('home.virtual_slideshow.video_unsupported') }}
+                                    </video>
+                                    @if(!empty($carouselVideoCaptions['upload_' . $vidIdx]))
+                                    <button class="vsshow-info-btn"
+                                        data-popup="{{ vssPopupData($carouselVideoCaptions['upload_' . $vidIdx]) }}"
+                                        title="{{ __('home.virtual_slideshow.info') }}">?</button>
+                                    @endif
                                 </div>
-                                @elseif($vidUrlType === 'direct_video')
-                                <video controls style="width:100%;max-height:420px;display:block;background:#000;">
-                                    <source src="{{ $vidUrl }}" type="video/mp4">
-                                    {{ __('home.virtual_slideshow.video_unsupported') }}
-                                </video>
-                                @else
-                                <div class="vsshow-video-iframe-wrap">
-                                    <iframe src="{{ $vidUrl }}" allowfullscreen allow="autoplay; encrypted-media"
-                                        title="{{ $title ?? 'Video ' . ($vidIdx + 1) }}" style="border:0;"></iframe>
-                                </div>
-                                @endif
-                                @if(!empty($carouselVideoCaptions['url_' . $vidIdx]))
-                                <button class="vsshow-info-btn"
-                                    data-popup="{{ vssPopupData($carouselVideoCaptions['url_' . $vidIdx]) }}"
-                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
-                                @endif
-                            </div>
-                            @endforeach
-                            @foreach($carouselVideoFiles as $vidIdx => $vidFile)
-                            <div class="vsshow-carousel-slide">
-                                <video controls style="width:100%;max-height:300px;display:block;background:#000;">
-                                    <source src="{{ asset('storage/' . $vidFile) }}" type="video/mp4">
-                                    {{ __('home.virtual_slideshow.video_unsupported') }}
-                                </video>
-                                @if(!empty($carouselVideoCaptions['upload_' . $vidIdx]))
-                                <button class="vsshow-info-btn"
-                                    data-popup="{{ vssPopupData($carouselVideoCaptions['upload_' . $vidIdx]) }}"
-                                    title="{{ __('home.virtual_slideshow.info') }}">?</button>
-                                @endif
-                            </div>
-                            @endforeach
+                                @endforeach
+                            @endif
                         @endif
                     </div>
 
                     @php
-                        $totalCarouselVideos = $carouselVideoOrder && is_array($carouselVideoOrder)
-                            ? $carouselRenderIdx
+                        $totalImages = count($allImages);
+                        $totalVideos = $carouselVideoOrder && is_array($carouselVideoOrder)
+                            ? $carouselVideoRenderIdx
                             : (count($carouselVideoUrls) + count($carouselVideoFiles));
+                        $totalSlides = $totalImages + $totalVideos;
                     @endphp
 
-                    @if($totalCarouselVideos > 1)
+                    @if($totalSlides > 1)
                     <button class="vsshow-carousel-btn prev" aria-label="{{ __('home.virtual_slideshow.prev') }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </button>
@@ -739,7 +721,7 @@
                     @endif
 
                     <div class="vsshow-carousel-dots">
-                        @for($di = 0; $di < $totalCarouselVideos; $di++)
+                        @for($di = 0; $di < $totalSlides; $di++)
                         <span class="vsshow-dot {{ $di === 0 ? 'active' : '' }}" data-idx="{{ $di }}"></span>
                         @endfor
                     </div>
