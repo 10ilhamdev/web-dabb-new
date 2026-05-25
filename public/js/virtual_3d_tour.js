@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const zoomSpeed = 0.5;
             currentZoom -= e.deltaY * zoomSpeed; // Scroll up (neg delta) bounds to Zoom In (higher Z)
+            
             // Limit zoom distance (lower = zoom out, higher = zoom in)
             currentZoom = Math.max(200, Math.min(1200, currentZoom));
             
@@ -304,19 +305,87 @@ function openRoom3D(roomId) {
     currentRoom = window.virtualRooms3D.find(r => r.id === roomId);
     if (!currentRoom) return;
 
-    // Reset view state
+    const diameterFront = currentRoom.diameter_front || 1000;
+    const diameterBack = currentRoom.diameter_back || 1000;
+    const diameterLeft = currentRoom.diameter_left || 1000;
+    const diameterRight = currentRoom.diameter_right || 1000;
+
+    const rawWidth = (diameterFront + diameterBack) / 2;
+    const rawDepth = (diameterLeft + diameterRight) / 2;
+    const rawAvgDiameter = (diameterFront + diameterBack + diameterLeft + diameterRight) / 4;
+
+    // Normalize scale factor so that the room's average diameter is always 1000px in CSS 3D space.
+    // This maintains sharp textures/rendering and prevents fisheye projection distortion.
+    const scaleFactor = 1000 / rawAvgDiameter;
+
+    const width = rawWidth * scaleFactor;
+    const depth = rawDepth * scaleFactor;
+    const height = 600; // Keep height constant at 600px for crisp render quality
+
+    // Reset view state with constant zoom and perspective (no fisheye distortion)
     currentZoom = 600;
     currentRotationX = 0;
     currentRotationY = 0;
 
-    // Apply colors
+    // Apply colors and sizes
     document.getElementById('wallEditor') && document.getElementById('wallEditor').style.setProperty('background-color', currentRoom.wall_color);
-    document.querySelectorAll('.vt3d-wall').forEach(w => w.style.backgroundColor = currentRoom.wall_color);
+
+    const wrapper = document.getElementById('vt3d-scene-wrapper');
+    if (wrapper) {
+        wrapper.style.perspective = '600px';
+    }
+
+    const scene = document.getElementById('vt3d-scene');
+    if (scene) {
+        scene.style.width = width + 'px';
+        scene.style.height = height + 'px';
+    }
+
+    // Add 2px overlap to eliminate sub-pixel gaps in 3D CSS rendering engine
+    const wallFront = document.getElementById('vt3d-wall-front');
+    if (wallFront) {
+        wallFront.style.width = (width + 2) + 'px';
+        wallFront.style.height = (height + 2) + 'px';
+        wallFront.style.backgroundColor = currentRoom.wall_color;
+        wallFront.style.transform = `translate(-50%, -50%) translateZ(-${depth / 2}px)`;
+    }
+    const wallBack = document.getElementById('vt3d-wall-back');
+    if (wallBack) {
+        wallBack.style.width = (width + 2) + 'px';
+        wallBack.style.height = (height + 2) + 'px';
+        wallBack.style.backgroundColor = currentRoom.wall_color;
+        wallBack.style.transform = `translate(-50%, -50%) translateZ(${depth / 2}px) rotateY(180deg)`;
+    }
+    const wallLeft = document.getElementById('vt3d-wall-left');
+    if (wallLeft) {
+        wallLeft.style.width = (depth + 2) + 'px';
+        wallLeft.style.height = (height + 2) + 'px';
+        wallLeft.style.backgroundColor = currentRoom.wall_color;
+        wallLeft.style.transform = `translate(-50%, -50%) translateX(-${width / 2}px) rotateY(90deg)`;
+    }
+    const wallRight = document.getElementById('vt3d-wall-right');
+    if (wallRight) {
+        wallRight.style.width = (depth + 2) + 'px';
+        wallRight.style.height = (height + 2) + 'px';
+        wallRight.style.backgroundColor = currentRoom.wall_color;
+        wallRight.style.transform = `translate(-50%, -50%) translateX(${width / 2}px) rotateY(-90deg)`;
+    }
+
     const floor = document.getElementById('vt3d-floor');
-    if (floor) floor.style.backgroundColor = currentRoom.floor_color || '#8B7355';
+    if (floor) {
+        floor.style.width = (width + 2) + 'px';
+        floor.style.height = (depth + 2) + 'px';
+        floor.style.backgroundColor = currentRoom.floor_color || '#8B7355';
+        floor.style.transform = `translate(-50%, -50%) translateY(${height / 2}px) rotateX(90deg)`;
+    }
     
     const ceiling = document.getElementById('vt3d-ceiling');
-    if (ceiling) ceiling.style.backgroundColor = currentRoom.ceiling_color || '#f5f5f5';
+    if (ceiling) {
+        ceiling.style.width = (width + 2) + 'px';
+        ceiling.style.height = (depth + 2) + 'px';
+        ceiling.style.backgroundColor = currentRoom.ceiling_color || '#f5f5f5';
+        ceiling.style.transform = `translate(-50%, -50%) translateY(-${height / 2}px) rotateX(-90deg)`;
+    }
 
     // Render Media
     renderRoomMedia();

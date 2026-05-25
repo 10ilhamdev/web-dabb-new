@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('wall_color')->default('#e5e7eb');
             $table->string('floor_color')->default('#8B7355');
             $table->string('ceiling_color')->default('#f5f5f5');
+            $table->integer('diameter_front')->nullable()->default(1000);
+            $table->integer('diameter_back')->nullable()->default(1000);
+            $table->integer('diameter_left')->nullable()->default(1000);
+            $table->integer('diameter_right')->nullable()->default(1000);
             $table->json('doors')->nullable(); // {"front":{...},"left":{...},"right":{...},"back":{...}}
             $table->string('door_link_type')->default('none'); // 'none', 'feature', 'room', 'url'
             $table->string('door_wall')->default('back');

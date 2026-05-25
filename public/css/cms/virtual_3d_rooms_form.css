@@ -45,8 +45,8 @@
 /* Individual face transforms — NOTE: front uses +Z so it faces the viewer */
 .room3d-face.front   { width: 260px; height: 200px; transform: translate(-50%, -50%) translateZ(130px); }
 .room3d-face.back    { width: 260px; height: 200px; transform: translate(-50%, -50%) translateZ(-130px) rotateY(180deg); }
-.room3d-face.left    { width: 260px; height: 200px; transform: translate(-50%, -50%) translateX(-130px) rotateY(90deg); }
-.room3d-face.right   { width: 260px; height: 200px; transform: translate(-50%, -50%) translateX(130px) rotateY(-90deg); }
+.room3d-face.left    { width: 260px; height: 200px; transform: translate(-50%, -50%) translateX(-130px) rotateY(90deg) scaleX(-1); }
+.room3d-face.right   { width: 260px; height: 200px; transform: translate(-50%, -50%) translateX(130px) rotateY(-90deg) scaleX(-1); }
 .room3d-face.floor   { width: 260px; height: 260px; transform: translate(-50%, -50%) translateY(100px) rotateX(90deg); }
 .room3d-face.ceiling { width: 260px; height: 260px; transform: translate(-50%, -50%) translateY(-100px) rotateX(-90deg); }
 

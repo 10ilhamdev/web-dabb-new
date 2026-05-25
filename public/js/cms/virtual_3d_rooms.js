@@ -18,18 +18,31 @@ function initWallEditor() {
     // Parse data from the page
     const dataEl = document.getElementById('roomMediaData');
     if (dataEl) {
-        try { 
-            const parsed = JSON.parse(dataEl.textContent); 
+        try {
+            const parsed = JSON.parse(dataEl.textContent);
             if (parsed.media) {
                 mediaItems = parsed.media;
-                doorsData = parsed.doors || {};
+                // Only use parsed.doors if window.doorsData is NOT already set from Blade
+                // window.doorsData is the authoritative source (pre-initialized from PHP/Blade)
+                if (!window.doorsData || Object.keys(window.doorsData).length === 0) {
+                    doorsData = parsed.doors || {};
+                    window.doorsData = doorsData;
+                } else {
+                    // Use window.doorsData as authoritative, keep local var in sync
+                    doorsData = window.doorsData;
+                }
             } else {
                 // Backward compatibility
                 mediaItems = parsed;
             }
-        } catch(e) { 
-            mediaItems = []; 
-            doorsData = {};
+        } catch (e) {
+            mediaItems = [];
+            doorsData = window.doorsData || {};
+        }
+    } else {
+        // No roomMediaData element — use window.doorsData if available
+        if (window.doorsData) {
+            doorsData = window.doorsData;
         }
     }
     renderWallItems();
@@ -44,6 +57,10 @@ function initWallEditor() {
             }
         });
     }
+
+    // Call updateWallEditorDoors to sync the door visibility state on page load
+    // window.doorsData is pre-initialized from Blade, so this is always safe to call immediately
+    updateWallEditorDoors();
 }
 
 // Support both normal load and dynamic script injection
@@ -57,22 +74,22 @@ if (document.readyState === 'loading') {
 // Read translations from Blade-injected v3dConfig (edit page) or fallback defaults
 var V3D = typeof window.v3dConfig === 'object' ? window.v3dConfig : {};
 var wallLabels = (V3D.labels && V3D.labels.wall) || {
-    front: { big: 'FRONT WALL',  small: 'Front Wall',  preview: 'FRONT'    },
-    left:  { big: 'LEFT WALL',   small: 'Left Wall',   preview: 'LEFT'     },
-    right: { big: 'RIGHT WALL',  small: 'Right Wall',  preview: 'RIGHT'    },
-    back:  { big: 'BACK WALL',    small: 'Back Wall',   preview: 'BACK'     },
+    front: { big: 'FRONT WALL', small: 'Front Wall', preview: 'FRONT' },
+    left: { big: 'LEFT WALL', small: 'Left Wall', preview: 'LEFT' },
+    right: { big: 'RIGHT WALL', small: 'Right Wall', preview: 'RIGHT' },
+    back: { big: 'BACK WALL', small: 'Back Wall', preview: 'BACK' },
 };
 var messages = V3D.labels && V3D.labels.messages || {
-    mediaEmpty:    'No media on this wall yet',
-    selectFile:    'Select a file to upload!',
+    mediaEmpty: 'No media on this wall yet',
+    selectFile: 'Select a file to upload!',
     uploadSuccess: 'Media uploaded successfully!',
-    uploadFailed:  'Upload failed.',
-    saveSuccess:   'Position saved!',
-    saveFailed:    'Failed to save position.',
+    uploadFailed: 'Upload failed.',
+    saveSuccess: 'Position saved!',
+    saveFailed: 'Failed to save position.',
     deleteConfirm: 'Delete this media from the wall?',
     deleteSuccess: 'Media deleted.',
-    deleteFailed:  'Failed to delete media.',
-    doorLabel:     'Door Label',
+    deleteFailed: 'Failed to delete media.',
+    doorLabel: 'Door Label',
 };
 var badgeSuffix = V3D.labels && V3D.labels.badgeSuffix || 'item';
 
@@ -92,11 +109,13 @@ function switchWallView(wall) {
         titleEl.innerText = wallLabels[wall].big;
     }
 
-    // Show/hide door on the wall it belongs to
+    // Show/hide door on the wall it belongs to based on new doorsData
     const doorEl = document.getElementById('doorRender');
     if (doorEl) {
-        const doorWall = doorEl.dataset.doorWall || 'back';
-        doorEl.style.display = (wall === doorWall && doorEl.dataset.active === '1') ? 'flex' : 'none';
+        const activeDoors = window.doorsData || doorsData || {};
+        const wallConfig = activeDoors[wall] || { link_type: 'none', label: '' };
+        const rawType = wallConfig.link_type || 'none';
+        doorEl.style.display = (rawType === 'room' || rawType === 'url') ? 'flex' : 'none';
     }
 
     // Sync upload section wall value and label
@@ -113,7 +132,7 @@ function switchWallView(wall) {
 
     // Dispatch event to sync with door settings panel (Alpine.js)
     window.dispatchEvent(new CustomEvent('wall-changed', { detail: { wall: wall } }));
-    
+
     // Update the door preview on the wall
     updateWallEditorDoors();
 }
@@ -127,12 +146,15 @@ function updateWallEditorDoors() {
     if (!doorEl) return;
 
     // Use current settings from Alpine if available, else from doorsData
-    // Actually, it's easier to just read from the active wall's config
-    const wallConfig = doorsData[currentWall] || { link_type: 'none', label: '' };
-    
-    const isActive = wallConfig.link_type !== 'none';
+    const activeDoors = window.doorsData || doorsData || {};
+    const wallConfig = activeDoors[currentWall] || { link_type: 'none', label: '' };
+
+    // Normalize: only 'room' or 'url' are valid active types — everything else is 'none'
+    const rawType = wallConfig.link_type || 'none';
+    const isActive = (rawType === 'room' || rawType === 'url');
+
     doorEl.style.display = isActive ? 'flex' : 'none';
-    
+
     if (isActive) {
         const labelEl = doorEl.querySelector('.text-xs');
         if (labelEl) {
@@ -147,7 +169,7 @@ function filterMediaList() {
     var listItems = document.querySelectorAll('#mediaList .media-list-item');
     var visibleCount = 0;
 
-    listItems.forEach(function(item) {
+    listItems.forEach(function (item) {
         var itemWall = item.getAttribute('data-wall');
         if (itemWall === currentWall) {
             item.style.display = '';
@@ -198,9 +220,9 @@ function renderWallItems() {
         el.id = 'media-' + item.id;
         el.dataset.id = item.id;
 
-        el.style.left   = item.position_x + '%';
-        el.style.top    = item.position_y + '%';
-        el.style.width  = item.width + '%';
+        el.style.left = item.position_x + '%';
+        el.style.top = item.position_y + '%';
+        el.style.width = item.width + '%';
         el.style.height = item.height + '%';
 
         // Content - build with proper DOM manipulation to avoid innerHTML += issue
@@ -256,7 +278,7 @@ function update3dPreviewMedia() {
                 const thumb = document.createElement('div');
                 thumb.className = 'pv-media-thumb';
                 thumb.style.cssText = 'position:absolute; border:1px solid rgba(255,255,255,0.3); overflow:hidden; border-radius:2px;';
-                
+
                 // Calculate position on the 3D face relative to face size
                 const faceW = faceEl.offsetWidth || 260;
                 const faceH = faceEl.offsetHeight || 200;
@@ -322,9 +344,9 @@ function handleMouseDown(e, id) {
     startX = e.clientX;
     startY = e.clientY;
 
-    originalLeft   = parseFloat(el.style.left) || 0;
-    originalTop    = parseFloat(el.style.top) || 0;
-    originalWidth  = parseFloat(el.style.width) || 0;
+    originalLeft = parseFloat(el.style.left) || 0;
+    originalTop = parseFloat(el.style.top) || 0;
+    originalWidth = parseFloat(el.style.width) || 0;
     originalHeight = parseFloat(el.style.height) || 0;
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -348,18 +370,18 @@ function handleMouseMove(e) {
 
     if (isDragging) {
         let newLeft = Math.max(0, Math.min(100, originalLeft + pctX));
-        let newTop  = Math.max(0, Math.min(100, originalTop + pctY));
+        let newTop = Math.max(0, Math.min(100, originalTop + pctY));
 
         el.style.left = newLeft + '%';
-        el.style.top  = newTop + '%';
+        el.style.top = newTop + '%';
 
         syncProperties(newLeft, newTop, parseFloat(el.style.width), parseFloat(el.style.height));
 
     } else if (isResizing) {
-        let newWidth  = Math.max(5, Math.min(100, originalWidth + pctX));
+        let newWidth = Math.max(5, Math.min(100, originalWidth + pctX));
         let newHeight = Math.max(5, Math.min(100, originalHeight + pctY));
 
-        el.style.width  = newWidth + '%';
+        el.style.width = newWidth + '%';
         el.style.height = newHeight + '%';
 
         syncProperties(parseFloat(el.style.left), parseFloat(el.style.top), newWidth, newHeight);
@@ -376,8 +398,8 @@ function handleMouseUp() {
     if (activeItem) {
         activeItem.position_x = parseFloat(document.getElementById('propX').value);
         activeItem.position_y = parseFloat(document.getElementById('propY').value);
-        activeItem.width      = parseFloat(document.getElementById('propW').value);
-        activeItem.height     = parseFloat(document.getElementById('propH').value);
+        activeItem.width = parseFloat(document.getElementById('propW').value);
+        activeItem.height = parseFloat(document.getElementById('propH').value);
     }
 }
 
@@ -399,9 +421,9 @@ function handleTouchStart(e, id) {
     startX = touch.clientX;
     startY = touch.clientY;
 
-    originalLeft   = parseFloat(el.style.left) || 0;
-    originalTop    = parseFloat(el.style.top) || 0;
-    originalWidth  = parseFloat(el.style.width) || 0;
+    originalLeft = parseFloat(el.style.left) || 0;
+    originalTop = parseFloat(el.style.top) || 0;
+    originalWidth = parseFloat(el.style.width) || 0;
     originalHeight = parseFloat(el.style.height) || 0;
 
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -428,18 +450,18 @@ function handleTouchMove(e) {
 
     if (isDragging) {
         let newLeft = Math.max(0, Math.min(100, originalLeft + pctX));
-        let newTop  = Math.max(0, Math.min(100, originalTop + pctY));
+        let newTop = Math.max(0, Math.min(100, originalTop + pctY));
 
         el.style.left = newLeft + '%';
-        el.style.top  = newTop + '%';
+        el.style.top = newTop + '%';
 
         syncProperties(newLeft, newTop, parseFloat(el.style.width), parseFloat(el.style.height));
 
     } else if (isResizing) {
-        let newWidth  = Math.max(5, Math.min(100, originalWidth + pctX));
+        let newWidth = Math.max(5, Math.min(100, originalWidth + pctX));
         let newHeight = Math.max(5, Math.min(100, originalHeight + pctY));
 
-        el.style.width  = newWidth + '%';
+        el.style.width = newWidth + '%';
         el.style.height = newHeight + '%';
 
         syncProperties(parseFloat(el.style.left), parseFloat(el.style.top), newWidth, newHeight);
@@ -456,8 +478,8 @@ function handleTouchEnd(e) {
     if (activeItem) {
         activeItem.position_x = parseFloat(document.getElementById('propX').value);
         activeItem.position_y = parseFloat(document.getElementById('propY').value);
-        activeItem.width      = parseFloat(document.getElementById('propW').value);
-        activeItem.height     = parseFloat(document.getElementById('propH').value);
+        activeItem.width = parseFloat(document.getElementById('propW').value);
+        activeItem.height = parseFloat(document.getElementById('propH').value);
     }
 }
 
@@ -513,15 +535,15 @@ function updatePropertiesFromInput() {
 
     activeItem.position_x = parseFloat(document.getElementById('propX').value);
     activeItem.position_y = parseFloat(document.getElementById('propY').value);
-    activeItem.width      = parseFloat(document.getElementById('propW').value);
-    activeItem.height     = parseFloat(document.getElementById('propH').value);
+    activeItem.width = parseFloat(document.getElementById('propW').value);
+    activeItem.height = parseFloat(document.getElementById('propH').value);
     if (document.getElementById('propDescription')) {
         activeItem.description = document.getElementById('propDescription').value;
     }
 
-    el.style.left   = activeItem.position_x + '%';
-    el.style.top    = activeItem.position_y + '%';
-    el.style.width  = activeItem.width + '%';
+    el.style.left = activeItem.position_x + '%';
+    el.style.top = activeItem.position_y + '%';
+    el.style.width = activeItem.width + '%';
     el.style.height = activeItem.height + '%';
 }
 
@@ -532,7 +554,13 @@ async function uploadNewMedia() {
     const form = document.getElementById('uploadMediaForm');
     const fileInput = form.querySelector('input[name="file"]');
     if (!fileInput || !fileInput.files.length) {
-        alert(messages.selectFile || 'Select a file to upload!');
+        Swal.fire({
+            title: 'Peringatan',
+            text: messages.selectFile || 'Select a file to upload!',
+            icon: 'warning',
+            borderRadius: '12px',
+            confirmButtonColor: '#3b82f6'
+        });
         return;
     }
 
@@ -554,11 +582,23 @@ async function uploadNewMedia() {
             document.getElementById('uploadWall').value = currentWall;
             showToast(messages.uploadSuccess || 'Media uploaded successfully!');
         } else {
-            alert(messages.uploadFailed || 'Upload failed.');
+            Swal.fire({
+                title: 'Gagal',
+                text: messages.uploadFailed || 'Upload failed.',
+                icon: 'error',
+                borderRadius: '12px',
+                confirmButtonColor: '#3b82f6'
+            });
         }
     } catch (error) {
         console.error(error);
-        alert(messages.uploadFailed || 'Upload failed.');
+        Swal.fire({
+            title: 'Gagal',
+            text: messages.uploadFailed || 'Upload failed.',
+            icon: 'error',
+            borderRadius: '12px',
+            confirmButtonColor: '#3b82f6'
+        });
     }
 }
 
@@ -596,27 +636,73 @@ async function saveActiveMedia() {
 
 async function deleteActiveMedia() {
     if (!activeMediaId || !activeItem) return;
-    if (!confirm(messages.deleteConfirm || 'Delete this media from the wall?')) return;
+    const confirmMsg = messages.deleteConfirm || 'Delete this media from the wall?';
+    Swal.fire({
+        title: 'Hapus Media',
+        html: confirmMsg,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        borderRadius: '12px',
+        customClass: {
+            confirmButton: 'px-5 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors',
+            cancelButton: 'px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors mr-3'
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const url = window.v3dRoutes.deleteMedia.replace('__MEDIA_ID__', activeItem.id);
 
-    const url = window.v3dRoutes.deleteMedia.replace('__MEDIA_ID__', activeItem.id);
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': window.v3dCsrf, 'Accept': 'application/json' }
+                });
 
-    try {
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': window.v3dCsrf, 'Accept': 'application/json' }
-        });
+                const data = await response.json();
+                if (data.success) {
+                    mediaItems = mediaItems.filter(m => m.id !== activeMediaId);
 
-        const data = await response.json();
-        if (data.success) {
-            mediaItems = mediaItems.filter(m => m.id !== activeMediaId);
-            deselectItem();
-            renderWallItems();
-            showToast(messages.deleteSuccess || 'Media deleted.');
+                    // Also find in document list and remove
+                    const listItem = document.querySelector(`.media-list-item[data-id="${activeMediaId}"]`);
+                    if (listItem) listItem.remove();
+
+                    deselectItem();
+                    renderWallItems();
+                    filterMediaList();
+
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: messages.deleteSuccess || 'Media deleted.',
+                        icon: 'success',
+                        borderRadius: '12px',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Gagal',
+                        text: messages.deleteFailed || 'Failed to delete media.',
+                        icon: 'error',
+                        borderRadius: '12px',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: 'Gagal',
+                    text: messages.deleteFailed || 'Failed to delete media.',
+                    icon: 'error',
+                    borderRadius: '12px',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
         }
-    } catch (error) {
-        console.error(error);
-        showToast(messages.deleteFailed || 'Failed to delete media.');
-    }
+    });
 }
 
 

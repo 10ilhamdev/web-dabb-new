@@ -88,6 +88,40 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
                             <p class="text-xs text-gray-500 mt-1.5">{{ __('cms.virtual_3d_rooms.thumbnail_help') }}</p>
                         </div>
+
+                        <div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        {{ __('cms.virtual_3d_rooms.label_diameter_front') }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="diameter_front" value="{{ old('diameter_front', 1000) }}" required min="1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        {{ __('cms.virtual_3d_rooms.label_diameter_back') }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="diameter_back" value="{{ old('diameter_back', 1000) }}" required min="1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        {{ __('cms.virtual_3d_rooms.label_diameter_left') }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="diameter_left" value="{{ old('diameter_left', 1000) }}" required min="1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        {{ __('cms.virtual_3d_rooms.label_diameter_right') }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="diameter_right" value="{{ old('diameter_right', 1000) }}" required min="1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1.5">{{ __('cms.virtual_3d_rooms.diameter_help') }}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -157,7 +191,8 @@
                                 <button type="button" @click="currentWall = wall"
                                     :class="currentWall === wall ? 'bg-white text-blue-600 shadow-sm' :
                                         'text-gray-500 hover:text-gray-700'"
-                                    class="px-2 py-1 text-[10px] font-bold rounded capitalize" x-text="wall">
+                                    class="px-2 py-1 text-[10px] font-bold rounded"
+                                    x-text="{ 'front': '{{ __('cms.virtual_3d_rooms.preview_btn_front') }}', 'left': '{{ __('cms.virtual_3d_rooms.preview_btn_left') }}', 'right': '{{ __('cms.virtual_3d_rooms.preview_btn_right') }}', 'back': '{{ __('cms.virtual_3d_rooms.preview_btn_back') }}' }[wall]">
                                 </button>
                             </template>
                         </div>

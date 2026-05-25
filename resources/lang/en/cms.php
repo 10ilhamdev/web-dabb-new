@@ -409,6 +409,11 @@ return [
         'label_thumbnail' => 'Room Thumbnail',
         'thumbnail_help' => 'Preview image for room list (JPG, PNG, WEBP)',
         'thumbnail_keep' => 'Leave empty if you don\'t want to change it',
+        'label_diameter_front' => 'Front Wall Diameter (cm)',
+        'label_diameter_back' => 'Back Wall Diameter (cm)',
+        'label_diameter_left' => 'Left Wall Diameter (cm)',
+        'label_diameter_right' => 'Right Wall Diameter (cm)',
+        'diameter_help' => 'Wall diameter size in centimeters (default: 1000)',
 
         'colors_title' => 'Room Colors',
         'label_wall_color' => 'Wall Color',

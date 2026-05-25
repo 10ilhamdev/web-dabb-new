@@ -80,27 +80,69 @@ function removeThumbnail() {
 
 /* ── Media list helpers ─────────────────────────────────────── */
 async function deleteMediaItem(id, btnEl) {
-    if (!confirm('Yakin hapus media ini?')) return;
-    const url = window.v3dRoutes.deleteMedia.replace('__MEDIA_ID__', id);
-    try {
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': window.v3dCsrf, 'Accept': 'application/json' }
-        });
-        const data = await response.json();
-        if (data.success) {
-            mediaItems = mediaItems.filter(m => m.id !== id);
-            if (activeMediaId === id) deselectItem();
-            renderWallItems();
-            const listItem = btnEl.closest('.media-list-item');
-            if (listItem) listItem.remove();
-            filterMediaList(); // Re-filter to update count and empty message
-            showToast((window.v3dConfig?.labels?.messages?.deleteSuccess) || 'Media deleted.');
+    const confirmMsg = (window.v3dConfig?.messages?.deleteConfirm) || 'Yakin hapus media ini dari dinding?';
+    const deleteBtnText = (window.v3dConfig?.deleteBtn) || 'Hapus';
+    Swal.fire({
+        title: (window.v3dConfig?.deleteBtn) || 'Hapus Media',
+        html: confirmMsg,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: deleteBtnText,
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        borderRadius: '12px',
+        customClass: {
+            confirmButton: 'px-5 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors',
+            cancelButton: 'px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors mr-3'
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const url = window.v3dRoutes.deleteMedia.replace('__MEDIA_ID__', id);
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': window.v3dCsrf, 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    mediaItems = mediaItems.filter(m => m.id !== id);
+                    if (activeMediaId === id) deselectItem();
+                    renderWallItems();
+                    const listItem = btnEl.closest('.media-list-item');
+                    if (listItem) listItem.remove();
+                    filterMediaList(); // Re-filter to update count and empty message
+                    
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: (window.v3dConfig?.messages?.deleteSuccess) || 'Media berhasil dihapus.',
+                        icon: 'success',
+                        borderRadius: '12px',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Gagal',
+                        text: (window.v3dConfig?.messages?.deleteFailed) || 'Gagal menghapus media.',
+                        icon: 'error',
+                        borderRadius: '12px',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: 'Gagal',
+                    text: (window.v3dConfig?.messages?.deleteFailed) || 'Gagal menghapus media.',
+                    icon: 'error',
+                    borderRadius: '12px',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
         }
-    } catch (error) {
-        console.error(error);
-        alert('Gagal menghapus.');
-    }
+    });
 }
 
 function addMediaToList(media) {

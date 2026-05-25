@@ -38,6 +38,10 @@ class Virtual3dRoomController extends Controller
             'wall_color' => 'nullable|string',
             'floor_color' => 'nullable|string',
             'ceiling_color' => 'nullable|string',
+            'diameter_front' => 'nullable|integer',
+            'diameter_back' => 'nullable|integer',
+            'diameter_left' => 'nullable|integer',
+            'diameter_right' => 'nullable|integer',
             'doors' => 'nullable|array',
         ]);
 
@@ -48,6 +52,10 @@ class Virtual3dRoomController extends Controller
         $room->wall_color = $validated['wall_color'] ?? '#e5e7eb';
         $room->floor_color = $validated['floor_color'] ?? '#8B7355';
         $room->ceiling_color = $validated['ceiling_color'] ?? '#f5f5f5';
+        $room->diameter_front = $validated['diameter_front'] ?? 1000;
+        $room->diameter_back = $validated['diameter_back'] ?? 1000;
+        $room->diameter_left = $validated['diameter_left'] ?? 1000;
+        $room->diameter_right = $validated['diameter_right'] ?? 1000;
 
         // Default doors structure
         $defaultDoors = [
@@ -87,6 +95,26 @@ class Virtual3dRoomController extends Controller
     {
         $room->load('media');
         $allRooms = $feature->virtual3dRooms()->where('id', '!=', $room->id)->get();
+
+        // Normalize doors: force any invalid link_type to 'none'
+        $validLinkTypes = ['room', 'url'];
+        $defaultWalls = ['front', 'back', 'left', 'right'];
+        $doors = $room->doors ?? [];
+        $normalizedDoors = [];
+        foreach ($defaultWalls as $wall) {
+            $cfg = $doors[$wall] ?? [];
+            $linkType = $cfg['link_type'] ?? 'none';
+            if (!in_array($linkType, $validLinkTypes)) {
+                $linkType = 'none';
+            }
+            $normalizedDoors[$wall] = [
+                'link_type' => $linkType,
+                'target'    => $cfg['target'] ?? null,
+                'label'     => $cfg['label'] ?? null,
+            ];
+        }
+        $room->doors = $normalizedDoors;
+
         return view('cms.features.virtual_3d_rooms.edit', compact('feature', 'room', 'allRooms'));
     }
 
@@ -100,6 +128,10 @@ class Virtual3dRoomController extends Controller
             'wall_color'       => 'nullable|string',
             'floor_color'      => 'nullable|string',
             'ceiling_color'    => 'nullable|string',
+            'diameter_front'   => 'nullable|integer',
+            'diameter_back'    => 'nullable|integer',
+            'diameter_left'    => 'nullable|integer',
+            'diameter_right'   => 'nullable|integer',
             'doors'            => 'nullable|array',
         ]);
 
@@ -108,6 +140,10 @@ class Virtual3dRoomController extends Controller
         $room->wall_color   = $validated['wall_color']   ?? '#e5e7eb';
         $room->floor_color  = $validated['floor_color']  ?? '#8B7355';
         $room->ceiling_color = $validated['ceiling_color'] ?? '#f5f5f5';
+        $room->diameter_front = $validated['diameter_front'] ?? 1000;
+        $room->diameter_back = $validated['diameter_back'] ?? 1000;
+        $room->diameter_left = $validated['diameter_left'] ?? 1000;
+        $room->diameter_right = $validated['diameter_right'] ?? 1000;
 
         $defaultDoors = [
             'front' => ['link_type' => 'none', 'target' => null, 'label' => null],

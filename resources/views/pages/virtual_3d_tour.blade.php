@@ -295,6 +295,10 @@
             'wall_color'     => $r->wall_color,
             'floor_color'    => $r->floor_color,
             'ceiling_color'  => $r->ceiling_color,
+            'diameter_front' => (int) ($r->diameter_front ?? 1000),
+            'diameter_back'  => (int) ($r->diameter_back ?? 1000),
+            'diameter_left'  => (int) ($r->diameter_left ?? 1000),
+            'diameter_right' => (int) ($r->diameter_right ?? 1000),
             'doors'          => $r->doors,
             'door_labels'   => [
                 'front' => $r->getTranslatedDoorLabelForWall('front'),

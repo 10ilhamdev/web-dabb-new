@@ -412,6 +412,11 @@ return [
         'label_thumbnail' => 'Thumbnail Ruangan',
         'thumbnail_help' => 'Gambar preview untuk daftar ruangan (JPG, PNG, WEBP)',
         'thumbnail_keep' => 'Biarkan kosong jika tidak ingin mengubah',
+        'label_diameter_front' => 'Diameter Dinding Depan (cm)',
+        'label_diameter_back' => 'Diameter Dinding Belakang (cm)',
+        'label_diameter_left' => 'Diameter Dinding Kiri (cm)',
+        'label_diameter_right' => 'Diameter Dinding Kanan (cm)',
+        'diameter_help' => 'Ukuran diameter dinding dalam centimeter (default: 1000)',
 
         'colors_title' => 'Warna Ruangan',
         'label_wall_color' => 'Warna Dinding',
