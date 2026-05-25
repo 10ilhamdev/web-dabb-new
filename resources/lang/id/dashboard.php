@@ -205,6 +205,7 @@ return [
         'back' => 'Kembali',
         'optional' => 'Opsional',
         'no_results' => 'Tidak ada hasil ditemukan',
+        'validation_errors_title' => 'Terdapat kesalahan pada pengisian form:',
     ],
     'set_password' => [
         'title' => 'Lengkapi Akun Anda',

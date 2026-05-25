@@ -219,6 +219,27 @@ class RegisteredUserController extends Controller
                     ? ['nullable', 'string']
                     : ['required', 'string'],
             };
+
+            if ($col->is_unique) {
+                if (!is_array($rules[$field])) {
+                    $rules[$field] = [$rules[$field]];
+                }
+
+                if (in_array($field, ['nomor_whatsapp', 'nomor_telepon'])) {
+                    $label = $this->transCol($field);
+                    $rules[$field][] = function ($attribute, $value, $fail) use ($field, $label) {
+                        $roles = \App\Models\Role::all();
+                        foreach ($roles as $r) {
+                            if (\Illuminate\Support\Facades\DB::table($r->table_name)->where($field, $value)->exists()) {
+                                $fail(__('validation.unique', ['attribute' => $label]));
+                                return;
+                            }
+                        }
+                    };
+                } else if ($roleModel) {
+                    $rules[$field][] = Rule::unique($roleModel->table_name, $field);
+                }
+            }
         }
 
         $request->validate($rules);

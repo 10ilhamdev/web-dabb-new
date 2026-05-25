@@ -92,7 +92,7 @@
                 <!-- Avatar Section -->
                 <div class="flex flex-col items-center justify-center pt-10 pb-6 border-b border-gray-100">
                     <div
-                        class="relative flex items-center justify-center w-24 h-24 p-[3px] bg-white border border-gray-200 rounded-full shadow-sm shrink-0">
+                        class="relative flex items-center justify-center w-24 h-24 p-[3px] bg-white border @error('photo') border-red-500 @else border-gray-200 @enderror rounded-full shadow-sm shrink-0">
                         <img id="profile-photo-preview" class="w-full h-full rounded-full object-cover block"
                             src="{{ $user->photo ? asset('storage/' . $user->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=E5E7EB&color=374151&bold=true&size=128' }}"
                             alt="Avatar">
@@ -110,6 +110,16 @@
 
                 <!-- Form Fields -->
                 <div class="p-8 pb-24">
+                    @if ($errors->any())
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                            <div class="font-medium mb-1">{{ __('dashboard.profile.validation_errors_title') }}</div>
+                            <ul class="list-disc list-inside space-y-0.5">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     @php
                         // Separate profile columns into groups
                         $textAreaFields = [];
@@ -142,7 +152,7 @@
                                 {{ __('dashboard.profile.full_name') }}
                             </label>
                             <input type="text" name="name" value="{{ old('name', $user->name) }}"
-                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                                class="w-full @error('name') border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors">
                             @error('name')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
@@ -154,7 +164,7 @@
                                 {{ __('dashboard.profile.username') }}
                             </label>
                             <input type="text" name="username" value="{{ old('username', $user->username ?? '') }}"
-                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                                class="w-full @error('username') border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors">
                             @error('username')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
@@ -166,7 +176,7 @@
                                 {{ __('dashboard.profile.email') }}
                             </label>
                             <input type="email" name="email" value="{{ old('email', $user->email) }}"
-                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                                class="w-full @error('email') border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors">
                             @error('email')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
@@ -185,19 +195,19 @@
                                             name="{{ $col->column_name }}"
                                             value="{{ old($col->column_name, $user->profile?->{$col->column_name} ?? '') }}"
                                             maxlength="{{ $col->column_length }}"
-                                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                            class="w-full @error($col->column_name) border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors cursor-pointer">
                                     @elseif(in_array($col->column_type, ['int', 'bigint', 'smallint', 'tinyint']))
                                         <input type="number"
                                             name="{{ $col->column_name }}"
                                             value="{{ old($col->column_name, $user->profile?->{$col->column_name} ?? '') }}"
                                             maxlength="{{ $col->column_length }}"
-                                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                                            class="w-full @error($col->column_name) border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors">
                                     @else
                                         <input type="text"
                                             name="{{ $col->column_name }}"
                                             value="{{ formValue($user->profile?->{$col->column_name} ?? '', $col->column_name, $col->column_name) }}"
                                             maxlength="{{ $col->column_length }}"
-                                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                                            class="w-full @error($col->column_name) border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors">
                                     @endif
 
                                     @error($col->column_name)
@@ -214,7 +224,7 @@
                                     {{ editColLabel($col->column_name, $col->column_label) }}
                                 </label>
                                 <select name="{{ $col->column_name }}"
-                                    class="tom-select-class w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                    class="tom-select-class w-full @error($col->column_name) ts-has-error @enderror bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer">
                                     <option value="">{{ __('dashboard.profile.select_placeholder', ['label' => editColLabel($col->column_name, $col->column_label)]) }}</option>
                                     @foreach(($enumOptions[$col->column_name] ?? []) as $option)
                                         <option value="{{ $option }}"
@@ -237,7 +247,7 @@
                                         {{ editColLabel($col->column_name, $col->column_label) }}
                                     </label>
                                     <textarea name="{{ $col->column_name }}" rows="3"
-                                        class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors resize-none">{{ formValue($user->profile?->{$col->column_name} ?? '', $col->column_name, $col->column_name) }}</textarea>
+                                        class="w-full @error($col->column_name) border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors resize-none">{{ formValue($user->profile?->{$col->column_name} ?? '', $col->column_name, $col->column_name) }}</textarea>
                                     @error($col->column_name)
                                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                     @enderror
@@ -254,7 +264,7 @@
                                 </label>
                                 <input type="file" name="{{ $col->column_name }}"
                                     accept=".jpg,.jpeg,.png,.pdf"
-                                    class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                    class="w-full @error($col->column_name) border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors cursor-pointer">
                                 @if($user->profile?->{$col->column_name})
                                     <a href="{{ Storage::url($user->profile->{$col->column_name}) }}" target="_blank"
                                         class="text-xs text-blue-500 mt-1 block">{{ __('dashboard.profile.view_current_document') }}</a>
@@ -272,7 +282,7 @@
                                     {{ editColLabel('alamat', $profileColumns->firstWhere('column_name', 'alamat')->column_label ?? null) }}
                                 </label>
                                 <textarea name="alamat" rows="3"
-                                    class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition-colors resize-none">{{ formValue($user->profile?->alamat ?? '', 'alamat', 'alamat') }}</textarea>
+                                    class="w-full @error('alamat') border-red-500 focus:border-red-500 @else bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white @enderror text-gray-800 text-[13px] rounded-lg p-2.5 outline-none transition-colors resize-none">{{ formValue($user->profile?->alamat ?? '', 'alamat', 'alamat') }}</textarea>
                                 @error('alamat')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                 @enderror
@@ -343,6 +353,10 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
 <style>
+    .ts-wrapper.ts-has-error .ts-control {
+        border-color: #ef4444 !important;
+        background-color: #fef2f2 !important;
+    }
     .ts-wrapper .ts-control {
         border-radius: 0.5rem !important;
         background-color: #f9fafb !important;

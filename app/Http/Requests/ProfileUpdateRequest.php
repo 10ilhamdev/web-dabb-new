@@ -91,6 +91,32 @@ class ProfileUpdateRequest extends FormRequest
                     : ['required', 'string'],
             };
 
+            if ($col->is_unique && $roleModel) {
+                if (in_array($field, ['nomor_whatsapp', 'nomor_telepon'])) {
+                    $label = \App\Http\Controllers\ProfileController::colLabel($field, $col->column_label);
+                    $rule[] = function ($attribute, $value, $fail) use ($user, $field, $label) {
+                        $roles = \App\Models\Role::all();
+                        foreach ($roles as $r) {
+                            $query = \Illuminate\Support\Facades\DB::table($r->table_name)->where($field, $value);
+                            if ($r->name === $user->role && $user->profile) {
+                                $query->where('id', '!=', $user->profile->id);
+                            }
+                            if ($query->exists()) {
+                                $fail(__('validation.unique', ['attribute' => $label]));
+                                return;
+                            }
+                        }
+                    };
+                } else {
+                    $profileId = $user->profile?->id;
+                    $uniqueRule = Rule::unique($roleModel->table_name, $field);
+                    if ($profileId) {
+                        $uniqueRule->ignore($profileId);
+                    }
+                    $rule[] = $uniqueRule;
+                }
+            }
+
             $rules[$field] = $rule;
         }
 

@@ -300,11 +300,28 @@ class PenggunaController extends Controller
 
             // Unique constraint: dynamically from role_columns is_unique flag
             if ($col->is_unique) {
-                $uniqueRule = Rule::unique($tableName, $field);
-                if ($profileId) {
-                    $uniqueRule->ignore($profileId);
+                if (in_array($field, ['nomor_whatsapp', 'nomor_telepon'])) {
+                    $label = \App\Http\Controllers\ProfileController::colLabel($field, $col->column_label);
+                    $rule[] = function ($attribute, $value, $fail) use ($field, $label, $profileId, $tableName) {
+                        $roles = Role::all();
+                        foreach ($roles as $r) {
+                            $query = DB::table($r->table_name)->where($field, $value);
+                            if ($r->table_name === $tableName && $profileId) {
+                                $query->where('id', '!=', $profileId);
+                            }
+                            if ($query->exists()) {
+                                $fail(__('validation.unique', ['attribute' => $label]));
+                                return;
+                            }
+                        }
+                    };
+                } else {
+                    $uniqueRule = Rule::unique($tableName, $field);
+                    if ($profileId) {
+                        $uniqueRule->ignore($profileId);
+                    }
+                    $rule[] = $uniqueRule;
                 }
-                $rule[] = $uniqueRule;
             }
 
             $rules[$field] = $rule;

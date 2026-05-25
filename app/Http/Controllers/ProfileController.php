@@ -409,8 +409,8 @@ class ProfileController extends Controller
             return Redirect::route('profile.show')->with('success', 'profile-updated');
         } catch (\Throwable $e) {
             return Redirect::route('profile.edit')
-                ->withInput()
-                ->with('error', 'profile-update-failed');
+                 ->withInput()
+                 ->withErrors(['general' => __('dashboard.profile.profile_update_failed') . ' ' . $e->getMessage()]);
         }
     }
 

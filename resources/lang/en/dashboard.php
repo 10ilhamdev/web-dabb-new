@@ -205,6 +205,7 @@ return [
         'back' => 'Back',
         'optional' => 'Optional',
         'no_results' => 'No results found',
+        'validation_errors_title' => 'There are errors in the form submission:',
     ],
     'set_password' => [
         'title' => 'Complete Your Account',
