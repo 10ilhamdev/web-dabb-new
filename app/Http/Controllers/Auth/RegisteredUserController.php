@@ -268,16 +268,37 @@ class RegisteredUserController extends Controller
             }
         }
 
-        // 3. Create user
+        // 3. Handle Gmail re-registration: if email already exists (same role), redirect to login
+        // Only allow login if email is already verified
+        $existingByEmail = User::whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
+        if ($existingByEmail
+            && !$existingByEmail->google_id
+            && $existingByEmail->role === $role) {
+            // If already verified → login and go to dashboard
+            if ($existingByEmail->hasVerifiedEmail()) {
+                Auth::login($existingByEmail);
+                $slug = Str::slug($role, '-');
+                return redirect()->route('dashboard.role', ['slug' => $slug]);
+            }
+            // Not verified → tell them to check their email
+            return redirect(route('login'))->withErrors([
+                'email' => __('Akun sudah terdaftar. Silakan verifikasi email terlebih dahulu.'),
+            ]);
+        }
+
+        // 4. Create user
+        // Form registration → email NOT auto-verified (must verify via email link)
+        // Google registration → auto-verified (verified by Google)
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'username' => $request->username,
             'role' => $role,
             'password' => Hash::make($request->password),
+            'email_verified_at' => null,
         ]);
 
-        // 4. Create profile dynamically
+        // 5. Create profile dynamically
         if ($roleModel && $roleModel->relation_name) {
             $relation = $roleModel->relation_name;
             if (method_exists($user, $relation)) {

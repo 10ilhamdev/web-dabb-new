@@ -9,7 +9,13 @@
       "Bash(php \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\artisan\" view:clear)",
       "Bash(php artisan *)",
       "Bash(dir \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\public\\\\cms_rte\\\\runtime\\\\guest_richtexteditor_content.css\")",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(xargs grep -l \"google\\\\|Google\\\\|socialite\")",
+      "Bash(xargs grep -l \"google\\\\|credential\\\\|Kredensial\")",
+      "Bash(xargs grep -l \"sessions\\\\|session\")",
+      "Bash(xargs grep -l \"attempt\\\\|credential\\\\|authenticate\\\\|lockout\\\\|auth\")",
+      "Bash(xargs grep -l \"Listen\\\\|Auth::\")",
+      "Bash(xargs grep -l \"email_verified_at\\\\|verified\")"
     ]
   }
 }
