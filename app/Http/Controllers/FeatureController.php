@@ -16,8 +16,11 @@ class FeatureController extends Controller
     public function index()
     {
         $features = Feature::whereNull('parent_id')->withCount(['subfeatures', 'pages'])->orderBy('order')->get();
+        $dropdownFeatures = Feature::where('type', 'dropdown')
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id']);
 
-        return view('cms.features.index', compact('features'));
+        return view('cms.features.index', compact('features', 'dropdownFeatures'));
     }
 
     /**
@@ -207,29 +210,72 @@ class FeatureController extends Controller
             'type' => 'required|in:link,dropdown',
             'order' => 'required|integer|min:0',
             'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'new_parent_id' => 'nullable|exists:features,id',
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
         $newOrder = (int) $validated['order'];
         unset($validated['order']); // Remove order from validated data
 
+        // Determine if we are moving to a different parent
+        $newParentId = !empty($validated['new_parent_id']) ? (int) $validated['new_parent_id'] : null;
+        unset($validated['new_parent_id']);
+        $oldParentId = $feature->parent_id;
+        $isMoving = $newParentId !== $oldParentId;
+
         if ($validated['type'] === 'link') {
+            // Determine effective parent for path construction
+            $effectiveParentId = $isMoving ? $newParentId : $feature->parent_id;
+
             // If page_type is beranda, set unique path based on feature name
             if (isset($validated['page_type']) && $validated['page_type'] === 'beranda') {
                 $slug = \Illuminate\Support\Str::slug($validated['name']);
                 $validated['path'] = '/' . $slug;
             } else {
                 $slug = \Illuminate\Support\Str::slug($validated['name']);
-                if (empty($feature->parent_id)) {
+                if (empty($effectiveParentId)) {
                     $validated['path'] = '/' . $slug;
                 } else {
-                    $parent = Feature::find($feature->parent_id);
+                    $parent = Feature::find($effectiveParentId);
                     $parentPath = $parent->path ?: ('/' . \Illuminate\Support\Str::slug($parent->name));
                     $validated['path'] = rtrim($parentPath, '/') . '/' . $slug;
                 }
             }
         } else {
             $validated['path'] = null;
+        }
+
+        if ($isMoving) {
+            DB::transaction(function () use ($feature, $oldParentId, $newParentId, $newOrder, $validated) {
+                $oldOrder = (int) $feature->order;
+
+                // 1. Temporarily set order to a safe negative value to avoid constraint conflicts
+                $feature->update(['order' => -($feature->id)]);
+
+                // 2. Close the gap in old parent (shift down items after old position)
+                Feature::where('parent_id', $oldParentId)
+                    ->where('order', '>', $oldOrder)
+                    ->decrement('order');
+
+                // 3. Make room in new parent (shift up items at or after target position)
+                $maxNewOrder = Feature::where('parent_id', $newParentId)->max('order') ?? 0;
+                $targetOrder = min($newOrder, $maxNewOrder + 1);
+                $targetOrder = max(1, $targetOrder);
+
+                Feature::where('parent_id', $newParentId)
+                    ->where('order', '>=', $targetOrder)
+                    ->orderBy('order', 'desc')
+                    ->increment('order');
+
+                // 4. Update the feature itself — change parent and order, plus other fields
+                $feature->update(array_merge($validated, [
+                    'parent_id' => $newParentId,
+                    'order'     => $targetOrder,
+                ]));
+            });
+
+            return redirect()->route('cms.features.index')
+                ->with('success', __('cms.features.flash.feature_updated'));
         }
 
         // Update other fields first

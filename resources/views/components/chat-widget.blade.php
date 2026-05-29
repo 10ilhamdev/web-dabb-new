@@ -246,10 +246,10 @@
 
             if (isUser) {
                 msgDiv.className =
-                    'bg-[#2563EB] text-white p-3 rounded-2xl rounded-tr-none self-end max-w-[85%] text-[14px] leading-relaxed shadow-sm break-words';
+                    'bg-[#2563EB] text-white p-3 rounded-2xl rounded-tr-none self-end max-w-[85%] text-[14px] leading-relaxed shadow-sm break-words whitespace-pre-wrap';
             } else {
                 msgDiv.className =
-                    'bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-tl-none self-start max-w-[85%] text-[14px] leading-relaxed shadow-sm break-words format-text';
+                    'bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-tl-none self-start max-w-[85%] text-[14px] leading-relaxed shadow-sm break-words format-text whitespace-pre-wrap';
             }
 
             msgDiv.textContent = text;
