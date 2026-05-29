@@ -333,18 +333,34 @@ class FeatureController extends Controller
             'type'          => 'required|in:link,dropdown',
             'order'         => 'required|integer|min:0',
             'page_type'     => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
-            'new_parent_id' => 'nullable|exists:features,id',
+            'new_parent_id' => 'nullable|string',
         ]);
+
+        if (!empty($validated['new_parent_id']) && $validated['new_parent_id'] !== 'top_level') {
+            $request->validate([
+                'new_parent_id' => 'exists:features,id',
+            ]);
+        }
 
         $validated['name_en'] = $translationService->translate($validated['name']);
         $newOrder = (int) $validated['order'];
         unset($validated['order']);
 
         // Determine if we are moving to a different parent
-        $newParentId = !empty($validated['new_parent_id']) ? (int) $validated['new_parent_id'] : null;
+        $newParentRaw = $validated['new_parent_id'] ?? '';
         unset($validated['new_parent_id']);
         $oldParentId = $feature->parent_id;
-        $isMoving = $newParentId !== null && $newParentId !== $oldParentId;
+
+        if ($newParentRaw === 'top_level') {
+            $newParentId = null;
+            $isMoving = true;
+        } elseif ($newParentRaw !== '') {
+            $newParentId = (int) $newParentRaw;
+            $isMoving = $newParentId !== $oldParentId;
+        } else {
+            $newParentId = $oldParentId;
+            $isMoving = false;
+        }
 
         if ($validated['type'] === 'link') {
             // Determine effective parent for path construction
@@ -401,6 +417,11 @@ class FeatureController extends Controller
                     'order'     => $targetOrder,
                 ]));
             });
+
+            if ($newParentId === null) {
+                return redirect()->route('cms.features.index')
+                    ->with('success', __('cms.features.flash.sub_updated'));
+            }
 
             return redirect()->route('cms.features.show', $newParentId)
                 ->with('success', __('cms.features.flash.sub_updated'));

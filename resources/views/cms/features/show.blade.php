@@ -376,6 +376,7 @@
                     <select name="new_parent_id" x-model="editSubModal.newParentId"
                         class="w-full px-3.5 py-2.5 border border-blue-200 bg-blue-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                         <option value="">— Tetap di menu saat ini —</option>
+                        <option value="top_level">Jadikan Menu Utama (Top Level)</option>
                         @foreach($dropdownFeatures as $df)
                             <option value="{{ $df->id }}">
                                 {{ $df->name }}

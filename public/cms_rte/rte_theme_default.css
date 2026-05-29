@@ -17,9 +17,15 @@
     flex-direction: column;
     overflow: visible;
     position: static;
-    width: 100%;
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     min-height: 500px;
+}
+
+.rte-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
 }
 
 .rte-compact .richtexteditor,
@@ -43,8 +49,9 @@
 .rte-editor-wrap {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    overflow: visible;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
     position: relative;
     min-height: 0;
 }
