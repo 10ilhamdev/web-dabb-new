@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('type'); // 'image', 'video'
             $table->string('file_path');
             $table->string('title')->nullable();
-            $table->text('description')->nullable();
+            $table->longText('description')->nullable();
 
             // Positioning variables using percentages (from left and top) and size percentages
             $table->decimal('position_x', 5, 2)->default(50.00); // 0-100%

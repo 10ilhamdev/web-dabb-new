@@ -1,5 +1,5 @@
 @php
-    $footerSettings = \App\Models\Setting::all()->pluck('value', 'key');
+    $footerSettings = \Illuminate\Support\Facades\Cache::remember('settings_all', 600, fn () => \App\Models\Setting::all()->pluck('value', 'key'));
     $locale = app()->getLocale();
     $enSuffix = ($locale === 'en') ? '_en' : '';
 

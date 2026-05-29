@@ -5,18 +5,20 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.index') }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
-    <span class="text-gray-300">/</span>
-    <a href="{{ route('cms.features.show', $feature) }}"
-        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
+    @if($feature->parent)
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.show', $feature->parent) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
+    @endif
 @endsection
-@section('breadcrumb_active', $sub->name)
+@section('breadcrumb_active', $feature->name)
 
 @section('content')
 <div class="space-y-6" x-data="profilePagesManager()">
 
     {{-- Header --}}
     <div class="flex items-center gap-3">
-        <a href="{{ route('cms.features.show', $feature) }}"
+        <a href="{{ $feature->parent ? route('cms.features.show', $feature->parent) : route('cms.features.index') }}"
             class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors shadow-sm"
             style="background-color: #818284;">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,7 +26,7 @@
             </svg>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Daftar Halaman: {{ $sub->name }}</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Daftar Halaman: {{ $feature->name }}</h1>
             <p class="text-sm text-gray-500 mt-0.5">Kelola halaman profil untuk menu ini</p>
         </div>
     </div>
@@ -61,7 +63,7 @@
                 <h2 class="text-base font-semibold text-gray-800">Halaman Profil</h2>
                 <p class="text-sm text-gray-500 mt-0.5">Kelola halaman profil. Section dikelola di halaman Edit.</p>
             </div>
-            <a href="{{ route('cms.features.profile.pages.create', [$feature, $sub]) }}"
+            <a href="{{ route('cms.features.profile.pages.create', $feature) }}"
                 class="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -109,7 +111,7 @@
                             <td class="px-6 py-4 text-center text-gray-600">{{ $page->order }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="{{ route('cms.features.profile.pages.edit', [$feature, $sub, $page]) }}"
+                                    <a href="{{ route('cms.features.profile.pages.edit', [$feature, $page]) }}"
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#174E93] hover:bg-blue-800 text-white text-xs font-semibold rounded-md transition-colors">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -190,7 +192,7 @@ function profilePagesManager() {
             if (!this.deleteModal.id) return;
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/cms/features/{{ $feature->id }}/profile/{{ $sub->id }}/${this.deleteModal.id}`;
+            form.action = `/cms/features/{{ $feature->id }}/profile/${this.deleteModal.id}`;
             form.innerHTML = `@csrf @method('DELETE')`;
             document.body.appendChild(form);
             form.submit();

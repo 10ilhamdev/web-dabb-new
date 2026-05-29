@@ -21,19 +21,27 @@ class ProfileController extends Controller
     {}
 
     /**
-     * Show the profile sub-menu list (index page for Profil dropdown).
+     * Resolve the "owner" feature for profile pages.
+     * When $sub is provided (Profil → dropdown item → profile pages), use $sub.
+     * When $sub is null (standalone profile feature), use $feature directly.
      */
-    public function index(Feature $feature, Feature $sub)
+    private function resolveProfileOwner(Feature $feature, ?Feature $sub): Feature
+    {
+        return $sub ?? $feature;
+    }
+
+    /**
+     * Show the profile pages list.
+     */
+    public function index(Feature $feature)
     {
         $feature->load('parent');
-        $sub->load('parent');
-
-        $pages = $sub->profiles()
+        $pages = $feature->profiles()
             ->withCount('sections')
             ->orderBy('order')
             ->get();
 
-        return view('cms.features.profile.index', compact('feature', 'sub', 'pages'));
+        return view('cms.features.profile.index', compact('feature', 'pages'));
     }
 
     /**
@@ -111,34 +119,34 @@ class ProfileController extends Controller
     /**
      * Show the form for creating a new profile page.
      */
-    public function create(Feature $feature, Feature $sub)
+    public function create(Feature $feature)
     {
-        $sub->load('parent');
-        $pages = $sub->pages()->orderBy('order')->get();
-        return view('cms.features.profile.pages.create', compact('feature', 'sub', 'pages'));
+        $feature->load('parent');
+        $pages = $feature->profiles()->orderBy('order')->get();
+        return view('cms.features.profile.pages.create', compact('feature', 'pages'));
     }
 
     /**
      * Redirect to edit page — section management is now inline.
      */
-    public function show(Feature $feature, Feature $sub, Profile $page)
+    public function show(Feature $feature, Profile $page)
     {
-        return redirect()->route('cms.features.profile.pages.edit', [$feature, $sub, $page]);
+        return redirect()->route('cms.features.profile.pages.edit', [$feature, $page]);
     }
 
     /**
      * Show the form for editing a profile page.
      */
-    public function edit(Feature $feature, Feature $sub, Profile $page)
+    public function edit(Feature $feature, Profile $page)
     {
-        $sub->load('parent');
-        return view('cms.features.profile.pages.edit', compact('feature', 'sub', 'page'));
+        $feature->load('parent');
+        return view('cms.features.profile.pages.edit', compact('feature', 'page'));
     }
 
     /**
      * Store a new profile page.
      */
-    public function store(Request $request, Feature $feature, Feature $sub)
+    public function store(Request $request, Feature $feature)
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
@@ -188,7 +196,7 @@ class ProfileController extends Controller
         }
 
         $data = [
-            'feature_id' => $sub->id,
+            'feature_id' => $feature->id,
             'title' => $validated['title'] ?? '',
             'title_en' => ! empty($validated['title']) ? $this->translationService->translate($validated['title']) : null,
             'type' => $validated['type'] ?? 'default',
@@ -213,16 +221,16 @@ class ProfileController extends Controller
         }
 
         $insertOrder = (int) $validated['order'];
-        $this->insertAndShiftOrder(Profile::class, $insertOrder, ['feature_id' => $sub->id], $data);
+        $this->insertAndShiftOrder(Profile::class, $insertOrder, ['feature_id' => $feature->id], $data);
 
-        return redirect()->route('cms.features.profile.index', [$feature, $sub])
+        return redirect()->route('cms.features.profile.index', $feature)
             ->with('success', __('cms.profile.flash.page_added'));
     }
 
     /**
      * Update a profile page.
      */
-    public function update(Request $request, Feature $feature, Feature $sub, Profile $page)
+    public function update(Request $request, Feature $feature, Profile $page)
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
@@ -305,30 +313,30 @@ class ProfileController extends Controller
             $data['logo_path'] = null;
         }
 
-        $this->swapOrder($page, (int) $validated['order'], (int) $page->order, ['feature_id' => $sub->id]);
+        $this->swapOrder($page, (int) $validated['order'], (int) $page->order, ['feature_id' => $feature->id]);
         $page->update($data);
 
-        return redirect()->route('cms.features.profile.index', [$feature, $sub])
+        return redirect()->route('cms.features.profile.index', $feature)
             ->with('success', __('cms.profile.flash.page_updated'));
     }
 
     /**
      * Delete a profile page.
      */
-    public function destroy(Feature $feature, Feature $sub, Profile $page)
+    public function destroy(Feature $feature, Profile $page)
     {
         $this->deletePageResources($page);
         $page->sections()->delete();
-        $this->deleteAndShiftOrder($page, ['feature_id' => $sub->id]);
+        $this->deleteAndShiftOrder($page, ['feature_id' => $feature->id]);
 
-        return redirect()->route('cms.features.profile.index', [$feature, $sub])
+        return redirect()->route('cms.features.profile.index', $feature)
             ->with('success', __('cms.profile.flash.page_deleted'));
     }
 
     /**
      * Store a section for a profile page.
      */
-    public function storeSection(Request $request, Feature $feature, Feature $sub, Profile $page, TranslationService $translationService)
+    public function storeSection(Request $request, Feature $feature, Profile $page, TranslationService $translationService)
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
@@ -359,14 +367,14 @@ class ProfileController extends Controller
             'order' => $validated['order'],
         ]);
 
-        return redirect()->route('cms.features.profile.pages.show', [$feature, $sub, $page])
+        return redirect()->route('cms.features.profile.pages.show', [$feature, $page])
             ->with('success', __('cms.profile.flash.section_added'));
     }
 
     /**
      * Update a section for a profile page.
      */
-    public function updateSection(Request $request, Feature $feature, Feature $sub, Profile $page, ProfileSection $section, TranslationService $translationService)
+    public function updateSection(Request $request, Feature $feature, Profile $page, ProfileSection $section, TranslationService $translationService)
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
@@ -407,14 +415,14 @@ class ProfileController extends Controller
             'order' => $validated['order'],
         ]);
 
-        return redirect()->route('cms.features.profile.pages.show', [$feature, $sub, $page])
+        return redirect()->route('cms.features.profile.pages.show', [$feature, $page])
             ->with('success', __('cms.profile.flash.section_updated'));
     }
 
     /**
      * Delete a section from a profile page.
      */
-    public function destroySection(Feature $feature, Feature $sub, Profile $page, ProfileSection $section)
+    public function destroySection(Feature $feature, Profile $page, ProfileSection $section)
     {
         if ($section->images) {
             foreach ($section->images as $image) {
@@ -423,7 +431,7 @@ class ProfileController extends Controller
         }
         $this->deleteAndShiftOrder($section, ['profile_id' => $section->profile_id]);
 
-        return redirect()->route('cms.features.profile.pages.show', [$feature, $sub, $page])
+        return redirect()->route('cms.features.profile.pages.show', [$feature, $page])
             ->with('success', __('cms.profile.flash.section_deleted'));
     }
 

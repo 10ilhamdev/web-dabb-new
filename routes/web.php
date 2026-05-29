@@ -199,22 +199,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{feature}/profile/submenu/{sub}', [CmsProfileController::class, 'updateSubMenu'])->name('profile.submenu.update');
         Route::delete('/{feature}/profile/submenu/{sub}', [CmsProfileController::class, 'destroySubMenu'])->name('profile.submenu.destroy');
 
-        // Profile pages (FeaturePages under a sub-feature - this is the main profile index)
-        Route::get('/{feature}/profile/{sub}', [CmsProfileController::class, 'index'])->name('profile.index');
-        Route::get('/{feature}/profile/{sub}/create', [CmsProfileController::class, 'create'])->name('profile.pages.create');
-        Route::post('/{feature}/profile/{sub}', [CmsProfileController::class, 'store'])->name('profile.pages.store');
-        Route::get('/{feature}/profile/{sub}/{page}', [CmsProfileController::class, 'show'])->name('profile.pages.show');
-        Route::get('/{feature}/profile/{sub}/{page}/edit', [CmsProfileController::class, 'edit'])->name('profile.pages.edit');
-        Route::put('/{feature}/profile/{sub}/{page}', [CmsProfileController::class, 'update'])->name('profile.pages.update');
-        Route::delete('/{feature}/profile/{sub}/{page}', [CmsProfileController::class, 'destroy'])->name('profile.pages.destroy');
+        // Profile pages — supports standalone profile feature (no sub) and sub-menu mode (Profil → dropdown item)
+        Route::get('/{feature}/profile', [CmsProfileController::class, 'index'])->name('profile.index');
         Route::get('/{feature}/generate-profile-chart', [CmsProfileController::class, 'generateChart'])->name('profile.generate_chart');
         Route::get('/{feature}/profile-data-fields', [CmsProfileController::class, 'getDataFields'])->name('profile.data_fields');
         Route::post('/translate', [CmsProfileController::class, 'translate'])->name('profile.translate');
 
-        // Profile Page Sections
-        Route::post('/{feature}/profile/{sub}/{page}/sections', [CmsProfileController::class, 'storeSection'])->name('profile.sections.store');
-        Route::put('/{feature}/profile/{sub}/{page}/sections/{section}', [CmsProfileController::class, 'updateSection'])->name('profile.sections.update');
-        Route::delete('/{feature}/profile/{sub}/{page}/sections/{section}', [CmsProfileController::class, 'destroySection'])->name('profile.sections.destroy');
+        // Profile Pages CRUD
+        Route::get('/{feature}/profile/pages/create', [CmsProfileController::class, 'create'])->name('profile.pages.create');
+        Route::post('/{feature}/profile/pages', [CmsProfileController::class, 'store'])->name('profile.pages.store');
+        Route::get('/{feature}/profile/{page}', [CmsProfileController::class, 'show'])->name('profile.pages.show');
+        Route::get('/{feature}/profile/{page}/edit', [CmsProfileController::class, 'edit'])->name('profile.pages.edit');
+        Route::put('/{feature}/profile/{page}', [CmsProfileController::class, 'update'])->name('profile.pages.update');
+        Route::delete('/{feature}/profile/{page}', [CmsProfileController::class, 'destroy'])->name('profile.pages.destroy');
+
+        // Profile Page Sections (sub is optional — null for standalone profile feature)
+        Route::post('/{feature}/profile/{page}/sections', [CmsProfileController::class, 'storeSection'])->name('profile.sections.store');
+        Route::put('/{feature}/profile/{page}/sections/{section}', [CmsProfileController::class, 'updateSection'])->name('profile.sections.update');
+        Route::delete('/{feature}/profile/{page}/sections/{section}', [CmsProfileController::class, 'destroySection'])->name('profile.sections.destroy');
 
         // Publication Page (Pengumuman, Berita, Galeri)
         Route::get('/{feature}/publication', [\App\Http\Controllers\Cms\PublicationController::class, 'index'])->name('publication.index');

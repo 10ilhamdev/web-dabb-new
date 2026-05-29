@@ -114,6 +114,10 @@ return [
             'sub_deleted' => 'Sub feature deleted successfully.',
             'visibility_toggled' => 'Feature visibility toggled successfully.',
         ],
+
+        'errors' => [
+            'profile_requires_parent' => 'Profile feature requires a valid parent_id.',
+        ],
     ],
 
     /*

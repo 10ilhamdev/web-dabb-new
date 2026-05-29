@@ -23,6 +23,20 @@ class Feature extends Model
         'is_active',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('navFeatures');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('navFeatures');
+        });
+    }
+
     public function parent()
     {
         return $this->belongsTo(Feature::class, 'parent_id');

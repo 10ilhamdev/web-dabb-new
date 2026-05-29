@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('navbar', function ($view) {
-            $navFeatures = \Illuminate\Support\Facades\Cache::remember('navFeatures', 60, function () {
+            $navFeatures = \Illuminate\Support\Facades\Cache::remember('navFeatures', 600, function () {
                 return Feature::whereNull('parent_id')
                     ->where('is_active', true)
                     ->with(['subfeatures' => function($q) {

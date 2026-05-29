@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Feature;
 use App\Services\TranslationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FeatureController extends Controller
 {
@@ -113,9 +114,7 @@ class FeatureController extends Controller
             }
 
             if ($feature->page_type === 'profile') {
-                // Redirect to profile pages index with both parent feature and sub-feature
-                $parent = Feature::find($feature->parent_id);
-                return redirect()->route('cms.features.profile.index', [$parent, $feature]);
+                return redirect()->route('cms.features.profile.index', $feature);
             }
 
             if ($feature->page_type === 'publication' && !request()->has('from')) {
@@ -148,19 +147,18 @@ class FeatureController extends Controller
             }
         }
 
-        // For dropdown types, check if page_type is onsite and redirect to pages
-        if ($feature->type === 'dropdown' && $feature->page_type === 'onsite') {
-            return redirect()->route('cms.features.pages.index', $feature);
-        }
 
         // For dropdown types with slideshow, redirect to slideshow index (unless ?from=slideshow is set)
         if ($feature->type === 'dropdown' && $feature->page_type === 'slideshow' && !request()->has('from')) {
             return redirect()->route('cms.features.slideshow.index', $feature);
         }
 
-        if ($feature->type === 'dropdown' && $feature->page_type === 'profile') {
-            $parent = Feature::find($feature->parent_id);
-            return redirect()->route('cms.features.profile.index', [$parent, $feature]);
+        if ($feature->type === 'dropdown' && $feature->page_type === 'profile' && $feature->parent_id) {
+            return redirect()->route('cms.features.profile.index', $feature);
+        }
+
+        if ($feature->type === 'dropdown' && $feature->page_type === 'profile' && !$feature->parent_id) {
+            return redirect()->route('cms.features.profile.index', $feature);
         }
 
         if ($feature->type === 'dropdown' && $feature->page_type === 'publication' && !request()->has('from')) {
@@ -182,7 +180,7 @@ class FeatureController extends Controller
         // Sub-features of Profil should redirect to profile management
         $parent = Feature::find($feature->parent_id);
         if ($parent && strtolower($parent->name) === 'profil' && $feature->type === 'link') {
-            return redirect()->route('cms.features.profile.index', [$parent, $feature]);
+            return redirect()->route('cms.features.profile.index', $feature);
         }
 
         $feature->load(['subfeatures' => function ($query) {
@@ -190,7 +188,13 @@ class FeatureController extends Controller
         }, 'parent']);
         $feature->loadCount('pages');
 
-        return view('cms.features.show', compact('feature'));
+        // All dropdown-type features (for "Pindah ke Menu" selector) — excluding the current feature
+        $dropdownFeatures = Feature::where('type', 'dropdown')
+            ->where('id', '!=', $feature->id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id']);
+
+        return view('cms.features.show', compact('feature', 'dropdownFeatures'));
     }
 
     /**
@@ -279,33 +283,41 @@ class FeatureController extends Controller
     public function updateSub(Request $request, Feature $feature, TranslationService $translationService)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:link,dropdown',
-            'order' => 'required|integer|min:0',
-            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'name'          => 'required|string|max:255',
+            'type'          => 'required|in:link,dropdown',
+            'order'         => 'required|integer|min:0',
+            'page_type'     => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'new_parent_id' => 'nullable|exists:features,id',
         ]);
 
         $validated['name_en'] = $translationService->translate($validated['name']);
         $newOrder = (int) $validated['order'];
-        unset($validated['order']); // Remove order from validated data
+        unset($validated['order']);
+
+        // Determine if we are moving to a different parent
+        $newParentId = !empty($validated['new_parent_id']) ? (int) $validated['new_parent_id'] : null;
+        unset($validated['new_parent_id']);
+        $oldParentId = $feature->parent_id;
+        $isMoving = $newParentId !== null && $newParentId !== $oldParentId;
 
         if ($validated['type'] === 'link') {
-            // If page_type is beranda, set unique path based on feature name
+            // Determine effective parent for path construction
+            $effectiveParentId = $isMoving ? $newParentId : $feature->parent_id;
+
             if (isset($validated['page_type']) && $validated['page_type'] === 'beranda') {
                 $slug = \Illuminate\Support\Str::slug($validated['name']);
                 $validated['path'] = '/' . $slug;
             } else {
                 $slug = \Illuminate\Support\Str::slug($validated['name']);
-                if (empty($feature->parent_id)) {
+                if (empty($effectiveParentId)) {
                     $validated['path'] = '/' . $slug;
                 } else {
-                    $parent = Feature::find($feature->parent_id);
+                    $parent = Feature::find($effectiveParentId);
                     $parentPath = $parent->path ?: ('/' . \Illuminate\Support\Str::slug($parent->name));
                     $validated['path'] = rtrim($parentPath, '/') . '/' . $slug;
                 }
             }
 
-            // Set is_virtual_book if type is book
             if (isset($validated['page_type']) && $validated['page_type'] === 'book') {
                 $validated['is_virtual_book'] = true;
             } else {
@@ -315,10 +327,41 @@ class FeatureController extends Controller
             $validated['path'] = null;
         }
 
-        // Update other fields first
-        $feature->update($validated);
+        if ($isMoving) {
+            DB::transaction(function () use ($feature, $oldParentId, $newParentId, $newOrder, $validated) {
+                $oldOrder = (int) $feature->order;
 
-        // Then handle order change
+                // 1. Temporarily set order to a safe negative value to avoid constraint conflicts
+                $feature->update(['order' => -($feature->id)]);
+
+                // 2. Close the gap in old parent (shift down items after old position)
+                Feature::where('parent_id', $oldParentId)
+                    ->where('order', '>', $oldOrder)
+                    ->decrement('order');
+
+                // 3. Make room in new parent (shift up items at or after target position)
+                $maxNewOrder = Feature::where('parent_id', $newParentId)->max('order') ?? 0;
+                $targetOrder = min($newOrder, $maxNewOrder + 1);
+                $targetOrder = max(1, $targetOrder);
+
+                Feature::where('parent_id', $newParentId)
+                    ->where('order', '>=', $targetOrder)
+                    ->orderBy('order', 'desc')
+                    ->increment('order');
+
+                // 4. Update the feature itself — change parent and order, plus other fields
+                $feature->update(array_merge($validated, [
+                    'parent_id' => $newParentId,
+                    'order'     => $targetOrder,
+                ]));
+            });
+
+            return redirect()->route('cms.features.show', $newParentId)
+                ->with('success', __('cms.features.flash.sub_updated'));
+        }
+
+        // No move — just update in place
+        $feature->update($validated);
         $this->swapOrder($feature, $newOrder, (int) $feature->order, ['parent_id' => $feature->parent_id]);
 
         return redirect()->route('cms.features.show', $feature->parent_id)

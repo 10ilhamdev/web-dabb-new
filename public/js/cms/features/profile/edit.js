@@ -193,7 +193,7 @@
     // Plugin to draw total in center of doughnut
     const centerTextPlugin = {
         id: 'centerText',
-        beforeDraw: function(chart) {
+        beforeDraw: function (chart) {
             if (chart.config.type !== 'doughnut') return;
             const width = chart.width,
                 height = chart.height,
@@ -231,7 +231,7 @@
 
         Object.keys(data).forEach(function (key) {
             const chart = data[key];
-            
+
             // Safety check: if field/type info is missing, try to infer from key
             if (!chart.field || !chart.type) {
                 const parts = key.split("-");
@@ -408,9 +408,9 @@
                 // Try different key formats (dash vs underscore)
                 const targetKeyDash = field + "-" + type;
                 const targetKeyUnderscore = field + "_" + type;
-                
+
                 console.log("[CHART DELETE] Keys in data:", Object.keys(data));
-                
+
                 let deleted = false;
                 if (data[targetKeyDash]) {
                     delete data[targetKeyDash];
@@ -429,7 +429,7 @@
                         deleted = true;
                     }
                 }
-                
+
                 if (deleted) {
                     const newDataStr = JSON.stringify(data);
                     input.value = newDataStr;
@@ -437,7 +437,7 @@
                 } else {
                     console.warn("[CHART DELETE] Key not found:", field, type);
                 }
-                
+
                 renderChartPreview(data);
             } catch (e) {
                 console.error("[CHART DELETE] Error:", e);
@@ -1172,11 +1172,11 @@
 
                 // Setup preview triggers
                 setupPreviewTriggers();
-        setupZoomControls();
+                setupZoomControls();
 
             },
 
-            onTypeChange() {},
+            onTypeChange() { },
 
             async handleGambarChange(event) {
                 const files = Array.from(event.target.files);
@@ -1188,9 +1188,9 @@
                     if (file.size > MAX_FILE_SIZE) {
                         oversizedFiles.push(
                             file.name +
-                                " (" +
-                                (file.size / 1024 / 1024).toFixed(2) +
-                                "MB)",
+                            " (" +
+                            (file.size / 1024 / 1024).toFixed(2) +
+                            "MB)",
                         );
                     }
                 }
@@ -1198,7 +1198,7 @@
                 if (oversizedFiles.length > 0) {
                     alert(
                         "File berikut terlalu besar (maksimal 10MB per file):\n\n" +
-                            oversizedFiles.join("\n"),
+                        oversizedFiles.join("\n"),
                     );
                     event.target.value = "";
                     return;
@@ -1252,8 +1252,8 @@
                     const chartUrl =
                         window.chartGenerateUrl ||
                         "/cms/features/" +
-                            window.featureId +
-                            "/generate-profile-chart";
+                        window.featureId +
+                        "/generate-profile-chart";
                     const roles = JSON.stringify(this.selectedRoles);
                     const url =
                         chartUrl +
@@ -1263,7 +1263,7 @@
                         encodeURIComponent(roles);
                     const response = await fetch(url);
                     const data = await response.json();
-                    
+
                     // Add roles info to each chart result for persistence BEFORE stringifying
                     Object.keys(data).forEach(key => {
                         data[key].roles = this.selectedRoles;
@@ -1485,7 +1485,7 @@
                         ) {
                             setRTEContent(editor1, initialDescriptionHtml);
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }, 1500);
 
                 console.log("[RTE] RichTextEditor created successfully");
@@ -1672,7 +1672,7 @@
         const zoomResetBtn = document.getElementById('zoomResetBtn');
 
         if (zoomInBtn) {
-            zoomInBtn.addEventListener('click', function(e) {
+            zoomInBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 if (currentZoom < MAX_ZOOM) {
                     currentZoom = Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
@@ -1682,7 +1682,7 @@
         }
 
         if (zoomOutBtn) {
-            zoomOutBtn.addEventListener('click', function(e) {
+            zoomOutBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 if (currentZoom > MIN_ZOOM) {
                     currentZoom = Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM);
@@ -1692,12 +1692,12 @@
         }
 
         if (zoomResetBtn) {
-            zoomResetBtn.addEventListener('click', function(e) {
+            zoomResetBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 currentZoom = 1;
                 updatePreviewZoom(currentZoom);
             });
         }
     }
-window.profilePageForm = profilePageForm;
+    window.profilePageForm = profilePageForm;
 })();

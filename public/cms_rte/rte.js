@@ -1109,8 +1109,49 @@
             'data-name': item.name,
             html: item.icon,
         });
-        var swatch = el('span', { class: 'rte-tb-color-swatch', style: { background: item.cmd === 'foreColor' ? '#000' : '#ffeb3b' } });
+        var swatch = el('span', { class: 'rte-tb-color-swatch', style: { background: item.cmd === 'foreColor' ? '#000000' : '#ffeb3b' } });
         btn.appendChild(swatch);
+
+        // Helper: get current color from cursor position by walking up the DOM
+        function getCurrentColor() {
+            var node = null;
+            if (self._savedRange && self._savedRange.startContainer) {
+                node = self._savedRange.startContainer;
+            } else {
+                var sel = window.getSelection();
+                node = sel && sel.anchorNode;
+            }
+            if (!node) return null;
+            var el2 = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+            var cur = el2;
+            while (cur && cur !== self.content) {
+                if (cur.style) {
+                    if (item.cmd === 'foreColor' && cur.style.color) {
+                        return cur.style.color;
+                    } else if (item.cmd === 'hiliteColor' && cur.style.backgroundColor) {
+                        return cur.style.backgroundColor;
+                    }
+                }
+                // Also check font tag attributes
+                if (cur.tagName === 'FONT' && cur.getAttribute('color') && item.cmd === 'foreColor') {
+                    return cur.getAttribute('color');
+                }
+                cur = cur.parentNode;
+            }
+            return null;
+        }
+
+        // Normalize rgb(r,g,b) -> #rrggbb hex
+        function rgbToHex(rgb) {
+            if (!rgb) return null;
+            if (rgb.charAt(0) === '#') return rgb;
+            var m = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (!m) return null;
+            return '#' + [m[1], m[2], m[3]].map(function (x) {
+                return ('0' + parseInt(x, 10).toString(16)).slice(-2);
+            }).join('');
+        }
+
         var panel = el('div', { class: 'rte-dropdown-panel rte-color-panel' });
         var grid = el('div', { class: 'rte-color-grid' });
         COLORS.forEach(function (c) {
@@ -1142,6 +1183,7 @@
                 swatch.style.background = input.value;
                 closePanel();
                 self._syncSource();
+                self._updateState();
             },
         });
         var clear = el('button', {
@@ -1149,9 +1191,33 @@
             onclick: function (e) {
                 e.preventDefault();
                 self._focusContent();
-                self.exec(item.cmd === 'foreColor' ? 'foreColor' : 'hiliteColor', 'inherit');
+                if (item.cmd === 'foreColor') {
+                    // Remove text color: use removeFormat for color, then restore other formats if needed
+                    document.execCommand('styleWithCSS', false, true);
+                    document.execCommand('foreColor', false, 'inherit');
+                    // Fallback: walk selected elements and clear color
+                    var sel2 = window.getSelection();
+                    if (sel2 && sel2.rangeCount > 0) {
+                        var range2 = sel2.getRangeAt(0);
+                        var frag = range2.cloneContents();
+                        frag.querySelectorAll('*').forEach(function(n) { if(n.style) n.style.color = ''; });
+                    }
+                    swatch.style.background = '#000000';
+                } else {
+                    document.execCommand('styleWithCSS', false, true);
+                    document.execCommand('hiliteColor', false, 'transparent');
+                    // Fallback: clear background color on selection nodes
+                    var sel3 = window.getSelection();
+                    if (sel3 && sel3.rangeCount > 0) {
+                        var range3 = sel3.getRangeAt(0);
+                        var frag3 = range3.cloneContents();
+                        frag3.querySelectorAll('*').forEach(function(n) { if(n.style) n.style.backgroundColor = ''; });
+                    }
+                    swatch.style.background = 'transparent';
+                }
                 closePanel();
                 self._syncSource();
+                self._updateState();
             },
         });
         customRow.appendChild(input);
@@ -1161,6 +1227,15 @@
 
         var open = false;
         function openPanel() {
+            // Snapshot selection BEFORE panel opens so focus restore works correctly
+            self._snapshotSelection();
+            // Update custom color input to reflect current color at cursor
+            var curColor = getCurrentColor();
+            var hexColor = rgbToHex(curColor);
+            if (hexColor) {
+                input.value = hexColor;
+                swatch.style.background = hexColor;
+            }
             self._dropdowns.forEach(function (d) { d.close(); });
             var rect = btn.getBoundingClientRect();
             panel.style.position = 'fixed';
@@ -1184,7 +1259,18 @@
         });
 
         groupEl.appendChild(btn);
-        this._dropdowns.push({ close: closePanel });
+        // Expose updateSwatch so _updateState can sync swatch to cursor color
+        this._dropdowns.push({ close: closePanel, updateSwatch: function() {
+            var c = getCurrentColor();
+            var hex = rgbToHex(c);
+            if (hex) {
+                swatch.style.background = hex;
+            } else if (item.cmd === 'foreColor') {
+                swatch.style.background = '#000000';
+            } else {
+                swatch.style.background = 'transparent';
+            }
+        }});
     };
 
     RichTextEditor.prototype._buildDragHandle = function (container) {
@@ -1245,13 +1331,18 @@
     RichTextEditor.prototype._setFontSize = function (val) {
         this._focusContent();
         document.execCommand('styleWithCSS', false, true);
-        // Use a dummy font size '7' to wrap the selection, then style it
+        // Use a dummy font size '7' to wrap the selection, then replace all dummy-marked elements
         document.execCommand('fontSize', false, '7');
-        var spans = this.content.querySelectorAll('span, font');
-        spans.forEach(function (el) {
-            if (el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px' || el.getAttribute('size') === '7') {
-                el.removeAttribute('size');
-                el.style.fontSize = val; // e.g. "12pt"
+        // Must query ALL elements — browser may apply the dummy size to any element (a, strong, em, etc.)
+        var allEls = this.content.querySelectorAll('*');
+        allEls.forEach(function (elem) {
+            var fs = elem.style && elem.style.fontSize ? elem.style.fontSize.trim().toLowerCase() : '';
+            var isDummy = (fs === 'xxx-large' || fs === '-webkit-xxx-large' ||
+                fs === '48px' || fs === '36pt' ||
+                (elem.tagName === 'FONT' && elem.getAttribute('size') === '7'));
+            if (isDummy) {
+                elem.removeAttribute('size');
+                elem.style.fontSize = val; // e.g. "12pt"
             }
         });
         this._syncSource();
@@ -1321,22 +1412,32 @@
             });
         } else if (effect === 'small-caps') {
             document.execCommand('fontSize', false, '7');
-            var spans = this.content.querySelectorAll('span, font');
-            spans.forEach(function (el) {
-                if (el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px' || el.getAttribute('size') === '7') {
-                    el.removeAttribute('size');
-                    el.style.fontSize = '';
-                    el.style.fontVariant = el.style.fontVariant === 'small-caps' ? '' : 'small-caps';
+            // Query ALL elements - browser may wrap any tag with the dummy size
+            var allEls = this.content.querySelectorAll('*');
+            allEls.forEach(function (elem) {
+                var fs = elem.style && elem.style.fontSize ? elem.style.fontSize.trim().toLowerCase() : '';
+                var isDummy = (fs === 'xxx-large' || fs === '-webkit-xxx-large' ||
+                    fs === '48px' || fs === '36pt' ||
+                    (elem.tagName === 'FONT' && elem.getAttribute('size') === '7'));
+                if (isDummy) {
+                    elem.removeAttribute('size');
+                    elem.style.fontSize = '';
+                    elem.style.fontVariant = elem.style.fontVariant === 'small-caps' ? '' : 'small-caps';
                 }
             });
         } else if (effect === 'all-caps') {
             document.execCommand('fontSize', false, '7');
-            var spans = this.content.querySelectorAll('span, font');
-            spans.forEach(function (el) {
-                if (el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px' || el.getAttribute('size') === '7') {
-                    el.removeAttribute('size');
-                    el.style.fontSize = '';
-                    el.style.textTransform = el.style.textTransform === 'uppercase' ? '' : 'uppercase';
+            // Query ALL elements - browser may wrap any tag with the dummy size
+            var allEls2 = this.content.querySelectorAll('*');
+            allEls2.forEach(function (elem) {
+                var fs = elem.style && elem.style.fontSize ? elem.style.fontSize.trim().toLowerCase() : '';
+                var isDummy = (fs === 'xxx-large' || fs === '-webkit-xxx-large' ||
+                    fs === '48px' || fs === '36pt' ||
+                    (elem.tagName === 'FONT' && elem.getAttribute('size') === '7'));
+                if (isDummy) {
+                    elem.removeAttribute('size');
+                    elem.style.fontSize = '';
+                    elem.style.textTransform = elem.style.textTransform === 'uppercase' ? '' : 'uppercase';
                 }
             });
         } else if (effect.indexOf('case-') === 0) {
@@ -1382,6 +1483,7 @@
     };
 
     RichTextEditor.prototype.exec = function (cmd, value) {
+        var self = this;
         var activeTable = this._selectedTable;
         if (!activeTable) {
             var sel = window.getSelection();
@@ -1397,52 +1499,125 @@
             }
         }
 
-        if (activeTable && (cmd === 'justifyLeft' || cmd === 'justifyCenter' || cmd === 'justifyRight' || cmd === 'justifyFull')) {
-            // 1. Align table block
-            if (cmd === 'justifyLeft') {
-                activeTable.style.marginLeft = '0';
-                activeTable.style.marginRight = 'auto';
-            } else if (cmd === 'justifyCenter') {
-                activeTable.style.marginLeft = 'auto';
-                activeTable.style.marginRight = 'auto';
-            } else if (cmd === 'justifyRight') {
-                activeTable.style.marginLeft = 'auto';
-                activeTable.style.marginRight = '0';
-            } else if (cmd === 'justifyFull') {
-                activeTable.style.width = '100%';
-                activeTable.style.marginLeft = '0';
-                activeTable.style.marginRight = 'auto';
-            }
+        // ---- Alignment: apply text-align directly to block elements ----
+        // We bypass execCommand for justify because queryCommandState('justifyCenter') etc.
+        // is completely unreliable in Chromium and gives wrong results.
+        if (cmd === 'justifyLeft' || cmd === 'justifyCenter' || cmd === 'justifyRight' || cmd === 'justifyFull') {
+            var textAlignValue = (cmd === 'justifyLeft' ? 'left' :
+                                  cmd === 'justifyCenter' ? 'center' :
+                                  cmd === 'justifyRight' ? 'right' : 'justify');
 
-            // 2. Align cell content text
-            var selectedCells = activeTable.querySelectorAll('.rte-cell-selected');
-            var textAlignValue = (cmd === 'justifyLeft' ? 'left' : (cmd === 'justifyCenter' ? 'center' : (cmd === 'justifyRight' ? 'right' : (cmd === 'justifyFull' ? 'justify' : ''))));
-            if (selectedCells.length > 0) {
-                selectedCells.forEach(function (c) {
-                    c.style.textAlign = textAlignValue;
-                });
-            } else {
-                var sel = window.getSelection();
-                if (sel && sel.rangeCount > 0) {
-                    var node = sel.anchorNode;
-                    while (node && node !== activeTable) {
-                        if (node.tagName === 'TD' || node.tagName === 'TH') {
-                            node.style.textAlign = textAlignValue;
-                            break;
+            if (activeTable) {
+                // Table block alignment
+                if (cmd === 'justifyLeft') {
+                    activeTable.style.marginLeft = '0';
+                    activeTable.style.marginRight = 'auto';
+                } else if (cmd === 'justifyCenter') {
+                    activeTable.style.marginLeft = 'auto';
+                    activeTable.style.marginRight = 'auto';
+                } else if (cmd === 'justifyRight') {
+                    activeTable.style.marginLeft = 'auto';
+                    activeTable.style.marginRight = '0';
+                } else if (cmd === 'justifyFull') {
+                    activeTable.style.width = '100%';
+                    activeTable.style.marginLeft = '0';
+                    activeTable.style.marginRight = 'auto';
+                }
+                // Table cell content alignment
+                var selectedCells = activeTable.querySelectorAll('.rte-cell-selected');
+                if (selectedCells.length > 0) {
+                    selectedCells.forEach(function (c) { c.style.textAlign = textAlignValue; });
+                } else {
+                    var selForCell = window.getSelection();
+                    if (selForCell && selForCell.rangeCount > 0) {
+                        var cellNode = selForCell.anchorNode;
+                        while (cellNode && cellNode !== activeTable) {
+                            if (cellNode.tagName === 'TD' || cellNode.tagName === 'TH') {
+                                cellNode.style.textAlign = textAlignValue;
+                                break;
+                            }
+                            cellNode = cellNode.parentNode;
                         }
-                        node = node.parentNode;
                     }
                 }
+                requestAnimationFrame(function () {
+                    self._updateTableOverlayPosition();
+                    if (self._repositionFloatTableToolbar) {
+                        self._repositionFloatTableToolbar(activeTable);
+                    }
+                });
+            } else {
+                // Normal text alignment: apply text-align directly to all block elements in selection
+                var selAlign = window.getSelection();
+                if (selAlign && selAlign.rangeCount > 0) {
+                    var range = selAlign.getRangeAt(0);
+                    var blockTagsRe = /^(P|DIV|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
+
+                    // Collect all block elements that overlap with the selection
+                    var blocksToAlign = [];
+
+                    // Walk from start to end of the range and gather block ancestors
+                    var startNode = range.startContainer;
+                    var endNode = range.endContainer;
+
+                    // Get all block elements under the common ancestor that contain selection
+                    var ancestor = range.commonAncestorContainer;
+                    if (ancestor.nodeType === Node.TEXT_NODE) ancestor = ancestor.parentNode;
+
+                    if (range.collapsed || startNode === endNode) {
+                        // Collapsed selection or same node: find single block ancestor
+                        var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
+                        while (blk && blk !== self.content) {
+                            if (blk.tagName && blockTagsRe.test(blk.tagName)) { blocksToAlign.push(blk); break; }
+                            blk = blk.parentElement;
+                        }
+                        // If nothing found, apply to the content root directly
+                        if (blocksToAlign.length === 0 && self.content) {
+                            blocksToAlign.push(self.content);
+                        }
+                    } else {
+                        // Multi-block selection: gather all block-level elements inside the ancestor
+                        var walker = document.createTreeWalker(
+                            ancestor,
+                            NodeFilter.SHOW_ELEMENT,
+                            {
+                                acceptNode: function(n) {
+                                    if (blockTagsRe.test(n.tagName) && range.intersectsNode(n)) {
+                                        return NodeFilter.FILTER_ACCEPT;
+                                    }
+                                    return NodeFilter.FILTER_SKIP;
+                                }
+                            },
+                            false
+                        );
+                        var wNode;
+                        while ((wNode = walker.nextNode())) {
+                            blocksToAlign.push(wNode);
+                        }
+                        // Fallback: if ancestor itself is a block element
+                        if (blocksToAlign.length === 0 && ancestor.tagName && blockTagsRe.test(ancestor.tagName)) {
+                            blocksToAlign.push(ancestor);
+                        }
+                        // Final fallback: walk up from start container
+                        if (blocksToAlign.length === 0) {
+                            var blk2 = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
+                            while (blk2 && blk2 !== self.content) {
+                                if (blk2.tagName && blockTagsRe.test(blk2.tagName)) { blocksToAlign.push(blk2); break; }
+                                blk2 = blk2.parentElement;
+                            }
+                        }
+                    }
+
+                    blocksToAlign.forEach(function(b) {
+                        b.style.textAlign = textAlignValue;
+                    });
+                }
             }
 
-            var self = this;
-            requestAnimationFrame(function () {
-                self._updateTableOverlayPosition();
-                if (self._repositionFloatTableToolbar) {
-                    self._repositionFloatTableToolbar(activeTable);
-                }
-            });
             this._syncSource();
+            this._snapshotSelection();
+            this._updateState();
+            return;
         }
 
         try {
@@ -5393,17 +5568,16 @@
         }
         // Push current content to undo history (step-by-step)
         this._historyPush(html);
-    };
+    }; 
 
     RichTextEditor.prototype._updateState = function () {
         var self = this;
-        // Toggle "active" class on toolbar buttons matching queryCommandState
+
+        // --- Non-align buttons: use queryCommandState (reliable for bold/italic/etc.) ---
         var map = {
             bold: 'bold', italic: 'italic', underline: 'underline', strike: 'strikeThrough',
             sub: 'subscript', sup: 'superscript',
             ul: 'insertUnorderedList', ol: 'insertOrderedList',
-            alignleft: 'justifyLeft', aligncenter: 'justifyCenter',
-            alignright: 'justifyRight', alignjustify: 'justifyFull',
         };
         Object.keys(map).forEach(function (key) {
             var btn = self._buttons[key];
@@ -5411,6 +5585,47 @@
             try {
                 btn.classList.toggle('rte-active', document.queryCommandState(map[key]));
             } catch (e) { }
+        });
+
+        // --- Alignment buttons: queryCommandState is UNRELIABLE in Chromium for justify commands.
+        // Read text-align directly from the block element at the cursor instead. ---
+        var alignMap = {
+            alignleft: 'left',
+            aligncenter: 'center',
+            alignright: 'right',
+            alignjustify: 'justify',
+        };
+        // Get the text-align of the current block element at cursor
+        var selA = window.getSelection();
+        var nodeA = selA ? selA.anchorNode : null;
+        var blockEl = nodeA ? (nodeA.nodeType === Node.TEXT_NODE ? nodeA.parentNode : nodeA) : null;
+        var blockTags = /^(P|DIV|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
+        while (blockEl && blockEl !== self.content) {
+            if (blockEl.tagName && blockTags.test(blockEl.tagName)) break;
+            blockEl = blockEl.parentElement;
+        }
+        var curAlign = 'left'; // default
+        if (blockEl && blockEl !== self.content) {
+            // Read computed or inline text-align
+            var inlineAlign = blockEl.style && blockEl.style.textAlign ? blockEl.style.textAlign.toLowerCase() : '';
+            if (inlineAlign) {
+                curAlign = inlineAlign;
+            } else {
+                // Fall back to computed style
+                try {
+                    var computed = window.getComputedStyle(blockEl).textAlign;
+                    if (computed) curAlign = computed.toLowerCase();
+                } catch(e) {}
+            }
+        }
+        // Normalize: 'start' = left, 'end' = right in LTR
+        if (curAlign === 'start') curAlign = 'left';
+        if (curAlign === 'end') curAlign = 'right';
+
+        Object.keys(alignMap).forEach(function (key) {
+            var btn = self._buttons[key];
+            if (!btn) return;
+            btn.classList.toggle('rte-active', curAlign === alignMap[key]);
         });
 
         var sel = window.getSelection();
@@ -5430,11 +5645,12 @@
         var words = text.trim() ? text.trim().split(/\s+/).length : 0;
         var chars = text.length;
         var counts = this.statusbar.querySelector('.rte-status-counts');
-        if (counts) counts.textContent = words + ' words • ' + chars + ' chars';
+        if (counts) counts.textContent = words + ' words \u2022 ' + chars + ' chars';
 
-        // Update all dropdown button labels to reflect cursor position
+        // Update all dropdown button labels AND color swatches to reflect cursor position
         self._dropdowns.forEach(function (d) {
             if (d.updateLabel) d.updateLabel();
+            if (d.updateSwatch) d.updateSwatch();
         });
     };
 

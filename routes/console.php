@@ -4,9 +4,9 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-// Jalankan backup setiap 5 menit
+// Jalankan backup setiap 1 hari
 Schedule::command('db:dump')
-    ->everyFiveMinutes()
+    ->daily()
     ->appendOutputTo(storage_path('logs/scheduler-db-dump.log'));
 
 // Jalankan pengecekan perubahan file setiap 1 menit.
@@ -34,4 +34,3 @@ Schedule::command('log:clear')
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
-

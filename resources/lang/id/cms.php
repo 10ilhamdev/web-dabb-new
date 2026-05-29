@@ -114,6 +114,10 @@ return [
             'sub_deleted' => 'Sub fitur berhasil dihapus.',
             'visibility_toggled' => 'Visibilitas fitur berhasil diubah.',
         ],
+
+        'errors' => [
+            'profile_requires_parent' => 'Fitur Profile harus memiliki parent_id yang valid.',
+        ],
     ],
 
     /*

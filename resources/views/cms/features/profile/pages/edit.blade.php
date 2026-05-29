@@ -164,12 +164,14 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.index') }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
+    @if($feature->parent)
+        <span class="text-gray-300">/</span>
+        <a href="{{ route('cms.features.show', $feature->parent) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
+    @endif
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.show', $feature) }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
-    <span class="text-gray-300">/</span>
-    <a href="{{ route('cms.features.profile.index', [$feature, $sub]) }}"
-        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $sub->name }}</a>
 @endsection
 @section('breadcrumb_active', 'Edit Halaman')
 
@@ -178,7 +180,7 @@
 
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-6">
-            <a href="{{ route('cms.features.profile.index', [$feature, $sub]) }}"
+            <a href="{{ route('cms.features.profile.index', $feature) }}"
                 class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors shadow-sm"
                 style="background-color: #818284;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +197,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {{-- Left Column: Form (2 columns) --}}
             <div class="lg:col-span-2">
-                <form action="{{ route('cms.features.profile.pages.update', [$feature, $sub, $page]) }}" method="POST"
+                <form action="{{ route('cms.features.profile.pages.update', [$feature, $page]) }}" method="POST"
                     enctype="multipart/form-data" id="pageForm" class="space-y-6">
                     @csrf
                     @method('PUT')
@@ -233,11 +235,9 @@
                         <label class="block text-sm font-medium text-gray-700 mb-3">
                             Deskripsi / Konten
                         </label>
-                        <div style="overflow-x: auto; width: 100%;">
-                            <div class="rte-wrapper">
-                                <div id="div_editor1" style="min-width: 100%;">
-                                    {!! old('description', $page->description ?? '') !!}
-                                </div>
+                        <div class="rte-wrapper" style="width: 100%;">
+                            <div id="div_editor1" style="width: 100%;">
+                                {!! old('description', $page->description ?? '') !!}
                             </div>
                         </div>
                         <input type="hidden" name="description" id="description_input">
@@ -417,7 +417,7 @@
 
                     {{-- Actions --}}
                     <div class="flex items-center justify-end gap-3 pb-4">
-                        <a href="{{ route('cms.features.profile.index', [$feature, $sub]) }}"
+                        <a href="{{ route('cms.features.profile.index', $feature) }}"
                             class="px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                             Batal
                         </a>
@@ -589,7 +589,7 @@
                         </svg>
                     </button>
                 </div>
-                <form action="{{ route('cms.features.profile.sections.store', [$feature, $sub, $page]) }}" method="POST"
+                <form action="{{ route('cms.features.profile.sections.store', [$feature, $page]) }}" method="POST"
                     enctype="multipart/form-data" @submit.prevent="submitSectionForm($event, 'add')"
                     class="px-6 py-5 space-y-4">
                     @csrf
@@ -648,7 +648,7 @@
                     </button>
                 </div>
                 <form
-                    :action="`/cms/features/{{ $feature->id }}/profile/{{ $sub->id }}/{{ $page->id }}/sections/${editSectionModal.id}`"
+                    :action="`/cms/features/{{ $feature->id }}/profile/{{ $page->id }}/sections/${editSectionModal.id}`"
                     method="POST" enctype="multipart/form-data" @submit.prevent="submitSectionForm($event, 'edit')"
                     class="px-6 py-5 space-y-4">
                     @csrf
@@ -822,7 +822,7 @@
         window.pageDescription = @json($page->description ?? '');
         window.availableRoles = @json(\App\Models\Role::pluck('label', 'name')->toArray());
         window.sectionDeleteUrl =
-            '{{ route('cms.features.profile.sections.destroy', [$feature, $sub, $page, '__SECTION_ID__']) }}';
+            '{{ route('cms.features.profile.sections.destroy', [$feature, $page, '__SECTION_ID__']) }}';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script

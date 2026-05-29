@@ -159,7 +159,7 @@
     // Plugin to draw total in center of doughnut
     const centerTextPlugin = {
         id: 'centerText',
-        beforeDraw: function(chart) {
+        beforeDraw: function (chart) {
             if (chart.config.type !== 'doughnut') return;
             const width = chart.width,
                 height = chart.height,
@@ -193,7 +193,7 @@
         let html = '<div class="chart-preview-container">';
         Object.keys(data).forEach(key => {
             const chart = data[key];
-            
+
             // Safety: only render if in config
             if (!chart.field || !chart.type) {
                 const parts = key.split("-");
@@ -237,21 +237,21 @@
                             hoverOffset: 8
                         }]
                     },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
                         cutout: '70%',
-                        plugins: { 
-                            legend: { 
-                                position: "bottom", 
-                                labels: { usePointStyle: true, font: { size: 10 }, padding: 12 } 
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+                                labels: { usePointStyle: true, font: { size: 10 }, padding: 12 }
                             },
                             tooltip: {
                                 backgroundColor: 'rgba(15, 23, 42, 0.9)',
                                 padding: 10,
                                 cornerRadius: 6
                             }
-                        } 
+                        }
                     }
                 }));
             } else {
@@ -259,37 +259,37 @@
                     type: "bar",
                     data: {
                         labels: chart.labels,
-                        datasets: [{ 
-                            label: "Jumlah", 
-                            data: chart.data, 
-                            backgroundColor: '#36c5f0', 
+                        datasets: [{
+                            label: "Jumlah",
+                            data: chart.data,
+                            backgroundColor: '#36c5f0',
                             borderRadius: 6,
                             borderSkipped: false,
                             barThickness: 30
                         }]
                     },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: { 
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
                             legend: { display: false },
                             tooltip: {
                                 backgroundColor: 'rgba(15, 23, 42, 0.9)',
                                 padding: 10,
                                 cornerRadius: 6
                             }
-                        }, 
-                        scales: { 
-                            y: { 
-                                beginAtZero: true, 
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
                                 ticks: { stepSize: 1, color: '#94a3b8', font: { size: 9 } },
                                 grid: { color: '#f1f5f9', drawBorder: false }
-                            }, 
-                            x: { 
+                            },
+                            x: {
                                 ticks: { color: '#94a3b8', font: { size: 9 } },
                                 grid: { display: false, drawBorder: false }
-                            } 
-                        } 
+                            }
+                        }
                     }
                 }));
             }
@@ -314,7 +314,7 @@
                 const data = JSON.parse(currentDataRaw);
                 const targetKey = field + "-" + type;
                 console.log("[CHART DELETE] Current keys:", Object.keys(data));
-                
+
                 let deleted = false;
                 if (data[targetKey]) {
                     delete data[targetKey];
@@ -326,7 +326,7 @@
                         deleted = true;
                     }
                 }
-                
+
                 if (deleted) {
                     input.value = JSON.stringify(data);
                     console.log("[CHART DELETE] Deleted successfully. New size:", Object.keys(data).length);
@@ -510,7 +510,7 @@
 
     function profilePageForm() {
         return {
-            pageType: "tugas_fungsi", title: "", linkText: "", linkUrl: "", subtitle: "", isGeneratingChart: false, 
+            pageType: "tugas_fungsi", title: "", linkText: "", linkUrl: "", subtitle: "", isGeneratingChart: false,
             selectedField: "", availableFields: {}, availableRoles: window.availableRoles || {}, selectedRoles: [],
             async init() {
                 try {
@@ -571,7 +571,7 @@
                 try {
                     const roles = JSON.stringify(this.selectedRoles);
                     const url = `${window.chartGenerateUrl}?config=${encodeURIComponent(JSON.stringify(config))}&roles=${encodeURIComponent(roles)}`;
-                    const response = await fetch(url); 
+                    const response = await fetch(url);
                     const data = await response.json();
                     // Add roles info for persistence
                     Object.keys(data).forEach(key => { data[key].roles = this.selectedRoles; });
@@ -663,10 +663,10 @@
                 [{ n: "image_positions[]", v: pos }, { n: "image_widths[]", v: img.width || 200 }, { n: "image_heights[]", v: img.height || 150 }, { n: "image_offset_x[]", v: img.offsetX || 0 }, { n: "image_offset_y[]", v: img.offsetY || 0 }]
                     .forEach(f => { const inp = document.createElement("input"); inp.type = "hidden"; inp.name = f.n; inp.value = f.v; e.target.appendChild(inp); });
             });
-            
+
             // Only disable the original gambar_files input, NOT the dynamically created images[]
             e.target.querySelectorAll('input[type="file"][name="gambar_files"]').forEach(i => i.disabled = true);
-            
+
             // Disable static image_positions_input to avoid double-submit with array inputs
             const staticImgPosInput = document.getElementById("image_positions_input");
             if (staticImgPosInput) staticImgPosInput.disabled = true;

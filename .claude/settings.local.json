@@ -15,7 +15,16 @@
       "Bash(xargs grep -l \"sessions\\\\|session\")",
       "Bash(xargs grep -l \"attempt\\\\|credential\\\\|authenticate\\\\|lockout\\\\|auth\")",
       "Bash(xargs grep -l \"Listen\\\\|Auth::\")",
-      "Bash(xargs grep -l \"email_verified_at\\\\|verified\")"
+      "Bash(xargs grep -l \"email_verified_at\\\\|verified\")",
+      "Bash(xargs grep -l \"page_type\\\\|pageType\")",
+      "Bash(xargs grep -l \"page_type\\\\|onsite\\\\|none\")",
+      "Bash(php -l \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\app\\\\Http\\\\Controllers\\\\FeaturePageController.php\")",
+      "Bash(php -l \"C:\\\\laragon\\\\www\\\\ANRI\\\\web-dabb-new\\\\resources\\\\views\\\\welcome.blade.php\")",
+      "Bash(awk -F: 'NR>=11 && NR<=740 {print NR\": \"$0}')",
+      "Bash(php -l app/Http/Controllers/FeaturePageController.php)",
+      "Bash(php -l app/Providers/AppServiceProvider.php)",
+      "Bash(php -l resources/views/welcome.blade.php)",
+      "Bash(grep -v \"\\\\.php:[ ]*\\\\*\\\\|//\")"
     ]
   }
 }

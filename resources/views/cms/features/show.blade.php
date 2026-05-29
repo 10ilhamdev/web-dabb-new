@@ -116,7 +116,7 @@
                                 </a>
                                 @else
                                 <!-- Detail Sub Button (link → pages management or content editor) -->
-                                <a href="{{ ($sub->pages_count ?? 0) > 0 ? route('cms.features.pages.index', $sub) : route('cms.features.show', $sub) }}"
+                                <a href="{{ $sub->page_type === 'profile' ? route('cms.features.profile.index', $sub) : ($sub->page_type === 'onsite' ? route('cms.features.pages.index', $sub) : route('cms.features.show', $sub)) }}"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs font-semibold rounded-md transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -158,10 +158,11 @@
             </table>
         </div>
     </div>
-
+ 
     @else
     {{-- ===== LINK TYPE: Pages management or content editor ===== --}}
-
+ 
+    @if($feature->page_type !== 'none')
     <!-- Multi-page management card -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 flex items-start justify-between">
@@ -169,7 +170,7 @@
                 <h2 class="text-base font-semibold text-gray-800">{{ __('cms.feature_pages.title', ['name' => $feature->name]) }}</h2>
                 <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.feature_pages.desc', ['name' => $feature->name]) }}</p>
             </div>
-            <a href="{{ route('cms.features.pages.index', $feature) }}"
+            <a href="{{ $feature->page_type === 'profile' ? route('cms.features.profile.index', $feature) : route('cms.features.pages.index', $feature) }}"
                 class="flex items-center gap-2 bg-[#174E93] hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -178,7 +179,8 @@
             </a>
         </div>
     </div>
-
+    @endif
+ 
     <!-- Content editor -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
@@ -186,14 +188,17 @@
             <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.features.content.desc', ['name' => $feature->name]) }}</p>
         </div>
         <div class="p-6">
-            <form action="{{ route('cms.features.update-content', $feature) }}" method="POST" class="space-y-4">
+            <form action="{{ route('cms.features.update-content', $feature) }}" method="POST" class="space-y-4" id="contentForm">
                 @csrf
                 @method('PUT')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.features.content.label') }}</label>
-                    <textarea name="content" rows="16"
-                        class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y"
-                        placeholder="{{ __('cms.features.content.placeholder') }}">{{ old('content', $feature->content) }}</textarea>
+                    <div class="rte-wrapper">
+                        <div id="div_editor1" style="min-width: 100%;">
+                            {!! old('content', $feature->content) !!}
+                        </div>
+                    </div>
+                    <input type="hidden" name="content" id="content_input" />
                     <p class="text-xs text-gray-400 mt-1.5">{{ __('cms.features.content.help') }}</p>
                 </div>
                 <div class="flex items-center justify-end gap-3">
@@ -314,11 +319,15 @@
             <form :action="`/cms/features/${editSubModal.id}/sub`" method="POST" class="px-6 py-5 space-y-4">
                 @csrf
                 @method('PUT')
+
+                {{-- Nama Sub Menu --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.features.sub.form.name') }} <span class="text-red-500">*</span></label>
                     <input type="text" name="name" x-model="editSubModal.name" required
                         class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                 </div>
+
+                {{-- Tipe Menu --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.features.form.type') }} <span class="text-red-500">*</span></label>
                     <select name="type" x-model="editSubModal.type" required
@@ -327,6 +336,8 @@
                         <option value="dropdown">{{ __('cms.features.type_dropdown') }}</option>
                     </select>
                 </div>
+
+                {{-- Tipe Halaman --}}
                 <div x-show="editSubModal.type === 'link'">
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.page_types.label') }}</label>
                     <select name="page_type" x-model="editSubModal.pageType"
@@ -345,11 +356,38 @@
                         <option value="kontak_kami">{{ __('cms.page_types.kontak_kami') }}</option>
                     </select>
                 </div>
+
+                {{-- Urutan --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.features.sub.form.order') }} <span class="text-red-500">*</span></label>
                     <input type="number" name="order" x-model="editSubModal.order" min="0" required
                         class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                 </div>
+
+                {{-- Pindah ke Menu --}}
+                <div class="border-t border-gray-100 pt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <svg class="inline w-4 h-4 mr-1 text-blue-500 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        Pindah ke Menu Lain
+                    </label>
+                    <p class="text-xs text-gray-400 mb-1.5">Kosongkan untuk tetap di menu saat ini (<span class="font-medium text-gray-600">{{ $feature->name }}</span>)</p>
+                    <select name="new_parent_id" x-model="editSubModal.newParentId"
+                        class="w-full px-3.5 py-2.5 border border-blue-200 bg-blue-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <option value="">— Tetap di menu saat ini —</option>
+                        @foreach($dropdownFeatures as $df)
+                            <option value="{{ $df->id }}">
+                                {{ $df->name }}
+                                @if($df->parent_id)
+                                    (sub-menu)
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Buttons --}}
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <button type="button" @click="editSubModal.open = false"
                         class="px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
@@ -438,6 +476,54 @@ $(document).ready(function() {
         }
     });
 });
+</script>
+@else
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var editor1 = new RichTextEditor("#div_editor1", {
+            base_url: '/cms_rte',
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                [{ 'font': [] }, { 'size': [] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image'],
+                ['clean'],
+            ],
+            editorBodyCssClass: 'rte-content-body',
+            file_upload_handler: function(file, callback, errorCallback) {
+                var formData = new FormData();
+                formData.append('file', file);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                fetch('{{ route("cms.settings.rte.upload") }}', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Upload gagal.');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    callback(result.url);
+                })
+                .catch(error => {
+                    console.error('Error saat upload:', error);
+                    alert('Gagal mengunggah file.');
+                    if (errorCallback) errorCallback(error);
+                });
+            }
+        });
+
+        document.getElementById('contentForm').addEventListener('submit', function() {
+            var html = editor1.getHTMLCode();
+            document.getElementById('content_input').value = html;
+        });
+    });
 </script>
 @endif
 @endpush
