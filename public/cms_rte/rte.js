@@ -1549,8 +1549,20 @@
             } else {
                 // Normal text alignment: apply text-align directly to all block elements in selection
                 var selAlign = window.getSelection();
+                var range = null;
                 if (selAlign && selAlign.rangeCount > 0) {
-                    var range = selAlign.getRangeAt(0);
+                    range = selAlign.getRangeAt(0);
+                } else if (self._savedRange) {
+                    range = self._savedRange;
+                }
+                if (!range) {
+                    var r = document.createRange();
+                    r.selectNodeContents(self.content);
+                    r.collapse(true);
+                    range = r;
+                }
+
+                if (range) {
                     var blockTagsRe = /^(P|DIV|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
 
                     // Collect all block elements that overlap with the selection
@@ -1926,23 +1938,53 @@
                     }
                     self._insertHTML(html);
                 }
-            }
+            },
         });
     };
 
-    RichTextEditor.prototype._dialogLink = function () {
+    RichTextEditor.prototype._dialogLink = function (existingBtn) {
         var self = this;
         var sel = window.getSelection();
-        var selectedText = sel && sel.toString() ? sel.toString() : '';
+        
+        // Auto-detect existing link/button if not explicitly passed
+        if (!existingBtn && sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            while (node && node !== this.content) {
+                if (node.tagName === 'A') {
+                    existingBtn = node;
+                    break;
+                }
+                node = node.parentNode;
+            }
+        }
+
+        function rgbToHex(rgb) {
+            if (!rgb) return '#000000';
+            if (rgb.indexOf('#') === 0) return rgb;
+            var match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+            if (!match) return '#000000';
+            function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
+            return "#" + hex(match[1]) + hex(match[2]) + hex(match[3]);
+        }
+
+        var isEdit = !!existingBtn;
+        var selectedText = isEdit ? (existingBtn.textContent || '') : (sel && sel.toString() ? sel.toString() : '');
+        var urlVal = isEdit ? (existingBtn.getAttribute('href') || '') : 'https://';
+        var isNewTab = isEdit ? (existingBtn.getAttribute('target') === '_blank') : true;
+        
+        var isBtn = isEdit ? existingBtn.classList.contains('rte-btn-link') : true;
+        var bgVal = isEdit ? rgbToHex(existingBtn.style.backgroundColor || '#0d6efd') : '#0d6efd';
+        var textcolorVal = isEdit ? rgbToHex(existingBtn.style.color || '#ffffff') : '#ffffff';
+
         var typeSelect = el('select', { class: 'rte-form-input', name: 'linktype' }, [
-            el('option', { value: 'button', text: 'Button (Tombol)', selected: true }),
-            el('option', { value: 'text', text: 'Text (Teks Link)' }),
+            el('option', { value: 'button', text: 'Button (Tombol)', selected: isBtn }),
+            el('option', { value: 'text', text: 'Text (Teks Link)', selected: !isBtn }),
         ]);
-        var colorRow = el('div', { class: 'rte-form-group', style: 'margin-top:10px;' }, [
+        var colorRow = el('div', { class: 'rte-form-group', style: 'margin-top:10px; display: ' + (isBtn ? 'block' : 'none') + ';' }, [
             el('label', { class: 'rte-form-label', text: 'Warna Latar Button' }),
-            el('input', { type: 'color', class: 'rte-form-input', name: 'bgcolor', value: '#0d6efd', style: 'height:38px; padding:2px;' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'bgcolor', value: bgVal, style: 'height:38px; padding:2px;' }),
             el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Warna Teks Button' }),
-            el('input', { type: 'color', class: 'rte-form-input', name: 'textcolor', value: '#ffffff', style: 'height:38px; padding:2px;' }),
+            el('input', { type: 'color', class: 'rte-form-input', name: 'textcolor', value: textcolorVal, style: 'height:38px; padding:2px;' }),
         ]);
         typeSelect.addEventListener('change', function () {
             if (typeSelect.value === 'button') {
@@ -1956,18 +1998,18 @@
             typeSelect,
             colorRow,
             el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'URL' }),
-            el('input', { type: 'url', class: 'rte-form-input', name: 'url', placeholder: 'https://example.com', value: 'https://' }),
+            el('input', { type: 'url', class: 'rte-form-input', name: 'url', placeholder: 'https://example.com', value: urlVal }),
             el('label', { class: 'rte-form-label', text: 'Text to display' }),
             el('input', { type: 'text', class: 'rte-form-input', name: 'text', value: selectedText }),
             el('label', { class: 'rte-form-row' }, [
-                el('input', { type: 'checkbox', name: 'newtab', checked: true }),
+                el('input', { type: 'checkbox', name: 'newtab', checked: isNewTab }),
                 el('span', { text: ' Open in new tab' }),
             ]),
         ]);
         openModal({
             title: 'Insert link',
             body: body,
-            confirmLabel: 'Insert',
+            confirmLabel: isEdit ? 'Save' : 'Insert',
             onConfirm: function () {
                 var url = body.querySelector('[name=url]').value.trim();
                 var text = body.querySelector('[name=text]').value;
@@ -1977,17 +2019,51 @@
                 var textcolor = body.querySelector('[name=textcolor]').value;
                 if (!url) return false;
                 var safeText = text || url;
-                var html;
-                if (linktype === 'button') {
-                    html = '<a href="' + escapeHtml(url) + '" class="rte-btn-link"' +
-                        (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
-                        ' style="display: inline-flex; align-items: center; justify-content: center; background-color: ' + escapeHtml(bgcolor) + '; color: ' + escapeHtml(textcolor) + '; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; margin: 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box;">' + escapeHtml(safeText) + '</a>';
+
+                if (isEdit) {
+                    existingBtn.setAttribute('href', url);
+                    existingBtn.textContent = safeText;
+                    if (linktype === 'button') {
+                        existingBtn.className = 'rte-btn-link';
+                        existingBtn.style.display = 'inline-flex';
+                        existingBtn.style.alignItems = 'center';
+                        existingBtn.style.justifyContent = 'center';
+                        existingBtn.style.backgroundColor = bgcolor;
+                        existingBtn.style.color = textcolor;
+                        existingBtn.style.padding = '10px 24px';
+                        existingBtn.style.borderRadius = '8px';
+                        existingBtn.style.textDecoration = 'none';
+                        existingBtn.style.fontWeight = '600';
+                        existingBtn.style.textAlign = 'center';
+                        existingBtn.style.margin = '8px 0';
+                        existingBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        existingBtn.style.boxSizing = 'border-box';
+                    } else {
+                        existingBtn.className = '';
+                        existingBtn.style.cssText = '';
+                    }
+                    if (newtab) {
+                        existingBtn.setAttribute('target', '_blank');
+                        existingBtn.setAttribute('rel', 'noopener noreferrer');
+                    } else {
+                        existingBtn.removeAttribute('target');
+                        existingBtn.removeAttribute('rel');
+                    }
+                    self._syncSource();
+                    setTimeout(function () { self._updatePopupPositions(); }, 10);
                 } else {
-                    html = '<a href="' + escapeHtml(url) + '"' +
-                        (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
-                        '>' + escapeHtml(safeText) + '</a>';
+                    var html;
+                    if (linktype === 'button') {
+                        html = '<a href="' + escapeHtml(url) + '" class="rte-btn-link"' +
+                            (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                            ' style="display: inline-flex; align-items: center; justify-content: center; background-color: ' + escapeHtml(bgcolor) + '; color: ' + escapeHtml(textcolor) + '; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; margin: 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box;">' + escapeHtml(safeText) + '</a>';
+                    } else {
+                        html = '<a href="' + escapeHtml(url) + '"' +
+                            (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                            '>' + escapeHtml(safeText) + '</a>';
+                    }
+                    self._insertHTML(html);
                 }
-                self._insertHTML(html);
             },
         });
     };
@@ -2201,9 +2277,11 @@
         if (typeof handler === 'function') {
             handler(file, function (url) { self.hideLoading(); try { cb(url); } catch (e) { console.error("Error in upload callback:", e); } }, function (err) { self.hideLoading(); if (errCb) errCb(err); });
         } else {
-            self.hideLoading();
-            alert("Video upload not configured.");
-            if (errCb) errCb();
+            // Fallback: embed as base64 data URL.
+            var reader = new FileReader();
+            reader.onload = function () { self.hideLoading(); try { cb(reader.result); } catch (e) { console.error("Error in upload callback:", e); } };
+            reader.onerror = function (err) { self.hideLoading(); if (errCb) errCb(err); };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -2800,6 +2878,7 @@
             items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi._itemData = item;
                 mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
@@ -2952,8 +3031,9 @@
         ];
         toolbar.appendChild(mkDrop(ICON_STYLE, 'Image Style', styleItems, function (menu) {
             // Refresh active states when menu opens
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
-                mi.classList.toggle('rte-img-tb-menuitem-active', styleItems[i] && styleItems[i].get && !!styleItems[i].get());
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi) {
+                var item = mi._itemData;
+                mi.classList.toggle('rte-img-tb-menuitem-active', item && item.get && !!item.get());
             });
         }));
 
@@ -3212,6 +3292,7 @@
             items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi._itemData = item;
                 mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
@@ -3337,8 +3418,8 @@
             { label: 'Free Canvas Mode', get: function () { var w = getWrapV(); return w.style.position === 'absolute' ? 'active' : ''; }, action: function () { var w = getWrapV(); if (w.style.position === 'absolute') { w.style.position = ''; w.style.left = ''; w.style.top = ''; w.style.zIndex = ''; } else { w.style.position = 'absolute'; w.style.zIndex = '100'; w.style.left = w.offsetLeft + 'px'; w.style.top = w.offsetTop + 'px'; } self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ];
         toolbar.appendChild(mkDrop(ICON_STYLE, 'Video Style', vStyleItems, function (menu) {
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
-                var item = vStyleItems[i];
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi) {
+                var item = mi._itemData;
                 if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
         }));
@@ -3414,6 +3495,7 @@
             items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi._itemData = item;
                 mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
@@ -3535,6 +3617,7 @@
             items.forEach(function (item) {
                 if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
                 var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi._itemData = item;
                 mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
                 menu.appendChild(mi);
             });
@@ -3580,8 +3663,8 @@
             { label: '25% width', get: function () { return btnLink.style.width === '25%'; }, action: function () { btnLink.style.width = '25%'; btnLink.style.height = 'auto'; self._syncSource(); setTimeout(function () { self._updatePopupPositions(); }, 10); } },
         ];
         toolbar.appendChild(mkDrop(ICON_SIZE, 'Set Size', bSizeItems, function (menu) {
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
-                var item = bSizeItems[i];
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi) {
+                var item = mi._itemData;
                 if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
         }));
@@ -3611,13 +3694,20 @@
             { label: 'Float Right', get: function () { return btnLink.style.float === 'right'; }, action: function () { setBJustify('right', '10px', '0', 'inline-flex'); } },
         ];
         toolbar.appendChild(mkDrop(ICON_JUSTIFY, 'Justify', bJustifyItems, function (menu) {
-            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi, i) {
-                var item = bJustifyItems[i];
+            menu.querySelectorAll('.rte-img-tb-menuitem').forEach(function (mi) {
+                var item = mi._itemData;
                 if (item && item.get) mi.classList.toggle('rte-img-tb-menuitem-active', !!item.get());
             });
         }));
 
-        // 3. Delete
+        // 3. Edit Button Details
+        var ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_EDIT, 'Edit Button Details', function () {
+            self._closeButtonPopup();
+            self._dialogLink(btnLink);
+        }));
+
+        // 4. Delete
         var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
         toolbar.appendChild(mkBtn(ICON_DEL, 'Delete Button', function () {
             self._removeMediaResizeHandle();
@@ -5371,13 +5461,14 @@
             // Switch back to WYSIWYG
             this.content.innerHTML = this.sourceArea.value;
             this.sourceArea.style.display = 'none';
-            this.content.style.display = '';
+            this.contentWrap.style.display = '';
             this.wrapper.classList.remove('rte-source-mode');
         } else {
             // Switch to source
             this._syncSource();
-            this.content.style.display = 'none';
-            this.sourceArea.style.display = '';
+            this.sourceArea.value = this.content.innerHTML;
+            this.contentWrap.style.display = 'none';
+            this.sourceArea.style.display = 'block';
             this.wrapper.classList.add('rte-source-mode');
         }
     };
@@ -5595,17 +5686,26 @@
             alignright: 'right',
             alignjustify: 'justify',
         };
-        // Get the text-align of the current block element at cursor
         var selA = window.getSelection();
         var nodeA = selA ? selA.anchorNode : null;
+        if (!nodeA || !self.content.contains(nodeA)) {
+            if (self._savedRange) {
+                nodeA = self._savedRange.startContainer;
+            } else {
+                nodeA = self.content.firstChild || self.content;
+            }
+        }
         var blockEl = nodeA ? (nodeA.nodeType === Node.TEXT_NODE ? nodeA.parentNode : nodeA) : null;
         var blockTags = /^(P|DIV|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
         while (blockEl && blockEl !== self.content) {
             if (blockEl.tagName && blockTags.test(blockEl.tagName)) break;
             blockEl = blockEl.parentElement;
         }
+        if (blockEl === self.content) {
+            blockEl = self.content.querySelector('p, div, h1, h2, h3, h4, h5, h6') || self.content;
+        }
         var curAlign = 'left'; // default
-        if (blockEl && blockEl !== self.content) {
+        if (blockEl) {
             // Read computed or inline text-align
             var inlineAlign = blockEl.style && blockEl.style.textAlign ? blockEl.style.textAlign.toLowerCase() : '';
             if (inlineAlign) {

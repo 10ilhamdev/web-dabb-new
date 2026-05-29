@@ -1,15 +1,15 @@
 @extends('layouts.app')
-
+ 
 @section('breadcrumb_items')
     <span class="text-gray-400">CMS</span>
     <span class="text-gray-300">/</span>
-    <a href="{{ route('cms.features.index') }}" class="text-gray-400 hover:text-gray-600 transition-colors">Manajemen Fitur</a>
+    <a href="{{ route('cms.features.index') }}" class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
 @endsection
 @section('breadcrumb_active', $feature->name)
-
+ 
 @section('content')
 <div class="space-y-6">
-
+ 
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 sm:mb-0">
         <div class="flex-1 min-w-0">
@@ -24,14 +24,14 @@
             {{ __('cms.home.view_page') }}
         </a>
     </div>
-
+ 
     {{-- ===== BAHASA INDONESIA ONLY, ENGLISH TAB REMOVED AS PER USER REQUEST ===== --}}
     <div>
         <form action="{{ route('cms.home.update', $feature->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-0">
             @csrf
             @method('PUT')
             <input type="hidden" name="locale" value="id">
-
+ 
             {{-- Hero Section --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white flex items-center gap-3">
@@ -49,14 +49,14 @@
                     <div class="lg:col-span-2">
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.hero.hero_title') }}</label>
                         <input type="text" name="hero_title" value="{{ $idContent['hero_title'] ?? '' }}"
-                            class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.hero.hero_cta') }}</label>
                         <input type="text" name="hero_cta" value="{{ $idContent['hero_cta'] ?? '' }}"
-                            class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-
+ 
                     {{-- Hero Background (gambar atau video) --}}
                     @php
                         $heroBgPath = $idContent['hero']['background_path'] ?? '';
@@ -68,8 +68,8 @@
                         }
                     @endphp
                     <div class="lg:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Background Hero (Gambar atau Video)</label>
-
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.hero.background_label') }}</label>
+ 
                         @if($heroBgPath)
                             <div class="mb-3 flex items-start gap-3">
                                 <div class="w-48 h-28 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
@@ -78,31 +78,30 @@
                                     @elseif($heroBgType === 'image')
                                         <img src="{{ asset('storage/' . $heroBgPath) }}" alt="Hero Background" class="w-full h-full object-cover">
                                     @else
-                                        <span class="text-xs text-gray-400">Tipe tidak dikenali</span>
+                                        <span class="text-xs text-gray-400">{{ __('cms.home.hero.unknown_type') }}</span>
                                     @endif
                                 </div>
                                 <div class="flex-1">
                                     <p class="text-xs text-gray-500 mb-2">
-                                        <span class="font-semibold">Saat ini:</span>
+                                        <span class="font-semibold">{{ __('cms.home.hero.current') }}</span>
                                         <span class="uppercase">{{ $heroBgType ?: 'Unknown' }}</span>
                                         · <span class="font-mono break-all">{{ $heroBgPath }}</span>
                                     </p>
                                     <label class="inline-flex items-center gap-2 text-xs text-red-600">
                                         <input type="checkbox" name="hero_background_remove" value="1" class="rounded border-gray-300">
-                                        Hapus background (kembali ke video default)
+                                        {{ __('cms.home.hero.remove_background') }}
                                     </label>
                                 </div>
                             </div>
                         @endif
-
+ 
                         <input type="file" name="hero_background_file"
                             accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/ogg,video/quicktime"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                         <p class="text-xs text-gray-400 mt-1">
-                            Unggah <span class="font-semibold">gambar</span> (JPG/PNG/WebP/GIF/AVIF) atau <span class="font-semibold">video</span> (MP4/WebM/OGG/MOV) untuk menggantikan latar hero.
-                            Jika dikosongkan, website akan menggunakan video default (library-books.mp4).
+                            {!! __('cms.home.hero.background_help') !!}
                         </p>
-
+ 
                         {{-- Hidden field agar path lama tidak hilang saat form dikirim tanpa upload baru --}}
                         <input type="hidden" name="hero[background_path]" value="{{ $heroBgPath }}">
                         <input type="hidden" name="hero[background_type]" value="{{ $heroBgType }}">
@@ -269,7 +268,7 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-gray-800">{{ __('cms.home.feature_strip.related_links') }}</h3>
-                        <p class="text-xs text-gray-500">Tautan dengan foto yang dapat diklik</p>
+                        <p class="text-xs text-gray-500">{{ __('cms.home.feature_strip.related_desc') }}</p>
                     </div>
                 </div>
                 <div class="p-6">
@@ -360,7 +359,7 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-gray-800">{{ __('cms.home.section_titles.gallery') }}</h3>
-                        <p class="text-xs text-gray-500">Judul seksi pameran arsip pada halaman beranda</p>
+                        <p class="text-xs text-gray-500">{{ __('cms.home.section_titles.gallery_desc') }}</p>
                     </div>
                 </div>
                 <div class="p-6">
@@ -369,7 +368,7 @@
                         <input type="text" name="sections[gallery]" value="{{ $idContent['sections']['gallery'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-                    <p class="text-xs text-gray-400 mt-2">Konten galeri pameran arsip diambil otomatis dari data pameran virtual.</p>
+                    <p class="text-xs text-gray-400 mt-2">{{ __('cms.home.section_titles.gallery_help') }}</p>
                 </div>
             </div>
 
@@ -405,7 +404,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Gambar Statistik</label>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.stats.image_label') }}</label>
                         @if(!empty($idContent['stats']['image']))
                             <div class="mb-2">
                                 <img src="{{ asset('storage/' . $idContent['stats']['image']) }}" alt="Stats Image" class="h-24 rounded-lg border border-gray-200 object-cover">
@@ -416,7 +415,7 @@
                         <p class="text-xs text-gray-400 mt-1">{{ __('cms.home.info.image_help') }}</p>
                     </div>
                     <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                        <p class="text-xs text-blue-600">Angka statistik pengunjung dihitung otomatis berdasarkan jumlah akses halaman oleh pengunjung.</p>
+                        <p class="text-xs text-blue-600">{{ __('cms.home.stats.help') }}</p>
                     </div>
                 </div>
             </div>
@@ -474,7 +473,7 @@
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
-                            Tambah Video
+                            {{ __('cms.home.youtube.add_video') }}
                         </button>
                     </div>
                     <p class="text-xs text-gray-400 mt-3">{!! __('cms.home.youtube.help') !!}</p>
@@ -487,10 +486,10 @@
                         const newField = document.createElement('div');
                         newField.className = 'youtube-field';
                         newField.innerHTML = `
-                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Video ${fieldCount + 1}</label>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.youtube.video_label', ['number' => '${fieldCount + 1}']) }}</label>
                             <div class="flex gap-2">
                                 <input type="text" name="youtube_ids[]" value=""
-                                    placeholder="Contoh: F2NhNTiNxoY"
+                                    placeholder="{{ __('cms.home.youtube.placeholder') }}"
                                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                             </div>
                         `;
@@ -570,10 +569,10 @@
                         const newField = document.createElement('div');
                         newField.className = 'instagram-field';
                         newField.innerHTML = `
-                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Post ${fieldCount + 1}</label>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.instagram.post_label', ['number' => '${fieldCount + 1}']) }}</label>
                             <div class="flex gap-2">
                                 <input type="text" name="instagram_codes[]" value=""
-                                    placeholder="Contoh: DULJ3gDkkDZ"
+                                    placeholder="{{ __('cms.home.instagram.placeholder') }}"
                                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                             </div>
                         `;

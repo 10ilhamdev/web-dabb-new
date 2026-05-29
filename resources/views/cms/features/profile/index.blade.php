@@ -26,8 +26,8 @@
             </svg>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Daftar Halaman: {{ $feature->name }}</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Kelola halaman profil untuk menu ini</p>
+            <h1 class="text-2xl font-bold text-gray-800">{{ __('cms.profile_pages.title', ['name' => $feature->name]) }}</h1>
+            <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.profile_pages.desc') }}</p>
         </div>
     </div>
 
@@ -36,11 +36,11 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-base font-semibold text-gray-800">Preview Halaman Guest</h2>
-                <p class="text-sm text-gray-500 mt-0.5">Navigasi halaman yang akan ditampilkan di halaman publik</p>
+                <h2 class="text-base font-semibold text-gray-800">{{ __('cms.profile_pages.preview_title') }}</h2>
+                <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.profile_pages.preview_desc') }}</p>
             </div>
             <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 mr-2">Halaman:</span>
+                <span class="text-sm text-gray-500 mr-2">{{ __('cms.profile_pages.page_label') }}</span>
                 @foreach($pages as $index => $page)
                     <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg font-semibold text-sm
                         @if($index === 0) bg-[#174E93] text-white @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif
@@ -51,7 +51,7 @@
             </div>
         </div>
         @if($pages->count() > 1)
-        <p class="text-xs text-gray-400 mt-3">Tombol navigasi akan muncul di halaman publik untuk berpindah antar halaman</p>
+        <p class="text-xs text-gray-400 mt-3">{{ __('cms.profile_pages.nav_help') }}</p>
         @endif
     </div>
     @endif
@@ -60,15 +60,15 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
         <div class="px-6 py-5 border-b border-gray-100 flex items-start justify-between">
             <div>
-                <h2 class="text-base font-semibold text-gray-800">Halaman Profil</h2>
-                <p class="text-sm text-gray-500 mt-0.5">Kelola halaman profil. Section dikelola di halaman Edit.</p>
+                <h2 class="text-base font-semibold text-gray-800">{{ __('cms.profile_pages.card_title') }}</h2>
+                <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.profile_pages.card_desc') }}</p>
             </div>
             <a href="{{ route('cms.features.profile.pages.create', $feature) }}"
                 class="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                Tambah Halaman
+                {{ __('cms.profile_pages.add_button') }}
             </a>
         </div>
 
@@ -76,12 +76,12 @@
             <table id="tableProfilePages" class="w-full text-sm text-left">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide w-12">No</th>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Judul</th>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Tipe</th>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Section</th>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Urutan</th>
-                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Aksi</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide w-12">{{ __('cms.profile_pages.col_no') }}</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ __('cms.profile_pages.col_title') }}</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ __('cms.profile_pages.col_type') }}</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.profile_pages.col_sections') }}</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.profile_pages.col_order') }}</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.profile_pages.col_action') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -92,10 +92,10 @@
                             <td class="px-6 py-4">
                                 @php
                                     $typeLabels = [
-                                        'default' => 'Default',
-                                        'sdm_chart' => 'SDM (Grafik)',
-                                        'struktur_image' => 'Struktur Organisasi',
-                                        'tugas_fungsi' => 'Tugas dan Fungsi',
+                                        'default' => __('cms.profile_pages.type_default'),
+                                        'sdm_chart' => __('cms.profile_pages.type_sdm_chart'),
+                                        'struktur_image' => __('cms.profile_pages.type_struktur_image'),
+                                        'tugas_fungsi' => __('cms.profile_pages.type_tugas_fungsi'),
                                     ];
                                 @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
@@ -104,7 +104,7 @@
                                     @elseif($page->type === 'tugas_fungsi') bg-blue-50 text-blue-600 border border-blue-100
                                     @else bg-gray-100 text-gray-600 border border-gray-200
                                     @endif">
-                                    {{ $typeLabels[$page->type] ?? 'Default' }}
+                                    {{ $typeLabels[$page->type] ?? __('cms.profile_pages.type_default') }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center text-gray-600">{{ $page->sections_count ?? 0 }}</td>
@@ -133,8 +133,8 @@
                                 <div class="flex flex-col items-center gap-3">
                                     <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    <p class="text-gray-400 text-sm">Belum ada halaman. Klik "Tambah Halaman" untuk menambahkan.</p>
+                                      </svg>
+                                    <p class="text-gray-400 text-sm">{{ __('cms.profile_pages.empty') }}</p>
                                 </div>
                             </td>
                         </tr>
@@ -160,16 +160,16 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-semibold text-gray-800">Hapus Halaman?</h3>
+                    <h3 class="text-base font-semibold text-gray-800">{{ __('cms.profile_pages.delete.title') }}</h3>
                     <p class="text-sm text-gray-500 mt-1">
-                        Anda yakin ingin menghapus <strong x-text="deleteModal.name" class="text-gray-700"></strong>?
+                        {!! __('cms.profile_pages.delete.confirm', ['name' => '<strong x-text="deleteModal.name" class="text-gray-700"></strong>']) !!}
                     </p>
                 </div>
                 <div class="flex items-center gap-3 w-full">
                     <button @click="deleteModal.open = false"
-                        class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
+                        class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">{{ __('cms.profile_pages.delete.cancel') }}</button>
                     <button type="button" @click="submitDelete()"
-                        class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">Hapus</button>
+                        class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">{{ __('cms.profile_pages.delete.yes') }}</button>
                 </div>
             </div>
         </div>

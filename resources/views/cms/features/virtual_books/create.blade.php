@@ -163,10 +163,10 @@
                     </div>
 
                     <div class="pt-4 border-t border-gray-200">
-                        <h4 class="text-sm font-semibold text-gray-800 mb-3">File PDF (Opsional)</h4>
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3">{{ __('cms.virtual_books.form.pdf_section') }}</h4>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload PDF</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.virtual_books.form.upload_pdf') }}</label>
                                 <input type="file" name="pdf_path" id="pdfInput" accept="application/pdf"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer">
                                 
@@ -176,65 +176,65 @@
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Menghitung halaman PDF...
+                                        {{ __('cms.virtual_books.pdf_loading') }}
                                     </p>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1.5">Jika diupload, buku akan menggunakan PDF ini sebagai isi flipbook.</p>
+                                <p class="text-xs text-gray-500 mt-1.5">{{ __('cms.virtual_books.form.pdf_desc') }}</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="pt-4 border-t border-gray-200">
-                        <h4 class="text-sm font-semibold text-gray-800 mb-3">Informasi Buku</h4>
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3">{{ __('cms.virtual_books.form.book_info') }}</h4>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Penulis</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.author') }}</label>
                                 <input type="text" name="author" value="{{ old('author') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Dimensi</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.dimensions') }}</label>
                                 <input type="text" name="dimensions" value="{{ old('dimensions') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Halaman</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.total_pages') }}</label>
                                 <input type="text" name="total_pages" id="totalPagesInput" value="{{ old('total_pages') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Berat</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.weight') }}</label>
                                 <input type="text" name="weight" value="{{ old('weight') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Bahasa</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.language') }}</label>
                                 <input type="text" name="language" value="{{ old('language') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Penerbit</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.publisher') }}</label>
                                 <input type="text" name="publisher" value="{{ old('publisher') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tahun Terbit</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.publication_year') }}</label>
                                 <input type="text" name="publication_year" value="{{ old('publication_year') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">ISBN</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.isbn') }}</label>
                                 <input type="text" name="isbn" value="{{ old('isbn') }}"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
                         </div>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Sinopsis</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('cms.virtual_books.form.synopsis') }}</label>
                             <textarea name="synopsis" rows="4"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{{ old('synopsis') }}</textarea>
                         </div>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi (Ditampilkan di Halaman Detail Buku)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.virtual_books.form.description') }}</label>
                             <div class="rte-wrapper" style="overflow-x: auto; width: 100%;">
                                 <div id="div_editor_desc" style="min-width: 100%;">
                                     {!! old('description') !!}
@@ -454,10 +454,10 @@
                     const infoText = info.querySelector('p');
                     infoText.classList.remove('text-blue-600');
                     infoText.classList.add('text-green-600');
-                    infoText.innerHTML = `<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Berhasil mendeteksi ${pdf.numPages} halaman`;
+                    infoText.innerHTML = `<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> {{ __('cms.virtual_books.pdf_success', ['count' => '${pdf.numPages}']) }}`;
                 } catch (err) {
                     console.error('PDF error:', err);
-                    info.querySelector('p').innerText = 'Gagal membaca halaman PDF';
+                    info.querySelector('p').innerText = '{{ __('cms.virtual_books.pdf_failed') }}';
                     info.querySelector('p').classList.add('text-red-600');
                 }
             });
@@ -482,7 +482,7 @@
                         var formData = new FormData();
                         formData.append('file', file);
                         formData.append('_token', '{{ csrf_token() }}');
-
+ 
                         fetch('{{ route("cms.settings.rte.upload") }}', {
                             method: 'POST',
                             body: formData,
@@ -494,7 +494,7 @@
                         .then(result => { callback(result.url); })
                         .catch(error => {
                             console.error('Error saat upload:', error);
-                            alert('Gagal mengunggah file.');
+                            alert('{{ __('cms.virtual_books.upload_failed') }}');
                             if (errorCallback) errorCallback(error);
                         });
                     }

@@ -173,7 +173,7 @@
     <a href="{{ route('cms.features.show', $feature) }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
 @endsection
-@section('breadcrumb_active', 'Edit Halaman')
+@section('breadcrumb_active', __('cms.profile_pages.form.edit_title'))
 
 @section('content')
     <div class="px-4 py-6 max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="profilePageForm()">
@@ -188,7 +188,7 @@
                 </svg>
             </a>
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Edit Halaman</h1>
+                <h1 class="text-2xl font-bold text-gray-800">{{ __('cms.profile_pages.form.edit_title') }}</h1>
                 <p class="text-sm text-gray-500">{{ $page->title }}</p>
             </div>
         </div>
@@ -207,22 +207,20 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                    Tipe Halaman
+                                    {{ __('cms.profile_pages.form.type') }}
                                 </label>
                                 <select name="type" x-model="pageType" @change="onTypeChange()"
                                     class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     <option value="tugas_fungsi" {{ $page->type === 'tugas_fungsi' ? 'selected' : '' }}>
-                                        Tugas dan
-                                        Fungsi</option>
-                                    <option value="sdm_chart" {{ $page->type === 'sdm_chart' ? 'selected' : '' }}>SDM
-                                        (Grafik)
+                                        {{ __('cms.profile_pages.type_tugas_fungsi') }}</option>
+                                    <option value="sdm_chart" {{ $page->type === 'sdm_chart' ? 'selected' : '' }}>{{ __('cms.profile_pages.type_sdm_chart') }}
                                     </option>
                                 </select>
-                                <p class="mt-1 text-xs text-gray-400">Pilih tipe sesuai konten yang akan ditampilkan</p>
+                                <p class="mt-1 text-xs text-gray-400">{{ __('cms.profile_pages.form.type_help') }}</p>
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                    Judul Halaman
+                                    {{ __('cms.profile_pages.form.title') }}
                                 </label>
                                 <input type="text" name="title" x-model="title" value="{{ $page->title }}"
                                     class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -233,7 +231,7 @@
                     {{-- Description (RTE) --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <label class="block text-sm font-medium text-gray-700 mb-3">
-                            Deskripsi / Konten
+                            {{ __('cms.profile_pages.form.description') }}
                         </label>
                         <div class="rte-wrapper" style="width: 100%;">
                             <div id="div_editor1" style="width: 100%;">
@@ -241,7 +239,7 @@
                             </div>
                         </div>
                         <input type="hidden" name="description" id="description_input">
-                        <p class="mt-2 text-xs text-gray-400">Format teks menggunakan Rich Text Editor.</p>
+                        <p class="mt-2 text-xs text-gray-400">{{ __('cms.profile_pages.form.description_help') }}</p>
                     </div>
 
                     {{-- Type-specific fields --}}
@@ -249,19 +247,19 @@
                     {{-- Link fields (Default / Tugas Fungsi) --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
                         x-show="pageType === 'tugas_fungsi'" x-transition>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-4">Pengaturan Tautan</h3>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('cms.profile_pages.form.link_settings') }}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                    Teks Tautan
+                                    {{ __('cms.profile_pages.form.link_text') }}
                                 </label>
                                 <input type="text" name="link_text" x-model="linkText"
-                                    value="{{ $page->link_text ?? '' }}" placeholder="Contoh: Pelajari Lebih Lanjut"
+                                    value="{{ $page->link_text ?? '' }}" placeholder="{{ __('cms.profile_pages.form.link_text_placeholder') }}"
                                     class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                    URL Tautan
+                                    {{ __('cms.profile_pages.form.link_url') }}
                                 </label>
                                 <input type="url" name="link_url" x-model="linkUrl" value="{{ $page->link_url ?? '' }}"
                                     placeholder="https://..."
@@ -273,13 +271,13 @@
                     {{-- Subtitle (SDM) --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6" x-show="pageType === 'sdm_chart'"
                         x-transition>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-4">Sub-judul</h3>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('cms.profile_pages.form.subtitle_section') }}</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Judul Tambahan
+                                {{ __('cms.profile_pages.form.subtitle') }}
                             </label>
                             <input type="text" name="subtitle" x-model="subtitle" value="{{ $page->subtitle ?? '' }}"
-                                placeholder="Contoh: Grafik Jumlah Pegawai Berdasarkan Usia"
+                                placeholder="{{ __('cms.profile_pages.form.subtitle_placeholder') }}"
                                 class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
@@ -289,16 +287,15 @@
                         x-transition>
                         <div class="flex items-center justify-between mb-4">
                             <div>
-                                <h3 class="text-sm font-semibold text-gray-700">Grafik SDM</h3>
-                                <p class="text-xs text-gray-400 mt-0.5">Pilih data dan tipe grafik yang akan ditampilkan
+                                <h3 class="text-sm font-semibold text-gray-700">{{ __('cms.profile_pages.form.chart_title') }}</h3>
+                                <p class="text-xs text-gray-400 mt-0.5">{{ __('cms.profile_pages.form.chart_desc') }}
                                 </p>
                             </div>
                         </div>
 
                         {{-- Role Selection --}}
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Role User yang Akan
-                                Dihitung:</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.profile_pages.form.chart_roles') }}</label>
                             <div class="grid grid-cols-2 gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50/50">
                                 <template x-for="(label, name) in availableRoles" :key="name">
                                     <label class="flex items-center gap-2 cursor-pointer group">
@@ -309,36 +306,33 @@
                                     </label>
                                 </template>
                             </div>
-                            <p class="text-[10px] text-gray-400 mt-1.5 italic">* Kosongkan untuk menyertakan semua role</p>
+                            <p class="text-[10px] text-gray-400 mt-1.5 italic">{{ __('cms.profile_pages.form.chart_roles_help') }}</p>
                         </div>
 
                         {{-- Field Selection --}}
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Data yang Akan
-                                Ditampilkan:</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.profile_pages.form.chart_field') }}</label>
                             <div class="flex gap-3">
                                 <select x-model="selectedField"
                                     class="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                    <option value="">-- Pilih Field Data --</option>
+                                    <option value="">{{ __('cms.profile_pages.form.chart_field_placeholder') }}</option>
                                     <template x-for="(label, field) in availableFields" :key="field">
                                         <option :value="field" x-text="label"></option>
                                     </template>
                                 </select>
                                 <button type="button" @click="addField()" :disabled="!selectedField"
                                     class="px-4 py-2.5 bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors">
-                                    Tambah
+                                    {{ __('cms.profile_pages.form.chart_field_add') }}
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-400 mt-1">Pilih field data untuk menambahkan grafik. Anda dapat
-                                menambahkan
-                                beberapa field.</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ __('cms.profile_pages.form.chart_field_help') }}</p>
                         </div>
 
                         {{-- Chart Config List --}}
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Konfigurasi Grafik:</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cms.profile_pages.form.chart_config') }}</label>
                             <div id="chart-config-list" class="space-y-3">
-                                <p class="text-xs text-gray-400 py-2">Pilih field data di atas untuk menambahkan grafik</p>
+                                <p class="text-xs text-gray-400 py-2">{{ __('cms.profile_pages.form.chart_config_empty') }}</p>
                             </div>
                         </div>
 
@@ -361,14 +355,14 @@
                                     </path>
                                 </svg>
                             </template>
-                            Generate Grafik
+                            {{ __('cms.profile_pages.form.chart_generate') }}
                         </button>
 
                         <input type="hidden" name="chart_data" id="chart_data_input"
                             value="{{ $page->chart_data ? json_encode($page->chart_data) : '' }}">
                         <div id="chart_preview"
                             class="chart-preview-box min-h-[150px] mt-4">
-                            <p class="text-xs text-gray-400 text-center py-8">Pilih field data dan tipe grafik, lalu klik "Generate Grafik"
+                            <p class="text-xs text-gray-400 text-center py-8">{{ __('cms.profile_pages.form.chart_preview_empty') }}
                             </p>
                         </div>
                     </div>
@@ -377,9 +371,8 @@
 
                     {{-- Images (Gambar) --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Gambar Pendukung</h3>
-                        <p class="text-xs text-gray-400 mb-3">Drag untuk ubah posisi focal point atau klik Posisi untuk
-                            preset. Max 10MB per file.
+                        <h3 class="text-sm font-semibold text-gray-700 mb-1">{{ __('cms.profile_pages.form.images_title') }}</h3>
+                        <p class="text-xs text-gray-400 mb-3">{{ __('cms.profile_pages.form.images_help') }}
                         </p>
 
                         <div id="existing_images_container"></div>
@@ -401,7 +394,7 @@
                                         d="M12 4v16m8-8H4">
                                     </path>
                                 </svg>
-                                <span class="text-xs font-medium text-gray-600">Klik atau drag untuk upload gambar</span>
+                                <span class="text-xs font-medium text-gray-600">{{ __('cms.profile_pages.form.images_upload_placeholder') }}</span>
                             </div>
                         </div>
                     </div>
@@ -409,7 +402,7 @@
                     {{-- Order --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Urutan <span class="text-red-500">*</span>
+                            {{ __('cms.profile_pages.form.order') }} <span class="text-red-500">*</span>
                         </label>
                         <input type="number" name="order" min="0" value="{{ $page->order }}" required
                             class="w-32 px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -419,11 +412,11 @@
                     <div class="flex items-center justify-end gap-3 pb-4">
                         <a href="{{ route('cms.features.profile.index', $feature) }}"
                             class="px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                            Batal
+                            {{ __('cms.profile_pages.form.cancel') }}
                         </a>
                         <button type="submit" id="submitBtn"
                             class="px-5 py-2.5 text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors">
-                            Simpan
+                            {{ __('cms.profile_pages.form.save') }}
                         </button>
                     </div>
 
@@ -441,7 +434,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            Preview Halaman
+                            {{ __('cms.profile_pages.form.preview_header') }}
                         </h3>
                         <p class="text-xs text-gray-500 mb-3 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -449,7 +442,7 @@
                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
                                     clip-rule="evenodd" />
                             </svg>
-                            Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point
+                            {{ __('cms.profile_pages.form.preview_help') }}
                         </p>
                         <!-- Zoom Controls -->
                         <div class="flex items-center gap-2 mb-3">
@@ -477,7 +470,7 @@
                             </div>
                         </div>
 
-                        <p class="text-xs text-gray-400 mt-3 italic">Preview otomatis terupdate saat Anda mengedit</p>
+                        <p class="text-xs text-gray-400 mt-3 italic">{{ __('cms.profile_pages.form.preview_auto_update') }}</p>
                     </div>
                 </div>
             </div>
@@ -487,15 +480,15 @@
         <div class="mt-8">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-800">Section Halaman</h2>
-                    <p class="text-sm text-gray-500 mt-0.5">Kelola sub-konten atau section untuk halaman ini</p>
+                    <h2 class="text-lg font-bold text-gray-800">{{ __('cms.profile_pages.sections.title') }}</h2>
+                    <p class="text-sm text-gray-500 mt-0.5">{{ __('cms.profile_pages.sections.desc') }}</p>
                 </div>
                 <button type="button" @click="openAddSection()"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Tambah Section
+                    {{ __('cms.profile_pages.sections.add_button') }}
                 </button>
             </div>
 
@@ -510,7 +503,7 @@
                                         <span
                                             class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">{{ $index + 1 }}</span>
                                         <h3 class="text-sm font-semibold text-gray-800">{{ $section->title }}</h3>
-                                        <span class="text-xs text-gray-400">Urutan: {{ $section->order }}</span>
+                                        <span class="text-xs text-gray-400">{{ __('cms.profile_pages.sections.form_order') }}: {{ $section->order }}</span>
                                     </div>
                                     @if ($section->description)
                                         <p class="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -559,8 +552,7 @@
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                 </path>
                             </svg>
-                            <p class="text-gray-400 text-sm mt-3">Belum ada section. Klik "Tambah Section" untuk
-                                menambahkan.</p>
+                            <p class="text-gray-400 text-sm mt-3">{{ __('cms.profile_pages.sections.empty') }}</p>
                         </div>
                     @endforelse
                 </div>
@@ -580,7 +572,7 @@
                 x-transition:enter-end="opacity-100 scale-100">
                 <div
                     class="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
-                    <h3 class="text-base font-semibold text-gray-800">Tambah Section</h3>
+                    <h3 class="text-base font-semibold text-gray-800">{{ __('cms.profile_pages.sections.add_title') }}</h3>
                     <button @click="sectionModal.open = false"
                         class="text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -595,21 +587,21 @@
                     @csrf
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Judul Section <span class="text-red-500">*</span>
+                            {{ __('cms.profile_pages.sections.form_title') }} <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="title" required placeholder="Contoh: Tugas Pokok"
+                        <input type="text" name="title" required placeholder="{{ __('cms.profile_pages.sections.form_title_placeholder') }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Deskripsi
+                            {{ __('cms.profile_pages.sections.form_desc') }}
                         </label>
-                        <textarea name="description" rows="4" placeholder="Deskripsi section..."
+                        <textarea name="description" rows="4" placeholder="{{ __('cms.profile_pages.sections.form_desc_placeholder') }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Urutan <span class="text-red-500">*</span>
+                            {{ __('cms.profile_pages.sections.form_order') }} <span class="text-red-500">*</span>
                         </label>
                         <input type="number" name="order" min="0"
                             value="{{ ($page->sections->count() ?? 0) + 1 }}" required
@@ -617,9 +609,9 @@
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
                         <button type="button" @click="sectionModal.open = false"
-                            class="px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
+                            class="px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">{{ __('cms.profile_pages.form.cancel') }}</button>
                         <button type="submit"
-                            class="px-4 py-2.5 text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors">Simpan</button>
+                            class="px-4 py-2.5 text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors">{{ __('cms.profile_pages.form.save') }}</button>
                     </div>
                 </form>
             </div>
@@ -638,7 +630,7 @@
                 x-transition:enter-end="opacity-100 scale-100">
                 <div
                     class="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
-                    <h3 class="text-base font-semibold text-gray-800">Edit Section</h3>
+                    <h3 class="text-base font-semibold text-gray-800">{{ __('cms.profile_pages.sections.edit_title') }}</h3>
                     <button @click="editSectionModal.open = false"
                         class="text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -655,30 +647,30 @@
                     @method('PUT')
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Judul Section <span class="text-red-500">*</span>
+                            {{ __('cms.profile_pages.sections.form_title') }} <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="title" x-model="editSectionModal.title" required
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Deskripsi
+                            {{ __('cms.profile_pages.sections.form_desc') }}
                         </label>
                         <textarea name="description" rows="4" x-model="editSectionModal.description"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Urutan <span class="text-red-500">*</span>
+                            {{ __('cms.profile_pages.sections.form_order') }} <span class="text-red-500">*</span>
                         </label>
                         <input type="number" name="order" x-model="editSectionModal.order" min="0" required
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
                         <button type="button" @click="editSectionModal.open = false"
-                            class="px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
+                            class="px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">{{ __('cms.profile_pages.form.cancel') }}</button>
                         <button type="submit"
-                            class="px-4 py-2.5 text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors">Simpan</button>
+                            class="px-4 py-2.5 text-sm font-semibold text-white bg-[#174E93] hover:bg-blue-800 rounded-lg transition-colors">{{ __('cms.profile_pages.form.save') }}</button>
                     </div>
                 </form>
             </div>
@@ -704,17 +696,16 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-semibold text-gray-800">Hapus Section?</h3>
+                        <h3 class="text-base font-semibold text-gray-800">{{ __('cms.profile_pages.sections.delete.title') }}</h3>
                         <p class="text-sm text-gray-500 mt-1">
-                            Anda yakin ingin menghapus <strong x-text="deleteSectionModal.name"
-                                class="text-gray-700"></strong>?
+                            {!! __('cms.profile_pages.sections.delete.confirm', ['name' => '<strong x-text="deleteSectionModal.name" class="text-gray-700"></strong>']) !!}
                         </p>
                     </div>
                     <div class="flex items-center gap-3 w-full">
                         <button @click="deleteSectionModal.open = false"
-                            class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
+                            class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">{{ __('cms.profile_pages.sections.delete.cancel') }}</button>
                         <button type="button" @click="submitDeleteSection()"
-                            class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">Hapus</button>
+                            class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">{{ __('cms.profile_pages.sections.delete.yes') }}</button>
                     </div>
                 </div>
             </div>

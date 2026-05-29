@@ -370,18 +370,18 @@
                         <svg class="inline w-4 h-4 mr-1 text-blue-500 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                         </svg>
-                        Pindah ke Menu Lain
+                        {{ __('cms.features.sub.form.move_title') }}
                     </label>
-                    <p class="text-xs text-gray-400 mb-1.5">Kosongkan untuk tetap di menu saat ini (<span class="font-medium text-gray-600">{{ $feature->name }}</span>)</p>
+                    <p class="text-xs text-gray-400 mb-1.5">{!! __('cms.features.sub.form.move_help', ['name' => '<span class="font-medium text-gray-600">' . e($feature->name) . '</span>']) !!}</p>
                     <select name="new_parent_id" x-model="editSubModal.newParentId"
                         class="w-full px-3.5 py-2.5 border border-blue-200 bg-blue-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                        <option value="">— Tetap di menu saat ini —</option>
-                        <option value="top_level">Jadikan Menu Utama (Top Level)</option>
+                        <option value="">{{ __('cms.features.sub.form.move_keep') }}</option>
+                        <option value="top_level">{{ __('cms.features.sub.form.move_top') }}</option>
                         @foreach($dropdownFeatures as $df)
                             <option value="{{ $df->id }}">
                                 {{ $df->name }}
                                 @if($df->parent_id)
-                                    (sub-menu)
+                                    {{ __('cms.features.sub.form.badge_sub') }}
                                 @endif
                             </option>
                         @endforeach

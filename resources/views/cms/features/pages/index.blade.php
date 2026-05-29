@@ -90,7 +90,7 @@
                                             @method('PATCH')
                                             <button type="submit"
                                                 class="inline-flex items-center justify-center w-8 h-8 {{ $page->is_active ? 'bg-gray-500 hover:bg-gray-600' : 'bg-gray-400 hover:bg-gray-500' }} text-white rounded-md transition-colors"
-                                                title="{{ $page->is_active ? 'Sembunyikan' : 'Tampilkan' }}">
+                                                title="{{ $page->is_active ? __('cms.common.hide') : __('cms.common.show') }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     @if($page->is_active)
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

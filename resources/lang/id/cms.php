@@ -54,6 +54,9 @@ return [
             'path_placeholder' => 'Contoh: /beranda',
             'order' => 'Urutan',
             'name_placeholder' => 'Contoh: Beranda',
+            'move_title' => 'Pindah ke Menu Lain',
+            'move_help' => 'Pilih menu lain untuk memindahkan fitur ini ke dalam sub-menu',
+            'move_keep' => '— Tetap di Menu Utama —',
         ],
 
         // Detail page (features/show)
@@ -91,6 +94,11 @@ return [
                 'path_placeholder' => 'Contoh: /profil/sejarah',
                 'name_placeholder' => 'Contoh: Sejarah',
                 'order' => 'Urutan',
+                'move_title' => 'Pindah ke Menu Lain',
+                'move_help' => 'Kosongkan untuk tetap di menu saat ini (:name)',
+                'move_keep' => '— Tetap di menu saat ini —',
+                'move_top' => 'Jadikan Menu Utama (Top Level)',
+                'badge_sub' => '(sub-menu)',
             ],
         ],
 
@@ -172,6 +180,7 @@ return [
             'images_help' => 'Upload gambar JPG/PNG/WebP, maks 2MB per file',
             'existing_images' => 'Gambar Saat Ini',
             'order' => 'Urutan',
+            'add_new_image' => 'Tambah Gambar Baru',
         ],
 
         'delete_section' => [
@@ -179,6 +188,7 @@ return [
             'confirm' => 'Apakah Anda yakin ingin menghapus seksi :name?',
             'yes' => 'Ya, Hapus',
         ],
+        'sections_empty' => 'Belum ada seksi. Klik "+ Tambah Seksi" untuk menambahkan.',
 
         'flash' => [
             'page_added' => 'Halaman berhasil ditambahkan.',
@@ -198,6 +208,102 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CMS — Halaman Profil (profile_pages)
+    |--------------------------------------------------------------------------
+    */
+
+    'profile_pages' => [
+        'title' => 'Daftar Halaman: :name',
+        'desc' => 'Kelola halaman profil untuk menu ini',
+        'preview_title' => 'Preview Halaman Guest',
+        'preview_desc' => 'Navigasi halaman yang akan ditampilkan di halaman publik',
+        'page_label' => 'Halaman:',
+        'nav_help' => 'Tombol navigasi akan muncul di halaman publik untuk berpindah antar halaman',
+        'card_title' => 'Halaman Profil',
+        'card_desc' => 'Kelola halaman profil. Section dikelola di halaman Edit.',
+        'add_button' => 'Tambah Halaman',
+        'col_no' => 'No',
+        'col_title' => 'Judul',
+        'col_type' => 'Tipe',
+        'col_sections' => 'Section',
+        'col_order' => 'Urutan',
+        'col_action' => 'Aksi',
+        'empty' => 'Belum ada halaman. Klik "Tambah Halaman" untuk menambahkan.',
+        'type_default' => 'Default',
+        'type_sdm_chart' => 'SDM (Grafik)',
+        'type_struktur_image' => 'Struktur Organisasi',
+        'type_tugas_fungsi' => 'Tugas dan Fungsi',
+        'delete' => [
+            'title' => 'Hapus Halaman?',
+            'confirm' => 'Anda yakin ingin menghapus :name?',
+            'cancel' => 'Batal',
+            'yes' => 'Hapus',
+        ],
+        'form' => [
+            'add_title' => 'Tambah Halaman',
+            'edit_title' => 'Edit Halaman',
+            'type' => 'Tipe Halaman',
+            'type_help' => 'Pilih tipe sesuai konten yang akan ditampilkan',
+            'title' => 'Judul Halaman',
+            'title_placeholder' => 'Contoh: Tugas Pokok dan Fungsi',
+            'description' => 'Deskripsi / Konten',
+            'description_help' => 'Format teks menggunakan Rich Text Editor.',
+            'link_settings' => 'Pengaturan Tautan',
+            'link_text' => 'Teks Tautan',
+            'link_text_placeholder' => 'Contoh: Pelajari Lebih Lanjut',
+            'link_url' => 'URL Tautan',
+            'subtitle_section' => 'Sub-judul',
+            'subtitle' => 'Judul Tambahan',
+            'subtitle_placeholder' => 'Contoh: Grafik Jumlah Pegawai Berdasarkan Usia',
+            'subtitle_help' => 'Sub-judul yang akan ditampilkan di bawah judul utama',
+            'chart_title' => 'Grafik SDM',
+            'chart_desc' => 'Pilih data dan tipe grafik yang akan ditampilkan',
+            'chart_roles' => 'Pilih Role User yang Akan Dihitung:',
+            'chart_roles_help' => '* Kosongkan untuk menyertakan semua role',
+            'chart_field' => 'Pilih Data yang Akan Ditampilkan:',
+            'chart_field_placeholder' => '-- Pilih Field Data --',
+            'chart_field_add' => 'Tambah',
+            'chart_field_help' => 'Pilih field data untuk menambahkan grafik. Anda dapat menambahkan beberapa field.',
+            'chart_config' => 'Konfigurasi Grafik:',
+            'chart_config_empty' => 'Pilih field data di atas untuk menambahkan grafik',
+            'chart_generate' => 'Generate Grafik',
+            'chart_preview_empty' => 'Pilih field data dan tipe grafik, lalu klik "Generate Grafik"',
+            'images_title' => 'Gambar Pendukung',
+            'images_help' => 'Drag untuk ubah posisi focal point atau klik Posisi untuk preset. Max 10MB per file.',
+            'images_upload_placeholder' => 'Klik atau drag untuk upload gambar',
+            'order' => 'Urutan',
+            'order_help' => 'Halaman dengan urutan lebih kecil akan ditampilkan lebih dulu',
+            'cancel' => 'Batal',
+            'save' => 'Simpan',
+            'preview_header' => 'Preview Halaman',
+            'preview_help' => 'Anda bisa drag gambar untuk mengubah posisinya atau ubah focal point',
+            'preview_auto_update' => 'Preview otomatis terupdate saat Anda mengedit',
+            'section_info_title' => 'Kelola Section Setelah Disimpan',
+            'section_info_desc' => 'Setelah halaman disimpan, Anda dapat mengelola section (sub-konten) melalui halaman Edit.',
+        ],
+        'sections' => [
+            'title' => 'Section Halaman',
+            'desc' => 'Kelola sub-konten atau section untuk halaman ini',
+            'add_button' => 'Tambah Section',
+            'empty' => 'Belum ada section. Klik "Tambah Section" untuk menambahkan.',
+            'add_title' => 'Tambah Section',
+            'edit_title' => 'Edit Section',
+            'form_title' => 'Judul Section',
+            'form_title_placeholder' => 'Contoh: Tugas Pokok',
+            'form_desc' => 'Deskripsi',
+            'form_desc_placeholder' => 'Deskripsi section...',
+            'form_order' => 'Urutan',
+            'delete' => [
+                'title' => 'Hapus Section?',
+                'confirm' => 'Anda yakin ingin menghapus :name?',
+                'cancel' => 'Batal',
+                'yes' => 'Hapus',
+            ]
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | CMS — Editor Beranda (home/edit)
     |--------------------------------------------------------------------------
     */
@@ -212,6 +318,11 @@ return [
             'desc' => 'Teks utama dan tombol CTA di bagian atas halaman',
             'hero_title' => 'Judul Hero',
             'hero_cta' => 'Teks Tombol CTA',
+            'background_label' => 'Background Hero (Gambar atau Video)',
+            'unknown_type' => 'Tipe tidak dikenali',
+            'current' => 'Saat ini:',
+            'remove_background' => 'Hapus background (kembali ke video default)',
+            'background_help' => 'Unggah <span class="font-semibold">gambar</span> (JPG/PNG/WebP/GIF/AVIF) atau <span class="font-semibold">video</span> (MP4/WebM/OGG/MOV) untuk menggantikan latar hero. Jika dikosongkan, website akan menggunakan video default (library-books.mp4).',
         ],
 
         'feature_strip' => [
@@ -224,6 +335,7 @@ return [
             'right_button_link' => 'Link Tombol Kanan',
             'right_text' => 'Teks Kanan',
             'related_links' => 'Tautan Terkait',
+            'related_desc' => 'Tautan dengan foto yang dapat diklik',
             'related_title' => 'Judul',
             'related_photo' => 'Foto',
             'related_link' => 'Tautan',
@@ -252,6 +364,8 @@ return [
             'desc' => 'Judul untuk seksi Galeri, Statistik, YouTube, Instagram, dll.',
             'related' => 'Judul Seksi',
             'gallery' => 'Pameran Arsip (Galeri)',
+            'gallery_desc' => 'Judul seksi pameran arsip pada halaman beranda',
+            'gallery_help' => 'Konten galeri pameran arsip diambil otomatis dari data pameran virtual.',
             'stats' => 'Judul Seksi',
             'youtube' => 'Judul Seksi',
             'instagram' => 'Judul Seksi',
@@ -262,6 +376,8 @@ return [
             'desc' => 'Label teks untuk counter statistik pengunjung',
             'total' => 'Label Total Pengunjung',
             'today' => 'Label Pengunjung Hari Ini',
+            'image_label' => 'Gambar Statistik',
+            'help' => 'Angka statistik pengunjung dihitung otomatis berdasarkan jumlah akses halaman oleh pengunjung.',
         ],
 
         'youtube' => [
@@ -270,6 +386,7 @@ return [
             'video_label' => 'Video :number',
             'placeholder' => 'ID YouTube',
             'help' => 'Salin ID dari URL YouTube: youtube.com/watch?v=<strong>ID_DI_SINI</strong>',
+            'add_video' => 'Tambah Video',
         ],
 
         'instagram' => [
@@ -586,6 +703,20 @@ return [
             'generate_help' => 'Atau upload manual. Generate akan membuat thumbnail dari preview buku.',
             'order' => 'Urutan',
             'order_help' => 'Urutan tampilan buku dalam fitur',
+            'pdf_section' => 'File PDF (Opsional)',
+            'upload_pdf' => 'Upload PDF',
+            'pdf_desc' => 'Jika diupload, buku akan menggunakan PDF ini sebagai isi flipbook.',
+            'book_info' => 'Informasi Buku',
+            'author' => 'Penulis',
+            'dimensions' => 'Dimensi',
+            'total_pages' => 'Jumlah Halaman',
+            'weight' => 'Berat',
+            'language' => 'Bahasa',
+            'publisher' => 'Penerbit',
+            'publication_year' => 'Tahun Terbit',
+            'isbn' => 'ISBN',
+            'synopsis' => 'Sinopsis',
+            'description' => 'Deskripsi (Ditampilkan di Halaman Detail Buku)',
         ],
 
         // Preview
@@ -612,6 +743,11 @@ return [
         'btn_save_changes' => 'Simpan Perubahan',
 
         // JS messages
+        'pdf_loading' => 'Menghitung halaman PDF...',
+        'pdf_success' => 'Berhasil mendeteksi :count halaman',
+        'pdf_failed' => 'Gagal membaca halaman PDF',
+        'upload_failed' => 'Gagal mengunggah file.',
+        'pdf_info' => 'Buku ini menggunakan file PDF. Halaman manual di bawah akan diabaikan pada tampilan pameran.',
     ],
 
     /*
@@ -755,6 +891,11 @@ return [
         'back' => 'Kembali',
         'required' => '*',
         'saved_successfully' => 'Pengaturan berhasil disimpan.',
+        'download' => 'Unduh',
+        'zoom' => 'Perbesar',
+        'hide' => 'Sembunyikan',
+        'show' => 'Tampilkan',
+        'delete' => 'Hapus',
     ],
 
     /*
@@ -1394,6 +1535,9 @@ return [
         'label_gallery' => 'Media Galeri (Foto/Video)',
         'hint_gallery' => 'Klik atau drag media ke sini',
         'hint_gallery_sub' => 'Mendukung format gambar dan video',
+        'gallery_info_create' => 'Halaman Galeri akan secara otomatis mengumpulkan seluruh media gambar dan video dari sistem. Media yang Anda tambahkan di bawah ini akan muncul sebagai prioritas di urutan awal.',
+        'gallery_info_edit' => 'Halaman Galeri akan secara otomatis mengumpulkan seluruh media gambar dan video dari sistem. Media yang Anda tambahkan/simpan di bawah ini akan muncul sebagai prioritas di urutan awal.',
+        'delete_media' => 'Hapus Media',
         'label_pdf' => 'File Dokumen (PDF)',
         'hint_pdf' => 'Format PDF maks 5MB',
         'hint_pdf_edit' => 'Unggah untuk mengganti file lama',

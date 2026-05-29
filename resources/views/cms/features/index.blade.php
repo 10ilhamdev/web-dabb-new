@@ -197,17 +197,17 @@
                         <svg class="inline w-4 h-4 mr-1 text-blue-500 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                         </svg>
-                        Pindah ke Menu Lain
+                        {{ __('cms.features.form.move_title') }}
                     </label>
-                    <p class="text-xs text-gray-400 mb-1.5">Pilih menu lain untuk memindahkan fitur ini ke dalam sub-menu</p>
+                    <p class="text-xs text-gray-400 mb-1.5">{{ __('cms.features.form.move_help') }}</p>
                     <select name="new_parent_id" x-model="editModal.newParentId"
                         class="w-full px-3.5 py-2.5 border border-blue-200 bg-blue-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                        <option value="">— Tetap di Menu Utama —</option>
+                        <option value="">{{ __('cms.features.form.move_keep') }}</option>
                         @foreach($dropdownFeatures as $df)
                             <option value="{{ $df->id }}" :disabled="editModal.id == {{ $df->id }}">
                                 {{ $df->name }}
                                 @if($df->parent_id)
-                                    (sub-menu)
+                                    {{ __('cms.features.sub.form.badge_sub') }}
                                 @endif
                             </option>
                         @endforeach

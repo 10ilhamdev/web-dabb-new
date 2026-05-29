@@ -72,7 +72,7 @@
                                     <span
                                         class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">{{ $index + 1 }}</span>
                                     <h3 class="text-base font-semibold text-gray-800">{{ $section->title }}</h3>
-                                    <span class="text-xs text-gray-400">Urutan: {{ $section->order }}</span>
+                                    <span class="text-xs text-gray-400">{{ __('cms.feature_pages.section_form.order') }}: {{ $section->order }}</span>
                                 </div>
                                 @if ($section->description)
                                     <p class="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -90,7 +90,7 @@
                                                     class="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-1">
                                                     <a href="{{ asset('storage/' . $img) }}" download
                                                         class="p-1.5 bg-white/20 hover:bg-white/30 rounded-md text-white"
-                                                        title="Unduh">
+                                                        title="{{ __('cms.common.download') }}">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -101,7 +101,7 @@
                                                     </a>
                                                     <button @click="openImageModal('{{ asset('storage/' . $img) }}')"
                                                         class="p-1.5 bg-white/20 hover:bg-white/30 rounded-md text-white"
-                                                        title="Perbesar">
+                                                        title="{{ __('cms.common.zoom') }}">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -147,7 +147,7 @@
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                 </path>
                             </svg>
-                            <p class="text-gray-400 text-sm">Belum ada seksi. Klik "+ Tambah Seksi" untuk menambahkan.</p>
+                            <p class="text-gray-400 text-sm">{{ __('cms.feature_pages.sections_empty') }}</p>
                         </div>
                     </div>
                 @endforelse
@@ -299,7 +299,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 4v16m8-8H4"></path>
                                     </svg>
-                                    <span class="text-sm font-medium text-gray-600">Tambah Gambar Baru</span>
+                                    <span class="text-sm font-medium text-gray-600">{{ __('cms.feature_pages.section_form.add_new_image') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -389,7 +389,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
-                        Unduh
+                        {{ __('cms.common.download') }}
                     </a>
                 </div>
             </div>

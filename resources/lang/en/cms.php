@@ -54,6 +54,9 @@ return [
             'path_placeholder' => 'Example: /home',
             'order' => 'Order',
             'name_placeholder' => 'Example: Home',
+            'move_title' => 'Move to Another Menu',
+            'move_help' => 'Select another menu to move this feature into a sub-menu',
+            'move_keep' => '— Keep in Main Menu —',
         ],
 
         // Detail page (features/show)
@@ -91,6 +94,11 @@ return [
                 'path_placeholder' => 'Example: /profile/history',
                 'name_placeholder' => 'Example: History',
                 'order' => 'Order',
+                'move_title' => 'Move to Another Menu',
+                'move_help' => 'Leave blank to keep in the current menu (:name)',
+                'move_keep' => '— Keep in current menu —',
+                'move_top' => 'Make Main Menu (Top Level)',
+                'badge_sub' => '(sub-menu)',
             ],
         ],
 
@@ -172,6 +180,7 @@ return [
             'images_help' => 'Upload JPG/PNG/WebP images, max 2MB per file',
             'existing_images' => 'Current Images',
             'order' => 'Order',
+            'add_new_image' => 'Add New Image',
         ],
 
         'delete_section' => [
@@ -179,6 +188,7 @@ return [
             'confirm' => 'Are you sure you want to delete the section :name?',
             'yes' => 'Yes, Delete',
         ],
+        'sections_empty' => 'No sections yet. Click "+ Add Section" to add one.',
 
         'flash' => [
             'page_added' => 'Page added successfully.',
@@ -198,6 +208,102 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CMS — Profile Pages (profile_pages)
+    |--------------------------------------------------------------------------
+    */
+
+    'profile_pages' => [
+        'title' => 'Page List: :name',
+        'desc' => 'Manage profile pages for this menu',
+        'preview_title' => 'Guest Page Preview',
+        'preview_desc' => 'Page navigation that will be displayed on the public page',
+        'page_label' => 'Page:',
+        'nav_help' => 'Navigation buttons will appear on the public page to navigate between pages',
+        'card_title' => 'Profile Page',
+        'card_desc' => 'Manage profile pages. Sections are managed in the Edit page.',
+        'add_button' => 'Add Page',
+        'col_no' => 'No',
+        'col_title' => 'Title',
+        'col_type' => 'Type',
+        'col_sections' => 'Section',
+        'col_order' => 'Order',
+        'col_action' => 'Action',
+        'empty' => 'No pages yet. Click "Add Page" to create one.',
+        'type_default' => 'Default',
+        'type_sdm_chart' => 'HR (Chart)',
+        'type_struktur_image' => 'Organizational Structure',
+        'type_tugas_fungsi' => 'Tasks and Functions',
+        'delete' => [
+            'title' => 'Delete Page?',
+            'confirm' => 'Are you sure you want to delete :name?',
+            'cancel' => 'Cancel',
+            'yes' => 'Delete',
+        ],
+        'form' => [
+            'add_title' => 'Add Page',
+            'edit_title' => 'Edit Page',
+            'type' => 'Page Type',
+            'type_help' => 'Select type according to the content to be displayed',
+            'title' => 'Page Title',
+            'title_placeholder' => 'Example: Tasks and Functions',
+            'description' => 'Description / Content',
+            'description_help' => 'Format text using the Rich Text Editor.',
+            'link_settings' => 'Link Settings',
+            'link_text' => 'Link Text',
+            'link_text_placeholder' => 'Example: Learn More',
+            'link_url' => 'Link URL',
+            'subtitle_section' => 'Subtitle',
+            'subtitle' => 'Additional Title',
+            'subtitle_placeholder' => 'Example: Employee Count Chart by Age',
+            'subtitle_help' => 'Subtitle to be displayed below the main title',
+            'chart_title' => 'HR Chart',
+            'chart_desc' => 'Choose data and chart type to display',
+            'chart_roles' => 'Select User Roles to Count:',
+            'chart_roles_help' => '* Leave empty to include all roles',
+            'chart_field' => 'Select Data to Display:',
+            'chart_field_placeholder' => '-- Select Data Field --',
+            'chart_field_add' => 'Add',
+            'chart_field_help' => 'Select data field to add chart. You can add multiple fields.',
+            'chart_config' => 'Chart Configuration:',
+            'chart_config_empty' => 'Select data field above to add chart',
+            'chart_generate' => 'Generate Chart',
+            'chart_preview_empty' => 'Select data field and chart type, then click "Generate Chart"',
+            'images_title' => 'Supporting Images',
+            'images_help' => 'Drag to change focal point position or click Position for preset. Max 10MB per file.',
+            'images_upload_placeholder' => 'Click or drag to upload images',
+            'order' => 'Order',
+            'order_help' => 'Pages with lower order will be displayed first',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+            'preview_header' => 'Page Preview',
+            'preview_help' => 'You can drag images to change their position or change focal point',
+            'preview_auto_update' => 'Preview automatically updates when you edit',
+            'section_info_title' => 'Manage Section After Saving',
+            'section_info_desc' => 'After the page is saved, you can manage sections (sub-content) through the Edit page.',
+        ],
+        'sections' => [
+            'title' => 'Page Sections',
+            'desc' => 'Manage sub-contents or sections for this page',
+            'add_button' => 'Add Section',
+            'empty' => 'No sections yet. Click "Add Section" to create one.',
+            'add_title' => 'Add Section',
+            'edit_title' => 'Edit Section',
+            'form_title' => 'Section Title',
+            'form_title_placeholder' => 'Example: Main Task',
+            'form_desc' => 'Description',
+            'form_desc_placeholder' => 'Section description...',
+            'form_order' => 'Order',
+            'delete' => [
+                'title' => 'Delete Section?',
+                'confirm' => 'Are you sure you want to delete :name?',
+                'cancel' => 'Cancel',
+                'yes' => 'Delete',
+            ]
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | CMS — Home Editor (home/edit)
     |--------------------------------------------------------------------------
     */
@@ -212,6 +318,11 @@ return [
             'desc' => 'Main text and CTA button at the top of the page',
             'hero_title' => 'Hero Title',
             'hero_cta' => 'CTA Button Text',
+            'background_label' => 'Hero Background (Image or Video)',
+            'unknown_type' => 'Unknown type',
+            'current' => 'Current:',
+            'remove_background' => 'Remove background (revert to default video)',
+            'background_help' => 'Upload an <span class="font-semibold">image</span> (JPG/PNG/WebP/GIF/AVIF) or <span class="font-semibold">video</span> (MP4/WebM/OGG/MOV) to replace the hero background. If left blank, the website will use the default video (library-books.mp4).',
         ],
 
         'feature_strip' => [
@@ -224,6 +335,7 @@ return [
             'right_button_link' => 'Right Button Link',
             'right_text' => 'Right Text',
             'related_links' => 'Related Links',
+            'related_desc' => 'Links with clickable photos',
             'related_title' => 'Title',
             'related_photo' => 'Photo',
             'related_link' => 'Link',
@@ -234,6 +346,9 @@ return [
             'title' => 'DABB Information Section',
             'desc' => 'Title and two paragraphs of information about DABB',
             'section' => 'Section Title',
+            'image1' => 'Paragraph 1 Image',
+            'image2' => 'Paragraph 2 Image',
+            'image_help' => 'JPG, PNG, or WebP. Leave blank if you do not want to change.',
             'paragraph1' => 'Paragraph 1',
             'paragraph2' => 'Paragraph 2',
         ],
@@ -249,6 +364,8 @@ return [
             'desc' => 'Titles for Gallery, Statistics, YouTube, Instagram sections, etc.',
             'related' => 'Section Title',
             'gallery' => 'Archive Exhibition (Gallery)',
+            'gallery_desc' => 'Archive exhibition section title on the homepage',
+            'gallery_help' => 'Archive exhibition gallery content is automatically retrieved from virtual exhibition data.',
             'stats' => 'Section Title',
             'youtube' => 'Section Title',
             'instagram' => 'Section Title',
@@ -259,6 +376,8 @@ return [
             'desc' => 'Text labels for visitor statistics counters',
             'total' => 'Total Visitors Label',
             'today' => 'Today\'s Visitors Label',
+            'image_label' => 'Statistics Image',
+            'help' => 'Visitor statistics numbers are automatically calculated based on the number of page accesses by visitors.',
         ],
 
         'youtube' => [
@@ -267,6 +386,7 @@ return [
             'video_label' => 'Video :number',
             'placeholder' => 'YouTube ID',
             'help' => 'Copy the ID from the YouTube URL: youtube.com/watch?v=<strong>ID_HERE</strong>',
+            'add_video' => 'Add Video',
         ],
 
         'instagram' => [
@@ -582,6 +702,20 @@ return [
             'generate_help' => 'Or upload manually. Generate will create a thumbnail from the book preview.',
             'order' => 'Order',
             'order_help' => 'Display order of the book in the feature',
+            'pdf_section' => 'PDF File (Optional)',
+            'upload_pdf' => 'Upload PDF',
+            'pdf_desc' => 'If uploaded, the book will use this PDF as the flipbook content.',
+            'book_info' => 'Book Information',
+            'author' => 'Author',
+            'dimensions' => 'Dimensions',
+            'total_pages' => 'Total Pages',
+            'weight' => 'Weight',
+            'language' => 'Language',
+            'publisher' => 'Publisher',
+            'publication_year' => 'Publication Year',
+            'isbn' => 'ISBN',
+            'synopsis' => 'Synopsis',
+            'description' => 'Description (Displayed on Book Detail Page)',
         ],
 
         // Preview
@@ -606,6 +740,13 @@ return [
         'btn_cancel' => 'Cancel',
         'btn_save' => 'Save Book',
         'btn_save_changes' => 'Save Changes',
+
+        // JS messages
+        'pdf_loading' => 'Calculating PDF pages...',
+        'pdf_success' => 'Successfully detected :count pages',
+        'pdf_failed' => 'Failed to read PDF pages',
+        'upload_failed' => 'Failed to upload file.',
+        'pdf_info' => 'This book uses a PDF file. Manual pages below will be ignored in the exhibition view.',
     ],
 
     /*
@@ -730,8 +871,9 @@ return [
         'book' => 'Virtual Archive Exhibition Book',
         'slideshow' => 'Virtual Archive Exhibition SlideShow',
         'profile' => 'Profile',
+        'publication' => 'Publication',
         'layanan_publik' => 'Public Service',
-        'pengelolaan' => 'Pengelolaan',
+        'pengelolaan' => 'Management',
         'kontak_kami' => 'Contact Us',
     ],
 
@@ -748,6 +890,11 @@ return [
         'back' => 'Back',
         'required' => '*',
         'saved_successfully' => 'Settings saved successfully.',
+        'download' => 'Download',
+        'zoom' => 'Zoom In',
+        'hide' => 'Hide',
+        'show' => 'Show',
+        'delete' => 'Delete',
     ],
 
     /*
@@ -1387,6 +1534,9 @@ return [
         'label_gallery' => 'Gallery Media (Photo/Video)',
         'hint_gallery' => 'Click or drag media here',
         'hint_gallery_sub' => 'Supports image and video formats',
+        'gallery_info_create' => 'The Gallery page will automatically collect all image and video media from the system. Media you add below will appear as a priority in the initial order.',
+        'gallery_info_edit' => 'The Gallery page will automatically collect all image and video media from the system. Media you add/save below will appear as a priority in the initial order.',
+        'delete_media' => 'Delete Media',
         'label_pdf' => 'Document File (PDF)',
         'hint_pdf' => 'PDF format max 5MB',
         'hint_pdf_edit' => 'Upload to replace existing file',
