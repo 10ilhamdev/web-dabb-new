@@ -700,7 +700,7 @@
                 id: 'rte-zoom-label-' + this.id,
                 class: 'rte-status-zoom',
                 text: '100%',
-                style: 'margin-left: auto; font-size: 11px; color: #888; cursor: pointer; padding: 0 6px; user-select: none;',
+                style: 'margin-left: auto; margin-right: 30px; font-size: 11px; color: #888; cursor: pointer; padding: 0 6px; user-select: none;',
                 title: 'Zoom level — use zoom buttons in toolbar to adjust',
             }),
         ]);
@@ -1470,6 +1470,12 @@
                     }
                 }
             }
+        });
+
+        // Strip the delete buttons from code blocks so they are not saved in the database
+        var deleteBtns = root.querySelectorAll('.rte-code-block-delete-btn');
+        deleteBtns.forEach(function (btn) {
+            if (btn.parentNode) btn.parentNode.removeChild(btn);
         });
     };
 
@@ -3922,6 +3928,7 @@
                 containerHtml += '<div class="rte-code-block-header" contenteditable="false">';
                 containerHtml += '<span class="rte-code-block-lang">' + escapeHtml(lang) + '</span>';
                 containerHtml += '<button class="rte-code-block-copy-btn" type="button" onclick="var btn=this; var codeEl=btn.closest(\'.rte-code-block-container\').querySelector(\'code\'); if(codeEl){ navigator.clipboard.writeText(codeEl.textContent).then(function(){ btn.textContent=\'Copied!\'; setTimeout(function(){ btn.textContent=\'Copy\'; }, 2000); }); }">Copy</button>';
+                containerHtml += '<button class="rte-code-block-delete-btn" type="button">Delete</button>';
                 containerHtml += '</div>';
                 containerHtml += '<pre' + langClass + ' contenteditable="true"><code>' + escaped + '</code></pre>';
                 containerHtml += '</div><p><br></p>';
@@ -5806,6 +5813,34 @@
         // Click outside table (anywhere in content) closes selection + popup
         c.addEventListener('click', function (e) {
             var target = e.target;
+            
+            // Delete code block handling
+            var deleteBtn = target.closest('.rte-code-block-delete-btn');
+            if (deleteBtn) {
+                e.stopPropagation();
+                e.preventDefault();
+                var container = deleteBtn.closest('.rte-code-block-container');
+                if (container) {
+                    Swal.fire({
+                        title: 'Hapus Code Block?',
+                        text: "Apakah Anda yakin ingin menghapus code block ini?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then(function (result) {
+                        if (result.isConfirmed && container.parentNode) {
+                            container.parentNode.removeChild(container);
+                            self._syncSource();
+                            self._updateState();
+                        }
+                    });
+                }
+                return;
+            }
+
             if (target.classList && (
                 target.classList.contains('rte-table-move-handle') ||
                 target.classList.contains('rte-table-resize-handle') ||
@@ -6455,8 +6490,14 @@
                 }
             };
 
+            var deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'rte-code-block-delete-btn';
+            deleteBtn.textContent = 'Delete';
+
             header.appendChild(langLabel);
             header.appendChild(copyBtn);
+            header.appendChild(deleteBtn);
             container.appendChild(header);
 
             var newPre = pre.cloneNode(true);
@@ -6472,6 +6513,19 @@
             container.appendChild(newPre);
             if (pre.parentNode) {
                 pre.parentNode.replaceChild(container, pre);
+            }
+        });
+
+        // Upgrade existing code block containers to have the delete button if they don't have it
+        var containers = this.content.querySelectorAll('.rte-code-block-container');
+        containers.forEach(function (container) {
+            var header = container.querySelector('.rte-code-block-header');
+            if (header && !header.querySelector('.rte-code-block-delete-btn')) {
+                var deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'rte-code-block-delete-btn';
+                deleteBtn.textContent = 'Delete';
+                header.appendChild(deleteBtn);
             }
         });
 

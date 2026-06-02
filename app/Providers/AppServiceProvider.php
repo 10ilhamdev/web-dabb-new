@@ -136,8 +136,20 @@ class AppServiceProvider extends ServiceProvider
         }
 
         if (is_string($value)) {
-            // Cek jika nilainya JSON array/object
             $trimmed = trim($value);
+
+            // Skip large text, HTML, or strings with illegal path characters
+            if (strlen($trimmed) > 260) {
+                return [];
+            }
+            if (str_contains($trimmed, '<') || str_contains($trimmed, '>') || strip_tags($trimmed) !== $trimmed) {
+                return [];
+            }
+            if (preg_match('/[\r\n\t*?"<>|]/', $trimmed)) {
+                return [];
+            }
+
+            // Cek jika nilainya JSON array/object
             if (str_starts_with($trimmed, '[') || str_starts_with($trimmed, '{')) {
                 $decoded = json_decode($trimmed, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
@@ -146,8 +158,8 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // Pastikan format path memiliki subfolder (mengandung slash / atau \) dan aman dari path traversal
-            if ((str_contains($value, '/') || str_contains($value, '\\')) && !str_contains($value, '..')) {
-                return [$value];
+            if ((str_contains($trimmed, '/') || str_contains($trimmed, '\\')) && !str_contains($trimmed, '..')) {
+                return [$trimmed];
             }
         }
 
