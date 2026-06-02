@@ -322,7 +322,6 @@
 @section('content')
     @php
         $title = $currentPage ? ($locale === 'en' ? ($currentPage->title_en ?? $currentPage->title) : $currentPage->title) : ($locale === 'en' ? ($feature->name_en ?? $feature->name) : $feature->name);
-        $subtitle = $currentPage ? ($locale === 'en' ? ($currentPage->subtitle_en ?? $currentPage->subtitle) : $currentPage->subtitle) : '';
         $content = $currentPage ? ($locale === 'en' ? ($currentPage->description_en ?? $currentPage->description) : $currentPage->description) : ($locale === 'en' ? ($feature->content_en ?? $feature->content) : $feature->content);
         $date = ($currentPage->created_at ?? $feature->updated_at ?? now())->translatedFormat('d F Y');
         $type = $currentPage ? $currentPage->type : 'kontak';
@@ -392,9 +391,6 @@
                 {{-- Main Detail --}}
                 <div class="detail-main">
                     <h1 class="detail-title">{{ $title }}</h1>
-                    @if(!empty($subtitle))
-                        <div class="detail-subtitle">{{ $subtitle }}</div>
-                    @endif
 
                     <div class="meta-info">
                         <div class="meta-item">
@@ -762,6 +758,18 @@
             </div>
         </div>
     </section>
+
+    {{-- Login Modal (if guest) --}}
+    @if(isset($requiresLoginModal) && $requiresLoginModal)
+        @include('partials.login_modal', [
+            'loginModalPreviews'  => $loginModalPreviews ?? [],
+            'loginModalPreview'   => $loginModalPreview ?? null,
+            'loginModalRoomNames' => $loginModalRoomNames ?? [],
+            'loginModalRoomName'  => $loginModalRoomName ?? null,
+            'loginModalPrompt'    => $loginModalPrompt ?? null
+        ])
+    @endif
+
 @endsection
 
 @push('scripts')

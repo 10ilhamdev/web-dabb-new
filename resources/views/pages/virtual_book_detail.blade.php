@@ -206,7 +206,13 @@
 @endpush
 
 @section('content')
-{{-- Hero section for consistency --}}
+
+@php
+    $isVirtualArchive = in_array($feature->page_type, ['real', '3d', 'book', 'slideshow']);
+@endphp
+
+@if($isVirtualArchive)
+{{-- Blue gradient hero (Pameran Arsip Virtual) --}}
 <div class="vt-hero" style="padding: 3rem 0;">
     <div class="container">
         @if($feature->parent)
@@ -217,6 +223,19 @@
         <h1>{{ $book->translated_title }}</h1>
     </div>
 </div>
+@else
+{{-- Photo hero (semua halaman lain) --}}
+<div class="feature-hero" style="padding: 3rem 0;">
+    <div class="container">
+        @if($feature->parent)
+            <p style="font-size:0.8rem;opacity:0.7;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em;color:#fff;">
+                {{ app()->getLocale() === 'en' && $feature->parent->name_en ? $feature->parent->name_en : $feature->parent->name }}
+            </p>
+        @endif
+        <h1>{{ $book->translated_title }}</h1>
+    </div>
+</div>
+@endif
 
 <div class="book-detail-container">
     <div class="container">
@@ -330,5 +349,16 @@
         </div>
     </div>
 </div>
+
+{{-- Login Modal (if guest) --}}
+@if(isset($requiresLoginModal) && $requiresLoginModal)
+    @include('partials.login_modal', [
+        'loginModalPreviews'  => $loginModalPreviews ?? [],
+        'loginModalPreview'   => $loginModalPreview ?? null,
+        'loginModalRoomNames' => $loginModalRoomNames ?? [],
+        'loginModalRoomName'  => $loginModalRoomName ?? null,
+        'loginModalPrompt'    => $loginModalPrompt ?? null
+    ])
+@endif
 
 @endsection

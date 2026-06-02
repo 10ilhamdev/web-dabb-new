@@ -428,8 +428,8 @@
         const hasLink = linkTextVal && linkUrlVal;
 
         let leftCol = '<div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">';
-        if (hasDesc) leftCol += `<div class="profile-section-desc" style="margin-bottom: 1.5rem;">${descriptionHTML}</div>`;
         if (hasTitle) leftCol += `<h2 class="profile-section-title">${titleVal}</h2>`;
+        if (hasDesc) leftCol += `<div class="profile-section-desc" style="margin-bottom: 1.5rem;">${descriptionHTML}</div>`;
         if (hasLink) leftCol += `<a href="${linkUrlVal}" class="page-link-btn" target="_blank">${linkTextVal} <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></a>`;
         leftCol += "</div>";
 

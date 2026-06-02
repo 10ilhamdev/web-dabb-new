@@ -299,7 +299,12 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 </div>
 
-{{-- Blue gradient hero --}}
+@php
+    $isVirtualArchive = in_array($feature->page_type, ['real', '3d', 'book', 'slideshow']);
+@endphp
+
+@if($isVirtualArchive)
+{{-- Blue gradient hero (Pameran Arsip Virtual) --}}
 <div class="vt-hero">
     <div class="container">
         @if($feature->parent)
@@ -311,6 +316,19 @@ window.onerror = function(msg, url, line, col, error) {
         <p>{{ app()->getLocale() === 'en' ? 'Virtual Book Exhibition - Flip through pages like a real book' : 'Pameran Arsip Virtual Buku - Balik halaman layaknya buku nyata' }}</p>
     </div>
 </div>
+@else
+{{-- Photo hero (semua halaman lain) --}}
+<div class="feature-hero">
+    <div class="container">
+        @if($feature->parent)
+            <p style="font-size:0.8rem;opacity:0.7;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em;color:#fff;">
+                {{ app()->getLocale() === 'en' && $feature->parent->name_en ? $feature->parent->name_en : $feature->parent->name }}
+            </p>
+        @endif
+        <h1>{{ app()->getLocale() === 'en' && $feature->name_en ? $feature->name_en : $feature->name }}</h1>
+    </div>
+</div>
+@endif
 
 {{-- Room Grid --}}
 <section class="vt-rooms-section">
@@ -370,11 +388,11 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 </section>
 
-{{-- Login Modal (if required) --}}
 @if(isset($requiresLoginModal) && $requiresLoginModal)
     @include('partials.login_modal', [
         'previewImage' => $loginModalPreview ?? null,
-        'roomName'     => $loginModalRoomName ?? null
+        'roomName'     => $loginModalRoomName ?? null,
+        'loginModalPrompt' => $loginModalPrompt ?? null
     ])
 @endif
 

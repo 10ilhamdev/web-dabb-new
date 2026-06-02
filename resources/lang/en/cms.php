@@ -57,6 +57,8 @@ return [
             'move_title' => 'Move to Another Menu',
             'move_help' => 'Select another menu to move this feature into a sub-menu',
             'move_keep' => '— Keep in Main Menu —',
+            'login_required' => 'Require login before accessing this page',
+            'login_required_help' => 'If enabled, guests who are not logged in will be prompted to sign in first',
         ],
 
         // Detail page (features/show)

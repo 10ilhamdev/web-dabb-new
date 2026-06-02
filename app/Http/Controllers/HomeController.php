@@ -10,8 +10,24 @@ class HomeController extends Controller
 {
     public function index(): View
     {
-        return view('welcome');
+        $feature = \App\Models\Feature::find(1);
+        $requiresLoginModal = false;
+        $loginModalPreviews = [];
+        $loginModalPreview = null;
+        $loginModalRoomNames = [];
+        $loginModalRoomName = null;
+        $loginModalPrompt = __('auth.login_required_prompt');
+
+        if ($feature) {
+            $requiresLoginModal = !\Illuminate\Support\Facades\Auth::check() && $feature->is_login_required;
+        }
+
+        return view('welcome', compact(
+            'feature', 'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview',
+            'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
+        ));
     }
+
 
     public function switchLocale(Request $request, string $locale): RedirectResponse
     {

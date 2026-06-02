@@ -54,7 +54,7 @@ class PublicationController extends Controller
             'published_at' => 'nullable|date',
             'order' => 'required|integer|min:0',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp',
             'extra_data' => 'nullable|array',
         ]);
 
@@ -118,7 +118,7 @@ class PublicationController extends Controller
             'published_at' => 'nullable|date',
             'order' => 'required|integer|min:0',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp',
             'existing_images' => 'nullable|array',
             'extra_data' => 'nullable|array',
         ]);

@@ -659,22 +659,6 @@
                             <input type="number" name="order" value="{{ $pengelolaan->order }}" required
                                 class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.pengelolaan.label_date') }} <span class="text-red-500">*</span></label>
-                            <input type="date" name="published_at" value="{{ $pengelolaan->published_at ? $pengelolaan->published_at->format('Y-m-d') : date('Y-m-d') }}" required
-                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <div class="mt-2 flex flex-col gap-1.5">
-                                <label class="inline-flex items-center cursor-pointer text-xs text-gray-600 font-medium">
-                                    <input type="checkbox" name="extra_data[is_login_required]" value="1" {{ !empty($pengelolaan->extra_data['is_login_required']) ? 'checked' : '' }} class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 mr-1.5">
-                                    {{ __('cms.pengelolaan.label_require_login') }}
-                                </label>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.pengelolaan.label_subtitle') }}</label>
-                            <textarea name="subtitle" rows="3" placeholder="{{ __('cms.pengelolaan.placeholder_subtitle') }}"
-                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $pengelolaan->subtitle }}</textarea>
-                        </div>
                     </div>
                 </div>
 

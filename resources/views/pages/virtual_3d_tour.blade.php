@@ -23,13 +23,8 @@
     </div>
 </div>
 
-{{-- Hero: blue gradient only for virtual archive pages; photo-hero for all others --}}
 @php
-    $isVirtualArchive = str_contains(request()->path(), 'pameran/virtual') ||
-                        str_contains(request()->path(), 'pameran-arsip-virtual') ||
-                        str_contains(request()->path(), 'pameran-virtual') ||
-                        str_contains(request()->path(), 'virtual') ||
-                        $feature->page_type === '3d';
+    $isVirtualArchive = in_array($feature->page_type, ['real', '3d', 'book', 'slideshow']);
 @endphp
 
 @if($isVirtualArchive)
@@ -61,7 +56,7 @@
 
 
 {{-- Virtual 3D Rooms Section --}}
-@if(str_contains(request()->path(), 'virtual') || $feature->page_type === '3d')
+@if($feature->page_type === '3d')
 <section class="vt-rooms-section">
     <div class="container">
         <h2 class="vt-section-title">{{ __('home.virtual_3d_tour.select_room') }}</h2>
@@ -336,7 +331,8 @@
         'loginModalPreviews'  => $loginModalPreviews ?? [],
         'loginModalPreview'   => $loginModalPreview ?? null,
         'loginModalRoomNames' => $loginModalRoomNames ?? [],
-        'loginModalRoomName'  => $loginModalRoomName ?? null
+        'loginModalRoomName'  => $loginModalRoomName ?? null,
+        'loginModalPrompt'    => $loginModalPrompt ?? null
     ])
 @endif
 

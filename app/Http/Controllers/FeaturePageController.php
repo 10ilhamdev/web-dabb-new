@@ -319,7 +319,6 @@ class FeaturePageController extends Controller
             $pageNum = $pageNum ?? 1;
             $currentPage = $pages->values()->get($pageNum - 1);
 
-            $requiresLoginModal = false;
             $loginModalPreviews = [];
             $loginModalPreview = null;
             $loginModalRoomNames = [];
@@ -327,8 +326,7 @@ class FeaturePageController extends Controller
             $loginModalPrompt = __('auth.login_required_prompt');
 
             if ($currentPage) {
-                if (!empty($currentPage->extra_data['is_login_required']) && !\Illuminate\Support\Facades\Auth::check()) {
-                    $requiresLoginModal = true;
+                if ($requiresLoginModal) {
                     $loginModalRoomName = app()->getLocale() === 'en' && $currentPage->title_en ? $currentPage->title_en : $currentPage->title;
                 } else {
                     \Illuminate\Support\Facades\DB::table('layanan_publiks')->where('id', $currentPage->id)->increment('views');
@@ -386,7 +384,6 @@ class FeaturePageController extends Controller
             $pageNum = $pageNum ?? 1;
             $currentPage = $pages->values()->get($pageNum - 1);
 
-            $requiresLoginModal = false;
             $loginModalPreviews = [];
             $loginModalPreview = null;
             $loginModalRoomNames = [];
@@ -394,8 +391,7 @@ class FeaturePageController extends Controller
             $loginModalPrompt = __('auth.login_required_prompt');
 
             if ($currentPage) {
-                if (!empty($currentPage->extra_data['is_login_required']) && !\Illuminate\Support\Facades\Auth::check()) {
-                    $requiresLoginModal = true;
+                if ($requiresLoginModal) {
                     $loginModalRoomName = app()->getLocale() === 'en' && $currentPage->name_en ? $currentPage->name_en : $currentPage->name;
                 } else {
                     \Illuminate\Support\Facades\DB::table('pengelolaans')->where('id', $currentPage->id)->increment('views');
@@ -449,6 +445,12 @@ class FeaturePageController extends Controller
                 'locale'              => $locale,
                 'popularNews'         => $popularNews,
                 'pameranArsip'        => $pameranArsip,
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews ?? [],
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames ?? [],
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
             ]);
         }
 
@@ -459,6 +461,12 @@ class FeaturePageController extends Controller
                 'currentPage'         => null,
                 'currentPageNum'      => 1,
                 'totalPages'          => 0,
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews ?? [],
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames ?? [],
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
             ]);
         }
 
@@ -484,6 +492,12 @@ class FeaturePageController extends Controller
                 'currentPage'         => $currentPage,
                 'currentPageNum'      => $pageNum,
                 'totalPages'          => $pages->count(),
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews ?? [],
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames ?? [],
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
             ]);
         }
 
@@ -521,12 +535,20 @@ class FeaturePageController extends Controller
         $feature = Feature::where('path', $path)->firstOrFail();
         $feature->loadCount('pages');
 
-        // Pages under /pameran/virtual or /pameran-arsip-virtual require authentication — show login modal if guest
-        $requiresLoginModal = !Auth::check() && (
-            str_contains($path, '/pameran/virtual') ||
-            str_contains($path, '/pameran-virtual') ||
-            str_contains($path, '/pameran-arsip-virtual')
-        );
+        // Check if this feature requires login — configurable from CMS
+        $requiresLoginModal = !Auth::check() && $feature->is_login_required;
+
+        // Determine login modal prompt
+        $loginModalPrompt = __('auth.login_required_prompt');
+        if ($feature->page_type === 'slideshow') {
+            $loginModalPrompt = __('auth.slideshow_login_prompt');
+        } elseif ($feature->page_type === 'book') {
+            $loginModalPrompt = __('auth.book_login_prompt');
+        } elseif ($feature->page_type === '3d') {
+            $loginModalPrompt = __('auth.virtual_3d_login_prompt');
+        } elseif ($feature->page_type === 'real') {
+            $loginModalPrompt = __('auth.virtual_room_login_prompt');
+        }
 
         // Resolve preview image for the login modal right panel
         $loginModalPreviews = [];
@@ -559,7 +581,8 @@ class FeaturePageController extends Controller
             $isEven = ($currentPageIndex + 1) % 2 === 0;
 
             return view('pages.profile', compact(
-                'feature', 'allProfilePages', 'locale', 'totalPages', 'currentPage', 'currentPageIndex', 'isEven'
+                'feature', 'allProfilePages', 'locale', 'totalPages', 'currentPage', 'currentPageIndex', 'isEven',
+                'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
             ));
         }
 
@@ -606,7 +629,8 @@ class FeaturePageController extends Controller
             }
 
             return view('pages.publication', compact(
-                'feature', 'allPages', 'locale', 'currentPage', 'popularNews', 'allGalleryMedia'
+                'feature', 'allPages', 'locale', 'currentPage', 'popularNews', 'allGalleryMedia',
+                'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
             ));
         }
 
@@ -660,29 +684,34 @@ class FeaturePageController extends Controller
             if ($selectedPage) {
                 return view('pages.virtual_slideshow_content', compact(
                     'feature', 'pages', 'selectedPage', 'slides', 'locale',
-                    'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                    'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
                 ));
             }
 
             return view('pages.virtual_slideshow_landing', compact(
                 'feature', 'pages',
-                'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
             ));
         }
 
         // Handle beranda page type - load content from language files
-        // Check if there's a dedicated home_{id}.php file for this feature (except for original beranda)
-        $homeFilePath = resource_path("lang/id/home_{$feature->id}.php");
-        if ($feature->page_type === 'home' && $feature->id != 1 && File::exists($homeFilePath)) {
+        if ($feature->page_type === 'home' || $feature->page_type === 'beranda') {
             $locale = app()->getLocale();
             $idContent = $this->loadBerandaContent($feature->id, 'id');
             $enContent = $this->loadBerandaContent($feature->id, 'en');
             $content = $locale === 'id' ? $idContent : $enContent;
 
-            return view('welcome', compact('feature', 'content'));
-        }
-        if ($requiresLoginModal) {
-            // No separate preview gathering needed here - handled in virtual3dRooms/virtualRooms sections
+            // If the content is empty (e.g., custom file doesn't exist yet), load from the default home (ID 1) as a fallback
+            if (empty($content)) {
+                $idContent = $this->loadBerandaContent(1, 'id');
+                $enContent = $this->loadBerandaContent(1, 'en');
+                $content = $locale === 'id' ? $idContent : $enContent;
+            }
+
+            return view('welcome', compact(
+                'feature', 'content', 'locale',
+                'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
+            ));
         }
 
         // Virtual 3D Rooms feature — show interactive 4-walls 3D room
@@ -712,7 +741,7 @@ class FeaturePageController extends Controller
 
                 return view('pages.virtual_3d_tour', compact(
                     'feature', 'virtual3dRooms', 'requiresLoginModal',
-                    'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                    'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
                 ));
             }
         }
@@ -734,7 +763,7 @@ class FeaturePageController extends Controller
 
                 return view('pages.virtual_tour', compact(
                     'feature', 'virtualRooms', 'requiresLoginModal',
-                    'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                    'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
                 ));
             }
         }
@@ -791,7 +820,7 @@ class FeaturePageController extends Controller
                     }
                     return view('pages.virtual_book_viewer', compact(
                         'feature', 'book', 'requiresLoginModal',
-                        'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                        'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
                     ));
                 }
             }
@@ -801,20 +830,20 @@ class FeaturePageController extends Controller
                 if ($book) {
                     return view('pages.virtual_book_detail', compact(
                         'feature', 'book', 'requiresLoginModal',
-                        'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                        'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
                     ));
                 }
             }
 
             return view('pages.virtual_book_grid', compact(
                 'feature', 'books', 'requiresLoginModal',
-                'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName'
+                'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
             ));
         }
 
         if ($feature->page_type === 'layanan_publik') {
             if ($feature->layananPubliks()->where('is_active', true)->count() > 0) {
-                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
+                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName, $loginModalPrompt);
             }
 
             $locale = app()->getLocale();
@@ -831,12 +860,18 @@ class FeaturePageController extends Controller
                 'locale'              => $locale,
                 'popularNews'         => $popularNews,
                 'pameranArsip'        => $pameranArsip,
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews,
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames,
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
             ]);
         }
 
         if ($feature->page_type === 'pengelolaan') {
             if ($feature->pengelolaans()->where('is_active', true)->count() > 0) {
-                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
+                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName, $loginModalPrompt);
             }
 
             $locale = app()->getLocale();
@@ -853,12 +888,18 @@ class FeaturePageController extends Controller
                 'locale'              => $locale,
                 'popularNews'         => $popularNews,
                 'pameranArsip'        => $pameranArsip,
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews,
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames,
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
             ]);
         }
 
         if ($feature->page_type === 'kontak_kami') {
             if ($feature->kontakKamis()->where('is_active', true)->count() > 0) {
-                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
+                return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName, $loginModalPrompt);
             }
 
             $locale = app()->getLocale();
@@ -875,11 +916,17 @@ class FeaturePageController extends Controller
                 'locale'              => $locale,
                 'popularNews'         => $popularNews,
                 'pameranArsip'        => $pameranArsip,
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews,
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames,
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
             ]);
         }
 
         if ($feature->pages_count > 0) {
-            return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName);
+            return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName, $loginModalPrompt);
         }
 
         $virtual3dRooms = $feature->virtual3dRooms()->with('media')->get();
@@ -892,7 +939,7 @@ class FeaturePageController extends Controller
         }
 
         return view('pages.virtual_3d_tour', compact(
-            'feature', 'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'virtual3dRooms'
+            'feature', 'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'virtual3dRooms', 'loginModalPrompt'
         ));
     }
 
@@ -905,6 +952,14 @@ class FeaturePageController extends Controller
         $feature = Feature::where('path', $fullPath)->firstOrFail();
         $publication = $feature->publications()->where('id', $id)->where('is_active', true)->firstOrFail();
         $locale = app()->getLocale();
+
+        // Check if this feature requires login — configurable from CMS
+        $requiresLoginModal = !Auth::check() && $feature->is_login_required;
+        $loginModalPreviews = [];
+        $loginModalPreview = null;
+        $loginModalRoomNames = [];
+        $loginModalRoomName = null;
+        $loginModalPrompt = __('auth.login_required_prompt');
 
         // Increment views
         \Illuminate\Support\Facades\DB::table('publications')->where('id', $publication->id)->increment('views');
@@ -922,7 +977,8 @@ class FeaturePageController extends Controller
         });
 
         return view('pages.publication_detail', compact(
-            'feature', 'publication', 'locale', 'popularNews'
+            'feature', 'publication', 'locale', 'popularNews',
+            'requiresLoginModal', 'loginModalPreviews', 'loginModalPreview', 'loginModalRoomNames', 'loginModalRoomName', 'loginModalPrompt'
         ));
     }
 

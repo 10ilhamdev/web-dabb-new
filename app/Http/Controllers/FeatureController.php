@@ -29,12 +29,16 @@ class FeatureController extends Controller
     public function store(Request $request, TranslationService $translationService)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:link,dropdown',
-            'order' => 'required|integer|min:0',
-            'parent_id' => 'nullable|exists:features,id',
-            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'name'              => 'required|string|max:255',
+            'type'              => 'required|in:link,dropdown',
+            'order'             => 'required|integer|min:0',
+            'parent_id'         => 'nullable|exists:features,id',
+            'page_type'         => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'is_login_required' => 'nullable|boolean',
         ]);
+
+        // Handle checkbox — unchecked sends no value (null), treat as false
+        $validated['is_login_required'] = $request->boolean('is_login_required');
 
         $validated['name_en'] = $translationService->translate($validated['name']);
         $order = (int) $validated['order'];
@@ -136,18 +140,6 @@ class FeatureController extends Controller
                 return redirect()->route('cms.features.kontak_kami.index', $feature);
             }
 
-            // Fallback to old logic based on name for backward compatibility
-            if (strtolower($feature->name) === 'pameran virtual real') {
-                return redirect()->route('cms.features.virtual_rooms.index', $feature);
-            }
-
-            if (strtolower($feature->name) === 'pameran virtual' || $feature->path === '/pameran/virtual') {
-                return redirect()->route('cms.features.virtual_3d_rooms.index', $feature);
-            }
-
-            if (strtolower($feature->name) === 'pameran virtual buku' || str_contains(strtolower($feature->name), 'buku')) {
-                return redirect()->route('cms.features.virtual_books.index', $feature);
-            }
         }
 
 
@@ -206,12 +198,16 @@ class FeatureController extends Controller
     public function update(Request $request, Feature $feature, TranslationService $translationService)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:link,dropdown',
-            'order' => 'required|integer|min:0',
-            'page_type' => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
-            'new_parent_id' => 'nullable|exists:features,id',
+            'name'              => 'required|string|max:255',
+            'type'              => 'required|in:link,dropdown',
+            'order'             => 'required|integer|min:0',
+            'page_type'         => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'new_parent_id'     => 'nullable|exists:features,id',
+            'is_login_required' => 'nullable|boolean',
         ]);
+
+        // Handle checkbox — unchecked sends no value (null), treat as false
+        $validated['is_login_required'] = $request->boolean('is_login_required');
 
         $validated['name_en'] = $translationService->translate($validated['name']);
         $newOrder = (int) $validated['order'];
@@ -241,8 +237,11 @@ class FeatureController extends Controller
                     $validated['path'] = rtrim($parentPath, '/') . '/' . $slug;
                 }
             }
+            // Set is_virtual_book based on page_type
+            $validated['is_virtual_book'] = (isset($validated['page_type']) && $validated['page_type'] === 'book');
         } else {
             $validated['path'] = null;
+            $validated['is_virtual_book'] = false;
         }
 
         if ($isMoving) {
@@ -329,12 +328,16 @@ class FeatureController extends Controller
     public function updateSub(Request $request, Feature $feature, TranslationService $translationService)
     {
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'type'          => 'required|in:link,dropdown',
-            'order'         => 'required|integer|min:0',
-            'page_type'     => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
-            'new_parent_id' => 'nullable|string',
+            'name'              => 'required|string|max:255',
+            'type'              => 'required|in:link,dropdown',
+            'order'             => 'required|integer|min:0',
+            'page_type'         => 'nullable|in:none,beranda,onsite,real,3d,book,slideshow,profile,publication,layanan_publik,pengelolaan,kontak_kami',
+            'new_parent_id'     => 'nullable|string',
+            'is_login_required' => 'nullable|boolean',
         ]);
+
+        // Handle checkbox — unchecked sends no value (null), treat as false
+        $validated['is_login_required'] = $request->boolean('is_login_required');
 
         if (!empty($validated['new_parent_id']) && $validated['new_parent_id'] !== 'top_level') {
             $request->validate([
@@ -387,6 +390,7 @@ class FeatureController extends Controller
             }
         } else {
             $validated['path'] = null;
+            $validated['is_virtual_book'] = false;
         }
 
         if ($isMoving) {

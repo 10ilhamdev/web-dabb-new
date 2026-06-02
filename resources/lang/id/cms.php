@@ -57,6 +57,8 @@ return [
             'move_title' => 'Pindah ke Menu Lain',
             'move_help' => 'Pilih menu lain untuk memindahkan fitur ini ke dalam sub-menu',
             'move_keep' => '— Tetap di Menu Utama —',
+            'login_required' => 'Wajib login sebelum mengakses halaman ini',
+            'login_required_help' => 'Jika diaktifkan, pengunjung yang belum login akan diminta masuk terlebih dahulu',
         ],
 
         // Detail page (features/show)

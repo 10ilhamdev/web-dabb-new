@@ -23,6 +23,13 @@ class Feature extends Model
         'virtual_room_type',
         'page_type',
         'is_active',
+        'is_login_required',
+    ];
+
+    protected $casts = [
+        'is_active'         => 'boolean',
+        'is_virtual_book'   => 'boolean',
+        'is_login_required' => 'boolean',
     ];
 
     /**
@@ -117,8 +124,8 @@ class Feature extends Model
         });
 
         static::updating(function ($feature) {
-            // Jika tipe halaman diubah dari 'home' ke tipe lain, hapus file terjemahan home_{id}.php
-            if ($feature->isDirty('page_type') && $feature->getOriginal('page_type') === 'home') {
+            // Jika tipe halaman diubah dari 'home'/'beranda' ke tipe lain, hapus file terjemahan home_{id}.php
+            if ($feature->isDirty('page_type') && ($feature->getOriginal('page_type') === 'home' || $feature->getOriginal('page_type') === 'beranda')) {
                 $locales = ['id', 'en'];
                 foreach ($locales as $locale) {
                     $langFile = resource_path("lang/{$locale}/home_{$feature->id}.php");

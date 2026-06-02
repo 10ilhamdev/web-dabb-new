@@ -1704,6 +1704,18 @@
             </div>
         </div>
     </section>
+
+    {{-- Login Modal (if guest) --}}
+    @if(isset($requiresLoginModal) && $requiresLoginModal)
+        @include('partials.login_modal', [
+            'loginModalPreviews'  => $loginModalPreviews ?? [],
+            'loginModalPreview'   => $loginModalPreview ?? null,
+            'loginModalRoomNames' => $loginModalRoomNames ?? [],
+            'loginModalRoomName'  => $loginModalRoomName ?? null,
+            'loginModalPrompt'    => $loginModalPrompt ?? null
+        ])
+    @endif
+
 @endsection
 
 @push('scripts')

@@ -661,15 +661,15 @@
         // Build left column content (Same logic for both grid and single column)
         let leftCol =
             '<div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">';
+        if (hasTitle) {
+            leftCol +=
+                '<h2 class="profile-section-title">' + titleVal + "</h2>";
+        }
         if (hasDesc) {
             leftCol +=
                 '<div class="profile-section-desc" style="margin-bottom: 1.5rem;">' +
                 descriptionHTML +
                 "</div>";
-        }
-        if (hasTitle) {
-            leftCol +=
-                '<h2 class="profile-section-title">' + titleVal + "</h2>";
         }
         if (hasLink) {
             leftCol +=

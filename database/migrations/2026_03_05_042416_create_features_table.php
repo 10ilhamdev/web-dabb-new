@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('virtual_room_type', ['none', 'real', '3d', 'book'])->default('none');
             $table->enum('page_type', ['none', 'beranda', 'onsite', 'real', '3d', 'book', 'slideshow', 'profile', 'publication', 'layanan_publik', 'pengelolaan', 'kontak_kami'])->default('none')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_login_required')->default(false);
             $table->string('book_cover')->nullable();
             $table->string('book_thumbnail')->nullable();
             $table->timestamps();

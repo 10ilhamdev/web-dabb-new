@@ -772,11 +772,11 @@
             @endif
         });
     </script>
-    {{-- Login required modal --}}
     @if(isset($requiresLoginModal) && $requiresLoginModal)
         @include('partials.login_modal', [
             'previewImage' => $loginModalPreview ?? null,
-            'roomName' => $loginModalRoomName ?? null
+            'roomName' => $loginModalRoomName ?? null,
+            'loginModalPrompt' => $loginModalPrompt ?? null
         ])
     @endif
 </body>

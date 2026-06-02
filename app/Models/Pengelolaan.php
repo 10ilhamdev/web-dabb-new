@@ -16,8 +16,6 @@ class Pengelolaan extends Model
         'description_en',
         'type',
         'published_at',
-        'subtitle',
-        'subtitle_en',
         'link_text',
         'link_url',
         'images',

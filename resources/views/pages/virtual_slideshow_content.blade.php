@@ -188,7 +188,12 @@
     </div>
 </div>
 
-{{-- ======== HERO SECTION ======== --}}
+@php
+    $isVirtualArchive = in_array($feature->page_type, ['real', '3d', 'book', 'slideshow']);
+@endphp
+
+@if($isVirtualArchive)
+{{-- ======== HERO SECTION (Pameran Arsip Virtual) ======== --}}
 @if($heroSlide)
 <section class="vsshow-hero" style="{{ $heroSlide->bg_color && $heroSlide->bg_color !== '#ffffff' ? 'background: linear-gradient(135deg, '.e($heroSlide->bg_color).' 0%, #174E93 60%, #2563EB 100%);' : '' }}">
     <div id="vss-particles" class="vsshow-hero-particles"></div>
@@ -256,6 +261,19 @@
         {{ __('home.virtual_slideshow.scroll') }}
     </div>
 </section>
+@endif
+@else
+{{-- Photo hero (semua halaman lain) --}}
+<div class="feature-hero" style="padding: 3rem 0;">
+    <div class="container">
+        @if($feature->parent)
+            <p style="font-size:0.8rem;opacity:0.7;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em;color:#fff;">
+                {{ app()->getLocale() === 'en' && $feature->parent->name_en ? $feature->parent->name_en : $feature->parent->name }}
+            </p>
+        @endif
+        <h1>{{ $selectedPage->translated_title }}</h1>
+    </div>
+</div>
 @endif
 
 {{-- ======== CONTENT SLIDES ======== --}}
@@ -765,7 +783,8 @@
 @if(isset($requiresLoginModal) && $requiresLoginModal)
     @include('partials.login_modal', [
         'previewImage' => $loginModalPreview ?? null,
-        'roomName'     => $loginModalRoomName ?? null
+        'roomName'     => $loginModalRoomName ?? null,
+        'loginModalPrompt' => $loginModalPrompt ?? null
     ])
 @endif
 

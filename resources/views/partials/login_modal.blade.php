@@ -235,7 +235,7 @@
                 <div style="color:#fff;">
                     <div
                         style="display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.25);border-radius:999px;font-size:11px;font-weight:600;padding:4px 12px;margin-bottom:0.5rem;letter-spacing:0.04em;text-transform:uppercase;">
-                        {{ $feature->translated_parent_name ?? __('auth.pameran_arsip_virtual_default') }}
+                        {{ $feature->translated_parent_name ?? $feature->translated_name }}
                     </div>
                     <h4
                         style="font-size:1.15rem;font-weight:800;margin:0 0 0.3rem;text-shadow:0 2px 4px rgba(0,0,0,0.5);">

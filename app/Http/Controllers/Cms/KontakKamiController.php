@@ -47,7 +47,6 @@ class KontakKamiController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'subtitle' => 'nullable|string|max:255',
             'link_text' => 'nullable|string|max:255',
             'link_url' => 'nullable|string|max:500',
             'published_at' => 'nullable|date',
@@ -118,8 +117,6 @@ class KontakKamiController extends Controller
             'type' => 'kontak',
             'description' => $validated['description'] ?? null,
             'description_en' => ! empty($validated['description']) ? $this->translationService->translate($validated['description']) : null,
-            'subtitle' => $validated['subtitle'] ?? null,
-            'subtitle_en' => ! empty($validated['subtitle']) ? $this->translationService->translate($validated['subtitle']) : null,
             'link_text' => $validated['link_text'] ?? null,
             'link_url' => $validated['link_url'] ?? null,
             'images' => $imagePaths ?: null,
@@ -152,7 +149,6 @@ class KontakKamiController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'subtitle' => 'nullable|string|max:255',
             'link_text' => 'nullable|string|max:255',
             'link_url' => 'nullable|string|max:500',
             'published_at' => 'nullable|date',
@@ -231,8 +227,6 @@ class KontakKamiController extends Controller
             'type' => 'kontak',
             'description' => $validated['description'] ?? null,
             'description_en' => ! empty($validated['description']) ? $this->translationService->translate($validated['description']) : null,
-            'subtitle' => $validated['subtitle'] ?? null,
-            'subtitle_en' => ! empty($validated['subtitle']) ? $this->translationService->translate($validated['subtitle']) : null,
             'link_text' => $validated['link_text'] ?? null,
             'link_url' => $validated['link_url'] ?? null,
             'published_at' => $validated['published_at'] ?? $kontakKami->published_at,

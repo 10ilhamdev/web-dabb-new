@@ -393,7 +393,7 @@
                         $hasDesc = !empty(trim(strip_tags($pageDesc))) || !empty(trim($pageDesc));
                         $hasImages = $page->images && count($page->images) > 0;
                         $hasSections = $page->sections && $page->sections->count() > 0;
-                        $hasTitle = $page->type === 'default' && !empty(trim($pageTitle));
+                        $hasTitle = in_array($page->type, ['default', 'tugas_fungsi']) && !empty(trim($pageTitle));
                         $hasLink = !empty(trim($page->link_text)) && !empty(trim($page->link_url));
                     @endphp
 
@@ -401,6 +401,9 @@
                         <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;" class="guest-dynamic-grid">
                             <div class="preview-text-col" style="min-width:0;overflow:hidden;">
                                 <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                                    @if ($hasTitle)
+                                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                                    @endif
                                     @if ($hasDesc)
                                         <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                                     @endif
@@ -417,9 +420,6 @@
                                                 @endif
                                             </div>
                                         @endforeach
-                                    @endif
-                                    @if ($hasTitle)
-                                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
                                     @endif
                                     @if ($hasLink)
                                         <a href="{{ $page->link_url }}" class="page-link-btn" target="_blank" style="display:inline-flex;align-items:center;gap:0.5rem;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#174E93;color:white;border-radius:0.5rem;font-weight:500;text-decoration:none;">
@@ -462,6 +462,9 @@
                         </div>
                     @elseif ($hasDesc || $hasSections || $hasTitle || $hasLink)
                         <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                            @if ($hasTitle)
+                                <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                            @endif
                             @if ($hasDesc)
                                 <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                             @endif
@@ -478,9 +481,6 @@
                                         @endif
                                     </div>
                                 @endforeach
-                            @endif
-                            @if ($hasTitle)
-                                <h2 class="profile-section-title">{{ $pageTitle }}</h2>
                             @endif
                             @if ($hasLink)
                                 <a href="{{ $page->link_url }}" class="page-link-btn" target="_blank" style="display:inline-flex;align-items:center;gap:0.5rem;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#174E93;color:white;border-radius:0.5rem;font-weight:500;text-decoration:none;">
@@ -503,6 +503,7 @@
                         $hasDesc = !empty(trim(strip_tags($pageDesc))) || !empty(trim($pageDesc));
                         $hasImages = $page->images && count($page->images) > 0;
                         $hasSections = $page->sections && $page->sections->count() > 0;
+                        $hasTitle = !empty(trim($pageTitle));
                     @endphp
 
                     {{-- Grid layout: text/sections left, images right — exact same structure as tugas_fungsi --}}
@@ -510,6 +511,9 @@
                         <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;" class="guest-dynamic-grid">
                             <div class="preview-text-col" style="min-width:0;overflow:hidden;">
                                 <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                                    @if ($hasTitle)
+                                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                                    @endif
                                     @if ($hasDesc)
                                         <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                                     @endif
@@ -560,8 +564,11 @@
                                 @endforeach
                             </div>
                         </div>
-                    @elseif ($hasDesc || $hasSections)
+                    @elseif ($hasDesc || $hasSections || $hasTitle)
                         <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                            @if ($hasTitle)
+                                <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                            @endif
                             @if ($hasDesc)
                                 <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                             @endif
@@ -614,6 +621,7 @@
                         $hasImages = $page->images && count($page->images) > 0;
                         $hasSections = $page->sections && $page->sections->count() > 0;
                         $hasCharts = $chartData && is_array($chartData) && count($chartData) > 0;
+                        $hasTitle = !empty(trim($pageTitle));
                     @endphp
 
                     {{-- Description + Images Grid (same as tugas_fungsi) --}}
@@ -621,6 +629,9 @@
                         <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;width:100%;margin-bottom:2rem;" class="guest-dynamic-grid">
                             <div class="preview-text-col" style="min-width:0;overflow:hidden;">
                                 <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0;">
+                                    @if ($hasTitle)
+                                        <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                                    @endif
                                     @if ($hasDesc)
                                         <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                                     @endif
@@ -632,7 +643,7 @@
                                                         {{ $locale === 'en' ? $section->title_en ?? $section->title : $section->title }}
                                                     </h2>
                                                 @endif
-                                      @if ($section->description)
+                                                @if ($section->description)
                                                     <div class="profile-section-desc" style="color: #475569; line-height: 1.75; font-size: 1rem;">{!! $locale === 'en' ? $section->description_en ?? $section->description : $section->description !!}</div>
                                                 @endif
                                             </div>
@@ -671,8 +682,11 @@
                                 @endforeach
                             </div>
                         </div>
-                    @elseif ($hasDesc || $hasSections)
+                    @elseif ($hasDesc || $hasSections || $hasTitle)
                         <div style="width: 100%; word-break: break-word; overflow-wrap: break-word; min-width: 0; margin-bottom: 2rem;">
+                            @if ($hasTitle)
+                                <h2 class="profile-section-title">{{ $pageTitle }}</h2>
+                            @endif
                             @if ($hasDesc)
                                 <div class="profile-section-desc" style="margin-bottom: 1.5rem;">{!! $pageDesc !!}</div>
                             @endif
@@ -749,6 +763,17 @@
                 <p class="text-gray-400">{{ __('cms.profile.public_empty') }}</p>
             </div>
         </section>
+    @endif
+
+    {{-- Login Modal (if guest) --}}
+    @if(isset($requiresLoginModal) && $requiresLoginModal)
+        @include('partials.login_modal', [
+            'loginModalPreviews'  => $loginModalPreviews ?? [],
+            'loginModalPreview'   => $loginModalPreview ?? null,
+            'loginModalRoomNames' => $loginModalRoomNames ?? [],
+            'loginModalRoomName'  => $loginModalRoomName ?? null,
+            'loginModalPrompt'    => $loginModalPrompt ?? null
+        ])
     @endif
 
 @endsection

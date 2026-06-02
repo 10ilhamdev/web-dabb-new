@@ -190,6 +190,11 @@
     </div>
 </div>
 
+@php
+    $isVirtualArchive = in_array($feature->page_type, ['real', '3d', 'book', 'slideshow']);
+@endphp
+
+@if($isVirtualArchive)
 {{-- Hero --}}
 <div class="vss-landing-hero">
     <div class="container">
@@ -200,6 +205,19 @@
         <p>{{ __('home.virtual_slideshow.hero_desc') }}</p>
     </div>
 </div>
+@else
+{{-- Photo hero (semua halaman lain) --}}
+<div class="feature-hero">
+    <div class="container">
+        @if($feature->parent)
+            <p style="font-size:0.8rem;opacity:0.7;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em;color:#fff;">
+                {{ app()->getLocale() === 'en' && $feature->parent->name_en ? $feature->parent->name_en : $feature->parent->name }}
+            </p>
+        @endif
+        <h1>{{ app()->getLocale() === 'en' && $feature->name_en ? $feature->name_en : $feature->name }}</h1>
+    </div>
+</div>
+@endif
 
 {{-- Rooms Grid --}}
 <section class="vss-rooms-section">
@@ -302,7 +320,8 @@
 @if(isset($requiresLoginModal) && $requiresLoginModal)
     @include('partials.login_modal', [
         'previewImage' => $loginModalPreview ?? null,
-        'roomName'     => $loginModalRoomName ?? null
+        'roomName'     => $loginModalRoomName ?? null,
+        'loginModalPrompt' => $loginModalPrompt ?? null
     ])
 @endif
 

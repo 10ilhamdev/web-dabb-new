@@ -20,8 +20,6 @@ return new class extends Migration
             $table->longText('description_en')->nullable();
             $table->string('type'); // kunjungan, laraska, statis, konsultasi, perpustakaan
             $table->date('published_at')->nullable();
-            $table->string('subtitle')->nullable();
-            $table->string('subtitle_en')->nullable();
             $table->string('link_text')->nullable();
             $table->string('link_url')->nullable();
             $table->json('images')->nullable();
