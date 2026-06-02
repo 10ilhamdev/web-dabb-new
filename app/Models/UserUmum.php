@@ -18,6 +18,7 @@ class UserUmum extends Model
         'nomor_kartu_identitas',
         'alamat',
         'nomor_whatsapp',
+        'agama',
         'jenis_keperluan',
         'judul_keperluan',
         'created_at',

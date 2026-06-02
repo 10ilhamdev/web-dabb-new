@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class VirtualBookPage extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'feature_id',
         'book_id',
@@ -33,6 +35,24 @@ class VirtualBookPage extends Model
         'image_positions' => 'array',
         'text_position' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($page) {
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($page->thumbnail) {
+                $disk->delete($page->thumbnail);
+            }
+            if ($page->images && is_array($page->images)) {
+                foreach ($page->images as $img) {
+                    $disk->delete($img);
+                }
+            }
+            if ($page->image) {
+                $disk->delete($page->image);
+            }
+        });
+    }
 
     public function feature()
     {

@@ -125,7 +125,7 @@
     @endif
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.virtual_3d_rooms.index', $feature) }}"
-        class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.virtual_3d_rooms.breadcrumb_parent') }}</a>
+        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
 @endsection
 @section('breadcrumb_active', __('cms.virtual_3d_rooms.breadcrumb_edit', ['name' => $room->name]))
 

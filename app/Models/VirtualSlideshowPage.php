@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class VirtualSlideshowPage extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $table = 'virtual_slideshow_pages';
 
     protected $fillable = [
@@ -17,6 +19,18 @@ class VirtualSlideshowPage extends Model
         'order',
         'thumbnail_path',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($page) {
+            if ($page->thumbnail_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($page->thumbnail_path);
+            }
+            foreach ($page->slideshowSlides as $slide) {
+                $slide->delete();
+            }
+        });
+    }
 
     public function feature()
     {

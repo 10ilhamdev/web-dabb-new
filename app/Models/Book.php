@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'feature_id',
         'title',
@@ -45,6 +47,28 @@ class Book extends Model
         'back_cover_texts' => 'array',
         'back_title_position' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($book) {
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($book->cover_image) {
+                $disk->delete($book->cover_image);
+            }
+            if ($book->back_cover_image) {
+                $disk->delete($book->back_cover_image);
+            }
+            if ($book->thumbnail) {
+                $disk->delete($book->thumbnail);
+            }
+            if ($book->pdf_path) {
+                $disk->delete($book->pdf_path);
+            }
+            foreach ($book->pages as $page) {
+                $page->delete();
+            }
+        });
+    }
 
     public function feature()
     {

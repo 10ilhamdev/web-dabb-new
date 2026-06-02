@@ -175,16 +175,6 @@ class PublicationController extends Controller
      */
     public function destroy(Feature $feature, Publication $publication)
     {
-        if ($publication->images) {
-            foreach ($publication->images as $img) {
-                Storage::disk('public')->delete($img);
-            }
-        }
-
-        if (isset($publication->extra_data['file'])) {
-            Storage::disk('public')->delete($publication->extra_data['file']);
-        }
-
         $this->deleteAndShiftOrder($publication, ['feature_id' => $feature->id]);
 
         return redirect()->route('cms.features.publication.index', $feature)

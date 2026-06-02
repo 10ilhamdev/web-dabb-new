@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class VirtualRoom extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'feature_id',
         'name',
@@ -13,6 +15,18 @@ class VirtualRoom extends Model
         'thumbnail_path',
         'image_360_path',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($room) {
+            if ($room->thumbnail_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($room->thumbnail_path);
+            }
+            if ($room->image_360_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($room->image_360_path);
+            }
+        });
+    }
 
     public function feature()
     {

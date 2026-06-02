@@ -300,14 +300,6 @@ class Virtual3dRoomController extends Controller
 
     public function destroy(Feature $feature, Virtual3dRoom $room)
     {
-        if ($room->thumbnail_path) {
-            Storage::disk('public')->delete($room->thumbnail_path);
-        }
-
-        foreach ($room->media as $media) {
-            Storage::disk('public')->delete($media->file_path);
-        }
-
         $room->delete();
 
         return redirect()->route('cms.features.virtual_3d_rooms.index', $feature)
@@ -350,6 +342,15 @@ class Virtual3dRoomController extends Controller
         $media->height = $validated['height'];
         $media->save();
 
+        // Regenerate auto-thumbnail if the thumbnail was auto-generated to keep it updated,
+        // and delete the old one to avoid leaving orphaned thumbnails in storage.
+        if ($room->thumbnail_path && str_contains($room->thumbnail_path, 'virtual_3d_rooms/thumbnails/thumbnail_')) {
+            Storage::disk('public')->delete($room->thumbnail_path);
+            $room->load('media');
+            $room->thumbnail_path = $this->generateAutoThumbnail($room);
+            $room->save();
+        }
+
         return response()->json([
             'success' => true,
             'media' => $media,
@@ -388,6 +389,15 @@ class Virtual3dRoomController extends Controller
         $media->description = $desc;
         $media->save();
 
+        // Regenerate auto-thumbnail if the thumbnail was auto-generated to keep it updated,
+        // and delete the old one to avoid leaving orphaned thumbnails in storage.
+        if ($room->thumbnail_path && str_contains($room->thumbnail_path, 'virtual_3d_rooms/thumbnails/thumbnail_')) {
+            Storage::disk('public')->delete($room->thumbnail_path);
+            $room->load('media');
+            $room->thumbnail_path = $this->generateAutoThumbnail($room);
+            $room->save();
+        }
+
         return response()->json(['success' => true, 'media' => $media]);
     }
 
@@ -395,6 +405,16 @@ class Virtual3dRoomController extends Controller
     {
         Storage::disk('public')->delete($media->file_path);
         $media->delete();
+
+        // Regenerate auto-thumbnail if the thumbnail was auto-generated to keep it updated,
+        // and delete the old one to avoid leaving orphaned thumbnails in storage.
+        if ($room->thumbnail_path && str_contains($room->thumbnail_path, 'virtual_3d_rooms/thumbnails/thumbnail_')) {
+            Storage::disk('public')->delete($room->thumbnail_path);
+            $room->load('media');
+            $room->thumbnail_path = $this->generateAutoThumbnail($room);
+            $room->save();
+        }
+
         return response()->json(['success' => true]);
     }
 }

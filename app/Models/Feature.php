@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Feature extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'name',
         'name_en',
@@ -32,8 +34,149 @@ class Feature extends Model
             \Illuminate\Support\Facades\Cache::forget('navFeatures');
         });
 
-        static::deleted(function () {
+        static::deleting(function ($feature) {
             \Illuminate\Support\Facades\Cache::forget('navFeatures');
+
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($feature->book_cover) {
+                $disk->delete($feature->book_cover);
+            }
+            if ($feature->book_thumbnail) {
+                $disk->delete($feature->book_thumbnail);
+            }
+
+            // Hapus file bahasa/terjemahan khusus home_{id}.php jika ada
+            $locales = ['id', 'en'];
+            foreach ($locales as $locale) {
+                $langFile = resource_path("lang/{$locale}/home_{$feature->id}.php");
+                if (file_exists($langFile)) {
+                    @unlink($langFile);
+                }
+            }
+
+            // Hapus seluruh sub-fitur / sub-menu secara rekursif (akan memicu event deleting di sub-fitur tersebut)
+            foreach ($feature->subfeatures as $sub) {
+                $sub->delete();
+            }
+
+            // Hapus seluruh data relasi (file fisik akan dihapus otomatis oleh event deleting/deleted di masing-masing model)
+            // 1. Pages (FeaturePage)
+            foreach ($feature->pages as $page) {
+                $page->delete();
+            }
+
+            // 2. Slideshow Pages
+            foreach ($feature->slideshowPages as $slideshowPage) {
+                $slideshowPage->delete();
+            }
+
+            // 3. Virtual 3D Rooms
+            foreach ($feature->virtual3dRooms as $room) {
+                $room->delete();
+            }
+
+            // 4. Virtual Rooms (360)
+            foreach ($feature->virtualRooms as $vRoom) {
+                $vRoom->delete();
+            }
+
+            // 5. Publications
+            foreach ($feature->publications as $pub) {
+                $pub->delete();
+            }
+
+            // 6. Books
+            foreach ($feature->books as $book) {
+                $book->delete();
+            }
+
+            // 7. Slideshow Slides
+            foreach ($feature->slideshowSlides as $slide) {
+                $slide->delete();
+            }
+
+            // 8. Profiles
+            foreach ($feature->profiles as $profile) {
+                $profile->delete();
+            }
+
+            // 9. Layanan Publiks
+            foreach ($feature->layananPubliks as $layanan) {
+                $layanan->delete();
+            }
+
+            // 10. Pengelolaans
+            foreach ($feature->pengelolaans as $pengelolaan) {
+                $pengelolaan->delete();
+            }
+
+            // 11. Kontak Kamis
+            foreach ($feature->kontakKamis as $kontak) {
+                $kontak->delete();
+            }
+        });
+
+        static::updating(function ($feature) {
+            // Jika tipe halaman diubah dari 'home' ke tipe lain, hapus file terjemahan home_{id}.php
+            if ($feature->isDirty('page_type') && $feature->getOriginal('page_type') === 'home') {
+                $locales = ['id', 'en'];
+                foreach ($locales as $locale) {
+                    $langFile = resource_path("lang/{$locale}/home_{$feature->id}.php");
+                    if (file_exists($langFile)) {
+                        @unlink($langFile);
+                    }
+                }
+            }
+
+            // Jika page_type diubah, hapus juga data lama dari page_type sebelumnya beserta file fisiknya (via model delete)
+            if ($feature->isDirty('page_type')) {
+                $oldType = $feature->getOriginal('page_type');
+                
+                if ($oldType === '3d') {
+                    foreach ($feature->virtual3dRooms as $room) {
+                        $room->delete();
+                    }
+                } elseif ($oldType === 'real') {
+                    foreach ($feature->virtualRooms as $vRoom) {
+                        $vRoom->delete();
+                    }
+                } elseif ($oldType === 'publication') {
+                    foreach ($feature->publications as $pub) {
+                        $pub->delete();
+                    }
+                } elseif ($oldType === 'book') {
+                    foreach ($feature->books as $book) {
+                        $book->delete();
+                    }
+                } elseif ($oldType === 'slideshow') {
+                    foreach ($feature->slideshowSlides as $slide) {
+                        $slide->delete();
+                    }
+                    foreach ($feature->slideshowPages as $slideshowPage) {
+                        $slideshowPage->delete();
+                    }
+                } elseif ($oldType === 'onsite') {
+                    foreach ($feature->pages as $page) {
+                        $page->delete();
+                    }
+                } elseif ($oldType === 'profile') {
+                    foreach ($feature->profiles as $profile) {
+                        $profile->delete();
+                    }
+                } elseif ($oldType === 'layanan_publik') {
+                    foreach ($feature->layananPubliks as $layanan) {
+                        $layanan->delete();
+                    }
+                } elseif ($oldType === 'pengelolaan') {
+                    foreach ($feature->pengelolaans as $pengelolaan) {
+                        $pengelolaan->delete();
+                    }
+                } elseif ($oldType === 'kontak_kami') {
+                    foreach ($feature->kontakKamis as $kontak) {
+                        $kontak->delete();
+                    }
+                }
+            }
         });
     }
 

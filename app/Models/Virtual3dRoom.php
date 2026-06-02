@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Virtual3dRoom extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $table = 'virtual3d_rooms';
 
     protected $fillable = [
@@ -30,6 +32,19 @@ class Virtual3dRoom extends Model
     protected $casts = [
         'doors' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($room) {
+            if ($room->thumbnail_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($room->thumbnail_path);
+            }
+            foreach ($room->media as $media) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($media->file_path);
+                $media->delete();
+            }
+        });
+    }
 
     public function feature()
     {

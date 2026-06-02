@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FeaturePageSection extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'feature_page_id',
         'title',
@@ -21,6 +23,18 @@ class FeaturePageSection extends Model
         'images' => 'array',
         'image_positions' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($section) {
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($section->images && is_array($section->images)) {
+                foreach ($section->images as $img) {
+                    $disk->delete($img);
+                }
+            }
+        });
+    }
 
     /**
      * Get the images attribute with proper JSON decoding.

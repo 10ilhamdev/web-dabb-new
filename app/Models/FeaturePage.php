@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FeaturePage extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'feature_id',
         'title',
@@ -21,6 +23,15 @@ class FeaturePage extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($page) {
+            foreach ($page->sections as $section) {
+                $section->delete();
+            }
+        });
     }
 
     public function feature()

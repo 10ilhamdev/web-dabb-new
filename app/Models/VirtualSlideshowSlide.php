@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class VirtualSlideshowSlide extends Model
 {
+    use \App\Traits\CleansRteMedia;
+
     protected $fillable = [
         'feature_id',
         'feature_page_id',
@@ -33,6 +35,30 @@ class VirtualSlideshowSlide extends Model
         'carousel_video_urls' => 'array',
         'info_popup' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($slide) {
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($slide->images && is_array($slide->images)) {
+                foreach ($slide->images as $img) {
+                    $disk->delete($img);
+                }
+            }
+            if ($slide->video_file) {
+                if (is_string($slide->video_file) && str_starts_with($slide->video_file, '[')) {
+                    $decoded = json_decode($slide->video_file, true);
+                    if (is_array($decoded)) {
+                        foreach ($decoded as $oldFile) {
+                            $disk->delete($oldFile);
+                        }
+                    }
+                } else {
+                    $disk->delete($slide->video_file);
+                }
+            }
+        });
+    }
 
     public function getImagesAttribute($value)
     {

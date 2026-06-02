@@ -94,7 +94,7 @@ class FeaturePageController extends Controller
             $validated['description_en'] = $translationService->translate($validated['description']);
         }
 
-        if ($request->hasFile('thumbnail')) {
+        if ($feature->page_type === 'slideshow' && $request->hasFile('thumbnail')) {
             $validated['thumbnail_path'] = $request->file('thumbnail')->store('features/pages/thumbnails', 'public');
         }
 
@@ -193,21 +193,12 @@ class FeaturePageController extends Controller
         // Use VirtualSlideshowPage for slideshow page_type
         if ($feature->page_type === 'slideshow') {
             $page = VirtualSlideshowPage::findOrFail($pageId);
-            // Delete thumbnail
-            if ($page->thumbnail_path) {
-                Storage::disk('public')->delete($page->thumbnail_path);
-            }
             $this->deleteAndShiftOrder($page, ['feature_id' => $page->feature_id]);
             return redirect()->route('cms.features.slideshow.index', $feature)
                 ->with('success', __('cms.feature_pages.flash.page_deleted'));
         }
 
         $page = FeaturePage::findOrFail($pageId);
-        // Delete section images
-        foreach ($page->sections as $section) {
-            $this->deleteSectionImages($section);
-        }
-
         $this->deleteAndShiftOrder($page, ['feature_id' => $page->feature_id]);
 
         return redirect()->route('cms.features.pages.index', $feature)
@@ -682,11 +673,11 @@ class FeaturePageController extends Controller
         // Handle beranda page type - load content from language files
         // Check if there's a dedicated home_{id}.php file for this feature (except for original beranda)
         $homeFilePath = resource_path("lang/id/home_{$feature->id}.php");
-        if ($feature->id != 1 && File::exists($homeFilePath)) {
+        if ($feature->page_type === 'home' && $feature->id != 1 && File::exists($homeFilePath)) {
             $locale = app()->getLocale();
             $idContent = $this->loadBerandaContent($feature->id, 'id');
             $enContent = $this->loadBerandaContent($feature->id, 'en');
-            $content = $locale === 'id' ? $enContent : $idContent;
+            $content = $locale === 'id' ? $idContent : $enContent;
 
             return view('welcome', compact('feature', 'content'));
         }

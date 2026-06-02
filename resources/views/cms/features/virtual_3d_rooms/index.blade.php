@@ -25,7 +25,7 @@
             class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
     @endif
 @endsection
-@section('breadcrumb_active', __('cms.virtual_3d_rooms.breadcrumb_parent'))
+@section('breadcrumb_active', $feature->name)
 
 @section('content')
     <div class="space-y-6">
