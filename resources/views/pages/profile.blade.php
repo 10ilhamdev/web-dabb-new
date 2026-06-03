@@ -56,14 +56,7 @@
             margin-bottom: 1.5rem;
         }
 
-        .profile-section-desc table { border-collapse: collapse !important; margin: 1rem 0 !important; max-width: 100% !important; }
-        .profile-section-desc table th { font-weight: 700 !important; text-align: center !important; padding: 6px 8px !important; border: 1px solid #000000 !important; }
-        .profile-section-desc table td { padding: 6px 8px !important; border: 1px solid #000000 !important; vertical-align: top !important; }
-        .profile-section-desc img { max-width: 100%; height: auto !important; border-radius: 2px; }
-        
-        /* Figure & Figcaption Parity */
-        .profile-section-desc figure { display: inline-table; margin: 0.5em 4px; vertical-align: top; max-width: 100%; }
-        .profile-section-desc figcaption { text-align: center; font-size: 0.85em; color: #555; padding: 4px 0; display: table-caption; caption-side: bottom; word-break: break-word; }
+
 
         .profile-section-desc [style*="text-align:center"],
         .profile-section-desc [style*="text-align: center"],
