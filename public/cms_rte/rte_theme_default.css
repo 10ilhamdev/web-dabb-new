@@ -380,7 +380,7 @@
 
 .rte-content {
     min-height: 100%;
-    padding: 12px 14px;
+    padding: 4px 14px 12px 14px;
     outline: none;
     background: #fff;
     color: #222;
@@ -388,6 +388,10 @@
     box-sizing: border-box;
     overflow-x: visible;
     word-wrap: break-word;
+}
+
+.rte-content > *:first-child {
+    margin-top: 0 !important;
 }
 
 .rte-content:focus {
@@ -404,87 +408,83 @@
     margin: 0 0 0.6em;
 }
 
-/* CRITICAL FIX: Force all descendants of headings to inherit font-size
-   so inline-styled spans from previous formatting don't override heading size */
-.rte-content h1 *,
-.rte-content h2 *,
-.rte-content h3 *,
-.rte-content h4 *,
-.rte-content h5 *,
-.rte-content h6 * {
-    font-size: inherit !important;
-}
+/*
+ * Heading font-size has no !important so the Size dropdown's inline
+ * style on a heading element can win when the user picks a custom size.
+ * Display/family/weight stay !important because they shouldn't change
+ * via dropdowns.
+ */
 
 .rte-content h1 {
-    font-size: 32px !important;
-    font-weight: 700 !important;
-    color: #1e40af !important;
-    margin: 20px 0 8px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
-    display: block !important;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e40af;
+    margin: 20px 0 8px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
+    display: block;
 }
 
 .rte-content h2 {
-    font-size: 24px !important;
-    font-weight: 600 !important;
-    color: #2563eb !important;
-    margin: 18px 0 6px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
-    display: block !important;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2563eb;
+    margin: 18px 0 6px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
+    display: block;
 }
 
 .rte-content h3 {
-    font-size: 20px !important;
-    font-weight: 600 !important;
-    color: #0f172a !important;
-    margin: 16px 0 5px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
-    display: block !important;
+    font-size: 20px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 16px 0 5px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
+    display: block;
 }
 
 .rte-content h4 {
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    margin: 14px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: italic !important;
-    text-decoration: none !important;
-    display: block !important;
+    font-size: 17px;
+    font-weight: 600;
+    color: #334155;
+    margin: 14px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: italic;
+    text-decoration: none;
+    display: block;
 }
 
 .rte-content h5 {
-    font-size: 15px !important;
-    font-weight: 400 !important;
-    color: #475569 !important;
-    margin: 12px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: italic !important;
-    text-decoration: none !important;
-    display: block !important;
+    font-size: 15px;
+    font-weight: 400;
+    color: #475569;
+    margin: 12px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: italic;
+    text-decoration: none;
+    display: block;
 }
 
 .rte-content h6 {
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #64748b !important;
-    margin: 10px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
-    display: block !important;
+    font-size: 14px;
+    font-weight: 400;
+    color: #64748b;
+    margin: 10px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
+    display: block;
 }
 
 .rte-content blockquote {
@@ -531,15 +531,31 @@
 
 .rte-content table {
     border-collapse: collapse;
-    width: 100%;
     margin: 0.5em 0;
+    table-layout: fixed;
+    min-width: 0 !important;
+}
+.rte-content table:not([style*="width"]):not([width]) {
+    width: 100%;
 }
 
 .rte-content table td,
 .rte-content table th {
     border: 1px solid #d0d4da;
     padding: 6px 8px;
-    min-width: 40px;
+    min-width: 0 !important;
+    word-break: break-all !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+}
+
+.rte-content table td *,
+.rte-content table th * {
+    word-break: break-all !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
 }
 
 .rte-content table th {
@@ -1237,7 +1253,7 @@ body.rte-body-fullscreen {
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: all;
+    pointer-events: auto;
     z-index: 2;
     box-shadow: 0 2px 6px rgba(55, 125, 255, 0.4);
     transition: background 120ms ease, transform 120ms ease;
@@ -1264,7 +1280,7 @@ body.rte-body-fullscreen {
     background: #fff;
     border: 2px solid #377dff;
     border-radius: 50%;
-    pointer-events: all;
+    pointer-events: auto;
     z-index: 3;
     transition: transform 120ms ease, background 120ms ease;
 }
@@ -1358,7 +1374,7 @@ body.rte-body-fullscreen {
     top: 0;
     bottom: 0;
     cursor: col-resize;
-    pointer-events: all;
+    pointer-events: auto;
 }
 
 .rte-row-resize-line {
@@ -1366,7 +1382,7 @@ body.rte-body-fullscreen {
     left: 0;
     right: 0;
     cursor: row-resize;
-    pointer-events: all;
+    pointer-events: auto;
 }
 
 .rte-col-resize-line:hover,
@@ -1682,7 +1698,7 @@ body.rte-body-fullscreen {
     background: #fff;
     border: 2px solid #3b82f6;
     border-radius: 50%;
-    pointer-events: all;
+    pointer-events: auto;
     z-index: 9999;
 }
 

@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
 <link rel="stylesheet" href="{{ asset('css/virtual_slideshow.css') }}">
-<link rel="stylesheet" href="{{ asset('cms_rte/runtime/richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/richtexteditor_content.css')) : time())) }}">
+<link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) : time())) }}">
 <style>
     /* Back button for slideshow view */
     .vss-back-btn {
@@ -232,9 +232,9 @@
         </p>
         @endif
         @if($heroSlide->description)
-        <p class="vsshow-hero-subtitle vsshow-enter" data-enter-delay="3" style="font-size:1rem;opacity:0.7;">
+        <div class="vsshow-hero-subtitle vsshow-enter rte-content-body" data-enter-delay="3" style="font-size:1rem;opacity:0.9;margin-top:1.5rem;">
             {!! $heroSlide->translated_description !!}
-        </p>
+        </div>
         @endif
     </div>
 
@@ -253,7 +253,9 @@
             {{ $selectedPage->translated_title }}
         </h1>
         @if($selectedPage->description)
-        <p class="vsshow-hero-subtitle vsshow-enter" data-enter-delay="2">{!! Str::limit(strip_tags($selectedPage->translated_description), 200) !!}</p>
+        <div class="vsshow-hero-subtitle vsshow-enter rte-content-body" data-enter-delay="2" style="font-size:1rem;opacity:0.9;margin-top:1.5rem;">
+            {!! $selectedPage->translated_description !!}
+        </div>
         @endif
     </div>
     <div class="vsshow-hero-scroll-hint vsshow-enter" data-enter-delay="5">
@@ -417,11 +419,13 @@
         {{-- VIDEO --}}
         @elseif($slide->slide_type === 'video')
         <div>
-            @if($title)
+            @if($title || $subtitle || $desc)
             <div class="vsshow-text-section" style="margin-bottom:2.5rem;">
+                @if($title)
                 <div class="vsshow-section-tag vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="0">{{ $selectedPage->translated_title }}</div>
                 <h2 class="vsshow-section-title vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="1">{{ $title }}</h2>
                 <div class="vsshow-divider vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="2"></div>
+                @endif
                 @if($subtitle)<p class="vsshow-section-subtitle vsshow-enter" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="3">{{ $subtitle }}</p>@endif
                 @if($desc)<div class="vsshow-section-desc vsshow-enter rte-content-body" data-swipe="{{ $slideIndex % 2 === 0 ? 'left' : 'right' }}" data-enter-delay="4">{!! $desc !!}</div>@endif
             </div>

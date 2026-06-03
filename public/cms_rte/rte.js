@@ -76,6 +76,24 @@
         });
     }
 
+    function convertGoogleDriveUrl(url, type) {
+        if (!url) return '';
+        var match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        var fileId = null;
+        if (match) fileId = match[1];
+        if (!fileId) {
+            match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (match) fileId = match[1];
+        }
+        if (fileId) {
+            if (type === 'video') {
+                return 'https://drive.google.com/file/d/' + fileId + '/preview';
+            }
+            return 'https://lh3.googleusercontent.com/d/' + fileId;
+        }
+        return url;
+    }
+
     // SVG icons (inline, monochrome — colored via CSS currentColor)
     var ICON = {
         bold: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></svg>',
@@ -663,7 +681,7 @@
         // target and hide target. This lets the original element remain in DOM
         // (handy for textarea form binding).
         var wrapper = el('div', { class: 'richtexteditor rte-modern', id: this.id });
-        wrapper.style.height = cfg.height;
+        wrapper.style.height = typeof cfg.height === 'number' ? cfg.height + 'px' : cfg.height;
         wrapper.style.minHeight = '300px';
         if (target.tagName === 'TEXTAREA') {
             target.style.display = 'none';
@@ -982,12 +1000,7 @@
                     if (item.action === 'block') {
                         self.exec('formatBlock', opt.value);
                     } else if (item.action === 'fontName') {
-                        if (opt.value) {
-                            self.exec('fontName', opt.value);
-                        } else {
-                            // Reset to default font by applying 'inherit'
-                            self.exec('fontName', 'inherit');
-                        }
+                        self._setFontFamily(opt.value || '');
                     } else if (item.action === 'fontSize') {
                         self._setFontSize(opt.value);
                     } else if (item.action === 'lineHeight') {
@@ -1163,7 +1176,11 @@
                 onclick: function (e) {
                     e.preventDefault();
                     self._focusContent();
-                    self.exec(item.cmd, c);
+                    if (item.cmd === 'foreColor') {
+                        self._setForeColor(c);
+                    } else {
+                        self._setHiliteColor(c);
+                    }
                     swatch.style.background = c;
                     closePanel();
                     self._syncSource();
@@ -1179,7 +1196,11 @@
             onclick: function (e) {
                 e.preventDefault();
                 self._focusContent();
-                self.exec(item.cmd, input.value);
+                if (item.cmd === 'foreColor') {
+                    self._setForeColor(input.value);
+                } else {
+                    self._setHiliteColor(input.value);
+                }
                 swatch.style.background = input.value;
                 closePanel();
                 self._syncSource();
@@ -1192,26 +1213,54 @@
                 e.preventDefault();
                 self._focusContent();
                 if (item.cmd === 'foreColor') {
-                    // Remove text color: use removeFormat for color, then restore other formats if needed
                     document.execCommand('styleWithCSS', false, true);
                     document.execCommand('foreColor', false, 'inherit');
-                    // Fallback: walk selected elements and clear color
                     var sel2 = window.getSelection();
                     if (sel2 && sel2.rangeCount > 0) {
                         var range2 = sel2.getRangeAt(0);
-                        var frag = range2.cloneContents();
-                        frag.querySelectorAll('*').forEach(function(n) { if(n.style) n.style.color = ''; });
+                        var container2 = range2.commonAncestorContainer;
+                        if (container2.nodeType === Node.TEXT_NODE) container2 = container2.parentNode;
+                        var els = [];
+                        var walker = document.createTreeWalker(container2, NodeFilter.SHOW_ELEMENT, null, false);
+                        while (walker.nextNode()) {
+                            var n = walker.currentNode;
+                            if (range2.intersectsNode(n)) els.push(n);
+                        }
+                        els.push(container2);
+                        els.forEach(function (n) {
+                            if (n !== self.content && n.style) {
+                                n.style.color = '';
+                                if (!n.getAttribute('style') || n.getAttribute('style').trim() === '') {
+                                    n.removeAttribute('style');
+                                }
+                            }
+                            if (n.tagName === 'FONT') n.removeAttribute('color');
+                        });
                     }
                     swatch.style.background = '#000000';
                 } else {
                     document.execCommand('styleWithCSS', false, true);
                     document.execCommand('hiliteColor', false, 'transparent');
-                    // Fallback: clear background color on selection nodes
                     var sel3 = window.getSelection();
                     if (sel3 && sel3.rangeCount > 0) {
                         var range3 = sel3.getRangeAt(0);
-                        var frag3 = range3.cloneContents();
-                        frag3.querySelectorAll('*').forEach(function(n) { if(n.style) n.style.backgroundColor = ''; });
+                        var container3 = range3.commonAncestorContainer;
+                        if (container3.nodeType === Node.TEXT_NODE) container3 = container3.parentNode;
+                        var els3 = [];
+                        var walker3 = document.createTreeWalker(container3, NodeFilter.SHOW_ELEMENT, null, false);
+                        while (walker3.nextNode()) {
+                            var n3 = walker3.currentNode;
+                            if (range3.intersectsNode(n3)) els3.push(n3);
+                        }
+                        els3.push(container3);
+                        els3.forEach(function (n3) {
+                            if (n3 !== self.content && n3.style) {
+                                n3.style.backgroundColor = '';
+                                if (!n3.getAttribute('style') || n3.getAttribute('style').trim() === '') {
+                                    n3.removeAttribute('style');
+                                }
+                            }
+                        });
                     }
                     swatch.style.background = 'transparent';
                 }
@@ -1331,18 +1380,172 @@
     RichTextEditor.prototype._setFontSize = function (val) {
         this._focusContent();
         document.execCommand('styleWithCSS', false, true);
-        // Use a dummy font size '7' to wrap the selection, then replace all dummy-marked elements
-        document.execCommand('fontSize', false, '7');
-        // Must query ALL elements — browser may apply the dummy size to any element (a, strong, em, etc.)
+
+        // Detect if the selection is inside a heading. If so, the new size
+        // must be applied to the HEADING element itself — applying it to
+        // a child <font>/<span> gets clobbered by the heading's font-size
+        // CSS rule. The user is explicitly trying to change the heading size.
+        var sel = window.getSelection();
+        var headingAncestor = null;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            var walker = node && node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+            while (walker && walker !== this.content) {
+                if (walker.tagName && /^H[1-6]$/.test(walker.tagName)) {
+                    headingAncestor = walker;
+                    break;
+                }
+                walker = walker.parentNode;
+            }
+        }
+
+        if (headingAncestor) {
+            // Strip the dummy wrapper that execCommand would add so we don't
+            // pollute the DOM, then set the size directly on the heading.
+            document.execCommand('fontSize', false, '7');
+            var allEls = this.content.querySelectorAll('*');
+            allEls.forEach(function (elem) {
+                var fs = elem.style && elem.style.fontSize ? elem.style.fontSize.trim().toLowerCase() : '';
+                var isDummy = (fs === 'xxx-large' || fs === '-webkit-xxx-large' ||
+                    fs === '48px' || fs === '36pt' ||
+                    (elem.tagName === 'FONT' && elem.getAttribute('size') === '7'));
+                if (isDummy) {
+                    elem.removeAttribute('size');
+                    elem.style.fontSize = '';
+                }
+            });
+            headingAncestor.style.fontSize = val;
+            // Clear inner fontSizes under the heading too to avoid overriding
+            headingAncestor.querySelectorAll('*').forEach(function (child) {
+                if (child.style) child.style.fontSize = '';
+                if (child.tagName === 'FONT') child.removeAttribute('size');
+            });
+        } else {
+            // Standard path: use a dummy font size '7' to wrap the selection,
+            // then replace all dummy-marked elements with the real size.
+            document.execCommand('fontSize', false, '7');
+            var allEls2 = this.content.querySelectorAll('*');
+            allEls2.forEach(function (elem) {
+                var fs = elem.style && elem.style.fontSize ? elem.style.fontSize.trim().toLowerCase() : '';
+                var isDummy = (fs === 'xxx-large' || fs === '-webkit-xxx-large' ||
+                    fs === '48px' || fs === '36pt' ||
+                    (elem.tagName === 'FONT' && elem.getAttribute('size') === '7'));
+                if (isDummy) {
+                    elem.removeAttribute('size');
+                    elem.style.fontSize = val; // e.g. "12pt"
+                    // Clear inner fontSizes under the dummy to avoid overriding
+                    elem.querySelectorAll('*').forEach(function (child) {
+                        if (child.style) child.style.fontSize = '';
+                        if (child.tagName === 'FONT') child.removeAttribute('size');
+                    });
+                }
+            });
+        }
+
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._setFontFamily = function (val) {
+        this._focusContent();
+        document.execCommand('styleWithCSS', false, true);
+
+        // Detect if the selection is inside a heading.
+        var sel = window.getSelection();
+        var headingAncestor = null;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            var walker = node && node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+            while (walker && walker !== this.content) {
+                if (walker.tagName && /^H[1-6]$/.test(walker.tagName)) {
+                    headingAncestor = walker;
+                    break;
+                }
+                walker = walker.parentNode;
+            }
+        }
+
+        if (headingAncestor) {
+            document.execCommand('fontName', false, 'RTE-DUMMY-FONT');
+            var allEls = this.content.querySelectorAll('*');
+            allEls.forEach(function (elem) {
+                var ff = elem.style && elem.style.fontFamily ? elem.style.fontFamily.trim().toLowerCase() : '';
+                var isDummy = (ff.indexOf('rte-dummy-font') !== -1 || (elem.tagName === 'FONT' && elem.getAttribute('face') === 'RTE-DUMMY-FONT'));
+                if (isDummy) {
+                    if (elem.tagName === 'FONT') elem.removeAttribute('face');
+                    elem.style.fontFamily = '';
+                }
+            });
+            if (val && val !== 'inherit') {
+                headingAncestor.style.fontFamily = val;
+            } else {
+                headingAncestor.style.fontFamily = '';
+            }
+            headingAncestor.querySelectorAll('*').forEach(function (child) {
+                if (child.style) child.style.fontFamily = '';
+                if (child.tagName === 'FONT') child.removeAttribute('face');
+            });
+        } else {
+            document.execCommand('fontName', false, 'RTE-DUMMY-FONT');
+            var allEls2 = this.content.querySelectorAll('*');
+            allEls2.forEach(function (elem) {
+                var ff = elem.style && elem.style.fontFamily ? elem.style.fontFamily.trim().toLowerCase() : '';
+                var isDummy = (ff.indexOf('rte-dummy-font') !== -1 || (elem.tagName === 'FONT' && elem.getAttribute('face') === 'RTE-DUMMY-FONT'));
+                if (isDummy) {
+                    if (elem.tagName === 'FONT') elem.removeAttribute('face');
+                    if (val && val !== 'inherit') {
+                        elem.style.fontFamily = val;
+                    } else {
+                        elem.style.fontFamily = '';
+                    }
+                    elem.querySelectorAll('*').forEach(function (child) {
+                        if (child.style) child.style.fontFamily = '';
+                        if (child.tagName === 'FONT') child.removeAttribute('face');
+                    });
+                }
+            });
+        }
+
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._setForeColor = function (val) {
+        this._focusContent();
+        document.execCommand('styleWithCSS', false, true);
+        document.execCommand('foreColor', false, '#123456');
         var allEls = this.content.querySelectorAll('*');
         allEls.forEach(function (elem) {
-            var fs = elem.style && elem.style.fontSize ? elem.style.fontSize.trim().toLowerCase() : '';
-            var isDummy = (fs === 'xxx-large' || fs === '-webkit-xxx-large' ||
-                fs === '48px' || fs === '36pt' ||
-                (elem.tagName === 'FONT' && elem.getAttribute('size') === '7'));
+            var color = elem.style && elem.style.color ? elem.style.color.trim().toLowerCase() : '';
+            var colorClean = color.replace(/\s+/g, '');
+            var isDummy = (colorClean === 'rgb(18,52,86)' || colorClean === '#123456' || (elem.tagName === 'FONT' && elem.getAttribute('color') === '#123456'));
             if (isDummy) {
-                elem.removeAttribute('size');
-                elem.style.fontSize = val; // e.g. "12pt"
+                if (elem.tagName === 'FONT') elem.removeAttribute('color');
+                elem.style.color = val;
+                elem.querySelectorAll('*').forEach(function (child) {
+                    if (child.style) child.style.color = '';
+                    if (child.tagName === 'FONT') child.removeAttribute('color');
+                });
+            }
+        });
+        this._syncSource();
+        this._updateState();
+    };
+
+    RichTextEditor.prototype._setHiliteColor = function (val) {
+        this._focusContent();
+        document.execCommand('styleWithCSS', false, true);
+        document.execCommand('hiliteColor', false, '#654321');
+        var allEls = this.content.querySelectorAll('*');
+        allEls.forEach(function (elem) {
+            var bg = elem.style && elem.style.backgroundColor ? elem.style.backgroundColor.trim().toLowerCase() : '';
+            var bgClean = bg.replace(/\s+/g, '');
+            var isDummy = (bgClean === 'rgb(101,67,33)' || bgClean === '#654321');
+            if (isDummy) {
+                elem.style.backgroundColor = val;
+                elem.querySelectorAll('*').forEach(function (child) {
+                    if (child.style) child.style.backgroundColor = '';
+                });
             }
         });
         this._syncSource();
@@ -1638,6 +1841,110 @@
             return;
         }
 
+        if (cmd === 'indent' || cmd === 'outdent') {
+            var sel = window.getSelection();
+            var node = (sel && sel.rangeCount > 0) ? sel.anchorNode : null;
+            var li = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('li') : null;
+            if (li) {
+                try {
+                    document.execCommand('styleWithCSS', false, true);
+                    document.execCommand(cmd, false, value);
+                } catch (e) {}
+                this._oListCleanup();
+            } else {
+                var blocks = [];
+                var tagsRe = /^(H[1-6]|P|DIV|BLOCKQUOTE|PRE)$/;
+                if (sel && sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    var container = range.commonAncestorContainer;
+                    if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
+                    
+                    var startNode = range.startContainer;
+                    var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
+                    while (blk && blk !== self.content) {
+                        if (blk.tagName && tagsRe.test(blk.tagName)) { blocks.push(blk); break; }
+                        blk = blk.parentElement;
+                    }
+                    if (blocks.length === 0 && !range.collapsed) {
+                        var walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, null, false);
+                        while (walker.nextNode()) {
+                            var n = walker.currentNode;
+                            if (tagsRe.test(n.tagName) && range.intersectsNode(n)) {
+                                if (blocks.indexOf(n) === -1) blocks.push(n);
+                            }
+                        }
+                    }
+                }
+                if (blocks.length === 0) {
+                    var blk = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre') : null;
+                    if (blk && blk !== self.content) blocks.push(blk);
+                }
+                
+                blocks.forEach(function (block) {
+                    var currentMargin = parseFloat(block.style.marginLeft) || 0;
+                    if (cmd === 'indent') {
+                        var newMargin = currentMargin + 40;
+                        block.style.marginLeft = newMargin + 'px';
+                    } else {
+                        var newMargin = Math.max(0, currentMargin - 40);
+                        block.style.marginLeft = newMargin ? newMargin + 'px' : '';
+                    }
+                });
+            }
+            this._syncSource();
+            this._snapshotSelection();
+            this._updateState();
+            return;
+        }
+
+        if (cmd === 'removeFormat') {
+            try {
+                document.execCommand('styleWithCSS', false, true);
+                document.execCommand('removeFormat', false, null);
+                var sel = window.getSelection();
+                if (sel && sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    var container = range.commonAncestorContainer;
+                    if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
+                    
+                    var els = [];
+                    var walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, null, false);
+                    while (walker.nextNode()) {
+                        var n = walker.currentNode;
+                        if (range.intersectsNode(n)) els.push(n);
+                    }
+                    els.push(container);
+                    
+                    els.forEach(function (n) {
+                        if (n !== self.content && n.style) {
+                            n.style.fontFamily = '';
+                            n.style.fontSize = '';
+                            n.style.color = '';
+                            n.style.backgroundColor = '';
+                            n.style.background = '';
+                            n.style.lineHeight = '';
+                            n.style.fontWeight = '';
+                            n.style.fontStyle = '';
+                            n.style.textDecoration = '';
+                            if (!n.getAttribute('style') || n.getAttribute('style').trim() === '') {
+                                n.removeAttribute('style');
+                            }
+                        }
+                        if (n.tagName === 'FONT') {
+                            n.removeAttribute('size');
+                            n.removeAttribute('color');
+                            n.removeAttribute('face');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('[RTE] removeFormat failed', e);
+            }
+            this._syncSource();
+            this._updateState();
+            return;
+        }
+
         try {
             // hiliteColor needs styleWithCSS = true on some browsers
             document.execCommand('styleWithCSS', false, true);
@@ -1645,8 +1952,125 @@
         } catch (e) {
             console.warn('[RTE] exec failed', cmd, value, e);
         }
-        if (cmd === 'indent' || cmd === 'outdent') {
-            this._oListCleanup();
+
+
+
+        if (cmd === 'formatBlock') {
+            try {
+                var sel = window.getSelection();
+                if (sel && sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    var container = range.commonAncestorContainer;
+                    if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
+                    
+                    var blocks = [];
+                    var tagsRe = /^(H[1-6]|P|DIV|BLOCKQUOTE|PRE)$/;
+                    
+                    // 1. Walk up from start container to find the block element containing the cursor
+                    var node = range.startContainer;
+                    var pNode = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+                    while (pNode && pNode !== self.content) {
+                        if (tagsRe.test(pNode.tagName)) {
+                            blocks.push(pNode);
+                            break;
+                        }
+                        pNode = pNode.parentNode;
+                    }
+
+                    // 2. Walk up from end container to find the block element (for selection spanning multiple blocks)
+                    var nodeEnd = range.endContainer;
+                    var pNodeEnd = nodeEnd.nodeType === Node.TEXT_NODE ? nodeEnd.parentNode : nodeEnd;
+                    while (pNodeEnd && pNodeEnd !== self.content) {
+                        if (tagsRe.test(pNodeEnd.tagName)) {
+                            if (blocks.indexOf(pNodeEnd) === -1) blocks.push(pNodeEnd);
+                            break;
+                        }
+                        pNodeEnd = pNodeEnd.parentNode;
+                    }
+                    
+                    // 3. Also gather any block elements that intersect the range (for multi-block selections)
+                    if (!range.collapsed) {
+                        var walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, null, false);
+                        while (walker.nextNode()) {
+                            var n = walker.currentNode;
+                            if (tagsRe.test(n.tagName) && range.intersectsNode(n)) {
+                                if (blocks.indexOf(n) === -1) blocks.push(n);
+                            }
+                        }
+                    }
+                    
+                    blocks.forEach(function (block) {
+                        block.style.fontFamily = '';
+                        block.style.fontSize = '';
+                        block.style.color = '';
+                        block.style.backgroundColor = '';
+                        block.style.background = '';
+                        block.style.lineHeight = '';
+                        block.style.fontWeight = '';
+                        block.style.fontStyle = '';
+                        block.style.textDecoration = '';
+                        if (!block.getAttribute('style') || block.getAttribute('style').trim() === '') {
+                            block.removeAttribute('style');
+                        }
+                        block.querySelectorAll('*').forEach(function (child) {
+                            if (child.style) {
+                                child.style.fontFamily = '';
+                                child.style.fontSize = '';
+                                child.style.color = '';
+                                child.style.backgroundColor = '';
+                                child.style.background = '';
+                                child.style.lineHeight = '';
+                                child.style.fontWeight = '';
+                                child.style.fontStyle = '';
+                                child.style.textDecoration = '';
+                                if (!child.getAttribute('style') || child.getAttribute('style').trim() === '') {
+                                    child.removeAttribute('style');
+                                }
+                            }
+                            if (child.tagName === 'FONT') {
+                                child.removeAttribute('size');
+                                child.removeAttribute('color');
+                                child.removeAttribute('face');
+                            }
+                        });
+                    });
+                }
+            } catch (e) {
+                console.warn('[RTE] formatBlock clean failed', e);
+            }
+            
+            // Upgrade code blocks to premium layout immediately
+            var originalSel = window.getSelection();
+            var savedOffset = 0;
+            var isInsidePre = false;
+            if (originalSel && originalSel.rangeCount > 0) {
+                var anchor = originalSel.anchorNode;
+                var preParent = anchor && (anchor.nodeType === Node.TEXT_NODE ? anchor.parentNode : anchor).closest('pre');
+                if (preParent) {
+                    isInsidePre = true;
+                    savedOffset = originalSel.anchorOffset;
+                }
+            }
+
+            self._upgradeCarouselCaptions();
+
+            if (isInsidePre) {
+                var newPre = self.content.querySelector('pre');
+                if (newPre) {
+                    newPre.focus();
+                    var range = document.createRange();
+                    var textNode = newPre.firstChild || newPre;
+                    try {
+                        range.setStart(textNode, Math.min(savedOffset, textNode.length || 0));
+                        range.collapse(true);
+                        var sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    } catch (e) {
+                        placeCursorAtEnd(newPre);
+                    }
+                }
+            }
         }
         this._snapshotSelection();
     };
@@ -2182,6 +2606,9 @@
                     var widthInput2 = paneUrl.querySelector('[name=width]');
                     var url = urlInput.value.trim();
                     if (!url) return false;
+                    if (url.indexOf('drive.google.com') !== -1) {
+                        url = convertGoogleDriveUrl(url, 'image');
+                    }
                     var imgHtml = '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(altInput2.value || '') + '"' + widthAttr(widthInput2) + ' style="max-width:100%;height:auto;">';
                     var wrapperHtml = '<div style="text-align:' + alignVal + ';' + (alignVal === 'center' ? 'display:block;' : 'display:inline-' + alignVal + ';') + (alignVal === 'center' ? 'margin:0 auto;' : (alignVal === 'right' ? 'margin:0 0 0 auto;' : 'margin:0;')) + '">' + imgHtml + '</div>';
                     self._insertHTML(wrapperHtml);
@@ -2292,6 +2719,10 @@
     };
 
     RichTextEditor.prototype._buildVideoEmbed = function (url, w, h) {
+        // Convert Google Drive share/view links to embeddable preview
+        if (url.indexOf('drive.google.com') !== -1) {
+            url = convertGoogleDriveUrl(url, 'video');
+        }
         var yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
         if (yt) {
             return '<iframe width="' + w + '" height="' + h + '" src="https://www.youtube.com/embed/' + yt[1] +
@@ -2305,8 +2736,10 @@
         if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
             return '<video controls width="' + w + '" height="' + h + '"><source src="' + escapeHtml(url) + '"></video>';
         }
+        // Generic iframe (includes Google Drive /preview)
         return '<iframe width="' + w + '" height="' + h + '" src="' + escapeHtml(url) + '" frameborder="0" allowfullscreen></iframe>';
     };
+
     RichTextEditor.prototype._dialogCarousel = function (existingCarousel) {
         var self = this;
         var mediaList = [];
@@ -4057,7 +4490,8 @@
         // ---- Move handle (top-left) ----
         var moveHandle = el('div', {
             class: 'rte-table-move-handle',
-            title: 'Drag to move table'
+            title: 'Drag to move table',
+            style: 'pointer-events:auto;'
         });
         moveHandle.innerHTML = ICON.gripIcon;
         overlay.appendChild(moveHandle);
@@ -4065,7 +4499,10 @@
         // ---- 8-point resize handles ----
         var handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
         handles.forEach(function (h) {
-            var handle = el('div', { class: 'rte-table-resize-handle rte-rsz-' + h });
+            var handle = el('div', {
+                class: 'rte-table-resize-handle rte-rsz-' + h,
+                style: 'pointer-events:auto;'
+            });
             overlay.appendChild(handle);
         });
 
@@ -4079,6 +4516,7 @@
 
         // ---- Move table by dragging the handle ----
         var moveStartX, moveStartY, tblOrigLeft, tblOrigTop;
+        var hasDragged = false;
 
         function onMoveStart(e) {
             e.preventDefault();
@@ -4088,6 +4526,7 @@
             moveStartY = e.touches ? e.touches[0].clientY : e.clientY;
             tblOrigLeft = parseFloat(table.style.marginLeft) || 0;
             tblOrigTop = parseFloat(table.style.marginTop) || 0;
+            hasDragged = false;
 
             document.addEventListener('mousemove', onMoveMove);
             document.addEventListener('mouseup', onMoveEnd);
@@ -4099,6 +4538,9 @@
             e.preventDefault();
             var dx = (e.touches ? e.touches[0].clientX : e.clientX) - moveStartX;
             var dy = (e.touches ? e.touches[0].clientY : e.clientY) - moveStartY;
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                hasDragged = true;
+            }
             table.style.marginLeft = (tblOrigLeft + dx) + 'px';
             table.style.marginTop = (tblOrigTop + dy) + 'px';
             self._updateTableOverlayPosition();
@@ -4111,6 +4553,14 @@
             document.removeEventListener('touchmove', onMoveMove);
             document.removeEventListener('touchend', onMoveEnd);
             self._syncSource();
+
+            if (!hasDragged) {
+                // User just clicked the handle! Select all cells in the table
+                self._clearCellSelection(table);
+                table.querySelectorAll('td, th').forEach(function (cell) {
+                    cell.classList.add('rte-cell-selected');
+                });
+            }
         }
 
         moveHandle.addEventListener('mousedown', onMoveStart);
@@ -4119,6 +4569,7 @@
         // ---- Resize table by dragging handles ----
         var resizeDir = null;
         var resizeStartX, resizeStartY, resizeStartW, resizeStartH;
+        var originalCellWidths = [];
 
         function onResizeStart(e, dir) {
             e.preventDefault();
@@ -4127,8 +4578,22 @@
             resizeDir = dir;
             resizeStartX = e.touches ? e.touches[0].clientX : e.clientX;
             resizeStartY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            // Force table layout fixed to allow sizing
+            table.style.tableLayout = 'fixed';
+
             resizeStartW = table.offsetWidth;
             resizeStartH = table.offsetHeight;
+
+            originalCellWidths = [];
+            if (table.rows.length > 0) {
+                Array.from(table.rows[0].cells).forEach(function (cell) {
+                    originalCellWidths.push({
+                        cell: cell,
+                        width: parseFloat(cell.style.width) || cell.offsetWidth
+                    });
+                });
+            }
 
             document.addEventListener('mousemove', onResizeMove);
             document.addEventListener('mouseup', onResizeEnd);
@@ -4152,6 +4617,16 @@
 
             table.style.width = newW + 'px';
             table.style.height = newH + 'px';
+
+            var overallRatio = newW / resizeStartW;
+            originalCellWidths.forEach(function (item) {
+                if (item.cell.style.width && item.cell.style.width.indexOf('%') !== -1) {
+                    // percentage-based, automatically resizes with table
+                } else {
+                    item.cell.style.width = Math.max(20, item.width * overallRatio) + 'px';
+                }
+            });
+
             self._updateTableOverlayPosition();
         }
 
@@ -4176,16 +4651,15 @@
         // ---- Show float table toolbar (only here — not in _refreshTableSelection) ----
         this._showFloatTableToolbar(table);
     };
-
     RichTextEditor.prototype._buildTableColumnResizers = function (table, overlay) {
         var self = this;
         var rows = table.rows;
         if (!rows.length) return;
-        var cells = rows[0].cells;
+        var cells = Array.prototype.slice.call(rows[0].cells);
         var tblRect = table.getBoundingClientRect();
 
         // Clear existing column resizers from overlay
-        Array.from(overlay.querySelectorAll('.rte-table-col-resizer')).forEach(function (r) { r.parentNode.removeChild(r); });
+        Array.prototype.slice.call(overlay.querySelectorAll('.rte-table-col-resizer')).forEach(function (r) { r.parentNode.removeChild(r); });
 
         for (var i = 0; i < cells.length; i++) {
             (function (idx) {
@@ -4196,31 +4670,67 @@
                 // Create a vertical line at the right border of the cell
                 var resizer = el('div', {
                     class: 'rte-table-col-resizer',
-                    style: 'left:' + right + 'px; top:0; bottom:0; width:6px; margin-left:-3px; cursor:col-resize; position:absolute; pointer-events:all; z-index:10;'
+                    style: 'left:' + right + 'px; top:0; bottom:0; width:6px; margin-left:-3px; cursor:col-resize; position:absolute; pointer-events:auto; z-index:10;'
                 });
                 overlay.appendChild(resizer);
 
-                var startX, startW;
+                var startX, startW, startWNext;
+                var nextCell = cells[idx + 1];
 
                 function onColResizeStart(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     self._isResizingOrMoving = true;
                     startX = e.touches ? e.touches[0].clientX : e.clientX;
+
+                    // Clear widths on all other rows to avoid layout conflicts
+                    for (var r = 1; r < table.rows.length; r++) {
+                        Array.prototype.slice.call(table.rows[r].cells).forEach(function (c) {
+                            c.style.width = '';
+                        });
+                    }
+
+                    // Convert all first-row cells to pixel widths for stable dragging
+                    var tblPixelW = table.offsetWidth || 500;
+                    var totalOffsetW = 0;
+                    cells.forEach(function (c) {
+                        totalOffsetW += c.offsetWidth;
+                    });
+                    cells.forEach(function (c) {
+                        var w = totalOffsetW > 0 ? (c.offsetWidth / totalOffsetW) * tblPixelW : c.offsetWidth;
+                        c.style.width = w.toFixed(0) + 'px';
+                    });
+
                     startW = cell.offsetWidth;
+                    startWNext = nextCell ? nextCell.offsetWidth : null;
 
                     document.addEventListener('mousemove', onColResizeMove);
                     document.addEventListener('mouseup', onColResizeEnd);
+                    document.addEventListener('touchmove', onColResizeMove, { passive: false });
+                    document.addEventListener('touchend', onColResizeEnd);
                     document.body.classList.add('rte-resizing-col');
                 }
 
                 function onColResizeMove(e) {
                     var cx = e.touches ? e.touches[0].clientX : e.clientX;
                     var dx = cx - startX;
-                    var newW = Math.max(30, startW + dx);
 
                     table.style.tableLayout = 'fixed';
-                    cell.style.width = newW + 'px';
+
+                    if (nextCell) {
+                        var newW = Math.max(10, startW + dx);
+                        var diff = newW - startW;
+                        var newWNext = Math.max(10, startWNext - diff);
+                        var finalDiff = startWNext - newWNext;
+                        cell.style.width = (startW + finalDiff) + 'px';
+                        nextCell.style.width = newWNext + 'px';
+                    } else {
+                        var newW = Math.max(10, startW + dx);
+                        cell.style.width = newW + 'px';
+                        var diff = newW - startW;
+                        var tblW = table.offsetWidth;
+                        table.style.width = (tblW + diff) + 'px';
+                    }
 
                     self._updateTableOverlayPosition();
                 }
@@ -4229,7 +4739,11 @@
                     self._isResizingOrMoving = false;
                     document.removeEventListener('mousemove', onColResizeMove);
                     document.removeEventListener('mouseup', onColResizeEnd);
+                    document.removeEventListener('touchmove', onColResizeMove);
+                    document.removeEventListener('touchend', onColResizeEnd);
                     document.body.classList.remove('rte-resizing-col');
+
+                    self._normalizeColumnWidths(table);
                     self._syncSource();
                 }
 
@@ -4525,6 +5039,14 @@
             { label: 'Delete Column', icon: ICON.deleteCol, action: function () { self._deleteTableCol(tbl); } }
         ]));
 
+        // 5. Table Width Selection
+        toolbar.appendChild(createDropdown(ICON.tableColWidth, 'Lebar Tabel', [
+            { label: 'Lebar 100%', icon: ICON.table, action: function () { self._setTableWidthPercent(tbl, 100); } },
+            { label: 'Lebar 75%', icon: ICON.table, action: function () { self._setTableWidthPercent(tbl, 75); } },
+            { label: 'Lebar 50%', icon: ICON.table, action: function () { self._setTableWidthPercent(tbl, 50); } },
+            { label: 'Lebar 25%', icon: ICON.table, action: function () { self._setTableWidthPercent(tbl, 25); } }
+        ]));
+
         // 5. Table
         toolbar.appendChild(createDropdown(ICON.table, 'Table', [
             {
@@ -4628,6 +5150,8 @@
                                 tbl.removeAttribute('height');
                             }
 
+                            tbl.style.tableLayout = 'fixed';
+                            self._normalizeColumnWidths(tbl);
                             self._updateTableOverlayPosition();
                             self._syncSource();
                         }
@@ -4703,12 +5227,42 @@
         var cIdx = activeTd ? activeTd.cellIndex : 0;
         var insertAt = (dir === 0) ? cIdx : cIdx + 1;
 
+        // Check if table width is pixel-based and cells are pixel-based
+        var firstRow = table.rows[0];
+        var isPx = false;
+        var baseWidth = 100;
+        if (firstRow && firstRow.cells.length > 0) {
+            var sampleCell = firstRow.cells[0];
+            if (sampleCell.style.width && sampleCell.style.width.indexOf('px') !== -1) {
+                isPx = true;
+                baseWidth = parseFloat(sampleCell.style.width) || 100;
+            }
+        }
+
         for (var r = 0; r < table.rows.length; r++) {
             var nc = table.rows[r].insertCell(insertAt);
             nc.innerHTML = '\u00a0';
             var refStyle = table.rows[r].cells[insertAt + 1] || table.rows[r].cells[insertAt - 1];
             nc.style.cssText = refStyle ? refStyle.style.cssText : 'border:1px solid #d0d4da;padding:6px 8px;';
         }
+
+        // Post-insert width normalization
+        var newFirstRow = table.rows[0];
+        if (newFirstRow) {
+            var cells = Array.from(newFirstRow.cells);
+            if (isPx) {
+                cells[insertAt].style.width = baseWidth + 'px';
+                var tblW = table.style.width;
+                if (tblW && tblW.indexOf('px') !== -1) {
+                    var newTblW = parseFloat(tblW) + baseWidth;
+                    table.style.width = newTblW + 'px';
+                }
+            } else {
+                cells[insertAt].style.width = (100 / cells.length).toFixed(1) + '%';
+            }
+            this._normalizeColumnWidths(table);
+        }
+
         this._refreshTableSelection(table);
     };
 
@@ -4742,9 +5296,29 @@
             while (activeTd && activeTd.tagName !== 'TD' && activeTd.tagName !== 'TH') activeTd = activeTd.parentElement;
         }
         var cIdx = activeTd ? activeTd.cellIndex : table.rows[0].cells.length - 1;
+
+        var firstRow = table.rows[0];
+        var deletedCell = firstRow ? firstRow.cells[cIdx] : null;
+        var deletedWidthVal = deletedCell ? parseFloat(deletedCell.style.width) : NaN;
+        var deletedWidthUnit = deletedCell ? (deletedCell.style.width || '').replace(/[0-9.]/g, '') : '';
+
         for (var r = 0; r < table.rows.length; r++) {
-            table.rows[r].deleteCell(cIdx);
+            if (table.rows[r].cells[cIdx]) {
+                table.rows[r].deleteCell(cIdx);
+            }
         }
+        var newFirstRow = table.rows[0];
+        if (newFirstRow && newFirstRow.cells.length > 0) {
+            if (deletedWidthUnit === 'px' && !isNaN(deletedWidthVal)) {
+                var tblW = table.style.width;
+                if (tblW && tblW.indexOf('px') !== -1) {
+                    var newTblW = Math.max(100, parseFloat(tblW) - deletedWidthVal);
+                    table.style.width = newTblW + 'px';
+                }
+            }
+            this._normalizeColumnWidths(table);
+        }
+
         this._refreshTableSelection(table);
     };
 
@@ -4923,6 +5497,91 @@
         });
     };
 
+    RichTextEditor.prototype._scaleTableCellWidths = function (table, ratio) {
+        if (!table.rows.length) return;
+        var firstRow = table.rows[0];
+        var cells = Array.from(firstRow.cells);
+        cells.forEach(function (cell) {
+            var currentW = cell.style.width;
+            if (currentW) {
+                if (currentW.indexOf('%') !== -1) {
+                    // Percentage based, scales automatically
+                } else {
+                    var val = parseFloat(currentW);
+                    if (!isNaN(val)) {
+                        cell.style.width = Math.max(10, val * ratio) + 'px';
+                    }
+                }
+            } else {
+                cell.style.width = Math.max(10, cell.offsetWidth * ratio) + 'px';
+            }
+        });
+
+        // Also clear widths on other rows
+        for (var r = 1; r < table.rows.length; r++) {
+            Array.from(table.rows[r].cells).forEach(function (c) {
+                c.style.width = '';
+            });
+        }
+    };
+
+    RichTextEditor.prototype._setTableWidthPercent = function (table, percent) {
+        table.style.width = percent + '%';
+        table.removeAttribute('width');
+        table.style.tableLayout = 'fixed';
+        this._normalizeColumnWidths(table);
+        this._updateTableOverlayPosition();
+        this._syncSource();
+    };
+    RichTextEditor.prototype._normalizeColumnWidths = function (table) {
+        if (!table.rows.length) return;
+
+        // Force fixed layout and clear min-width inline to ensure browser respects defined widths
+        table.style.tableLayout = 'fixed';
+        table.style.minWidth = '0px';
+        // Clear inline widths and width attributes on other rows
+        for (var r = 1; r < table.rows.length; r++) {
+            Array.prototype.slice.call(table.rows[r].cells).forEach(function (c) {
+                c.style.width = '';
+                c.removeAttribute('width');
+            });
+        }
+
+        var firstRow = table.rows[0];
+        var cells = Array.prototype.slice.call(firstRow.cells);
+        if (!cells.length) return;
+        var tblW = table.style.width || '';
+        var isTblPercent = (tblW.indexOf('%') !== -1 || tblW === 'auto' || tblW === '');
+
+        if (isTblPercent) {
+            var totalCellWidth = 0;
+            var cellWidths = [];
+            cells.forEach(function (cell) {
+                cell.removeAttribute('width');
+                var w = cell.offsetWidth || 100;
+                cellWidths.push(w);
+                totalCellWidth += w;
+            });
+            cells.forEach(function (cell, idx) {
+                var pct = totalCellWidth > 0 ? (cellWidths[idx] / totalCellWidth) * 100 : (100 / cells.length);
+                cell.style.width = pct.toFixed(1) + '%';
+            });
+        } else {
+            var tblPixelW = parseFloat(tblW) || table.offsetWidth || 500;
+            var totalCellWidth = 0;
+            var cellWidths = [];
+            cells.forEach(function (cell) {
+                cell.removeAttribute('width');
+                var w = cell.offsetWidth || (tblPixelW / cells.length);
+                cellWidths.push(w);
+                totalCellWidth += w;
+            });
+            cells.forEach(function (cell, idx) {
+                var w = totalCellWidth > 0 ? (cellWidths[idx] / totalCellWidth) * tblPixelW : (tblPixelW / cells.length);
+                cell.style.width = w.toFixed(0) + 'px';
+            });
+        }
+    };
     RichTextEditor.prototype._repositionFloatTableToolbar = function (table) {
         var toolbar = this._floatToolbar;
         if (!toolbar || !table) return;
@@ -6131,6 +6790,84 @@
                 self._updateState();
             }
 
+            // Enter key custom handling for code blocks and custom styled containers
+            if (e.key === 'Enter') {
+                var sel = window.getSelection();
+                if (sel && sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    if (range.collapsed && range.startContainer) {
+                        var node = range.startContainer;
+                        var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre');
+                        
+                        if (block && block !== self.content) {
+                            function isAtStartOf(el) {
+                                var testRange = document.createRange();
+                                testRange.setStart(el, 0);
+                                testRange.setEnd(range.startContainer, range.startOffset);
+                                return testRange.toString().trim().length === 0;
+                            }
+                            
+                            function isAtEndOf(el) {
+                                var testRange = document.createRange();
+                                testRange.setStart(range.startContainer, range.startOffset);
+                                testRange.setEnd(el, el.childNodes.length);
+                                return testRange.toString().trim().length === 0;
+                            }
+
+                            if (block.tagName === 'PRE') {
+                                e.preventDefault();
+                                var newline = document.createTextNode('\n');
+                                range.insertNode(newline);
+                                range.setStartAfter(newline);
+                                range.collapse(true);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                                self._syncSource();
+                                self._updateState();
+                                return;
+                            }
+
+                            var isCustomDiv = (block.tagName === 'DIV' && (block.className || block.getAttribute('style')));
+                            if (block.tagName === 'BLOCKQUOTE' || isCustomDiv) {
+                                if (isAtStartOf(block)) {
+                                    e.preventDefault();
+                                    var p = document.createElement('p');
+                                    p.appendChild(document.createElement('br'));
+                                    block.parentNode.insertBefore(p, block);
+                                    self._syncSource();
+                                    self._updateState();
+                                    return;
+                                } else if (isAtEndOf(block)) {
+                                    e.preventDefault();
+                                    var p = document.createElement('p');
+                                    p.appendChild(document.createElement('br'));
+                                    block.parentNode.insertBefore(p, block.nextSibling);
+                                    var newRange = document.createRange();
+                                    newRange.selectNodeContents(p);
+                                    newRange.collapse(true);
+                                    sel.removeAllRanges();
+                                    sel.addRange(newRange);
+                                    self._syncSource();
+                                    self._updateState();
+                                    return;
+                                } else {
+                                    e.preventDefault();
+                                    var br = document.createElement('br');
+                                    range.insertNode(br);
+                                    range.setStartAfter(br);
+                                    range.collapse(true);
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                    self._syncSource();
+                                    self._updateState();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // Backspace custom handling for Word-like list & indent behavior
             if (e.key === 'Backspace') {
                 var sel = window.getSelection();
@@ -6147,6 +6884,48 @@
                             var beforeFrag = testRange.cloneContents();
                             var hasMediaBefore = beforeFrag.querySelector('img, table, iframe, video, audio');
                             return beforeText.length === 0 && !hasMediaBefore;
+                        }
+
+                        var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre');
+                        if (block && block !== self.content) {
+                            var specialAncestor = null;
+                            var parentWalk = block;
+                            while (parentWalk && parentWalk !== self.content) {
+                                var isParentCustomDiv = (parentWalk.tagName === 'DIV' && (parentWalk.className || parentWalk.getAttribute('style')));
+                                if (parentWalk.tagName === 'BLOCKQUOTE' || parentWalk.tagName === 'PRE' || isParentCustomDiv) {
+                                    specialAncestor = parentWalk;
+                                }
+                                parentWalk = parentWalk.parentNode;
+                            }
+
+                            if (specialAncestor && isAtStartOf(specialAncestor)) {
+                                var cleanText = specialAncestor.textContent.replace(/[\u200B\u200C\u200D\uFEFF]/g, '').trim();
+                                var hasMedia = specialAncestor.querySelector('img, table, iframe, video, audio');
+                                if (cleanText.length === 0 && !hasMedia) {
+                                    e.preventDefault();
+                                    var prev = specialAncestor.previousElementSibling;
+                                    if (prev) {
+                                        specialAncestor.parentNode.removeChild(specialAncestor);
+                                        var newRange = document.createRange();
+                                        newRange.selectNodeContents(prev);
+                                        newRange.collapse(false);
+                                        sel.removeAllRanges();
+                                        sel.addRange(newRange);
+                                    } else {
+                                        var p = document.createElement('p');
+                                        p.appendChild(document.createElement('br'));
+                                        specialAncestor.parentNode.replaceChild(p, specialAncestor);
+                                        var newRange = document.createRange();
+                                        newRange.selectNodeContents(p);
+                                        newRange.collapse(true);
+                                        sel.removeAllRanges();
+                                        sel.addRange(newRange);
+                                    }
+                                    self._syncSource();
+                                    self._updateState();
+                                    return;
+                                }
+                            }
                         }
 
                         var li = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('li');
@@ -6231,11 +7010,16 @@
                                 return;
                             }
                         } else {
-                            var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6');
+                            var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre');
                             if (block && isAtStartOf(block)) {
                                 if (block.style.marginLeft || block.style.paddingLeft) {
                                     e.preventDefault();
-                                    block.style.marginLeft = '';
+                                    var currentMargin = parseFloat(block.style.marginLeft) || 0;
+                                    if (currentMargin > 40) {
+                                        block.style.marginLeft = (currentMargin - 40) + 'px';
+                                    } else {
+                                        block.style.marginLeft = '';
+                                    }
                                     block.style.paddingLeft = '';
                                     self._syncSource();
                                     self._updateState();
@@ -6279,28 +7063,107 @@
             }
         });
     };
-
     RichTextEditor.prototype._sanitizePastedHTML = function (html) {
-        // Strip <script>, <style>, on* attributes, MS Office cruft
+        // Strip <script>, <style>, on* attributes, MS Office cruft, colgroups, and cols
         var doc = new DOMParser().parseFromString(html, 'text/html');
-        var disallowed = ['script', 'style', 'meta', 'link', 'object', 'embed'];
+        var disallowed = ['script', 'style', 'meta', 'link', 'object', 'embed', 'colgroup', 'col'];
         disallowed.forEach(function (tag) {
             var nodes = doc.querySelectorAll(tag);
             nodes.forEach(function (n) { n.parentNode.removeChild(n); });
         });
         this._stripEditorStyles(doc.body);
+
+        var JUNK_STYLE = /(^|;)\s*(mso-[a-z-]+|widows|orphans|page-break-(?:before|after|inside)|break-(?:before|after|inside)|text-indent|letter-spacing|word-spacing)\s*:[^;]*/gi;
+
         var all = doc.body.querySelectorAll('*');
         all.forEach(function (n) {
-            // Drop on* event handlers
+            var tagName = n.tagName.toLowerCase();
+            if (tagName === 'table') {
+                n.classList.add('rte-table');
+                n.style.width = '';
+                n.style.height = '';
+                n.style.minWidth = '';
+                n.style.maxWidth = '';
+                n.style.tableLayout = 'fixed';
+                n.removeAttribute('width');
+                n.removeAttribute('height');
+            } else if (tagName === 'td' || tagName === 'th') {
+                n.style.width = '';
+                n.style.height = '';
+                n.style.minWidth = '';
+                n.style.maxWidth = '';
+                n.style.whiteSpace = '';
+                n.removeAttribute('width');
+                n.removeAttribute('height');
+            } else if (tagName === 'tr') {
+                n.style.height = '';
+                n.removeAttribute('height');
+            } else {
+                var parentCell = n.closest ? n.closest('td, th') : null;
+                if (parentCell) {
+                    n.style.width = '';
+                    n.style.height = '';
+                    n.style.minWidth = '';
+                    n.style.maxWidth = '';
+                    n.style.whiteSpace = '';
+                    n.style.wordBreak = '';
+                    n.removeAttribute('width');
+                    n.removeAttribute('height');
+                }
+            }
+
             for (var i = n.attributes.length - 1; i >= 0; i--) {
                 var attr = n.attributes[i];
-                if (/^on/i.test(attr.name)) n.removeAttribute(attr.name);
-                if (attr.name === 'class' && /\bMso/.test(attr.value)) n.removeAttribute('class');
+                // Drop on* event handlers
+                if (/^on/i.test(attr.name)) { n.removeAttribute(attr.name); continue; }
+                // Drop MS Office xmlns / metadata attrs
+                if (/^xmlns/.test(attr.name)) { n.removeAttribute(attr.name); continue; }
+
+                // Drop non-RTE classes to prevent external stylesheet clashing
+                if (attr.name === 'class' && tagName !== 'table') {
+                    var classes = attr.value.split(/\s+/);
+                    var hasRteClass = classes.some(function (c) {
+                        return c.indexOf('rte-') === 0 || c.indexOf('language-') === 0;
+                    });
+                    if (!hasRteClass) {
+                        n.removeAttribute('class');
+                        continue;
+                    }
+                }
+
+                if (attr.name === 'style') {
+                    // Strip MS-Office / pagination junk first.
+                    var cleaned = attr.value.replace(JUNK_STYLE, '').trim();
+                    cleaned = cleaned.replace(/^;+|;+$/g, '').replace(/;\s*;/g, ';');
+                    if (cleaned) {
+                        n.setAttribute('style', cleaned);
+
+                        // We intentionally KEEP color, font-family, font-size, background-color,
+                        // and other text styles so pasted HTML matches the source formatting.
+                        var keys = [];
+                        for (var k = 0; k < n.style.length; k++) {
+                            keys.push(n.style[k]);
+                        }
+
+                        keys.forEach(function (prop) {
+                            var isJunk = /^(widows|orphans|text-indent|letter-spacing|word-spacing|page-break|break-inside)$/i.test(prop);
+                            if (isJunk) {
+                                n.style.removeProperty(prop);
+                            }
+                        });
+
+                        if (n.style.cssText === '' || !n.getAttribute('style')) {
+                            n.removeAttribute('style');
+                        }
+                    } else {
+                        n.removeAttribute('style');
+                    }
+                }
             }
         });
+
         return doc.body.innerHTML;
     };
-
     // ------- Public API -------
     RichTextEditor.prototype.getHTMLCode = function () {
         if (this.sourceArea.style.display !== 'none') {
@@ -6323,6 +7186,12 @@
         this._updateState();
     };
     RichTextEditor.prototype.setHTML = RichTextEditor.prototype.setHTMLCode;
+    
+    RichTextEditor.prototype.setHeight = function (height) {
+        if (this.wrapper) {
+            this.wrapper.style.height = typeof height === 'number' ? height + 'px' : height;
+        }
+    };
 
     RichTextEditor.prototype.insertHTML = function (html) { this._insertHTML(html); };
 

@@ -2966,9 +2966,9 @@
                     editor1 = new RichTextEditor("#div_editor1", {
                         base_url: '/cms_rte',
                         editorBodyCssClass: 'rte-content-body',
-                        height: 500
+                        height: '500px'
                     });
-                    editor1.setHeight(500);
+                    editor1.setHeight('500px');
                     // Restore saved description content with multiple attempts
                     // The RTE iframe may not be ready immediately after construction
                     setRTEContent(editor1, initialDescriptionHtml);

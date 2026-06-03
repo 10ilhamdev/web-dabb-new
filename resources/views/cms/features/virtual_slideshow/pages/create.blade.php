@@ -2047,9 +2047,9 @@
                     editor1 = new RichTextEditor("#div_editor1", {
                         base_url: '/cms_rte',
                         editorBodyCssClass: 'rte-content-body',
-                        height: 500
+                        height: '500px'
                     });
-                    editor1.setHeight(500);
+                    editor1.setHeight('500px');
                 } catch (e) {
                     console.error('RTE init error:', e);
                 }

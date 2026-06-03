@@ -30,12 +30,15 @@
 .rte-content-body,
 .rte-content-body table,
 .rte-content-body p,
-.rte-content-body div,
-.rte-content-body span {
+.rte-content-body div {
     font-family: "Inter", "Poppins", "Segoe UI", sans-serif;
     color: inherit;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.6;
+}
+
+.rte-content-body > *:first-child {
+    margin-top: 0 !important;
 }
 
 .rte-content-body a { color: #174e93; text-decoration: none; }
@@ -47,16 +50,30 @@
     border-collapse: collapse !important;
     margin: 1rem 0;
     max-width: 100%;
+    table-layout: fixed;
+    min-width: 0 !important;
 }
 
-.rte-content-body table:not([width]) { width: 100%; }
+.rte-content-body table:not([style*="width"]):not([width]) { width: 100%; }
 
 .rte-content-body table td,
 .rte-content-body table th {
     border: 1px solid #d1d5db;
     padding: 8px 12px;
     vertical-align: top;
-    word-wrap: break-word;
+    min-width: 0 !important;
+    word-break: break-all !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+}
+
+.rte-content-body table td *,
+.rte-content-body table th * {
+    word-break: break-all !important;
+    word-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
 }
 
 .rte-content-body thead,
@@ -151,91 +168,85 @@
     display: block !important;
 }
 
-/* *** CRITICAL FIX ***
- * When execCommand('formatBlock') creates a heading, existing spans/fonts
- * inside the block keep their own inline style="font-size:Xpx" which
- * overrides the heading's font-size on child elements.
- * Force ALL descendants to inherit font-size from the heading element.
+/*
+ * Heading font-size uses no !important on purpose: when the user picks a
+ * custom size from the Size dropdown, rte.js writes the new value as an
+ * inline style on the heading element. Inline styles win over the
+ * element-type rule, so the user's choice is honored.
+ *
+ * If a heading has NO inline font-size, the values below apply.
  */
-.rte-content-body h1 *,
-.rte-content-body h2 *,
-.rte-content-body h3 *,
-.rte-content-body h4 *,
-.rte-content-body h5 *,
-.rte-content-body h6 * {
-    font-size: inherit !important;
-}
 
-/* H1 — Title: 32px, bold blue, bottom border */
+/* H1 — Title: 32px, bold blue */
 .rte-content-body h1 {
-    font-size: 32px !important;
-    font-weight: 700 !important;
-    color: #1e40af !important;
-    margin: 20px 0 8px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e40af;
+    margin: 20px 0 8px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 /* H2 — Heading 1: 24px, semi-bold blue */
 .rte-content-body h2 {
-    font-size: 24px !important;
-    font-weight: 600 !important;
-    color: #2563eb !important;
-    margin: 18px 0 6px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2563eb;
+    margin: 18px 0 6px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 /* H3 — Heading 2: 20px, semi-bold dark */
 .rte-content-body h3 {
-    font-size: 20px !important;
-    font-weight: 600 !important;
-    color: #0f172a !important;
-    margin: 16px 0 5px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 20px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 16px 0 5px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 /* H4 — Heading 3: 17px, semi-bold italic slate */
 .rte-content-body h4 {
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    margin: 14px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: italic !important;
-    text-decoration: none !important;
+    font-size: 17px;
+    font-weight: 600;
+    color: #334155;
+    margin: 14px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: italic;
+    text-decoration: none;
 }
 
 /* H5 — Heading 4: 15px, regular italic muted */
 .rte-content-body h5 {
-    font-size: 15px !important;
-    font-weight: 400 !important;
-    color: #475569 !important;
-    margin: 12px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: italic !important;
-    text-decoration: none !important;
+    font-size: 15px;
+    font-weight: 400;
+    color: #475569;
+    margin: 12px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: italic;
+    text-decoration: none;
 }
 
 /* H6 — Heading 5: 14px, regular underlined gray */
 .rte-content-body h6 {
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #64748b !important;
-    margin: 10px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 400;
+    color: #64748b;
+    margin: 10px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 .rte-content-body p { margin-bottom: 1rem !important; }

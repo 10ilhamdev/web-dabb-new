@@ -57,7 +57,38 @@
     font-family: "Inter", "Poppins", "Segoe UI", sans-serif;
     color: #414141;
     /* Default text color if not specified by user */
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.rte-content p,
+.rte-content div,
+.rte-content table,
+.rte-content td,
+.rte-content th,
+.rte-content-body p,
+.rte-content-body div,
+.rte-content-body table,
+.rte-content-body td,
+.rte-content-body th,
+.profile-section-desc p,
+.profile-section-desc div,
+.profile-section-desc table,
+.profile-section-desc td,
+.profile-section-desc th,
+.vsshow-section-desc p,
+.vsshow-section-desc div,
+.vsshow-section-desc table,
+.vsshow-section-desc td,
+.vsshow-section-desc th,
+.richtext-guest-view p,
+.richtext-guest-view div,
+.richtext-guest-view table,
+.richtext-guest-view td,
+.richtext-guest-view th {
+    font-family: "Inter", "Poppins", "Segoe UI", sans-serif;
+    font-size: 13px;
+    color: inherit;
     line-height: 1.6;
 }
 
@@ -85,17 +116,21 @@
 .richtext-guest-view table,
 table[style*="border-collapse"] {
     border-collapse: collapse !important;
-    margin: 1rem 0 !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
     max-width: 100% !important;
-    border-spacing: 0;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
 }
 
-.rte-content table:not([width]),
-.rte-content-body table:not([width]),
-.profile-section-desc table:not([width]),
-.vsshow-section-desc table:not([width]),
-.richtext-guest-view table:not([width]) {
-    width: 100%;
+/* Force 100% width ONLY if no custom inline width style or width attribute is set */
+.rte-content table:not([style*="width"]):not([width]),
+.rte-content-body table:not([style*="width"]):not([width]),
+.profile-section-desc table:not([style*="width"]):not([width]),
+.vsshow-section-desc table:not([style*="width"]):not([width]),
+.richtext-guest-view table:not([style*="width"]):not([width]) {
+    width: 100% !important;
+    min-width: 100% !important;
 }
 
 .rte-content table td,
@@ -108,26 +143,46 @@ table[style*="border-collapse"] {
 .vsshow-section-desc table th,
 .richtext-guest-view table td,
 .richtext-guest-view table th {
-    border: 1px solid #d1d5db;
-    padding: 8px 12px;
-    vertical-align: top;
-    word-wrap: break-word;
+    border: 1px solid #d1d5db !important;
+    padding: 10px 14px !important;
+    vertical-align: top !important;
+    min-width: 0 !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
 }
 
-.rte-content table thead,
+.rte-content table td *,
+.rte-content table th *,
+.rte-content-body table td *,
+.rte-content-body table th *,
+.profile-section-desc table td *,
+.profile-section-desc table th *,
+.vsshow-section-desc table td *,
+.vsshow-section-desc table th *,
+.richtext-guest-view table td *,
+.richtext-guest-view table th * {
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
+
 .rte-content table th,
-.rte-content-body table thead,
 .rte-content-body table th,
-.profile-section-desc table thead,
 .profile-section-desc table th,
-.vsshow-section-desc table thead,
 .vsshow-section-desc table th,
-.richtext-guest-view table thead,
 .richtext-guest-view table th {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    font-weight: 700;
-    text-align: center;
+    font-weight: 700 !important;
+    text-align: left !important;
+}
+
+.rte-content table th:not([style*="background-color"]):not([style*="background"]),
+.rte-content-body table th:not([style*="background-color"]):not([style*="background"]),
+.profile-section-desc table th:not([style*="background-color"]):not([style*="background"]),
+.vsshow-section-desc table th:not([style*="background-color"]):not([style*="background"]),
+.richtext-guest-view table th:not([style*="background-color"]):not([style*="background"]) {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
 }
 
 /* ── 5. Figure & Figcaption & Images ── */
@@ -199,8 +254,15 @@ table[style*="border-collapse"] {
 .profile-section-desc a,
 .vsshow-section-desc a,
 .richtext-guest-view a {
-    color: #174e93;
-    text-decoration: none;
+    text-decoration: none !important;
+}
+
+.rte-content a:not([style*="color"]),
+.rte-content-body a:not([style*="color"]),
+.profile-section-desc a:not([style*="color"]),
+.vsshow-section-desc a:not([style*="color"]),
+.richtext-guest-view a:not([style*="color"]) {
+    color: #174e93 !important;
 }
 
 .rte-content a:hover,
@@ -208,8 +270,27 @@ table[style*="border-collapse"] {
 .profile-section-desc a:hover,
 .vsshow-section-desc a:hover,
 .richtext-guest-view a:hover {
-    color: #1e40af;
-    text-decoration: underline;
+    text-decoration: underline !important;
+}
+
+.rte-content a:hover:not([style*="color"]),
+.rte-content-body a:hover:not([style*="color"]),
+.profile-section-desc a:hover:not([style*="color"]),
+.vsshow-section-desc a:hover:not([style*="color"]),
+.richtext-guest-view a:hover:not([style*="color"]) {
+    color: #1e40af !important;
+}
+
+.rte-content hr,
+.rte-content-body hr,
+.profile-section-desc hr,
+.vsshow-section-desc hr,
+.richtext-guest-view hr {
+    border: 0 !important;
+    border-top: 1px solid #cbd5e1 !important;
+    margin: 1.5rem 0 !important;
+    height: 0 !important;
+    display: block !important;
 }
 
 .rte-content blockquote,
@@ -294,53 +375,19 @@ table[style*="border-collapse"] {
     display: block !important;
 }
 
-/* CRITICAL FIX: Force all descendants of headings to inherit font-size */
-.rte-content h1 *,
-.rte-content-body h1 *,
-.profile-section-desc h1 *,
-.vsshow-section-desc h1 *,
-.richtext-guest-view h1 *,
-.rte-content h2 *,
-.rte-content-body h2 *,
-.profile-section-desc h2 *,
-.vsshow-section-desc h2 *,
-.richtext-guest-view h2 *,
-.rte-content h3 *,
-.rte-content-body h3 *,
-.profile-section-desc h3 *,
-.vsshow-section-desc h3 *,
-.richtext-guest-view h3 *,
-.rte-content h4 *,
-.rte-content-body h4 *,
-.profile-section-desc h4 *,
-.vsshow-section-desc h4 *,
-.richtext-guest-view h4 *,
-.rte-content h5 *,
-.rte-content-body h5 *,
-.profile-section-desc h5 *,
-.vsshow-section-desc h5 *,
-.richtext-guest-view h5 *,
-.rte-content h6 *,
-.rte-content-body h6 *,
-.profile-section-desc h6 *,
-.vsshow-section-desc h6 *,
-.richtext-guest-view h6 * {
-    font-size: inherit !important;
-}
-
 .rte-content h1,
 .rte-content-body h1,
 .profile-section-desc h1,
 .vsshow-section-desc h1,
 .richtext-guest-view h1 {
-    font-size: 32px !important;
-    font-weight: 700 !important;
-    color: #1e40af !important;
-    margin: 20px 0 8px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e40af;
+    margin: 20px 0 8px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 .rte-content h2,
@@ -348,14 +395,14 @@ table[style*="border-collapse"] {
 .profile-section-desc h2,
 .vsshow-section-desc h2,
 .richtext-guest-view h2 {
-    font-size: 24px !important;
-    font-weight: 600 !important;
-    color: #2563eb !important;
-    margin: 18px 0 6px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2563eb;
+    margin: 18px 0 6px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 .rte-content h3,
@@ -363,14 +410,14 @@ table[style*="border-collapse"] {
 .profile-section-desc h3,
 .vsshow-section-desc h3,
 .richtext-guest-view h3 {
-    font-size: 20px !important;
-    font-weight: 600 !important;
-    color: #0f172a !important;
-    margin: 16px 0 5px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 20px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 16px 0 5px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 .rte-content h4,
@@ -378,14 +425,14 @@ table[style*="border-collapse"] {
 .profile-section-desc h4,
 .vsshow-section-desc h4,
 .richtext-guest-view h4 {
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    margin: 14px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: italic !important;
-    text-decoration: none !important;
+    font-size: 17px;
+    font-weight: 600;
+    color: #334155;
+    margin: 14px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: italic;
+    text-decoration: none;
 }
 
 .rte-content h5,
@@ -393,14 +440,14 @@ table[style*="border-collapse"] {
 .profile-section-desc h5,
 .vsshow-section-desc h5,
 .richtext-guest-view h5 {
-    font-size: 15px !important;
-    font-weight: 400 !important;
-    color: #475569 !important;
-    margin: 12px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: italic !important;
-    text-decoration: none !important;
+    font-size: 15px;
+    font-weight: 400;
+    color: #475569;
+    margin: 12px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: italic;
+    text-decoration: none;
 }
 
 .rte-content h6,
@@ -408,14 +455,14 @@ table[style*="border-collapse"] {
 .profile-section-desc h6,
 .vsshow-section-desc h6,
 .richtext-guest-view h6 {
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #64748b !important;
-    margin: 10px 0 4px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    font-style: normal !important;
-    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 400;
+    color: #64748b;
+    margin: 10px 0 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-style: normal;
+    text-decoration: none;
 }
 
 .rte-content p,
@@ -437,24 +484,9 @@ table[style*="border-collapse"] {
 .profile-section-desc ol,
 .vsshow-section-desc ol,
 .richtext-guest-view ol {
-    margin: 1em 0;
-    padding-left: 1.5rem;
-}
-
-.rte-content ul,
-.rte-content-body ul,
-.profile-section-desc ul,
-.vsshow-section-desc ul,
-.richtext-guest-view ul {
-    list-style: disc !important;
-}
-
-.rte-content ol,
-.rte-content-body ol,
-.profile-section-desc ol,
-.vsshow-section-desc ol,
-.richtext-guest-view ol {
-    list-style: decimal !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+    padding-left: 2rem !important;
 }
 
 .rte-content li,
@@ -462,8 +494,103 @@ table[style*="border-collapse"] {
 .profile-section-desc li,
 .vsshow-section-desc li,
 .richtext-guest-view li {
-    margin: 0.25em 0;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+    padding-left: 0 !important;
     display: list-item !important;
+}
+
+/* Ordered Lists hierarchy list-style-type default overrides */
+.rte-content ol,
+.rte-content-body ol,
+.profile-section-desc ol,
+.vsshow-section-desc ol,
+.richtext-guest-view ol {
+    list-style-type: decimal !important;
+}
+.rte-content ol ol,
+.rte-content-body ol ol,
+.profile-section-desc ol ol,
+.vsshow-section-desc ol ol,
+.richtext-guest-view ol ol,
+.rte-content ul ol,
+.rte-content-body ul ol,
+.profile-section-desc ul ol,
+.vsshow-section-desc ul ol,
+.richtext-guest-view ul ol {
+    list-style-type: lower-alpha !important;
+}
+.rte-content ol ol ol,
+.rte-content ol ul ol,
+.rte-content ul ol ol,
+.rte-content ul ul ol,
+.rte-content-body ol ol ol,
+.rte-content-body ol ul ol,
+.rte-content-body ul ol ol,
+.rte-content-body ul ul ol,
+.profile-section-desc ol ol ol,
+.profile-section-desc ol ul ol,
+.profile-section-desc ul ol ol,
+.profile-section-desc ul ul ol,
+.vsshow-section-desc ol ol ol,
+.vsshow-section-desc ol ul ol,
+.vsshow-section-desc ul ol ol,
+.vsshow-section-desc ul ul ol,
+.richtext-guest-view ol ol ol,
+.richtext-guest-view ol ul ol,
+.richtext-guest-view ul ol ol,
+.richtext-guest-view ul ul ol {
+    list-style-type: lower-roman !important;
+}
+.rte-content ol ol ol ol,
+.rte-content-body ol ol ol ol,
+.profile-section-desc ol ol ol ol,
+.vsshow-section-desc ol ol ol ol,
+.richtext-guest-view ol ol ol ol {
+    list-style-type: decimal !important;
+}
+
+/* Unordered Lists hierarchy list-style-type default overrides */
+.rte-content ul,
+.rte-content-body ul,
+.profile-section-desc ul,
+.vsshow-section-desc ul,
+.richtext-guest-view ul {
+    list-style-type: disc !important;
+}
+.rte-content ul ul,
+.rte-content-body ul ul,
+.profile-section-desc ul ul,
+.vsshow-section-desc ul ul,
+.richtext-guest-view ul ul,
+.rte-content ol ul,
+.rte-content-body ol ul,
+.profile-section-desc ol ul,
+.vsshow-section-desc ol ul,
+.richtext-guest-view ol ul {
+    list-style-type: circle !important;
+}
+.rte-content ul ul ul,
+.rte-content ul ol ul,
+.rte-content ol ul ul,
+.rte-content ol ol ul,
+.rte-content-body ul ul ul,
+.rte-content-body ul ol ul,
+.rte-content-body ol ul ul,
+.rte-content-body ol ol ul,
+.profile-section-desc ul ul ul,
+.profile-section-desc ul ol ul,
+.profile-section-desc ol ul ul,
+.profile-section-desc ol ol ul,
+.vsshow-section-desc ul ul ul,
+.vsshow-section-desc ul ol ul,
+.vsshow-section-desc ol ul ul,
+.vsshow-section-desc ol ol ul,
+.richtext-guest-view ul ul ul,
+.richtext-guest-view ul ol ul,
+.richtext-guest-view ol ul ul,
+.richtext-guest-view ol ol ul {
+    list-style-type: square !important;
 }
 
 /* ── 8. Media Carousel Runtime ── */

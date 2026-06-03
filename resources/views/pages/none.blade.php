@@ -5,6 +5,7 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <link rel="stylesheet" href="{{ asset('css/feature-page.css') }}">
+<link rel="stylesheet" href="{{ asset('cms_rte/runtime/guest_richtexteditor_content.css?v=' . (file_exists(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) ? filemtime(public_path('cms_rte/runtime/guest_richtexteditor_content.css')) : time())) }}">
 @endpush
 
 @section('content')
@@ -39,7 +40,7 @@
     <div class="container">
         @if($feature->content)
         <div class="feature-simple-content">
-            <div class="prose max-w-none rte-content-body">
+            <div class="rte-content rte-content-body">
                 {!! app()->getLocale() === 'en' && $feature->content_en ? $feature->content_en : $feature->content !!}
             </div>
         </div>
@@ -59,6 +60,7 @@
             'loginModalPrompt'    => $loginModalPrompt ?? null
         ])
     @endif
+</div>
 
 @endsection
 

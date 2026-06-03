@@ -841,6 +841,22 @@ class FeaturePageController extends Controller
             ));
         }
 
+        if ($feature->page_type === 'none') {
+            return view('pages.none', [
+                'feature'             => $feature,
+                'pages'               => collect(),
+                'currentPage'         => null,
+                'currentPageNum'      => 1,
+                'totalPages'          => 0,
+                'requiresLoginModal'  => $requiresLoginModal,
+                'loginModalPreviews'  => $loginModalPreviews ?? [],
+                'loginModalPreview'   => $loginModalPreview,
+                'loginModalRoomNames' => $loginModalRoomNames ?? [],
+                'loginModalRoomName'  => $loginModalRoomName,
+                'loginModalPrompt'    => $loginModalPrompt,
+            ]);
+        }
+
         if ($feature->page_type === 'layanan_publik') {
             if ($feature->layananPubliks()->where('is_active', true)->count() > 0) {
                 return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName, $loginModalPrompt);
