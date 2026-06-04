@@ -487,6 +487,23 @@ table[style*="border-collapse"] {
     margin-top: 0.5rem !important;
     margin-bottom: 0.5rem !important;
     padding-left: 2rem !important;
+    list-style-position: inside !important;
+}
+
+.rte-content ul,
+.rte-content-body ul,
+.profile-section-desc ul,
+.vsshow-section-desc ul,
+.richtext-guest-view ul {
+    list-style-type: disc !important;
+}
+
+.rte-content ol,
+.rte-content-body ol,
+.profile-section-desc ol,
+.vsshow-section-desc ol,
+.richtext-guest-view ol {
+    list-style-type: decimal !important;
 }
 
 .rte-content li,
@@ -496,18 +513,105 @@ table[style*="border-collapse"] {
 .richtext-guest-view li {
     margin-top: 0.25rem !important;
     margin-bottom: 0.25rem !important;
-    padding-left: 0 !important;
     display: list-item !important;
 }
 
-/* Ordered Lists hierarchy list-style-type default overrides */
-.rte-content ol,
-.rte-content-body ol,
-.profile-section-desc ol,
-.vsshow-section-desc ol,
-.richtext-guest-view ol {
-    list-style-type: decimal !important;
+.rte-content-body li::marker,
+.rte-content li::marker,
+.richtext-guest-view li::marker {
+    font-size: var(--li-font-size) !important;
+    font-family: var(--li-font-family) !important;
+    color: var(--li-color) !important;
+    font-weight: var(--li-font-weight) !important;
+    font-style: var(--li-font-style) !important;
+    text-decoration: var(--li-text-decoration) !important;
+    line-height: var(--li-line-height) !important;
 }
+
+/* Synchronize list marker styles (bold, italic, underline) with inner text elements using :has() */
+.rte-content-body li:has(strong)::marker,
+.rte-content-body li:has(b)::marker,
+.rte-content-body li:has([style*="font-weight: bold"])::marker,
+.rte-content-body li:has([style*="font-weight:700"])::marker,
+.rte-content-body li:has([style*="font-weight: 700"])::marker,
+.rte-content li:has(strong)::marker,
+.rte-content li:has(b)::marker,
+.rte-content li:has([style*="font-weight: bold"])::marker,
+.rte-content li:has([style*="font-weight:700"])::marker,
+.rte-content li:has([style*="font-weight: 700"])::marker,
+.richtext-guest-view li:has(strong)::marker,
+.richtext-guest-view li:has(b)::marker,
+.richtext-guest-view li:has([style*="font-weight: bold"])::marker,
+.richtext-guest-view li:has([style*="font-weight:700"])::marker,
+.richtext-guest-view li:has([style*="font-weight: 700"])::marker {
+    font-weight: bold !important;
+}
+
+.rte-content-body li:has(em)::marker,
+.rte-content-body li:has(i)::marker,
+.rte-content-body li:has([style*="font-style: italic"])::marker,
+.rte-content-body li:has([style*="font-style:italic"])::marker,
+.rte-content li:has(em)::marker,
+.rte-content li:has(i)::marker,
+.rte-content li:has([style*="font-style: italic"])::marker,
+.rte-content li:has([style*="font-style:italic"])::marker,
+.richtext-guest-view li:has(em)::marker,
+.richtext-guest-view li:has(i)::marker,
+.richtext-guest-view li:has([style*="font-style: italic"])::marker,
+.richtext-guest-view li:has([style*="font-style:italic"])::marker {
+    font-style: italic !important;
+}
+
+.rte-content-body li:has(u)::marker,
+.rte-content-body li:has([style*="text-decoration: underline"])::marker,
+.rte-content-body li:has([style*="text-decoration:underline"])::marker,
+.rte-content li:has(u)::marker,
+.rte-content li:has([style*="text-decoration: underline"])::marker,
+.rte-content li:has([style*="text-decoration:underline"])::marker,
+.richtext-guest-view li:has(u)::marker,
+.richtext-guest-view li:has([style*="text-decoration: underline"])::marker,
+.richtext-guest-view li:has([style*="text-decoration:underline"])::marker {
+    text-decoration: underline !important;
+}
+
+/* Custom list-style types for nested lists */
+.rte-content ul ul,
+.rte-content-body ul ul,
+.profile-section-desc ul ul,
+.vsshow-section-desc ul ul,
+.richtext-guest-view ul ul,
+.rte-content ol ul,
+.rte-content-body ol ul,
+.profile-section-desc ol ul,
+.vsshow-section-desc ol ul,
+.richtext-guest-view ol ul {
+    list-style-type: circle !important;
+}
+
+.rte-content ul ul ul,
+.rte-content ul ol ul,
+.rte-content ol ul ul,
+.rte-content ol ol ul,
+.rte-content-body ul ul ul,
+.rte-content-body ul ol ul,
+.rte-content-body ol ul ul,
+.rte-content-body ol ol ul,
+.profile-section-desc ul ul ul,
+.profile-section-desc ul ol ul,
+.profile-section-desc ol ul ul,
+.profile-section-desc ol ol ul,
+.vsshow-section-desc ul ul ul,
+.vsshow-section-desc ul ol ul,
+.vsshow-section-desc ol ul ul,
+.vsshow-section-desc ol ol ul,
+.richtext-guest-view ul ul ul,
+.richtext-guest-view ul ol ul,
+.richtext-guest-view ol ul ul,
+.richtext-guest-view ol ol ul {
+    list-style-type: square !important;
+}
+
+/* Custom hierarchy nested overrides for numbered lists */
 .rte-content ol ol,
 .rte-content-body ol ol,
 .profile-section-desc ol ol,
@@ -520,6 +624,7 @@ table[style*="border-collapse"] {
 .richtext-guest-view ul ol {
     list-style-type: lower-alpha !important;
 }
+
 .rte-content ol ol ol,
 .rte-content ol ul ol,
 .rte-content ul ol ol,
@@ -542,55 +647,59 @@ table[style*="border-collapse"] {
 .richtext-guest-view ul ul ol {
     list-style-type: lower-roman !important;
 }
-.rte-content ol ol ol ol,
-.rte-content-body ol ol ol ol,
-.profile-section-desc ol ol ol ol,
-.vsshow-section-desc ol ol ol ol,
-.richtext-guest-view ol ol ol ol {
+
+/* Alphabetical List (ol type="a") */
+.rte-content ol[type="a"],
+.rte-content-body ol[type="a"],
+.profile-section-desc ol[type="a"],
+.vsshow-section-desc ol[type="a"],
+.richtext-guest-view ol[type="a"] {
+    list-style-type: lower-alpha !important;
+}
+
+/* Multi-level List (Microsoft Word style: 1. -> a. -> i. -> 1.) */
+.rte-content ol.rte-multilevel-list,
+.rte-content-body ol.rte-multilevel-list,
+.profile-section-desc ol.rte-multilevel-list,
+.vsshow-section-desc ol.rte-multilevel-list,
+.richtext-guest-view ol.rte-multilevel-list {
     list-style-type: decimal !important;
 }
 
-/* Unordered Lists hierarchy list-style-type default overrides */
-.rte-content ul,
-.rte-content-body ul,
-.profile-section-desc ul,
-.vsshow-section-desc ul,
-.richtext-guest-view ul {
-    list-style-type: disc !important;
+.rte-content ol.rte-multilevel-list ol,
+.rte-content ol.rte-multilevel-list ul,
+.rte-content-body ol.rte-multilevel-list ol,
+.rte-content-body ol.rte-multilevel-list ul,
+.profile-section-desc ol.rte-multilevel-list ol,
+.profile-section-desc ol.rte-multilevel-list ul,
+.vsshow-section-desc ol.rte-multilevel-list ol,
+.vsshow-section-desc ol.rte-multilevel-list ul,
+.richtext-guest-view ol.rte-multilevel-list ol,
+.richtext-guest-view ol.rte-multilevel-list ul {
+    list-style-type: lower-alpha !important;
 }
-.rte-content ul ul,
-.rte-content-body ul ul,
-.profile-section-desc ul ul,
-.vsshow-section-desc ul ul,
-.richtext-guest-view ul ul,
-.rte-content ol ul,
-.rte-content-body ol ul,
-.profile-section-desc ol ul,
-.vsshow-section-desc ol ul,
-.richtext-guest-view ol ul {
-    list-style-type: circle !important;
-}
-.rte-content ul ul ul,
-.rte-content ul ol ul,
-.rte-content ol ul ul,
-.rte-content ol ol ul,
-.rte-content-body ul ul ul,
-.rte-content-body ul ol ul,
-.rte-content-body ol ul ul,
-.rte-content-body ol ol ul,
-.profile-section-desc ul ul ul,
-.profile-section-desc ul ol ul,
-.profile-section-desc ol ul ul,
-.profile-section-desc ol ol ul,
-.vsshow-section-desc ul ul ul,
-.vsshow-section-desc ul ol ul,
-.vsshow-section-desc ol ul ul,
-.vsshow-section-desc ol ol ul,
-.richtext-guest-view ul ul ul,
-.richtext-guest-view ul ol ul,
-.richtext-guest-view ol ul ul,
-.richtext-guest-view ol ol ul {
-    list-style-type: square !important;
+
+.rte-content ol.rte-multilevel-list ol ol,
+.rte-content ol.rte-multilevel-list ul ul,
+.rte-content ol.rte-multilevel-list ol ul,
+.rte-content ol.rte-multilevel-list ul ol,
+.rte-content-body ol.rte-multilevel-list ol ol,
+.rte-content-body ol.rte-multilevel-list ul ul,
+.rte-content-body ol.rte-multilevel-list ol ul,
+.rte-content-body ol.rte-multilevel-list ul ol,
+.profile-section-desc ol.rte-multilevel-list ol ol,
+.profile-section-desc ol.rte-multilevel-list ul ul,
+.profile-section-desc ol.rte-multilevel-list ol ul,
+.profile-section-desc ol.rte-multilevel-list ul ol,
+.vsshow-section-desc ol.rte-multilevel-list ol ol,
+.vsshow-section-desc ol.rte-multilevel-list ul ul,
+.vsshow-section-desc ol.rte-multilevel-list ol ul,
+.vsshow-section-desc ol.rte-multilevel-list ul ol,
+.richtext-guest-view ol.rte-multilevel-list ol ol,
+.richtext-guest-view ol.rte-multilevel-list ul ul,
+.richtext-guest-view ol.rte-multilevel-list ol ul,
+.richtext-guest-view ol.rte-multilevel-list ul ol {
+    list-style-type: lower-roman !important;
 }
 
 /* ── 8. Media Carousel Runtime ── */

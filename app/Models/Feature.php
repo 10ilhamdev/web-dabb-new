@@ -23,14 +23,37 @@ class Feature extends Model
         'virtual_room_type',
         'page_type',
         'is_active',
+        'is_url_blocked',
         'is_login_required',
     ];
 
     protected $casts = [
         'is_active'         => 'boolean',
+        'is_url_blocked'    => 'boolean',
         'is_virtual_book'   => 'boolean',
         'is_login_required' => 'boolean',
     ];
+
+    /**
+     * Collect all ancestors of this feature from root down to direct parent.
+     * Returns a Collection of Feature instances ordered root → parent.
+     * Works for unlimited nesting depth.
+     */
+    public function getAncestors(): \Illuminate\Support\Collection
+    {
+        $ancestors = collect();
+        $current = $this;
+        // Walk up, collecting parents
+        $stack = [];
+        while ($current->parent_id) {
+            $parent = $current->parent;
+            if (!$parent) break;
+            $stack[] = $parent;
+            $current = $parent;
+        }
+        // Reverse so root comes first
+        return collect(array_reverse($stack));
+    }
 
     /**
      * The "booted" method of the model.

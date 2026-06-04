@@ -3,6 +3,7 @@ function featureManager() {
         editModal: { open: false, id: null, name: '', type: 'link', path: '', order: 0, pageType: 'none', newParentId: '', isLoginRequired: false },
         addModal: { open: false, type: 'link', pageType: 'none', isLoginRequired: false },
         deleteModal: { open: false, id: null, name: '' },
+        visibilityModal: { open: false, id: null, name: '' },
 
         openEditModal(id, name, type, path, order, pageType = 'none', newParentId = '', isLoginRequired = false) {
             this.editModal = { open: true, id, name, type, path, order, pageType, newParentId, isLoginRequired: !!isLoginRequired };
@@ -12,6 +13,9 @@ function featureManager() {
         },
         openDeleteModal(id, name) {
             this.deleteModal = { open: true, id, name };
+        },
+        openVisibilityModal(id, name) {
+            this.visibilityModal = { open: true, id, name };
         }
     }
 }

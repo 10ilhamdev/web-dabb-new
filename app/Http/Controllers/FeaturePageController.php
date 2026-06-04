@@ -38,9 +38,12 @@ class FeaturePageController extends Controller
 
         $feature->load(['pages' => function ($q) {
             $q->withCount('sections');
-        }, 'parent']);
+        }, 'parent.parent.parent.parent.parent']);
 
-        return view('cms.features.pages.index', compact('feature'));
+        // Build unlimited-depth ancestor chain for breadcrumb
+        $ancestors = $feature->getAncestors();
+
+        return view('cms.features.pages.index', compact('feature', 'ancestors'));
     }
 
     /**
@@ -127,9 +130,12 @@ class FeaturePageController extends Controller
     public function show(Feature $feature, FeaturePage $page)
     {
         $page->load('sections');
-        $feature->load('parent');
+        $feature->load('parent.parent.parent.parent.parent');
 
-        return view('cms.features.pages.show', compact('feature', 'page'));
+        // Build unlimited-depth ancestor chain for breadcrumb
+        $ancestors = $feature->getAncestors();
+
+        return view('cms.features.pages.show', compact('feature', 'page', 'ancestors'));
     }
 
     /**
@@ -534,6 +540,15 @@ class FeaturePageController extends Controller
         $path = '/'.$request->path;
         $feature = Feature::where('path', $path)->firstOrFail();
         $feature->loadCount('pages');
+
+        // If the feature or any of its ancestors is blocked at the URL level, return 404 (not just hidden from menu)
+        $checkFeature = $feature;
+        while ($checkFeature) {
+            if ($checkFeature->is_url_blocked) {
+                abort(404);
+            }
+            $checkFeature = $checkFeature->parent;
+        }
 
         // Check if this feature requires login — configurable from CMS
         $requiresLoginModal = !Auth::check() && $feature->is_login_required;
@@ -966,6 +981,16 @@ class FeaturePageController extends Controller
     {
         $fullPath = '/' . $path;
         $feature = Feature::where('path', $fullPath)->firstOrFail();
+
+        // If the feature or any of its ancestors is blocked at the URL level, return 404
+        $checkFeature = $feature;
+        while ($checkFeature) {
+            if ($checkFeature->is_url_blocked) {
+                abort(404);
+            }
+            $checkFeature = $checkFeature->parent;
+        }
+
         $publication = $feature->publications()->where('id', $id)->where('is_active', true)->firstOrFail();
         $locale = app()->getLocale();
 

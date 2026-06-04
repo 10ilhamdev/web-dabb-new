@@ -29,6 +29,15 @@ return [
         'detail' => 'Detail',
         'hide' => 'Sembunyikan',
         'show_label' => 'Tampilkan',
+        'visibility_modal' => [
+            'title' => 'Sembunyikan Fitur',
+            'subtitle' => 'Pilih mode penyembunyian untuk :name',
+            'menu_only_title' => 'Sembunyikan dari Menu',
+            'menu_only_desc' => 'Fitur tidak tampil di navigasi, <span class="font-medium text-green-600">tetapi URL masih bisa diakses</span> langsung oleh pengunjung.',
+            'total_title' => 'Sembunyikan Total',
+            'total_desc' => 'Fitur tidak tampil di navigasi dan <span class="font-medium text-red-600">URL tidak bisa diakses</span> — pengunjung akan mendapat halaman 404.',
+            'cancel' => 'Batal',
+        ],
 
         // Empty state
         'empty' => 'Belum ada fitur. Klik "+ Tambah Fitur" untuk menambahkan.',
@@ -141,6 +150,15 @@ return [
         'desc' => 'Kelola halaman-halaman yang ditampilkan pada fitur :name',
         'add_button' => 'Tambah Halaman',
         'back_to_feature' => 'Kembali ke Fitur',
+        'visibility_modal' => [
+            'title' => 'Sembunyikan Halaman',
+            'subtitle' => 'Pilih mode penyembunyian untuk :name',
+            'menu_only_title' => 'Sembunyikan dari Menu',
+            'menu_only_desc' => 'Halaman tidak tampil di navigasi, <span class="font-medium text-green-600">tetapi URL masih bisa diakses</span> langsung oleh pengunjung.',
+            'total_title' => 'Sembunyikan Total',
+            'total_desc' => 'Halaman tidak tampil di navigasi dan <span class="font-medium text-red-600">URL tidak bisa diakses</span> — pengunjung akan mendapat halaman 404.',
+            'cancel' => 'Batal',
+        ],
 
         'col_title' => 'Judul Halaman',
         'col_sections' => 'Jumlah Seksi',
@@ -2148,6 +2166,9 @@ return [
         'icon_globe_card' => '🌐 Website (Portal Online)',
     ],
 
+    'none' => [
+        'info_none' => 'Belum ada konten yang tersedia.',
+    ],
 
     'reports' => [
         // Kunjungan

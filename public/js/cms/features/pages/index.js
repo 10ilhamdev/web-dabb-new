@@ -3,6 +3,7 @@ function pageManager() {
         addModal: { open: false },
         editModal: { open: false, id: null, title: '', description: '', order: 0 },
         deleteModal: { open: false, id: null, name: '' },
+        visibilityModal: { open: false, id: null, name: '' },
 
         openAddModal() { this.addModal = { open: true }; },
         openEditModal(id, title, description, order) {
@@ -10,6 +11,9 @@ function pageManager() {
         },
         openDeleteModal(id, name) {
             this.deleteModal = { open: true, id, name };
+        },
+        openVisibilityModal(id, name) {
+            this.visibilityModal = { open: true, id, name };
         }
     }
 }

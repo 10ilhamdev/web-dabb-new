@@ -46,7 +46,7 @@
         </div>
         @else
         <div style="text-align:center;padding:4rem;color:#9ca3af;">
-            <p>{{ __('home.virtual_3d_tour.no_rooms') }}</p>
+            <p>{{ __('cms.none.info_none') }}</p>
         </div>
         @endif
     </div>

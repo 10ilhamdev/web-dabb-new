@@ -5,21 +5,11 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.index') }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
-    @if ($feature->parent)
-        @php
-            $grandparent = $feature->parent->parent;
-        @endphp
-
-        @if ($grandparent && $grandparent->id !== $feature->parent->id)
-            <span class="text-gray-300">/</span>
-            <a href="{{ url('/cms/features/' . $grandparent->id . '/') }}"
-                class="text-gray-400 hover:text-gray-600 transition-colors">{{ $grandparent->name }}</a>
-        @endif
-
+    @foreach($ancestors as $ancestor)
         <span class="text-gray-300">/</span>
-        <a href="{{ url('/cms/features/' . $feature->parent->id . '/') }}"
-            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
-    @endif
+        <a href="{{ route('cms.features.show', $ancestor) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $ancestor->name }}</a>
+    @endforeach
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.show', $feature) }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>

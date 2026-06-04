@@ -1032,28 +1032,38 @@ body.rte-body-fullscreen {
 /* =========================================================================
  * List bullets / numbers (rely on native list-style for accurate rendering)
  * ========================================================================= */
-.rte-content ul {
-    list-style: disc;
-    padding-left: 1.5em;
+
+.rte-content ul,
+.rte-content ol {
     margin: 0.5em 0;
+    padding-left: 2rem !important;
+    list-style-position: inside !important;
 }
 
-.rte-content ul>li {
-    position: relative;
-    margin: 0.25em 0;
-    display: list-item;
+.rte-content ul {
+    list-style-type: disc !important;
 }
 
 .rte-content ol {
-    list-style: decimal;
-    padding-left: 1.5em;
-    margin: 0.5em 0;
+    list-style-type: decimal !important;
 }
 
-.rte-content ol>li {
-    position: relative;
+.rte-content ul > li,
+.rte-content ol > li {
     margin: 0.25em 0;
-    display: list-item;
+    display: list-item !important;
+}
+
+.rte-content-body li::marker,
+.rte-content li::marker,
+.richtext-guest-view li::marker {
+    font-size: var(--li-font-size) !important;
+    font-family: var(--li-font-family) !important;
+    color: var(--li-color) !important;
+    font-weight: var(--li-font-weight) !important;
+    font-style: var(--li-font-style) !important;
+    text-decoration: var(--li-text-decoration) !important;
+    line-height: var(--li-line-height) !important;
 }
 
 /* =========================================================================

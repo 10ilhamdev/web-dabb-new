@@ -29,6 +29,15 @@ return [
         'detail' => 'Detail',
         'hide' => 'Hide',
         'show_label' => 'Show',
+        'visibility_modal' => [
+            'title' => 'Hide Feature',
+            'subtitle' => 'Select hide mode for :name',
+            'menu_only_title' => 'Hide from Menu',
+            'menu_only_desc' => 'Feature will not appear in navigation, <span class="font-medium text-green-600">but URL is still accessible</span> directly by visitors.',
+            'total_title' => 'Hide Total',
+            'total_desc' => 'Feature will not appear in navigation and <span class="font-medium text-red-600">URL cannot be accessed</span> — visitors will get a 404 page.',
+            'cancel' => 'Cancel',
+        ],
 
         // Empty state
         'empty' => 'No features yet. Click "+ Add Feature" to create one.',
@@ -141,6 +150,15 @@ return [
         'desc' => 'Manage pages displayed for the :name feature',
         'add_button' => 'Add Page',
         'back_to_feature' => 'Back to Feature',
+        'visibility_modal' => [
+            'title' => 'Hide Page',
+            'subtitle' => 'Select hide mode for :name',
+            'menu_only_title' => 'Hide from Menu',
+            'menu_only_desc' => 'Page will not appear in navigation, <span class="font-medium text-green-600">but URL is still accessible</span> directly by visitors.',
+            'total_title' => 'Hide Total',
+            'total_desc' => 'Page will not appear in navigation and <span class="font-medium text-red-600">URL cannot be accessed</span> — visitors will get a 404 page.',
+            'cancel' => 'Cancel',
+        ],
 
         'col_title' => 'Page Title',
         'col_sections' => 'Sections',
@@ -2144,7 +2162,10 @@ return [
         'icon_clock_card' => '⏰ Clock (Operating Hours)',
         'icon_globe_card' => '🌐 Website (Online Portal)',
     ],
-
+    
+    'none' => [
+        'info_none' => 'There is no content available yet.',
+    ],
 
     'reports' => [
         // Kunjungan

@@ -180,8 +180,11 @@ class FeatureController extends Controller
 
         $feature->load(['subfeatures' => function ($query) {
             $query->withCount(['subfeatures', 'pages']);
-        }, 'parent']);
+        }, 'parent.parent.parent.parent.parent']);
         $feature->loadCount('pages');
+
+        // Build unlimited-depth ancestor chain for breadcrumb
+        $ancestors = $feature->getAncestors();
 
         // All dropdown-type features (for "Pindah ke Menu" selector) — excluding the current feature
         $dropdownFeatures = Feature::where('type', 'dropdown')
@@ -189,7 +192,7 @@ class FeatureController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'parent_id']);
 
-        return view('cms.features.show', compact('feature', 'dropdownFeatures'));
+        return view('cms.features.show', compact('feature', 'dropdownFeatures', 'ancestors'));
     }
 
     /**
@@ -453,11 +456,25 @@ class FeatureController extends Controller
     }
 
     /**
-     * Toggle the visibility of a feature.
+     * Toggle the visibility of a feature with two modes:
+     *   - 'total'     : is_active = false, is_url_blocked = true  → URL returns 404
+     *   - 'menu_only' : is_active = false, is_url_blocked = false  → hidden from nav but URL works
+     *   - 'show'      : is_active = true,  is_url_blocked = false  → fully visible again
      */
-    public function toggleVisibility(Feature $feature)
+    public function toggleVisibility(Feature $feature, \Illuminate\Http\Request $request)
     {
-        $feature->update(['is_active' => ! $feature->is_active]);
+        $mode = $request->input('mode', 'toggle');
+
+        if ($mode === 'total') {
+            $feature->update(['is_active' => false, 'is_url_blocked' => true]);
+        } elseif ($mode === 'menu_only') {
+            $feature->update(['is_active' => false, 'is_url_blocked' => false]);
+        } elseif ($mode === 'show') {
+            $feature->update(['is_active' => true, 'is_url_blocked' => false]);
+        } else {
+            // Legacy toggle (no mode param) — keep backward compat
+            $feature->update(['is_active' => !$feature->is_active]);
+        }
 
         return back()->with('success', __('cms.features.flash.visibility_toggled'));
     }

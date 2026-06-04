@@ -5,21 +5,14 @@
     <span class="text-gray-300">/</span>
     <a href="{{ route('cms.features.index') }}"
         class="text-gray-400 hover:text-gray-600 transition-colors">{{ __('cms.features.title') }}</a>
-    @if ($feature->parent)
-        @php
-            $grandparent = $feature->parent->parent;
-        @endphp
-
-        @if ($grandparent && $grandparent->id !== $feature->parent->id)
-            <span class="text-gray-300">/</span>
-            <a href="{{ url('/cms/features/' . $grandparent->id . '/') }}"
-                class="text-gray-400 hover:text-gray-600 transition-colors">{{ $grandparent->name }}</a>
-        @endif
-
+    @foreach($ancestors as $ancestor)
         <span class="text-gray-300">/</span>
-        <a href="{{ url('/cms/features/' . $feature->parent->id . '/') }}"
-            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->parent->name }}</a>
-    @endif
+        <a href="{{ route('cms.features.show', $ancestor) }}"
+            class="text-gray-400 hover:text-gray-600 transition-colors">{{ $ancestor->name }}</a>
+    @endforeach
+    <span class="text-gray-300">/</span>
+    <a href="{{ route('cms.features.show', $feature) }}"
+        class="text-gray-400 hover:text-gray-600 transition-colors">{{ $feature->name }}</a>
 @endsection
 @section('breadcrumb_active', $feature->name)
 
@@ -85,22 +78,30 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
                                         <!-- Toggle Visibility Button -->
+                                        @if($page->is_active)
+                                        <button type="button"
+                                            @click="openVisibilityModal({{ $page->id }}, '{{ addslashes($page->title) }}')"
+                                            class="inline-flex items-center justify-center w-8 h-8 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
+                                            title="{{ __('cms.common.hide') }}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                        @else
                                         <form action="{{ route('cms.features.pages.toggle-visibility', [$feature, $page]) }}" method="POST" class="inline">
                                             @csrf
                                             @method('PATCH')
+                                            <input type="hidden" name="mode" value="show">
                                             <button type="submit"
-                                                class="inline-flex items-center justify-center w-8 h-8 {{ $page->is_active ? 'bg-gray-500 hover:bg-gray-600' : 'bg-gray-400 hover:bg-gray-500' }} text-white rounded-md transition-colors"
-                                                title="{{ $page->is_active ? __('cms.common.hide') : __('cms.common.show') }}">
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-gray-400 hover:bg-gray-500 text-white rounded-md transition-colors"
+                                                title="{{ __('cms.common.show') }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    @if($page->is_active)
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    @else
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                                                    @endif
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
                                                 </svg>
                                             </button>
                                         </form>
+                                        @endif
                                         <a href="{{ route('cms.features.pages.show', [$feature, $page]) }}"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs font-semibold rounded-md transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
@@ -153,6 +154,85 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        {{-- ===== VISIBILITY MODE MODAL ===== --}}
+        <div x-show="visibilityModal.open" x-cloak class="fixed inset-0 flex items-center justify-center p-4"
+            style="z-index: 9999;" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="visibilityModal.open = false"
+                style="position: fixed; top: 0; right: 0; bottom: 0; left: 0;"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-[9999]"
+                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100">
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-800">{{ __('cms.feature_pages.visibility_modal.title') }}</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ __('cms.feature_pages.visibility_modal.subtitle', ['name' => '']) }} <strong x-text="visibilityModal.name"></strong></p>
+                        </div>
+                    </div>
+                    <button @click="visibilityModal.open = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                {{-- Options --}}
+                <div class="px-6 py-5 space-y-3">
+                    {{-- Option 1: Menu Only --}}
+                    <form :action="`{{ route('cms.features.pages.index', $feature) }}/${visibilityModal.id}/toggle-visibility`" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="mode" value="menu_only">
+                        <button type="submit"
+                            class="w-full text-left flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#174E93] hover:bg-blue-50 transition-all group">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 group-hover:bg-blue-200 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">{{ __('cms.feature_pages.visibility_modal.menu_only_title') }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{!! __('cms.feature_pages.visibility_modal.menu_only_desc') !!}</p>
+                            </div>
+                        </button>
+                    </form>
+                    {{-- Option 2: Total Block --}}
+                    <form :action="`{{ route('cms.features.pages.index', $feature) }}/${visibilityModal.id}/toggle-visibility`" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="mode" value="total">
+                        <button type="submit"
+                            class="w-full text-left flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-red-400 hover:bg-red-50 transition-all group">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 group-hover:bg-red-200 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">{{ __('cms.feature_pages.visibility_modal.total_title') }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{!! __('cms.feature_pages.visibility_modal.total_desc') !!}</p>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+                {{-- Cancel --}}
+                <div class="px-6 pb-5">
+                    <button type="button" @click="visibilityModal.open = false"
+                        class="w-full px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        {{ __('cms.feature_pages.visibility_modal.cancel') }}
+                    </button>
+                </div>
             </div>
         </div>
 

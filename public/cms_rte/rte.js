@@ -754,6 +754,17 @@
         toolbar.appendChild(tbTop);
         toolbar.appendChild(tbBottom);
 
+        // Prevent toolbar clicks from stealing focus away from the contenteditable editor.
+        // Without this, clicking a button (e.g. Bold) while text is selected in a list item
+        // causes mousedown to blur the editor and clear the selection BEFORE the onclick runs.
+        // We allow mousedown on input/textarea/select elements so they still receive focus normally.
+        toolbar.addEventListener('mousedown', function (e) {
+            var tag = e.target && e.target.tagName ? e.target.tagName.toUpperCase() : '';
+            if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                e.preventDefault();
+            }
+        });
+
         // Hidden file input for image upload
         this._fileInput = el('input', { type: 'file', accept: 'image/*', style: { display: 'none' } });
         wrapper.appendChild(this._fileInput);
@@ -1694,8 +1705,22 @@
     RichTextEditor.prototype.exec = function (cmd, value) {
         var self = this;
         var activeTable = this._selectedTable;
+        var sel = window.getSelection();
+        var selInsideTable = false;
+        if (activeTable && sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            while (node && node !== this.content) {
+                if (node === activeTable) {
+                    selInsideTable = true;
+                    break;
+                }
+                node = node ? node.parentNode : null;
+            }
+        }
+        if (activeTable && !selInsideTable) {
+            activeTable = null;
+        }
         if (!activeTable) {
-            var sel = window.getSelection();
             if (sel && sel.rangeCount > 0) {
                 var node = sel.anchorNode;
                 while (node && node !== this.content) {
@@ -1717,21 +1742,6 @@
                                   cmd === 'justifyRight' ? 'right' : 'justify');
 
             if (activeTable) {
-                // Table block alignment
-                if (cmd === 'justifyLeft') {
-                    activeTable.style.marginLeft = '0';
-                    activeTable.style.marginRight = 'auto';
-                } else if (cmd === 'justifyCenter') {
-                    activeTable.style.marginLeft = 'auto';
-                    activeTable.style.marginRight = 'auto';
-                } else if (cmd === 'justifyRight') {
-                    activeTable.style.marginLeft = 'auto';
-                    activeTable.style.marginRight = '0';
-                } else if (cmd === 'justifyFull') {
-                    activeTable.style.width = '100%';
-                    activeTable.style.marginLeft = '0';
-                    activeTable.style.marginRight = 'auto';
-                }
                 // Table cell content alignment
                 var selectedCells = activeTable.querySelectorAll('.rte-cell-selected');
                 if (selectedCells.length > 0) {
@@ -1777,54 +1787,55 @@
                     // Collect all block elements that overlap with the selection
                     var blocksToAlign = [];
 
-                    // Walk from start to end of the range and gather block ancestors
                     var startNode = range.startContainer;
-                    var endNode = range.endContainer;
-
-                    // Get all block elements under the common ancestor that contain selection
                     var ancestor = range.commonAncestorContainer;
                     if (ancestor.nodeType === Node.TEXT_NODE) ancestor = ancestor.parentNode;
 
-                    if (range.collapsed || startNode === endNode) {
-                        // Collapsed selection or same node: find single block ancestor
-                        var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
-                        while (blk && blk !== self.content) {
-                            if (blk.tagName && blockTagsRe.test(blk.tagName)) { blocksToAlign.push(blk); break; }
-                            blk = blk.parentElement;
+                    // Find nearest block container of the selection
+                    var blockTextTagsRe = /^(P|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
+                    var blockContainer = ancestor;
+                    while (blockContainer && blockContainer !== self.content) {
+                        if (blockContainer.tagName && (blockTextTagsRe.test(blockContainer.tagName) || blockContainer.tagName === 'DIV')) {
+                            break;
                         }
-                        // If nothing found, apply to the content root directly
-                        if (blocksToAlign.length === 0 && self.content) {
-                            blocksToAlign.push(self.content);
-                        }
+                        blockContainer = blockContainer.parentNode;
+                    }
+                    if (!blockContainer) blockContainer = self.content;
+
+                    if (blockContainer !== self.content && blockTextTagsRe.test(blockContainer.tagName)) {
+                        // The selection is nested inside a single block container (P, H1-6, etc.). Style it directly.
+                        blocksToAlign.push(blockContainer);
                     } else {
-                        // Multi-block selection: gather all block-level elements inside the ancestor
-                        var walker = document.createTreeWalker(
-                            ancestor,
-                            NodeFilter.SHOW_ELEMENT,
-                            {
-                                acceptNode: function(n) {
-                                    if (blockTagsRe.test(n.tagName) && range.intersectsNode(n)) {
-                                        return NodeFilter.FILTER_ACCEPT;
+                        // The container is self.content or a DIV. It can contain direct inline children.
+                        // Loop through direct children of this block container that intersect the range.
+                        var childNodes = Array.prototype.slice.call(blockContainer.childNodes);
+                        childNodes.forEach(function (node) {
+                            if (range.intersectsNode(node)) {
+                                if (node.nodeType === Node.ELEMENT_NODE && blockTagsRe.test(node.tagName)) {
+                                    blocksToAlign.push(node);
+                                } else {
+                                    // Skip empty whitespace-only text nodes
+                                    if (node.nodeType === Node.TEXT_NODE && !node.nodeValue.trim()) {
+                                        return;
                                     }
-                                    return NodeFilter.FILTER_SKIP;
+                                    // Wrap this top-level inline/text node in a P element
+                                    var p = document.createElement('p');
+                                    node.parentNode.insertBefore(p, node);
+                                    p.appendChild(node);
+                                    blocksToAlign.push(p);
                                 }
-                            },
-                            false
-                        );
-                        var wNode;
-                        while ((wNode = walker.nextNode())) {
-                            blocksToAlign.push(wNode);
-                        }
-                        // Fallback: if ancestor itself is a block element
-                        if (blocksToAlign.length === 0 && ancestor.tagName && blockTagsRe.test(ancestor.tagName)) {
-                            blocksToAlign.push(ancestor);
-                        }
-                        // Final fallback: walk up from start container
+                            }
+                        });
+
+                        // Fallback: if nothing was collected, find closest block parent of startNode
                         if (blocksToAlign.length === 0) {
-                            var blk2 = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
-                            while (blk2 && blk2 !== self.content) {
-                                if (blk2.tagName && blockTagsRe.test(blk2.tagName)) { blocksToAlign.push(blk2); break; }
-                                blk2 = blk2.parentElement;
+                            var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
+                            while (blk && blk !== self.content) {
+                                if (blk.tagName && blockTagsRe.test(blk.tagName)) {
+                                    blocksToAlign.push(blk);
+                                    break;
+                                }
+                                blk = blk.parentNode;
                             }
                         }
                     }
@@ -6316,7 +6327,73 @@
         return this._history[this._historyIndex] || '';
     };
 
+    RichTextEditor.prototype._syncListStyles = function () {
+        if (!this.content) return;
+        var listItems = this.content.querySelectorAll('li');
+        listItems.forEach(function (li) {
+            var styledEl = null;
+            var queue = [li];
+            while (queue.length > 0) {
+                var curr = queue.shift();
+                if (curr !== li && curr.style && (
+                    curr.style.fontSize || 
+                    curr.style.fontFamily || 
+                    curr.style.color || 
+                    curr.style.fontWeight || 
+                    curr.style.fontStyle || 
+                    curr.style.textDecoration
+                )) {
+                    styledEl = curr;
+                    break;
+                }
+                for (var i = 0; i < curr.children.length; i++) {
+                    queue.push(curr.children[i]);
+                }
+            }
+
+            if (styledEl) {
+                var mapping = {
+                    fontSize: '--li-font-size',
+                    fontFamily: '--li-font-family',
+                    color: '--li-color',
+                    fontWeight: '--li-font-weight',
+                    fontStyle: '--li-font-style',
+                    textDecoration: '--li-text-decoration',
+                    lineHeight: '--li-line-height'
+                };
+                Object.keys(mapping).forEach(function (prop) {
+                    var varName = mapping[prop];
+                    if (styledEl.style[prop]) {
+                        li.style.setProperty(varName, styledEl.style[prop]);
+                    } else {
+                        li.style.removeProperty(varName);
+                    }
+                });
+                li.style.fontSize = '';
+                li.style.fontFamily = '';
+                li.style.color = '';
+                li.style.fontWeight = '';
+                li.style.fontStyle = '';
+                li.style.textDecoration = '';
+                li.style.lineHeight = '';
+            } else {
+                var vars = ['--li-font-size', '--li-font-family', '--li-color', '--li-font-weight', '--li-font-style', '--li-text-decoration', '--li-line-height'];
+                vars.forEach(function (v) {
+                    li.style.removeProperty(v);
+                });
+                li.style.fontSize = '';
+                li.style.fontFamily = '';
+                li.style.color = '';
+                li.style.fontWeight = '';
+                li.style.fontStyle = '';
+                li.style.textDecoration = '';
+                li.style.lineHeight = '';
+            }
+        });
+    };
+
     RichTextEditor.prototype._syncSource = function () {
+        this._syncListStyles();
         var html = this.content.innerHTML;
 
         // Mirror to underlying textarea if any
@@ -6328,6 +6405,7 @@
     }; 
 
     RichTextEditor.prototype._updateState = function () {
+        this._syncListStyles();
         var self = this;
 
         // --- Non-align buttons: use queryCommandState (reliable for bold/italic/etc.) ---
@@ -6353,21 +6431,40 @@
             alignjustify: 'justify',
         };
         var selA = window.getSelection();
-        var nodeA = selA ? selA.anchorNode : null;
+        var nodeA = null;
+        var offsetA = 0;
+        if (selA && selA.rangeCount > 0) {
+            nodeA = selA.anchorNode;
+            offsetA = selA.anchorOffset;
+        }
         if (!nodeA || !self.content.contains(nodeA)) {
             if (self._savedRange) {
                 nodeA = self._savedRange.startContainer;
-            } else {
-                nodeA = self.content.firstChild || self.content;
+                offsetA = self._savedRange.startOffset;
             }
         }
+        
+        // Resolve parent container-level boundary selections
+        if (nodeA === self.content) {
+            if (offsetA > 0 && self.content.childNodes[offsetA - 1]) {
+                nodeA = self.content.childNodes[offsetA - 1];
+            } else if (self.content.childNodes[offsetA]) {
+                nodeA = self.content.childNodes[offsetA];
+            }
+        } else if (nodeA && nodeA.nodeType === Node.ELEMENT_NODE && nodeA.childNodes && nodeA.childNodes[offsetA]) {
+            nodeA = nodeA.childNodes[offsetA];
+        }
+        if (!nodeA || !self.content.contains(nodeA)) {
+            nodeA = self.content.firstChild || self.content;
+        }
+
         var blockEl = nodeA ? (nodeA.nodeType === Node.TEXT_NODE ? nodeA.parentNode : nodeA) : null;
         var blockTags = /^(P|DIV|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
         while (blockEl && blockEl !== self.content) {
             if (blockEl.tagName && blockTags.test(blockEl.tagName)) break;
-            blockEl = blockEl.parentElement;
+            blockEl = blockEl.parentNode; // parentNode is safer than parentElement
         }
-        if (blockEl === self.content) {
+        if (!blockEl || blockEl === self.content) {
             blockEl = self.content.querySelector('p, div, h1, h2, h3, h4, h5, h6') || self.content;
         }
         var curAlign = 'left'; // default
@@ -7012,6 +7109,25 @@
                         } else {
                             var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre');
                             if (block && isAtStartOf(block)) {
+                                var prevBlock = null;
+                                var sibling = block.previousElementSibling;
+                                while (sibling) {
+                                    if (/^(P|DIV|H[1-6]|BLOCKQUOTE|PRE|OL|UL|TABLE)$/.test(sibling.tagName)) {
+                                        prevBlock = sibling;
+                                        break;
+                                    }
+                                    sibling = sibling.previousElementSibling;
+                                }
+                                if (!prevBlock) {
+                                    // First block in the editor: clear center/right alignment first
+                                    if (block.style.textAlign && block.style.textAlign !== 'left') {
+                                        e.preventDefault();
+                                        block.style.textAlign = '';
+                                        self._syncSource();
+                                        self._updateState();
+                                        return;
+                                    }
+                                }
                                 if (block.style.marginLeft || block.style.paddingLeft) {
                                     e.preventDefault();
                                     var currentMargin = parseFloat(block.style.marginLeft) || 0;
