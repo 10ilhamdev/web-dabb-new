@@ -24,7 +24,16 @@
       "Bash(php -l app/Http/Controllers/FeaturePageController.php)",
       "Bash(php -l app/Providers/AppServiceProvider.php)",
       "Bash(php -l resources/views/welcome.blade.php)",
-      "Bash(grep -v \"\\\\.php:[ ]*\\\\*\\\\|//\")"
+      "Bash(grep -v \"\\\\.php:[ ]*\\\\*\\\\|//\")",
+      "Bash(grep -o 'data-rte-anchor=\\\\\\\\\"periode-voc[^\"]*\\\\\\\\\"' C:/laragon/www/ANRI/web-dabb-new/dabb_backup.sql)",
+      "Bash(grep -o 'id=\\\\\\\\\"periode-voc[^\"]*\\\\\\\\\"' C:/laragon/www/ANRI/web-dabb-new/dabb_backup.sql)",
+      "Bash(awk 'NR>=358 && NR<=610' resources/views/layouts/guest.blade.php)",
+      "Bash(rm -f ./toc_check.tmp.js)",
+      "Bash(awk 'NR>=176 && NR<=596')",
+      "Bash(awk 'NR>=176 && NR<=353' resources/views/layouts/guest.blade.php)",
+      "Bash(awk 'NR>=354 && NR<=595')",
+      "Bash(cp resources/views/layouts/guest.blade.php ./gcheck.tmp)",
+      "Bash(rm -f ./gcheck.tmp)"
     ]
   }
 }

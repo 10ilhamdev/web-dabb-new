@@ -380,7 +380,7 @@
 
 .rte-content {
     min-height: 100%;
-    padding: 4px 14px 12px 14px;
+    padding: 4px 14px 100px 14px !important;
     outline: none;
     background: #fff;
     color: #222;
@@ -2114,4 +2114,152 @@ body.rte-body-fullscreen {
 .rte-code-block-delete-btn:hover {
     background-color: #ffebe9 !important;
     border-color: #ff8182 !important;
+}
+
+/* Table of Contents dialog form styling */
+.rte-toc-form {
+    display: flex !important;
+    gap: 30px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.rte-toc-pane {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    min-width: 0 !important;
+}
+
+.rte-toc-pane-left {
+    border-right: 1px solid #e2e8f0 !important;
+    padding-right: 20px !important;
+}
+
+.rte-toc-entries {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    max-height: 380px !important;
+    overflow-y: auto !important;
+    padding-right: 8px !important;
+}
+
+.rte-toc-entry-row {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    position: relative !important;
+}
+
+.rte-toc-entry-num {
+    font-weight: 700 !important;
+    color: #475569 !important;
+    font-size: 14px !important;
+}
+
+.rte-toc-entry-text,
+.rte-toc-entry-target {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+.rte-toc-entry-row-buttons {
+    display: flex !important;
+    gap: 6px !important;
+    margin-top: 4px !important;
+}
+
+.rte-toc-entry-row-buttons button {
+    padding: 5px 12px !important;
+    font-size: 12px !important;
+}
+
+.rte-toc-actions {
+    display: flex !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+}
+
+/* Right column preview styling */
+.rte-toc-preview-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+}
+
+.rte-toc-preview {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #f8fafc !important;
+    padding: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}
+
+.rte-toc-preview-row {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 10px 14px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    transition: all 0.15s ease !important;
+}
+
+.rte-toc-preview-row:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    transform: translateY(-1px) !important;
+}
+
+.rte-toc-preview-tag {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 3px 8px !important;
+    border-radius: 4px !important;
+    flex-shrink: 0 !important;
+    min-width: 32px !important;
+    text-align: center !important;
+}
+
+.rte-toc-preview-text {
+    flex: 1 1 200px !important;
+    min-width: 150px !important;
+    font-size: 13px !important;
+    color: #334155 !important;
+    font-weight: 500 !important;
+    word-break: normal !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    display: inline-block !important;
+}
+
+.rte-toc-preview-id {
+    color: #64748b !important;
+    font-size: 12px !important;
+    font-family: monospace !important;
+    background: #f1f5f9 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    flex-shrink: 1 !important;
+    max-width: 250px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
 }

@@ -370,9 +370,18 @@ table[style*="border-collapse"] {
 .profile-section-desc h6,
 .vsshow-section-desc h6,
 .richtext-guest-view h6 {
-    font-family: "Poppins", "Montserrat", sans-serif !important;
-    line-height: 1.3 !important;
-    display: block !important;
+    font-family: "Poppins", "Montserrat", sans-serif;
+    line-height: 1.3;
+    display: block;
+}
+
+.rte-content h1 a, .rte-content h2 a, .rte-content h3 a, .rte-content h4 a, .rte-content h5 a, .rte-content h6 a,
+.rte-content-body h1 a, .rte-content-body h2 a, .rte-content-body h3 a, .rte-content-body h4 a, .rte-content-body h5 a, .rte-content-body h6 a,
+.profile-section-desc h1 a, .profile-section-desc h2 a, .profile-section-desc h3 a, .profile-section-desc h4 a, .profile-section-desc h5 a, .profile-section-desc h6 a,
+.vsshow-section-desc h1 a, .vsshow-section-desc h2 a, .vsshow-section-desc h3 a, .vsshow-section-desc h4 a, .vsshow-section-desc h5 a, .vsshow-section-desc h6 a,
+.richtext-guest-view h1 a, .richtext-guest-view h2 a, .richtext-guest-view h3 a, .richtext-guest-view h4 a, .richtext-guest-view h5 a, .richtext-guest-view h6 a {
+    font-weight: inherit !important;
+    font-size: inherit !important;
 }
 
 .rte-content h1,
@@ -1024,4 +1033,278 @@ table[style*="border-collapse"] {
 
 .rte-carousel-caption-close:hover {
     color: #ff3b30 !important;
+}
+
+/* =========================================================================
+ * Table of Contents (Daftar Isi) styles and layout split
+ * ========================================================================= */
+.rte-toc-block {
+    display: block !important;
+    box-sizing: border-box !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    margin-bottom: 24px !important;
+}
+
+.rte-toc-block-title {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    padding-bottom: 6px !important;
+}
+
+.rte-toc-list,
+.rte-content-body .rte-toc-list,
+.rte-content .rte-toc-list,
+.richtext-guest-view .rte-toc-list {
+    list-style: disc !important;
+    list-style-type: disc !important;
+    padding: 0 !important;
+    padding-left: 15px !important;
+    margin: 0 !important;
+}
+
+.rte-toc-item,
+.rte-content-body .rte-toc-item,
+.rte-content .rte-toc-item,
+.richtext-guest-view .rte-toc-item {
+    list-style: disc !important;
+    list-style-type: disc !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    margin: 0 0 8px 0 !important;
+    text-indent: 0 !important;
+}
+
+.rte-toc-item::before,
+.rte-content-body .rte-toc-item::before,
+.rte-content .rte-toc-item::before,
+.richtext-guest-view .rte-toc-item::before {
+    content: normal !important;
+    display: inline !important;
+}
+
+.rte-toc-item a {
+    color: #2563eb !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+}
+
+.rte-toc-item a:hover {
+    text-decoration: underline !important;
+    color: #1d4ed8 !important;
+}
+
+/* Split layout columns when side layout option is left or right */
+.rte-toc-block[data-rte-toc-side="left"] {
+    float: left !important;
+    width: 280px !important;
+    margin: 0 30px 20px 0 !important;
+}
+
+.rte-toc-block[data-rte-toc-side="right"] {
+    float: right !important;
+    width: 280px !important;
+    margin: 0 0 20px 30px !important;
+}
+
+/* Ensure floated elements clear correctly at the end of content */
+.rte-content::after,
+.rte-content-body::after,
+.profile-section-desc::after,
+.vsshow-section-desc::after,
+.richtext-guest-view::after {
+    content: "" !important;
+    display: table !important;
+    clear: both !important;
+}
+
+@media (max-width: 768px) {
+    .rte-toc-block[data-rte-toc-side="left"],
+    .rte-toc-block[data-rte-toc-side="right"] {
+        float: none !important;
+        width: 100% !important;
+        margin: 0 0 20px 0 !important;
+    }
+}
+
+@keyframes rte-toc-flash {
+    0% {
+        background-color: #fef08a !important; /* Bright yellow */
+        box-shadow: 0 0 0 6px #fef08a !important;
+        border-radius: 4px !important;
+        color: #000000 !important;
+    }
+    60% {
+        background-color: #fef08a !important;
+        box-shadow: 0 0 0 6px #fef08a !important;
+        border-radius: 4px !important;
+        color: #000000 !important;
+    }
+    100% {
+        background-color: transparent !important;
+        box-shadow: 0 0 0 0 transparent !important;
+    }
+}
+
+.rte-toc-highlight-target {
+    animation: rte-toc-flash 2.5s ease-out forwards !important;
+}
+
+/* Kill the browser focus outline that appears when a TOC target is focus()'d
+ * (it renders as a black box around the content). Keep the yellow flash +
+ * the blue text selection intact. */
+.rte-toc-highlight-target,
+.rte-toc-highlight-target:focus,
+.rte-content [tabindex]:focus,
+.rte-content-body [tabindex]:focus,
+.profile-section-desc [tabindex]:focus,
+.vsshow-section-desc [tabindex]:focus,
+.richtext-guest-view [tabindex]:focus {
+    outline: none !important;
+    outline-offset: 0 !important;
+}
+
+/* =========================================================================
+ * Search Block — in-content find bar (CMS & Guest)
+ * ========================================================================= */
+.rte-search-block {
+    display: block !important;
+    box-sizing: border-box !important;
+    background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 100%) !important;
+    border: 1px solid #bfdbfe !important;
+    border-left: 4px solid #3b82f6 !important;
+    border-radius: 10px !important;
+    padding: 14px 16px !important;
+    margin-top: 20px !important;
+    margin-bottom: 24px !important;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.08) !important;
+}
+
+.rte-search-block[data-rte-align="left"],
+.rte-search-block:not([data-rte-align]) {
+    max-width: 560px !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+.rte-search-block[data-rte-align="center"] {
+    max-width: 560px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.rte-search-block[data-rte-align="right"] {
+    max-width: 560px !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+}
+
+.rte-search-block[data-rte-align="full"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.rte-search-block-title {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1d4ed8 !important;
+    margin-bottom: 10px !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase !important;
+}
+
+.rte-search-block-form {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+}
+
+.rte-search-block-input {
+    flex: 1 1 180px !important;
+    height: 36px !important;
+    padding: 6px 12px !important;
+    border: 1.5px solid #93c5fd !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+.rte-search-block-submit {
+    height: 36px !important;
+    padding: 0 16px !important;
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+
+.rte-search-block-submit:hover {
+    background: #2563eb !important;
+}
+
+.rte-search-block-prev,
+.rte-search-block-next {
+    height: 36px !important;
+    width: 36px !important;
+    padding: 0 !important;
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    border: 1px solid #bae6fd !important;
+    border-radius: 6px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+.rte-search-block-clear {
+    height: 36px !important;
+    width: 36px !important;
+    padding: 0 !important;
+    background: #fee2e2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+.rte-search-block-status {
+    font-size: 12px !important;
+    color: #475569 !important;
+    margin-top: 8px !important;
+    font-weight: 500 !important;
+}
+
+/* Guest View Highlights */
+mark.rte-search-highlight {
+    background-color: #fef08a !important;
+    color: #000000 !important;
+    border-radius: 2px !important;
+    padding: 0 2px !important;
+    box-shadow: 0 0 0 2px #fef08a !important;
+}
+
+mark.rte-search-highlight-active {
+    background-color: #f59e0b !important; /* orange */
+    box-shadow: 0 0 0 2px #f59e0b !important;
 }

@@ -112,6 +112,7 @@
         alignJustify: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>',
         link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>',
         unlink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-2 2"/><path d="M6 18l2-2"/><path d="M11 14a4 4 0 0 0 5.66 0l2-2"/><path d="M13 10a4 4 0 0 0-5.66 0l-2 2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>',
+        toc: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="17" x2="13" y2="17"/><circle cx="5" cy="9" r="0.8" fill="currentColor"/><circle cx="5" cy="13" r="0.8" fill="currentColor"/><circle cx="5" cy="17" r="0.8" fill="currentColor"/></svg>',
         image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
         video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
         table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>',
@@ -129,6 +130,7 @@
         copyformat: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg>',
         pasteformat: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0"/><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg>',
         find: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+        searchblock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="10" cy="10" r="3"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="7" y1="15" x2="17" y2="15"/></svg>',
         replace: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
         template: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>',
         tableEdit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>',
@@ -395,6 +397,7 @@
             { kind: 'btn', name: 'alignright', icon: ICON.alignRight, title: 'Align right', cmd: 'justifyRight' },
             { kind: 'btn', name: 'alignjustify', icon: ICON.alignJustify, title: 'Justify', cmd: 'justifyFull' },
             { kind: 'btn', name: 'find', icon: ICON.find, title: 'Find & Replace', custom: 'find' },
+            { kind: 'btn', name: 'searchblock', icon: ICON.searchblock, title: 'Insert Search Block (Kolom Pencarian)', custom: 'searchblock' },
         ],
         [
             { kind: 'btn', name: 'ul', icon: ICON.ul, title: 'Bullet list', cmd: 'insertUnorderedList' },
@@ -409,6 +412,7 @@
         [
             { kind: 'btn', name: 'link', icon: ICON.link, title: 'Insert link', custom: 'link' },
             { kind: 'btn', name: 'unlink', icon: ICON.unlink, title: 'Remove link', cmd: 'unlink' },
+            { kind: 'btn', name: 'toc', icon: ICON.toc, title: 'Insert Table of Contents (Daftar Isi)', custom: 'toc' },
             { kind: 'btn', name: 'image', icon: ICON.image, title: 'Insert image', custom: 'image' },
             { kind: 'btn', name: 'video', icon: ICON.video, title: 'Insert video', custom: 'video' },
             { kind: 'btn', name: 'carousel', icon: ICON.carousel, title: 'Insert Carousel', custom: 'carousel' },
@@ -472,9 +476,15 @@
 
     function restoreSelection(range) {
         if (!range) return;
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
+        try {
+            var sel = window.getSelection();
+            if (sel) {
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        } catch (e) {
+            console.warn('[RTE] restoreSelection failed', e);
+        }
     }
 
     function placeCursorAtEnd(node) {
@@ -702,6 +712,7 @@
             contenteditable: cfg.readOnly ? 'false' : 'true',
             spellcheck: 'true',
             'data-placeholder': cfg.placeholder || '',
+            style: 'padding-bottom: 100px !important;',
         });
         contentWrap.appendChild(content);
         wrapper.appendChild(contentWrap);
@@ -1320,17 +1331,19 @@
 
         groupEl.appendChild(btn);
         // Expose updateSwatch so _updateState can sync swatch to cursor color
-        this._dropdowns.push({ close: closePanel, updateSwatch: function() {
-            var c = getCurrentColor();
-            var hex = rgbToHex(c);
-            if (hex) {
-                swatch.style.background = hex;
-            } else if (item.cmd === 'foreColor') {
-                swatch.style.background = '#000000';
-            } else {
-                swatch.style.background = 'transparent';
+        this._dropdowns.push({
+            close: closePanel, updateSwatch: function () {
+                var c = getCurrentColor();
+                var hex = rgbToHex(c);
+                if (hex) {
+                    swatch.style.background = hex;
+                } else if (item.cmd === 'foreColor') {
+                    swatch.style.background = '#000000';
+                } else {
+                    swatch.style.background = 'transparent';
+                }
             }
-        }});
+        });
     };
 
     RichTextEditor.prototype._buildDragHandle = function (container) {
@@ -1691,6 +1704,29 @@
         deleteBtns.forEach(function (btn) {
             if (btn.parentNode) btn.parentNode.removeChild(btn);
         });
+
+        // Clean up any stale TOC highlights that might have been accidentally saved
+        var staleMarks = root.querySelectorAll('.rte-toc-temp-mark');
+        staleMarks.forEach(function (mark) {
+            if (mark.parentNode) {
+                mark.parentNode.replaceChild(document.createTextNode(mark.textContent), mark);
+            }
+        });
+
+        // Clean up any stale inline TOC margins (typically pasted from a page with active TOC)
+        var allEl = root.querySelectorAll('*');
+        allEl.forEach(function (el) {
+            var style = el.getAttribute('style') || '';
+            if (style && style.indexOf('310px') !== -1) {
+                var newStyle = style.replace(/margin-(left|right):\s*310px(\s*!important)?;?/gi, '');
+                if (newStyle !== style) {
+                    el.setAttribute('style', newStyle.trim());
+                    if (!el.getAttribute('style')) {
+                        el.removeAttribute('style');
+                    }
+                }
+            }
+        });
     };
 
     RichTextEditor.prototype._focusContent = function () {
@@ -1738,8 +1774,8 @@
         // is completely unreliable in Chromium and gives wrong results.
         if (cmd === 'justifyLeft' || cmd === 'justifyCenter' || cmd === 'justifyRight' || cmd === 'justifyFull') {
             var textAlignValue = (cmd === 'justifyLeft' ? 'left' :
-                                  cmd === 'justifyCenter' ? 'center' :
-                                  cmd === 'justifyRight' ? 'right' : 'justify');
+                cmd === 'justifyCenter' ? 'center' :
+                    cmd === 'justifyRight' ? 'right' : 'justify');
 
             if (activeTable) {
                 // Table cell content alignment
@@ -1840,7 +1876,7 @@
                         }
                     }
 
-                    blocksToAlign.forEach(function(b) {
+                    blocksToAlign.forEach(function (b) {
                         b.style.textAlign = textAlignValue;
                     });
                 }
@@ -1860,7 +1896,7 @@
                 try {
                     document.execCommand('styleWithCSS', false, true);
                     document.execCommand(cmd, false, value);
-                } catch (e) {}
+                } catch (e) { }
                 this._oListCleanup();
             } else {
                 var blocks = [];
@@ -1869,7 +1905,7 @@
                     var range = sel.getRangeAt(0);
                     var container = range.commonAncestorContainer;
                     if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
-                    
+
                     var startNode = range.startContainer;
                     var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
                     while (blk && blk !== self.content) {
@@ -1890,7 +1926,7 @@
                     var blk = node ? (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre') : null;
                     if (blk && blk !== self.content) blocks.push(blk);
                 }
-                
+
                 blocks.forEach(function (block) {
                     var currentMargin = parseFloat(block.style.marginLeft) || 0;
                     if (cmd === 'indent') {
@@ -1917,7 +1953,7 @@
                     var range = sel.getRangeAt(0);
                     var container = range.commonAncestorContainer;
                     if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
-                    
+
                     var els = [];
                     var walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, null, false);
                     while (walker.nextNode()) {
@@ -1925,7 +1961,7 @@
                         if (range.intersectsNode(n)) els.push(n);
                     }
                     els.push(container);
-                    
+
                     els.forEach(function (n) {
                         if (n !== self.content && n.style) {
                             n.style.fontFamily = '';
@@ -1973,10 +2009,10 @@
                     var range = sel.getRangeAt(0);
                     var container = range.commonAncestorContainer;
                     if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
-                    
+
                     var blocks = [];
                     var tagsRe = /^(H[1-6]|P|DIV|BLOCKQUOTE|PRE)$/;
-                    
+
                     // 1. Walk up from start container to find the block element containing the cursor
                     var node = range.startContainer;
                     var pNode = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
@@ -1998,7 +2034,7 @@
                         }
                         pNodeEnd = pNodeEnd.parentNode;
                     }
-                    
+
                     // 3. Also gather any block elements that intersect the range (for multi-block selections)
                     if (!range.collapsed) {
                         var walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, null, false);
@@ -2009,7 +2045,7 @@
                             }
                         }
                     }
-                    
+
                     blocks.forEach(function (block) {
                         block.style.fontFamily = '';
                         block.style.fontSize = '';
@@ -2049,7 +2085,7 @@
             } catch (e) {
                 console.warn('[RTE] formatBlock clean failed', e);
             }
-            
+
             // Upgrade code blocks to premium layout immediately
             var originalSel = window.getSelection();
             var savedOffset = 0;
@@ -2091,6 +2127,7 @@
             case 'list_alpha': return this._doListAlpha();
             case 'list_multilevel': return this._doListMultilevel();
             case 'link': return this._dialogLink();
+            case 'toc': return this._dialogToc();
             case 'image': return this._dialogImage();
             case 'video': return this._dialogVideo();
             case 'carousel': return this._dialogCarousel();
@@ -2104,6 +2141,7 @@
             case 'copyformat': return this._doCopyFormat();
             case 'pasteformat': return this._doPasteFormat();
             case 'find': return this._dialogFindReplace();
+            case 'searchblock': return this._insertSearchBlock();
             case 'template': return this._dialogTemplate();
             case 'document': return this._dialogInsertDocument();
             case 'undo': this._historyUndo(); return;
@@ -2386,7 +2424,7 @@
     RichTextEditor.prototype._dialogLink = function (existingBtn) {
         var self = this;
         var sel = window.getSelection();
-        
+
         // Auto-detect existing link/button if not explicitly passed
         if (!existingBtn && sel && sel.rangeCount > 0) {
             var node = sel.anchorNode;
@@ -2410,9 +2448,12 @@
 
         var isEdit = !!existingBtn;
         var selectedText = isEdit ? (existingBtn.textContent || '') : (sel && sel.toString() ? sel.toString() : '');
-        var urlVal = isEdit ? (existingBtn.getAttribute('href') || '') : 'https://';
+        var rawHref = isEdit ? (existingBtn.getAttribute('href') || '') : 'https://';
         var isNewTab = isEdit ? (existingBtn.getAttribute('target') === '_blank') : true;
-        
+
+        // Detect existing in-page anchor link
+        var existingIsAnchor = isEdit && rawHref.indexOf('#') === 0;
+
         var isBtn = isEdit ? existingBtn.classList.contains('rte-btn-link') : true;
         var bgVal = isEdit ? rgbToHex(existingBtn.style.backgroundColor || '#0d6efd') : '#0d6efd';
         var textcolorVal = isEdit ? rgbToHex(existingBtn.style.color || '#ffffff') : '#ffffff';
@@ -2434,12 +2475,64 @@
                 colorRow.style.display = 'none';
             }
         });
+
+        // Target type: external URL or in-page anchor
+        var targetTypeSelect = el('select', { class: 'rte-form-input', name: 'targettype' }, [
+            el('option', { value: 'external', text: 'Halaman lain (URL external)', selected: !existingIsAnchor }),
+            el('option', { value: 'anchor', text: 'Halaman ini (anchor / posisi tertentu)', selected: existingIsAnchor }),
+        ]);
+        targetTypeSelect.addEventListener('change', function () {
+            if (targetTypeSelect.value === 'anchor') {
+                urlRow.style.display = 'none';
+                anchorRow.style.display = 'block';
+            } else {
+                urlRow.style.display = 'block';
+                anchorRow.style.display = 'none';
+            }
+        });
+
+        var urlInput = el('input', {
+            type: 'url', class: 'rte-form-input', name: 'url',
+            placeholder: 'https://example.com',
+            value: existingIsAnchor ? 'https://' : rawHref,
+        });
+        var urlRow = el('div', { class: 'rte-form-group' }, [
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'URL' }),
+            urlInput,
+        ]);
+
+        var anchorInput = el('input', {
+            type: 'text', class: 'rte-form-input', name: 'anchorid',
+            placeholder: 'Pilih atau ketik anchor id',
+            value: existingIsAnchor ? rawHref.replace(/^#/, '') : '',
+        });
+        var pickAnchorBtn = el('button', {
+            type: 'button', class: 'rte-btn rte-btn-secondary rte-pick-anchor-btn',
+            text: 'Pilih Target di Halaman Ini',
+        });
+        pickAnchorBtn.addEventListener('click', function () {
+            self._dialogAnchorPicker(function (anchorId) {
+                if (anchorId) {
+                    anchorInput.value = anchorId;
+                    var txt = body.querySelector('[name=text]');
+                    if (txt && !txt.value) txt.value = anchorId.replace(/-/g, ' ');
+                }
+            });
+        });
+        var anchorRow = el('div', { class: 'rte-form-group', style: 'display: ' + (existingIsAnchor ? 'block' : 'none') + ';' }, [
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Target di Halaman Ini' }),
+            anchorInput,
+            el('div', { style: 'margin-top:6px;' }, [pickAnchorBtn]),
+        ]);
+
         var body = el('div', { class: 'rte-form' }, [
             el('label', { class: 'rte-form-label', text: 'Tipe Link' }),
             typeSelect,
             colorRow,
-            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'URL' }),
-            el('input', { type: 'url', class: 'rte-form-input', name: 'url', placeholder: 'https://example.com', value: urlVal }),
+            el('label', { class: 'rte-form-label', style: 'margin-top:10px;', text: 'Arahkan Link Ke' }),
+            targetTypeSelect,
+            urlRow,
+            anchorRow,
             el('label', { class: 'rte-form-label', text: 'Text to display' }),
             el('input', { type: 'text', class: 'rte-form-input', name: 'text', value: selectedText }),
             el('label', { class: 'rte-form-row' }, [
@@ -2452,13 +2545,22 @@
             body: body,
             confirmLabel: isEdit ? 'Save' : 'Insert',
             onConfirm: function () {
-                var url = body.querySelector('[name=url]').value.trim();
+                var linktype = body.querySelector('[name=linktype]').value;
+                var targettype = body.querySelector('[name=targettype]').value;
                 var text = body.querySelector('[name=text]').value;
                 var newtab = body.querySelector('[name=newtab]').checked;
-                var linktype = body.querySelector('[name=linktype]').value;
                 var bgcolor = body.querySelector('[name=bgcolor]').value;
                 var textcolor = body.querySelector('[name=textcolor]').value;
-                if (!url) return false;
+
+                var url;
+                if (targettype === 'anchor') {
+                    var anchorVal = body.querySelector('[name=anchorid]').value.trim();
+                    if (!anchorVal) return false;
+                    url = '#' + anchorVal.replace(/^#/, '');
+                } else {
+                    url = body.querySelector('[name=url]').value.trim();
+                    if (!url) return false;
+                }
                 var safeText = text || url;
 
                 if (isEdit) {
@@ -2490,6 +2592,11 @@
                         existingBtn.removeAttribute('target');
                         existingBtn.removeAttribute('rel');
                     }
+                    if (targettype === 'anchor') {
+                        existingBtn.setAttribute('data-rte-anchor-link', '1');
+                    } else {
+                        existingBtn.removeAttribute('data-rte-anchor-link');
+                    }
                     self._syncSource();
                     setTimeout(function () { self._updatePopupPositions(); }, 10);
                 } else {
@@ -2497,16 +2604,368 @@
                     if (linktype === 'button') {
                         html = '<a href="' + escapeHtml(url) + '" class="rte-btn-link"' +
                             (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                            (targettype === 'anchor' ? ' data-rte-anchor-link="1"' : '') +
                             ' style="display: inline-flex; align-items: center; justify-content: center; background-color: ' + escapeHtml(bgcolor) + '; color: ' + escapeHtml(textcolor) + '; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; margin: 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box;">' + escapeHtml(safeText) + '</a>';
                     } else {
                         html = '<a href="' + escapeHtml(url) + '"' +
                             (newtab ? ' target="_blank" rel="noopener noreferrer"' : '') +
+                            (targettype === 'anchor' ? ' data-rte-anchor-link="1"' : '') +
                             '>' + escapeHtml(safeText) + '</a>';
                     }
                     self._insertHTML(html);
                 }
             },
         });
+    };
+
+    // ---------------------------------------------------------------------
+    // Table of Contents (Daftar Isi) popup
+    // ---------------------------------------------------------------------
+    // Two-column popup. Left: TOC list (editable). Right: live preview of
+    // the page, click any heading paragraph to insert it as a TOC entry.
+    RichTextEditor.prototype._dialogToc = function (existingNode) {
+        var self = this;
+
+        function slugify(text) {
+            var s = (text || '').toString().toLowerCase();
+            s = s.replace(/[^a-z0-9\s\-_]/g, '');
+            s = s.replace(/[\s_]+/g, '-');
+            s = s.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+            return s || 'section';
+        }
+
+        // Collect headings (h1..h6, p that look like titles) from the editor
+        function collectHeadings() {
+            self._assignAnchorIds();
+            var root = self.content;
+            if (!root) return [];
+            var list = [];
+            // Walk top-level children only, so structure is predictable
+            var candidates = root.querySelectorAll('h1, h2, h3, h4, h5, h6, p, blockquote, li, div, td, th');
+            for (var i = 0; i < candidates.length; i++) {
+                var el2 = candidates[i];
+                // Skip if inside TOC block
+                if (el2.closest && el2.closest('.rte-toc-block')) continue;
+                if (el2.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote, li')) continue;
+                var text = (el2.textContent || '').trim();
+                if (!text) continue;
+                // Skip very short / empty headings
+                if (text.length < 2) continue;
+                // Read the pre-assigned anchor ID or fallback
+                var id = el2.getAttribute('data-rte-anchor') || el2.id || (slugify(text) + '-' + (i + 1));
+                list.push({ node: el2, text: text, id: id, tag: el2.tagName.toLowerCase() });
+            }
+            return list;
+        }
+
+        // Build initial entry list
+        var existingEntries = [];
+        if (existingNode) {
+            var items = existingNode.querySelectorAll('.rte-toc-item');
+            for (var j = 0; j < items.length; j++) {
+                var a = items[j].querySelector('a');
+                if (a) {
+                    existingEntries.push({
+                        text: a.textContent || '',
+                        target: a.getAttribute('data-rte-target') || a.getAttribute('href') || '',
+                        side: a.getAttribute('data-rte-toc-side') || 'left',
+                    });
+                }
+            }
+        }
+
+        // ----- Layout: side selector (left/right) -----
+        var sideSelect = el('select', { class: 'rte-form-input', name: 'tocside' });
+        [
+            ['top', 'Penuh di Atas (Full Width)'],
+            ['left', 'Daftar isi di kiri (konten di kanan)'],
+            ['right', 'Daftar isi di kanan (konten di kiri)']
+        ].forEach(function (s) {
+            var opt = el('option', { value: s[0], text: s[1] });
+            sideSelect.appendChild(opt);
+        });
+        if (existingEntries.length) sideSelect.value = existingEntries[0].side || 'top';
+        else sideSelect.value = 'top';
+
+        // ----- Title field -----
+        var titleInput = el('input', {
+            type: 'text',
+            class: 'rte-form-input',
+            name: 'toctitle',
+            value: (existingNode ? (existingNode.getAttribute('data-rte-toc-title') || 'Daftar Isi') : 'Daftar Isi'),
+            placeholder: 'Judul daftar isi',
+        });
+
+        // ----- Left column: editable TOC list -----
+        var entriesList = el('div', { class: 'rte-toc-entries' });
+        function addEntryRow(data) {
+            data = data || { text: '', target: '', side: sideSelect.value };
+            var row = el('div', { class: 'rte-toc-entry-row' });
+            var numSpan = el('span', { class: 'rte-toc-entry-num', text: (entriesList.children.length + 1) + '.' });
+            var textInput = el('input', {
+                type: 'text', class: 'rte-form-input rte-toc-entry-text',
+                name: 'toctext', value: data.text, placeholder: 'Teks daftar isi',
+            });
+            var targetInput = el('input', {
+                type: 'text', class: 'rte-form-input rte-toc-entry-target',
+                name: 'toctarget', value: data.target, placeholder: 'mis. #section-1',
+                readonly: 'readonly',
+            });
+            var pickBtn = el('button', {
+                type: 'button', class: 'rte-btn rte-btn-secondary rte-toc-pick-btn',
+                text: 'Pilih',
+            });
+            var upBtn = el('button', { type: 'button', class: 'rte-btn rte-btn-secondary rte-toc-up-btn', html: '&uarr;' });
+            var downBtn = el('button', { type: 'button', class: 'rte-btn rte-btn-secondary rte-toc-down-btn', html: '&darr;' });
+            var delBtn = el('button', { type: 'button', class: 'rte-btn rte-btn-secondary rte-toc-del-btn', html: '&times;' });
+
+            pickBtn.addEventListener('click', function () {
+                self._dialogAnchorPicker(function (anchorId) {
+                    if (anchorId) {
+                        targetInput.value = '#' + anchorId;
+                        if (!textInput.value) textInput.value = anchorId.replace(/-/g, ' ');
+                    }
+                });
+            });
+            upBtn.addEventListener('click', function () {
+                if (row.previousElementSibling) entriesList.insertBefore(row, row.previousElementSibling);
+                renumberEntries();
+            });
+            downBtn.addEventListener('click', function () {
+                if (row.nextElementSibling) entriesList.insertBefore(row.nextElementSibling, row);
+                renumberEntries();
+            });
+            delBtn.addEventListener('click', function () {
+                row.parentNode && row.parentNode.removeChild(row);
+                renumberEntries();
+            });
+
+            var btnWrapper = el('div', { class: 'rte-toc-entry-row-buttons' }, [pickBtn, upBtn, downBtn, delBtn]);
+            row.appendChild(numSpan);
+            row.appendChild(textInput);
+            row.appendChild(targetInput);
+            row.appendChild(btnWrapper);
+            entriesList.appendChild(row);
+        }
+        function renumberEntries() {
+            for (var k = 0; k < entriesList.children.length; k++) {
+                entriesList.children[k].querySelector('.rte-toc-entry-num').textContent = (k + 1) + '.';
+            }
+        }
+        // Seed entries
+        if (existingEntries.length) {
+            existingEntries.forEach(function (e) { addEntryRow(e); });
+        }
+
+        var addBtn = el('button', {
+            type: 'button', class: 'rte-btn rte-btn-secondary rte-toc-add-btn', text: '+ Tambah Entry',
+        });
+        addBtn.addEventListener('click', function () { addEntryRow(); renumberEntries(); });
+
+        var autoBtn = el('button', {
+            type: 'button', class: 'rte-btn rte-btn-secondary rte-toc-auto-btn', text: 'Auto dari Heading',
+        });
+        autoBtn.addEventListener('click', function () {
+            var heads = collectHeadings();
+            // Clear current
+            while (entriesList.firstChild) entriesList.removeChild(entriesList.firstChild);
+            heads.forEach(function (h) {
+                addEntryRow({ text: h.text, target: '#' + h.id, side: sideSelect.value });
+            });
+            renumberEntries();
+        });
+
+        var leftPane = el('div', { class: 'rte-toc-pane rte-toc-pane-left' }, [
+            el('label', { class: 'rte-form-label', text: 'Judul' }),
+            titleInput,
+            el('label', { class: 'rte-form-label', text: 'Posisi Daftar Isi' }),
+            sideSelect,
+            el('label', { class: 'rte-form-label', text: 'Entries' }),
+            entriesList,
+            el('div', { class: 'rte-toc-actions' }, [addBtn, autoBtn]),
+        ]);
+
+        // ----- Right column: live preview of headings -----
+        var previewList = el('div', { class: 'rte-toc-preview' });
+        function rebuildPreview() {
+            while (previewList.firstChild) previewList.removeChild(previewList.firstChild);
+            var heads = collectHeadings();
+            if (!heads.length) {
+                previewList.appendChild(el('div', { class: 'rte-toc-preview-empty', text: 'Belum ada heading di konten. Tambahkan entry secara manual di sebelah kiri.' }));
+                return;
+            }
+            heads.forEach(function (h) {
+                var row = el('div', { class: 'rte-toc-preview-row' });
+                row.appendChild(el('span', { class: 'rte-toc-preview-tag', text: h.tag.toUpperCase() }));
+                row.appendChild(el('span', { class: 'rte-toc-preview-text', text: h.text }));
+                row.appendChild(el('span', { class: 'rte-toc-preview-id', text: '#' + h.id }));
+                row.title = 'Klik untuk menambah ke daftar isi';
+                row.addEventListener('click', function () {
+                    addEntryRow({ text: h.text, target: '#' + h.id, side: sideSelect.value });
+                    renumberEntries();
+                });
+                previewList.appendChild(row);
+            });
+        }
+        rebuildPreview();
+
+        var refreshPreviewBtn = el('button', {
+            type: 'button', class: 'rte-btn rte-btn-secondary',
+            text: 'Refresh preview',
+        });
+        refreshPreviewBtn.addEventListener('click', rebuildPreview);
+
+        var rightPane = el('div', { class: 'rte-toc-pane rte-toc-pane-right' }, [
+            el('div', { class: 'rte-toc-preview-header' }, [
+                el('label', { class: 'rte-form-label', text: 'Preview Konten (klik heading untuk menambah)' }),
+                refreshPreviewBtn,
+            ]),
+            previewList,
+        ]);
+
+        var body = el('div', { class: 'rte-form rte-toc-form' }, [leftPane, rightPane]);
+
+        openModal({
+            title: existingNode ? 'Edit Daftar Isi' : 'Buat Daftar Isi',
+            body: body,
+            wide: true,
+            confirmLabel: existingNode ? 'Save' : 'Insert',
+            onConfirm: function () {
+                var title = titleInput.value.trim() || 'Daftar Isi';
+                var side = sideSelect.value || 'left';
+                var rows = entriesList.querySelectorAll('.rte-toc-entry-row');
+                if (!rows.length) return false;
+                var items = [];
+                for (var k = 0; k < rows.length; k++) {
+                    var t = rows[k].querySelector('.rte-toc-entry-text').value.trim();
+                    var tg = rows[k].querySelector('.rte-toc-entry-target').value.trim();
+                    if (!t) continue;
+                    items.push({ text: t, target: tg });
+                }
+                if (!items.length) return false;
+
+                // Build HTML
+                var sideStyle = (side === 'right' || side === 'left' || side === 'top') ? side : 'top';
+                var listHtml = items.map(function (it, i) {
+                    var anchor = (it.target || '').replace(/^#/, '');
+                    var targetAttr = anchor ? ' data-rte-target="#' + escapeHtml(anchor) + '"' : '';
+                    return '<li class="rte-toc-item" data-rte-toc-index="' + (i + 1) + '">' +
+                        '<a href="#' + escapeHtml(anchor) + '"' + targetAttr +
+                        ' data-rte-toc-side="' + sideStyle + '">' + escapeHtml(it.text) + '</a>' +
+                        '</li>';
+                }).join('');
+
+                var html = '<div class="rte-toc-block" data-rte-toc="1" data-rte-toc-title="' + escapeHtml(title) + '" data-rte-toc-side="' + sideStyle + '" contenteditable="false">' +
+                    '<div class="rte-toc-block-title">' + escapeHtml(title) + '</div>' +
+                    '<ul class="rte-toc-list">' + listHtml + '</ul>' +
+                    '</div>';
+
+                if (existingNode) {
+                    existingNode.outerHTML = html;
+                } else {
+                    self._insertHTML(html);
+                }
+                self._assignAnchorIds();
+                self._syncSource();
+            },
+        });
+    };
+
+    // ---------------------------------------------------------------------
+    // Anchor picker popup — used by TOC entries and the link dialog
+    // ---------------------------------------------------------------------
+    RichTextEditor.prototype._dialogAnchorPicker = function (cb) {
+        var self = this;
+        self._assignAnchorIds();
+        var anchors = [];
+        var root = self.content;
+        if (root) {
+            var all = root.querySelectorAll('[data-rte-anchor]');
+            for (var i = 0; i < all.length; i++) {
+                var t = (all[i].textContent || '').trim();
+                if (!t) continue;
+                if (all[i].closest && all[i].closest('.rte-toc-block')) continue;
+                anchors.push({ id: all[i].getAttribute('data-rte-anchor'), text: t });
+            }
+        }
+        var list = el('div', { class: 'rte-anchor-list' });
+        if (!anchors.length) {
+            list.appendChild(el('div', { class: 'rte-anchor-empty', text: 'Belum ada konten dengan anchor. Tambahkan heading pada konten terlebih dahulu.' }));
+        } else {
+            anchors.forEach(function (a) {
+                var row = el('div', { class: 'rte-anchor-row' });
+                row.appendChild(el('span', { class: 'rte-anchor-id', text: '#' + a.id }));
+                row.appendChild(el('span', { class: 'rte-anchor-text', text: a.text.length > 80 ? a.text.slice(0, 80) + '…' : a.text }));
+                row.addEventListener('click', function () {
+                    if (typeof cb === 'function') cb(a.id);
+                    close();
+                });
+                list.appendChild(row);
+            });
+        }
+        var body = el('div', { class: 'rte-form' }, [list]);
+        // openModal returns nothing here but we need a way to close from row click — track backdrop manually
+        // Reuse openModal pattern: emulate by creating backdrop directly so we can close from inside
+        var backdrop = el('div', { class: 'rte-modal-backdrop' });
+        var dialog = el('div', { class: 'rte-modal' });
+        var header = el('div', { class: 'rte-modal-header' }, [
+            el('div', { class: 'rte-modal-drag-handle', html: '<svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="1" y1="1" x2="15" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' }),
+            el('div', { class: 'rte-modal-title', text: 'Pilih Target di Halaman Ini' }),
+            el('button', { type: 'button', class: 'rte-modal-close', html: '&times;', onclick: close }),
+        ]);
+        var bodyWrap = el('div', { class: 'rte-modal-body' }, [body]);
+        var footer = el('div', { class: 'rte-modal-footer' }, [
+            el('button', { type: 'button', class: 'rte-btn rte-btn-secondary', text: 'Batal', onclick: close }),
+        ]);
+        dialog.appendChild(header);
+        dialog.appendChild(bodyWrap);
+        dialog.appendChild(footer);
+        backdrop.appendChild(dialog);
+        backdrop.addEventListener('mousedown', function (e) { if (e.target === backdrop) close(); });
+        document.body.appendChild(backdrop);
+        // Expose close to row handlers
+        function close() { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }
+    };
+
+    // ---------------------------------------------------------------------
+    // Assign data-rte-anchor IDs to all candidate top-level content nodes
+    // ---------------------------------------------------------------------
+    RichTextEditor.prototype._assignAnchorIds = function () {
+        var root = this.content;
+        if (!root) return;
+        function slugify(text) {
+            var s = (text || '').toString().toLowerCase();
+            s = s.replace(/[^a-z0-9\s\-_]/g, '');
+            s = s.replace(/[\s_]+/g, '-');
+            s = s.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+            return s || 'section';
+        }
+        var nodes = root.querySelectorAll('h1, h2, h3, h4, h5, h6, p, blockquote, li, div, td, th');
+        var usedIds = {};
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+            if (n.closest && n.closest('.rte-toc-block')) continue;
+            if (n.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote, li')) continue;
+            
+            var existingAnchor = n.getAttribute('data-rte-anchor');
+            var baseId = existingAnchor;
+            if (!baseId) {
+                var text = (n.textContent || '').trim();
+                if (!text) continue;
+                baseId = slugify(text);
+            }
+            
+            var finalId = baseId;
+            var counter = 1;
+            while (usedIds[finalId]) {
+                finalId = baseId + '-' + (i + 1) + '-' + counter;
+                counter++;
+            }
+            usedIds[finalId] = true;
+            
+            n.setAttribute('data-rte-anchor', finalId);
+            n.setAttribute('id', finalId);
+        }
     };
 
     RichTextEditor.prototype._dialogImage = function () {
@@ -3071,12 +3530,86 @@
     // -------- Format Painter --------
     RichTextEditor.prototype._doCopyFormat = function () {
         var sel = window.getSelection();
+        var hasActiveSelection = sel && sel.rangeCount > 0 && !sel.isCollapsed && this.content.contains(sel.getRangeAt(0).commonAncestorContainer);
+        if (!hasActiveSelection) {
+            var rangeToRestore = this._lastNonCollapsedRange || this._savedRange;
+            if (rangeToRestore) {
+                restoreSelection(rangeToRestore);
+            }
+            sel = window.getSelection();
+        }
         if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
             Swal.fire({ title: 'Gagal', text: 'Pilih teks yang sudah diformat terlebih dahulu, lalu klik Salin Format.', icon: 'warning', confirmButtonText: 'OK' });
             return;
         }
-        // Store the selected HTML range
-        this._copiedFormat = sel.getRangeAt(0).cloneRange();
+        
+        var range = sel.getRangeAt(0);
+        var srcNode = range.startContainer;
+        if (srcNode.nodeType === Node.TEXT_NODE) srcNode = srcNode.parentElement;
+        if (!srcNode || !this.content.contains(srcNode)) {
+            srcNode = this.content;
+        }
+
+        var cs = window.getComputedStyle(srcNode);
+        if (!cs) {
+            Swal.fire({ title: 'Gagal', text: 'Gagal menyalin format.', icon: 'error', confirmButtonText: 'OK' });
+            return;
+        }
+
+        var blockNode = srcNode;
+        var blockTagName = null;
+        var foundBlock = null;
+        while (blockNode && blockNode !== this.content) {
+            var tag = blockNode.tagName.toUpperCase();
+            if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE'].indexOf(tag) !== -1) {
+                foundBlock = blockNode;
+                break;
+            }
+            if (!foundBlock && ['P', 'DIV'].indexOf(tag) !== -1) {
+                foundBlock = blockNode;
+            }
+            blockNode = blockNode.parentElement;
+        }
+        if (foundBlock) {
+            blockTagName = foundBlock.tagName.toUpperCase();
+        }
+
+        this._copiedStyles = {
+            fontWeight: cs.getPropertyValue('font-weight'),
+            fontStyle: cs.getPropertyValue('font-style'),
+            textDecoration: cs.getPropertyValue('text-decoration') || cs.getPropertyValue('text-decoration-line'),
+            color: cs.getPropertyValue('color'),
+            backgroundColor: cs.getPropertyValue('background-color'),
+            fontSize: cs.getPropertyValue('font-size'),
+            fontFamily: cs.getPropertyValue('font-family'),
+            blockTagName: blockTagName,
+            textAlign: cs.getPropertyValue('text-align'),
+            lineHeight: cs.getPropertyValue('line-height'),
+            isBold: false,
+            isItalic: false,
+            isUnderline: false,
+            isStrike: false,
+            isSub: false,
+            isSup: false
+        };
+
+        if (this._copiedStyles.fontWeight === 'bold' || parseInt(this._copiedStyles.fontWeight, 10) >= 600) this._copiedStyles.isBold = true;
+        if (this._copiedStyles.fontStyle === 'italic') this._copiedStyles.isItalic = true;
+        if (this._copiedStyles.textDecoration && this._copiedStyles.textDecoration.indexOf('underline') !== -1) this._copiedStyles.isUnderline = true;
+        if (this._copiedStyles.textDecoration && this._copiedStyles.textDecoration.indexOf('line-through') !== -1) this._copiedStyles.isStrike = true;
+
+        var curr = srcNode;
+        while (curr && curr !== this.content) {
+            var tag = curr.tagName;
+            if (tag === 'B' || tag === 'STRONG') this._copiedStyles.isBold = true;
+            if (tag === 'I' || tag === 'EM') this._copiedStyles.isItalic = true;
+            if (tag === 'U') this._copiedStyles.isUnderline = true;
+            if (tag === 'S' || tag === 'STRIKE') this._copiedStyles.isStrike = true;
+            if (tag === 'SUB') this._copiedStyles.isSub = true;
+            if (tag === 'SUP') this._copiedStyles.isSup = true;
+            curr = curr.parentElement;
+        }
+
         this._formatCopied = true;
         // Highlight the button briefly
         var btn = this._buttons['copyformat'];
@@ -3245,6 +3778,59 @@
         });
 
         setTimeout(function () { findInput.focus(); }, 50);
+    };
+
+    // -------- Insert Search Block inside Content --------
+    RichTextEditor.prototype._insertSearchBlock = function () {
+        var self = this;
+        // Only allow one search block per editor
+        if (this.content && this.content.querySelector('.rte-search-block')) {
+            alert('Kolom pencarian sudah ada di konten ini.');
+            return;
+        }
+
+        var alignSelect = el('select', { class: 'rte-form-input', name: 'align' });
+        [
+            ['left', 'Rata Kiri (Left)'],
+            ['center', 'Rata Tengah (Center)'],
+            ['right', 'Rata Kanan (Right)'],
+            ['full', 'Penuh (Full Width)']
+        ].forEach(function (opt) {
+            alignSelect.appendChild(el('option', { value: opt[0], text: opt[1] }));
+        });
+        alignSelect.value = 'left';
+
+        var body = el('div', { class: 'rte-form' }, [
+            el('label', { class: 'rte-form-label', text: 'Perataan (Alignment)' }),
+            alignSelect
+        ]);
+
+        openModal({
+            title: 'Insert Kolom Pencarian',
+            body: body,
+            confirmLabel: 'Insert',
+            onConfirm: function () {
+                var alignVal = alignSelect.value;
+                var html = '<div class="rte-search-block" data-rte-search-block="1" data-rte-align="' + alignVal + '" contenteditable="false">' +
+                    '<div class="rte-search-block-title">' +
+                        '<svg style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+                        'Cari di Halaman Ini' +
+                    '</div>' +
+                    '<div class="rte-search-block-form">' +
+                        '<input type="text" class="rte-search-block-input" placeholder="Ketik kata kunci pencarian..." autocomplete="off" />' +
+                        '<button type="button" class="rte-search-block-submit">Cari</button>' +
+                        '<button type="button" class="rte-search-block-prev" title="Hasil sebelumnya">&#8593;</button>' +
+                        '<button type="button" class="rte-search-block-next" title="Hasil berikutnya">&#8595;</button>' +
+                        '<button type="button" class="rte-search-block-clear" title="Hapus pencarian">&#10005;</button>' +
+                    '</div>' +
+                    '<div class="rte-search-block-status"></div>' +
+                '</div>';
+
+                self._insertHTML(html);
+                self._syncSource();
+                self._updateState();
+            }
+        });
     };
 
     // -------- Insert Template --------
@@ -3919,6 +4505,135 @@
         this._videoTarget = null;
     };
 
+    RichTextEditor.prototype._showTocEditorPopup = function (tocBlock) {
+        var self = this;
+        this._closeImagePopup();
+        this._closeVideoPopup();
+        this._closeCarouselPopup();
+        this._closeButtonPopup();
+        this._closeTocPopup();
+        this._attachMediaResizeHandle(tocBlock);
+
+        var toolbar = el('div', { class: 'rte-img-toolbar' });
+        var activeMenu = null;
+        function closeMenus() { if (activeMenu) { activeMenu.style.display = 'none'; activeMenu = null; } }
+
+        function mkBtn(svgHtml, title, onclick) {
+            var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            b.innerHTML = svgHtml;
+            b.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            return b;
+        }
+
+        // 1. Edit TOC
+        var ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_EDIT, 'Edit Daftar Isi', function () {
+            self._dialogToc(tocBlock);
+        }));
+
+        // 2. Delete TOC
+        var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Hapus Daftar Isi', function () {
+            self._removeMediaResizeHandle();
+            if (tocBlock.parentNode) tocBlock.parentNode.removeChild(tocBlock);
+            self._closeTocPopup();
+            self._syncSource();
+            self._updateState();
+        }));
+
+        // Position toolbar above TOC block
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
+        this._tocPopup = toolbar;
+
+        this._updatePopupPositions();
+    };
+
+    RichTextEditor.prototype._closeTocPopup = function () {
+        if (this._tocPopup) {
+            if (this._tocPopup.parentNode) this._tocPopup.parentNode.removeChild(this._tocPopup);
+            this._tocPopup = null;
+        }
+    };
+
+    RichTextEditor.prototype._showSearchBlockEditorPopup = function (searchBlock) {
+        var self = this;
+        this._closeImagePopup();
+        this._closeVideoPopup();
+        this._closeCarouselPopup();
+        this._closeButtonPopup();
+        this._closeTocPopup();
+        this._closeSearchBlockPopup();
+        this._attachMediaResizeHandle(searchBlock);
+
+        var toolbar = el('div', { class: 'rte-img-toolbar' });
+        var activeMenu = null;
+        function closeMenus() { if (activeMenu) { activeMenu.style.display = 'none'; activeMenu = null; } }
+
+        function mkBtn(svgHtml, title, onclick) {
+            var b = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            b.innerHTML = svgHtml;
+            b.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); onclick(e); });
+            return b;
+        }
+
+        function mkDrop(svgHtml, title, items, onOpen) {
+            var wrap = el('div', { style: 'position:relative;display:inline-block;' });
+            var btn = el('button', { type: 'button', class: 'rte-img-tb-btn', title: title });
+            btn.innerHTML = svgHtml + '<svg viewBox="0 0 10 6" style="width:8px;height:8px;margin-left:1px"><polyline points="1,1 5,5 9,1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+            var menu = el('div', { class: 'rte-img-tb-menu' });
+            items.forEach(function (item) {
+                if (item === '-') { menu.appendChild(el('div', { style: 'height:1px;background:#eee;margin:3px 0' })); return; }
+                var mi = el('button', { type: 'button', class: 'rte-img-tb-menuitem', text: item.label });
+                mi._itemData = item;
+                mi.addEventListener('click', function (e) { e.stopPropagation(); closeMenus(); menu.style.display = 'none'; item.action(); });
+                menu.appendChild(mi);
+            });
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var open = menu.style.display === 'block';
+                closeMenus();
+                if (!open) { menu.style.display = 'block'; activeMenu = menu; if (onOpen) onOpen(menu); }
+            });
+            wrap.appendChild(btn); wrap.appendChild(menu);
+            return wrap;
+        }
+
+        // Alignments dropdown
+        var alignIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>';
+        toolbar.appendChild(mkDrop(alignIcon, 'Perataan', [
+            { label: 'Kiri (Left)', action: function () { searchBlock.setAttribute('data-rte-align', 'left'); self._syncSource(); self._updatePopupPositions(); } },
+            { label: 'Tengah (Center)', action: function () { searchBlock.setAttribute('data-rte-align', 'center'); self._syncSource(); self._updatePopupPositions(); } },
+            { label: 'Kanan (Right)', action: function () { searchBlock.setAttribute('data-rte-align', 'right'); self._syncSource(); self._updatePopupPositions(); } },
+            { label: 'Penuh (Full)', action: function () { searchBlock.setAttribute('data-rte-align', 'full'); self._syncSource(); self._updatePopupPositions(); } },
+        ]));
+
+        // Delete button
+        var ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        toolbar.appendChild(mkBtn(ICON_DEL, 'Hapus Kolom Pencarian', function () {
+            self._removeMediaResizeHandle();
+            if (searchBlock.parentNode) searchBlock.parentNode.removeChild(searchBlock);
+            self._closeSearchBlockPopup();
+            self._syncSource();
+            self._updateState();
+        }));
+
+        toolbar.style.position = 'fixed';
+        toolbar.style.zIndex = '99995';
+        document.body.appendChild(toolbar);
+        this._searchBlockPopup = toolbar;
+
+        this._updatePopupPositions();
+    };
+
+    RichTextEditor.prototype._closeSearchBlockPopup = function () {
+        if (this._searchBlockPopup) {
+            if (this._searchBlockPopup.parentNode) this._searchBlockPopup.parentNode.removeChild(this._searchBlockPopup);
+            this._searchBlockPopup = null;
+        }
+    };
+
     RichTextEditor.prototype._showCarouselEditorPopup = function (carousel) {
         var self = this;
         this._closeImagePopup();
@@ -4206,69 +4921,153 @@
         this._syncSource();
     };
 
-    // -------- Paste Format --------
     RichTextEditor.prototype._doPasteFormat = function () {
-        if (!this._formatCopied || !this._copiedFormat) {
+        if (!this._formatCopied || !this._copiedStyles) {
             Swal.fire({ title: 'Gagal', text: 'Klik "Salin Format" pada teks yang sudah diformat terlebih dahulu.', icon: 'warning', confirmButtonText: 'OK' });
             return;
         }
         var self = this;
-        var savedSel = window.getSelection();
-        if (!savedSel || savedSel.rangeCount === 0 || savedSel.isCollapsed) {
+        var sel = window.getSelection();
+        var hasActiveSelection = sel && sel.rangeCount > 0 && !sel.isCollapsed && this.content.contains(sel.getRangeAt(0).commonAncestorContainer);
+        if (!hasActiveSelection) {
+            var rangeToRestore = this._lastNonCollapsedRange || this._savedRange;
+            if (rangeToRestore) {
+                restoreSelection(rangeToRestore);
+            }
+            sel = window.getSelection();
+        }
+        if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
             Swal.fire({ title: 'Gagal', text: 'Pilih teks untuk menerapkan format.', icon: 'warning', confirmButtonText: 'OK' });
             return;
         }
-        var targetRange = savedSel.getRangeAt(0);
+        var targetRange = sel.getRangeAt(0);
+        var markerStart = null, markerEnd = null;
         try {
-            var srcNode = this._copiedFormat.startContainer;
-            if (srcNode.nodeType === Node.TEXT_NODE) srcNode = srcNode.parentElement;
-            if (!srcNode || !this.content.contains(srcNode)) {
-                srcNode = this.content;
-            }
+            var sourceStyles = this._copiedStyles;
 
-            var cs = window.getComputedStyle(srcNode);
-            var sourceStyles = {
-                fontWeight: cs.getPropertyValue('font-weight'),
-                fontStyle: cs.getPropertyValue('font-style'),
-                textDecoration: cs.getPropertyValue('text-decoration') || cs.getPropertyValue('text-decoration-line'),
-                color: cs.getPropertyValue('color'),
-                backgroundColor: cs.getPropertyValue('background-color'),
-                fontSize: cs.getPropertyValue('font-size'),
-                fontFamily: cs.getPropertyValue('font-family'),
-                isBold: false,
-                isItalic: false,
-                isUnderline: false,
-                isStrike: false,
-                isSub: false,
-                isSup: false
-            };
+            // Insert markers to preserve the selection boundaries during DOM modifications
+            markerStart = document.createElement('span');
+            markerStart.id = 'rte-paste-marker-start';
+            markerStart.style.display = 'none';
 
-            if (sourceStyles.fontWeight === 'bold' || parseInt(sourceStyles.fontWeight, 10) >= 600) sourceStyles.isBold = true;
-            if (sourceStyles.fontStyle === 'italic') sourceStyles.isItalic = true;
-            if (sourceStyles.textDecoration && sourceStyles.textDecoration.indexOf('underline') !== -1) sourceStyles.isUnderline = true;
-            if (sourceStyles.textDecoration && sourceStyles.textDecoration.indexOf('line-through') !== -1) sourceStyles.isStrike = true;
+            markerEnd = document.createElement('span');
+            markerEnd.id = 'rte-paste-marker-end';
+            markerEnd.style.display = 'none';
 
-            var curr = srcNode;
-            while (curr && curr !== this.content) {
-                var tag = curr.tagName;
-                if (tag === 'B' || tag === 'STRONG') sourceStyles.isBold = true;
-                if (tag === 'I' || tag === 'EM') sourceStyles.isItalic = true;
-                if (tag === 'U') sourceStyles.isUnderline = true;
-                if (tag === 'S' || tag === 'STRIKE') sourceStyles.isStrike = true;
-                if (tag === 'SUB') sourceStyles.isSub = true;
-                if (tag === 'SUP') sourceStyles.isSup = true;
-                curr = curr.parentElement;
-            }
+            var rangeClone = targetRange.cloneRange();
+            rangeClone.collapse(false);
+            rangeClone.insertNode(markerEnd);
 
-            var frag = targetRange.extractContents();
+            rangeClone.setStart(targetRange.startContainer, targetRange.startOffset);
+            rangeClone.collapse(true);
+            rangeClone.insertNode(markerStart);
 
-            // Unwrap existing conflicting inline formatting tags in the extracted fragment
-            var inlineTags = frag.querySelectorAll('b, strong, i, em, u, s, strike, sub, sup, span, font');
-            inlineTags.forEach(function (el) {
-                while (el.firstChild) {
-                    el.parentNode.insertBefore(el.firstChild, el);
+            // 1. Convert containing blocks in the editor document if blockTagName is specified
+            if (sourceStyles.blockTagName) {
+                var blocksToConvert = [];
+                function isBlockEl(el) {
+                    return el && ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE'].indexOf(el.tagName.toUpperCase()) !== -1;
                 }
-                el.parentNode.removeChild(el);
+                function getContainingBlock(node) {
+                    var curr = node;
+                    while (curr && curr !== self.content) {
+                        if (isBlockEl(curr)) return curr;
+                        curr = curr.parentNode;
+                    }
+                    return null;
+                }
+                var startBlock = getContainingBlock(markerStart);
+                var endBlock = getContainingBlock(markerEnd);
+
+                if (startBlock && endBlock) {
+                    var allBlocks = Array.prototype.slice.call(self.content.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre'));
+                    var inRange = false;
+                    allBlocks.forEach(function (block) {
+                        if (block === startBlock || block === endBlock) {
+                            blocksToConvert.push(block);
+                            if (startBlock !== endBlock) {
+                                inRange = !inRange;
+                            }
+                        } else if (inRange) {
+                            blocksToConvert.push(block);
+                        }
+                    });
+                } else if (startBlock) {
+                    blocksToConvert.push(startBlock);
+                } else if (endBlock) {
+                    blocksToConvert.push(endBlock);
+                }
+
+                blocksToConvert.forEach(function (oldBlock) {
+                    var newTag = sourceStyles.blockTagName;
+                    var newBlock = oldBlock;
+                    if (oldBlock.tagName.toUpperCase() !== newTag) {
+                        newBlock = document.createElement(newTag);
+                        for (var ai = 0; ai < oldBlock.attributes.length; ai++) {
+                            var attr = oldBlock.attributes[ai];
+                            newBlock.setAttribute(attr.name, attr.value);
+                        }
+                        while (oldBlock.firstChild) {
+                            newBlock.appendChild(oldBlock.firstChild);
+                        }
+                        if (oldBlock.parentNode) {
+                            oldBlock.parentNode.replaceChild(newBlock, oldBlock);
+                        }
+                    }
+                    if (sourceStyles.textAlign && sourceStyles.textAlign !== 'normal' && sourceStyles.textAlign !== 'start') {
+                        newBlock.style.textAlign = sourceStyles.textAlign;
+                    }
+                    if (sourceStyles.lineHeight && sourceStyles.lineHeight !== 'normal') {
+                        newBlock.style.lineHeight = sourceStyles.lineHeight;
+                    }
+                });
+            }
+
+            // Construct format range between the markers
+            var formatRange = document.createRange();
+            formatRange.setStartAfter(markerStart);
+            formatRange.setEndBefore(markerEnd);
+
+            var frag = formatRange.extractContents();
+
+            // 2. Convert blocks inside the extracted fragment if blockTagName is specified
+            if (sourceStyles.blockTagName) {
+                var fragBlocks = Array.prototype.slice.call(frag.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre'));
+                fragBlocks.forEach(function (oldBlock) {
+                    var newTag = sourceStyles.blockTagName;
+                    if (oldBlock.tagName.toUpperCase() !== newTag) {
+                        var newBlock = document.createElement(newTag);
+                        for (var ai = 0; ai < oldBlock.attributes.length; ai++) {
+                            var attr = oldBlock.attributes[ai];
+                            newBlock.setAttribute(attr.name, attr.value);
+                        }
+                        while (oldBlock.firstChild) {
+                            newBlock.appendChild(oldBlock.firstChild);
+                        }
+                        if (oldBlock.parentNode) {
+                            oldBlock.parentNode.replaceChild(newBlock, oldBlock);
+                        }
+                    }
+                });
+            }
+
+            // Unwrap existing conflicting inline formatting tags in the extracted fragment safely
+            var inlineTags = Array.prototype.slice.call(frag.querySelectorAll('b, strong, i, em, u, s, strike, sub, sup, span, font'));
+            inlineTags.forEach(function (el) {
+                var parent = el.parentNode;
+                if (!parent) return;
+                var isChild = false;
+                for (var i = 0; i < parent.childNodes.length; i++) {
+                    if (parent.childNodes[i] === el) {
+                        isChild = true;
+                        break;
+                    }
+                }
+                if (!isChild) return;
+                while (el.firstChild) {
+                    parent.insertBefore(el.firstChild, el);
+                }
+                parent.removeChild(el);
             });
 
             // Clean up any inline styles on links
@@ -4310,27 +5109,39 @@
                     }
                     var wrapped = createFormatWrapper(sourceStyles, tempFrag);
                     block.appendChild(wrapped);
+                    if (sourceStyles.textAlign && sourceStyles.textAlign !== 'normal' && sourceStyles.textAlign !== 'start') {
+                        block.style.textAlign = sourceStyles.textAlign;
+                    }
+                    if (sourceStyles.lineHeight && sourceStyles.lineHeight !== 'normal') {
+                        block.style.lineHeight = sourceStyles.lineHeight;
+                    }
                 });
-                targetRange.insertNode(frag);
+                formatRange.insertNode(frag);
             } else {
                 var wrapped = createFormatWrapper(sourceStyles, frag);
                 firstChild = wrapped;
                 lastChild = wrapped;
-                targetRange.insertNode(wrapped);
+                formatRange.insertNode(wrapped);
             }
+
+            // Remove markers
+            if (markerStart && markerStart.parentNode) markerStart.parentNode.removeChild(markerStart);
+            if (markerEnd && markerEnd.parentNode) markerEnd.parentNode.removeChild(markerEnd);
 
             if (lastChild) {
                 var range = document.createRange();
                 range.setStartAfter(lastChild);
                 range.collapse(true);
-                savedSel.removeAllRanges();
-                savedSel.addRange(range);
+                sel.removeAllRanges();
+                sel.addRange(range);
             }
 
             self._syncSource();
             self._updateState();
         } catch (e) {
             console.warn('[RTE] Paste format error', e);
+            if (markerStart && markerStart.parentNode) markerStart.parentNode.removeChild(markerStart);
+            if (markerEnd && markerEnd.parentNode) markerEnd.parentNode.removeChild(markerEnd);
         }
     };
 
@@ -4831,6 +5642,24 @@
             if (topB < 4) topB = rectB.bottom + 4;
             this._buttonPopup.style.left = leftB + 'px';
             this._buttonPopup.style.top = topB + 'px';
+        }
+        if (this._tocPopup && this._mediaResizeTarget) {
+            var rectT = this._mediaResizeTarget.getBoundingClientRect();
+            var tbWT = this._tocPopup.offsetWidth || 180;
+            var leftT = Math.min(Math.max(rectT.left + rectT.width / 2 - tbWT / 2, 4), window.innerWidth - tbWT - 4);
+            var topT = rectT.top - 44;
+            if (topT < 4) topT = rectT.bottom + 4;
+            this._tocPopup.style.left = leftT + 'px';
+            this._tocPopup.style.top = topT + 'px';
+        }
+        if (this._searchBlockPopup && this._mediaResizeTarget) {
+            var rectS = this._mediaResizeTarget.getBoundingClientRect();
+            var tbWS = this._searchBlockPopup.offsetWidth || 180;
+            var leftS = Math.min(Math.max(rectS.left + rectS.width / 2 - tbWS / 2, 4), window.innerWidth - tbWS - 4);
+            var topS = rectS.top - 44;
+            if (topS < 4) topS = rectS.bottom + 4;
+            this._searchBlockPopup.style.left = leftS + 'px';
+            this._searchBlockPopup.style.top = topS + 'px';
         }
     };
 
@@ -6212,12 +7041,36 @@
     };
 
     // ---- Zoom controls ----
+    RichTextEditor.prototype._updateZoomSpacer = function () {
+        var contentWrap = this.contentWrap;
+        var content = this.content;
+        if (!contentWrap || !content) return;
+        var z = this._zoom;
+        
+        var spacer = contentWrap.querySelector('.rte-zoom-spacer');
+        if (z === 1 || 'zoom' in content.style) {
+            if (spacer) spacer.style.height = '0px';
+            return;
+        }
+        
+        if (!spacer) {
+            spacer = el('div', { class: 'rte-zoom-spacer', style: 'height: 0px; clear: both; pointer-events: none;' });
+            contentWrap.appendChild(spacer);
+        }
+        
+        var contentHeight = content.offsetHeight;
+        var scaledHeight = contentHeight * z;
+        var extraHeight = Math.max(0, scaledHeight - contentHeight);
+        spacer.style.height = extraHeight + 'px';
+    };
+
     RichTextEditor.prototype._applyZoom = function () {
         var contentWrap = this.contentWrap;
         var content = this.content;
         if (!contentWrap || !content) return;
         var z = this._zoom;
         var zoomPct = Math.round(z * 100);
+        var self = this;
 
         // To ensure absolute layout consistency during zoom, we use a fixed logical 
         // width for the content area. This prevents text from re-wrapping and 
@@ -6238,7 +7091,16 @@
             // Fallback for Firefox (uses transform:scale)
             content.style.transform = 'scale(' + z + ')';
             content.style.transformOrigin = 'top center';
+
+            if (!this._zoomResizeObserver && window.ResizeObserver) {
+                this._zoomResizeObserver = new ResizeObserver(function () {
+                    self._updateZoomSpacer();
+                });
+                this._zoomResizeObserver.observe(content);
+            }
         }
+
+        this._updateZoomSpacer();
 
         // Ensure the parent container allows horizontal scrolling 
         // if the zoomed content exceeds the editor width.
@@ -6269,7 +7131,13 @@
     };
 
     RichTextEditor.prototype._snapshotSelection = function () {
-        this._savedRange = saveSelection(this.content);
+        var range = saveSelection(this.content);
+        if (range) {
+            this._savedRange = range;
+            if (!range.collapsed) {
+                this._lastNonCollapsedRange = range;
+            }
+        }
     };
 
     // ---- Custom undo/redo history (step-by-step, one level at a time) ----
@@ -6336,11 +7204,11 @@
             while (queue.length > 0) {
                 var curr = queue.shift();
                 if (curr !== li && curr.style && (
-                    curr.style.fontSize || 
-                    curr.style.fontFamily || 
-                    curr.style.color || 
-                    curr.style.fontWeight || 
-                    curr.style.fontStyle || 
+                    curr.style.fontSize ||
+                    curr.style.fontFamily ||
+                    curr.style.color ||
+                    curr.style.fontWeight ||
+                    curr.style.fontStyle ||
                     curr.style.textDecoration
                 )) {
                     styledEl = curr;
@@ -6402,7 +7270,7 @@
         }
         // Push current content to undo history (step-by-step)
         this._historyPush(html);
-    }; 
+    };
 
     RichTextEditor.prototype._updateState = function () {
         this._syncListStyles();
@@ -6443,7 +7311,7 @@
                 offsetA = self._savedRange.startOffset;
             }
         }
-        
+
         // Resolve parent container-level boundary selections
         if (nodeA === self.content) {
             if (offsetA > 0 && self.content.childNodes[offsetA - 1]) {
@@ -6478,7 +7346,7 @@
                 try {
                     var computed = window.getComputedStyle(blockEl).textAlign;
                     if (computed) curAlign = computed.toLowerCase();
-                } catch(e) {}
+                } catch (e) { }
             }
         }
         // Normalize: 'start' = left, 'end' = right in LTR
@@ -6569,7 +7437,7 @@
         // Click outside table (anywhere in content) closes selection + popup
         c.addEventListener('click', function (e) {
             var target = e.target;
-            
+
             // Delete code block handling
             var deleteBtn = target.closest('.rte-code-block-delete-btn');
             if (deleteBtn) {
@@ -6662,20 +7530,255 @@
                 self._closeImagePopup();
                 self._closeVideoPopup();
                 self._closeButtonPopup();
+                self._closeTocPopup();
                 self._showCarouselEditorPopup(carousel);
             } else if (btnLink) {
                 self._closeImagePopup();
                 self._closeVideoPopup();
                 self._closeCarouselPopup();
+                self._closeTocPopup();
                 self._showButtonEditorPopup(btnLink);
+            } else if (target.closest('.rte-toc-block') && !target.closest('.rte-toc-item a')) {
+                var tocBlock = target.closest('.rte-toc-block');
+                self._closeImagePopup();
+                self._closeVideoPopup();
+                self._closeCarouselPopup();
+                self._closeButtonPopup();
+                self._closeSearchBlockPopup();
+                self._showTocEditorPopup(tocBlock);
+            } else if (target.closest('.rte-search-block')) {
+                var searchBlock = target.closest('.rte-search-block');
+                self._closeImagePopup();
+                self._closeVideoPopup();
+                self._closeCarouselPopup();
+                self._closeButtonPopup();
+                self._closeTocPopup();
+                self._showSearchBlockEditorPopup(searchBlock);
             } else if (target.tagName !== 'TD' && target.tagName !== 'TH' && !target.closest('.rte-img-overlay')) {
                 self._closeImagePopup();
                 self._closeVideoPopup();
                 self._closeCarouselPopup();
                 self._closeButtonPopup();
+                self._closeTocPopup();
+                self._closeSearchBlockPopup();
                 self._removeMediaResizeHandle();
             }
         });
+
+        var lastTocScrollTime = 0;
+        var handleTocClick = function (e) {
+            var a = e.target.closest('.rte-toc-item a');
+            if (a) {
+                e.preventDefault();
+                e.stopPropagation();
+                var now = Date.now();
+                if (now - lastTocScrollTime < 100) return;
+                lastTocScrollTime = now;
+                var targetId = a.getAttribute('data-rte-target') || a.getAttribute('href');
+                if (targetId) {
+                    var cleanId = targetId;
+                    var hashIndex = cleanId.indexOf('#');
+                    if (hashIndex !== -1) {
+                        cleanId = cleanId.substring(hashIndex + 1);
+                    } else if (cleanId.indexOf('http') === 0) {
+                        cleanId = ''; // Not a hash link
+                    } else {
+                        cleanId = cleanId.replace(/^#/, '');
+                    }
+                    if (!cleanId) return;
+
+                    var heading = null;
+                    try {
+                        heading = document.getElementById(cleanId);
+                    } catch (e) {}
+                    if (!heading) {
+                        try {
+                            heading = c.querySelector('[data-rte-anchor="' + cleanId.replace(/"/g, '\\"') + '"]');
+                        } catch (err) {}
+                    }
+                    if (!heading) {
+                        var cleanLower = cleanId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        var allNodes = c.querySelectorAll('*');
+                        for (var ni = 0; ni < allNodes.length; ni++) {
+                            var elNode = allNodes[ni];
+                            var nodeAnchor = elNode.getAttribute('data-rte-anchor');
+                            var nodeId = elNode.id;
+                            if ((nodeAnchor && nodeAnchor.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanLower) || 
+                                (nodeId && nodeId.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanLower)) {
+                                heading = elNode;
+                                break;
+                            }
+                        }
+                    }
+                    if (!heading) {
+                        var cleanLower = cleanId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        var rootTarget = cleanLower.replace(/\d+$/, '');
+                        var allCandidates = c.querySelectorAll('[data-rte-anchor]');
+                        for (var ci = 0; ci < allCandidates.length; ci++) {
+                            var candId = allCandidates[ci].getAttribute('data-rte-anchor').toLowerCase().replace(/[^a-z0-9]/g, '');
+                            var candRoot = candId.replace(/\d+$/, '');
+                            if (candRoot === rootTarget || candId === rootTarget || candId.indexOf(rootTarget) === 0 || rootTarget.indexOf(candRoot) === 0) {
+                                heading = allCandidates[ci];
+                                break;
+                            }
+                        }
+                    }
+                    if (!heading) {
+                        var linkText = (a.textContent || '').trim();
+                        if (linkText) {
+                            var normalizedText = linkText.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            
+                            // 1. Exact match on standard headings
+                            var headings = c.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                            for (var i = 0; i < headings.length; i++) {
+                                if (headings[i].closest && headings[i].closest('.rte-toc-block')) continue;
+                                var txt = (headings[i].textContent || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                if (txt === normalizedText) {
+                                    heading = headings[i];
+                                    break;
+                                }
+                            }
+                            // 2. Exact match on standard text blocks
+                            if (!heading) {
+                                var textBlocks = c.querySelectorAll('p, blockquote, li, td, th, div');
+                                for (var i = 0; i < textBlocks.length; i++) {
+                                    if (textBlocks[i].closest && textBlocks[i].closest('.rte-toc-block')) continue;
+                                    var txt = (textBlocks[i].textContent || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                    if (txt === normalizedText) {
+                                        heading = textBlocks[i];
+                                        break;
+                                    }
+                                }
+                            }
+                            // 3. Partial match on standard headings
+                            if (!heading) {
+                                for (var i = 0; i < headings.length; i++) {
+                                    if (headings[i].closest && headings[i].closest('.rte-toc-block')) continue;
+                                    var txt = (headings[i].textContent || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                    if (txt && (txt.indexOf(normalizedText) !== -1 || normalizedText.indexOf(txt) !== -1)) {
+                                        heading = headings[i];
+                                        break;
+                                    }
+                                }
+                            }
+                            // 4. Partial match on standard text blocks (excluding parent containers)
+                            if (!heading) {
+                                var textBlocks = c.querySelectorAll('p, blockquote, li, td, th, div');
+                                for (var i = 0; i < textBlocks.length; i++) {
+                                    var elNode = textBlocks[i];
+                                    if (elNode.closest && elNode.closest('.rte-toc-block')) continue;
+                                    if (elNode.tagName === 'DIV' && elNode.querySelector('p, h1, h2, h3, h4, h5, h6, li, blockquote')) continue;
+                                    var txt = (elNode.textContent || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                    if (txt && (txt.indexOf(normalizedText) !== -1 || normalizedText.indexOf(txt) !== -1)) {
+                                        heading = elNode;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!heading) {
+                        var tocItem = a.closest('.rte-toc-item');
+                        if (tocItem) {
+                            var tocIndexAttr = tocItem.getAttribute('data-rte-toc-index');
+                            var tocIndex = tocIndexAttr ? parseInt(tocIndexAttr, 10) - 1 : -1;
+                            if (tocIndex === -1) {
+                                var siblings = Array.prototype.slice.call(tocItem.parentNode.children);
+                                tocIndex = siblings.indexOf(tocItem);
+                            }
+                            if (tocIndex >= 0) {
+                                var candidates = Array.prototype.slice.call(c.querySelectorAll('h1, h2, h3, h4, h5, h6, p, blockquote, li, div, td, th'));
+                                candidates = candidates.filter(function(el2) {
+                                    if (el2.closest && el2.closest('.rte-toc-block')) return false;
+                                    if (el2.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote, li')) return false;
+                                    var text = (el2.textContent || '').trim();
+                                    if (!text || text.length < 2) return false;
+                                    return true;
+                                });
+                                if (tocIndex < candidates.length) {
+                                    heading = candidates[tocIndex];
+                                }
+                            }
+                        }
+                    }
+                    if (heading && cleanId) {
+                        if (!heading.id) heading.id = cleanId;
+                        if (!heading.getAttribute('data-rte-anchor')) heading.setAttribute('data-rte-anchor', cleanId);
+                    }
+                    if (heading) {
+                        c.querySelectorAll('.rte-toc-highlight-target').forEach(function (el) {
+                            el.classList.remove('rte-toc-highlight-target');
+                        });
+                        heading.style.scrollMarginTop = '130px';
+                        heading.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        heading.classList.add('rte-toc-highlight-target');
+                        heading.querySelectorAll('*').forEach(function(child) {
+                            child.classList.add('rte-toc-highlight-target');
+                        });
+
+                        heading.setAttribute('tabindex', '-1');
+                        heading.focus();
+
+                        // Directly highlight the exact target heading element via Selection API
+                        // Run at multiple intervals to ensure it persists during smooth scrolling & focus shifts.
+                        function applyHighlightSelection() {
+                            try {
+                                var doc = heading.ownerDocument || document;
+                                var win = doc.defaultView || window;
+                                var range = doc.createRange();
+                                var textNode = null;
+                                var walk = doc.createTreeWalker(heading, NodeFilter.SHOW_TEXT, null, false);
+                                var next = walk.nextNode();
+                                while (next) {
+                                    if (next.textContent.trim()) {
+                                        textNode = next;
+                                        break;
+                                    }
+                                    next = walk.nextNode();
+                                }
+                                if (textNode) {
+                                    var parent = textNode.parentNode;
+                                    if (parent && (parent.tagName === 'A' || parent.closest('a'))) {
+                                        range.selectNodeContents(parent.closest('a') || parent);
+                                    } else {
+                                        range.setStart(textNode, 0);
+                                        range.setEnd(textNode, textNode.textContent.length);
+                                    }
+                                } else {
+                                    range.selectNodeContents(heading);
+                                }
+                                var sel = win.getSelection();
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            } catch (e) { }
+                        }
+                        applyHighlightSelection();
+                        setTimeout(applyHighlightSelection, 50);
+                        setTimeout(applyHighlightSelection, 200);
+                        setTimeout(applyHighlightSelection, 500);
+                        setTimeout(applyHighlightSelection, 800);
+
+                        setTimeout(function () {
+                            heading.classList.remove('rte-toc-highlight-target');
+                            heading.querySelectorAll('*').forEach(function(child) {
+                                child.classList.remove('rte-toc-highlight-target');
+                            });
+                            heading.removeAttribute('tabindex');
+                            // Clear selection highlight after animation finishes
+                            try {
+                                window.getSelection().removeAllRanges();
+                            } catch (e) { }
+                        }, 2500);
+                    }
+                }
+            }
+        };
+        c.addEventListener('click', handleTocClick);
+        c.addEventListener('mousedown', handleTocClick);
 
         // Hide popups and handle realtime reflow when dragging media natively
         var draggingInternalMedia = false;
@@ -6828,6 +7931,9 @@
                 self._closeTablePopup();
                 self._closeImagePopup();
                 self._closeVideoPopup();
+                self._closeCarouselPopup();
+                self._closeButtonPopup();
+                self._closeTocPopup();
                 self._removeMediaResizeHandle();
             }
         });
@@ -6895,7 +8001,7 @@
                     if (range.collapsed && range.startContainer) {
                         var node = range.startContainer;
                         var block = (node.nodeType === Node.TEXT_NODE ? node.parentNode : node).closest('p, div, h1, h2, h3, h4, h5, h6, blockquote, pre');
-                        
+
                         if (block && block !== self.content) {
                             function isAtStartOf(el) {
                                 var testRange = document.createRange();
@@ -6903,7 +8009,7 @@
                                 testRange.setEnd(range.startContainer, range.startOffset);
                                 return testRange.toString().trim().length === 0;
                             }
-                            
+
                             function isAtEndOf(el) {
                                 var testRange = document.createRange();
                                 testRange.setStart(range.startContainer, range.startOffset);
@@ -7298,11 +8404,12 @@
         this.content.innerHTML = safe;
         this._stripEditorStyles(this.content);
         this._upgradeCarouselCaptions();
+        this._assignAnchorIds();
         this._syncSource();
         this._updateState();
     };
     RichTextEditor.prototype.setHTML = RichTextEditor.prototype.setHTMLCode;
-    
+
     RichTextEditor.prototype.setHeight = function (height) {
         if (this.wrapper) {
             this.wrapper.style.height = typeof height === 'number' ? height + 'px' : height;
@@ -7321,6 +8428,10 @@
     };
 
     RichTextEditor.prototype.destroy = function () {
+        if (this._zoomResizeObserver) {
+            this._zoomResizeObserver.disconnect();
+            this._zoomResizeObserver = null;
+        }
         if (this.wrapper && this.wrapper.parentNode) this.wrapper.parentNode.removeChild(this.wrapper);
         if (this._target && this._target.tagName === 'TEXTAREA') this._target.style.display = '';
     };

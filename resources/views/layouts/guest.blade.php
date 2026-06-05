@@ -353,6 +353,264 @@
         });
     </script>
 
+    {{-- Table of Contents Runtime — isolated so unrelated errors above can't stop it from binding --}}
+    <script>
+        window.addEventListener('load', function() {
+            // Table of Contents guest-side smooth scroll navigation
+            function assignGuestAnchorIds() {
+                var contentRoots = document.querySelectorAll('.rte-content, .rte-content-body, .profile-section-desc, .vsshow-section-desc, .richtext-guest-view');
+                contentRoots.forEach(function(root) {
+                    function slugify(text) {
+                        var s = (text || '').toString().toLowerCase();
+                        s = s.replace(/[^a-z0-9\s\-_]/g, '');
+                        s = s.replace(/[\s_]+/g, '-');
+                        s = s.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+                        return s || 'section';
+                    }
+                    var nodes = root.querySelectorAll('h1, h2, h3, h4, h5, h6, p, blockquote, li, div, td, th');
+                    var usedIds = {};
+                    // Seed with every anchor already present in the saved HTML so that
+                    // re-running this never renames an existing anchor (which would break
+                    // the TOC links that point at those exact ids).
+                    for (var s = 0; s < nodes.length; s++) {
+                        var existing = nodes[s].getAttribute('data-rte-anchor');
+                        if (existing) usedIds[existing] = true;
+                    }
+                    for (var i = 0; i < nodes.length; i++) {
+                        var n = nodes[i];
+                        if (n.closest && n.closest('.rte-toc-block')) continue;
+                        if (n.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote, li')) continue;
+
+                        // Never touch a node that already carries an anchor — keep it stable.
+                        if (n.getAttribute('data-rte-anchor')) {
+                            if (!n.id) n.setAttribute('id', n.getAttribute('data-rte-anchor'));
+                            continue;
+                        }
+
+                        var text = (n.textContent || '').trim();
+                        if (!text) continue;
+                        var baseId = slugify(text);
+
+                        var finalId = baseId;
+                        var counter = 1;
+                        while (usedIds[finalId]) {
+                            finalId = baseId + '-' + (i + 1) + '-' + counter;
+                            counter++;
+                        }
+                        usedIds[finalId] = true;
+
+                        n.setAttribute('data-rte-anchor', finalId);
+                        n.setAttribute('id', finalId);
+                    }
+                });
+            }
+            
+            // Assign anchors initially
+            assignGuestAnchorIds();
+
+            var lastGuestTocScrollTime = 0;
+            var handleGuestTocClick = function(e) {
+                var el = e.target;
+                if (el && el.nodeType === 3) el = el.parentNode;
+                var a = el ? (el.closest('.rte-toc-item a') || el.closest('a.rte-toc-item') || el.closest('.rte-toc-block a')) : null;
+                if (a) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var now = Date.now();
+                    if (now - lastGuestTocScrollTime < 100) return;
+                    lastGuestTocScrollTime = now;
+                    assignGuestAnchorIds(); // Ensure missing IDs are populated before lookup
+                    var targetId = a.getAttribute('data-rte-target') || a.getAttribute('href');
+                    if (targetId) {
+                        var cleanId = targetId;
+                        var hashIndex = cleanId.indexOf('#');
+                        if (hashIndex !== -1) {
+                            cleanId = cleanId.substring(hashIndex + 1);
+                        } else if (cleanId.indexOf('http') === 0) {
+                            cleanId = ''; // Not a hash link
+                        } else {
+                            cleanId = cleanId.replace(/^#/, '');
+                        }
+                        if (!cleanId) return;
+                        var contentRoot = document;
+                        var heading = null;
+                        try {
+                            heading = document.getElementById(cleanId);
+                        } catch (e) {}
+                        if (!heading) {
+                            try {
+                                heading = contentRoot.querySelector('[id="' + cleanId.replace(/"/g, '\\"') + '"]');
+                            } catch (err) {}
+                        }
+                        if (!heading) {
+                            try {
+                                heading = contentRoot.querySelector('[data-rte-anchor="' + cleanId.replace(/"/g, '\\"') + '"]');
+                            } catch (err) {}
+                        }
+                        if (!heading) {
+                            var cleanLower = cleanId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            var allNodes = contentRoot.querySelectorAll('*');
+                            for (var ni = 0; ni < allNodes.length; ni++) {
+                                var elNode = allNodes[ni];
+                                var nodeAnchor = elNode.getAttribute('data-rte-anchor');
+                                var nodeId = elNode.id;
+                                if ((nodeAnchor && nodeAnchor.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanLower) || 
+                                    (nodeId && nodeId.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanLower)) {
+                                    heading = elNode;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!heading) {
+                            var cleanLower = cleanId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            var rootTarget = cleanLower.replace(/\d+$/, '');
+                            var allCandidates = contentRoot.querySelectorAll('[data-rte-anchor]');
+                            for (var ci = 0; ci < allCandidates.length; ci++) {
+                                var candId = allCandidates[ci].getAttribute('data-rte-anchor').toLowerCase().replace(/[^a-z0-9]/g, '');
+                                var candRoot = candId.replace(/\d+$/, '');
+                                if (candRoot === rootTarget || candId === rootTarget || candId.indexOf(rootTarget) === 0 || rootTarget.indexOf(candRoot) === 0) {
+                                    heading = allCandidates[ci];
+                                    break;
+                                }
+                            }
+                        }
+                        if (!heading) {
+                            var linkText = (a.textContent || '').trim();
+                            if (linkText) {
+                                var normalizedText = linkText.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                
+                                // 1. Exact match on standard headings
+                                var headings = contentRoot.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                                for (var i = 0; i < headings.length; i++) {
+                                    if (headings[i].closest && headings[i].closest('.rte-toc-block')) continue;
+                                    var txt = (headings[i].textContent || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                    if (txt === normalizedText) {
+                                        heading = headings[i];
+                                        break;
+                                    }
+                                }
+                                // 2. Exact match on standard text blocks
+                                if (!heading) {
+                                    var textBlocks = contentRoot.querySelectorAll('p, blockquote, li, td, th, div');
+                                    for (var i = 0; i < textBlocks.length; i++) {
+                                        var elNode = textBlocks[i];
+                                        if (elNode.closest && elNode.closest('.rte-toc-block')) continue;
+                                        if (elNode.tagName === 'DIV' && elNode.querySelector('p, h1, h2, h3, h4, h5, h6, li, blockquote')) continue; // Ensure we don't match parent divs
+                                        var txt = (elNode.textContent || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                        if (txt === normalizedText) {
+                                            heading = elNode;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (!heading) {
+                            var tocItem = a.closest('.rte-toc-item');
+                            if (tocItem) {
+                                var tocIndexAttr = tocItem.getAttribute('data-rte-toc-index');
+                                var tocIndex = tocIndexAttr ? parseInt(tocIndexAttr, 10) - 1 : -1;
+                                if (tocIndex === -1) {
+                                    var siblings = Array.prototype.slice.call(tocItem.parentNode.children);
+                                    tocIndex = siblings.indexOf(tocItem);
+                                }
+                                if (tocIndex >= 0) {
+                                    var candidates = Array.prototype.slice.call(contentRoot.querySelectorAll('h1, h2, h3, h4, h5, h6, p, blockquote, li, div, td, th'));
+                                    candidates = candidates.filter(function(el2) {
+                                        if (el2.closest && el2.closest('.rte-toc-block')) return false;
+                                        if (el2.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote, li')) return false;
+                                        var text = (el2.textContent || '').trim();
+                                        if (!text || text.length < 2) return false;
+                                        return true;
+                                    });
+                                    if (tocIndex < candidates.length) {
+                                        heading = candidates[tocIndex];
+                                    }
+                                }
+                            }
+                        }
+                        if (heading && cleanId) {
+                            if (!heading.id) heading.id = cleanId;
+                            if (!heading.getAttribute('data-rte-anchor')) heading.setAttribute('data-rte-anchor', cleanId);
+                        }
+                        if (heading) {
+                            document.querySelectorAll('.rte-toc-highlight-target').forEach(function(el) {
+                                el.classList.remove('rte-toc-highlight-target');
+                            });
+                            
+                            heading.style.scrollMarginTop = '130px';
+                            heading.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                            
+                            heading.classList.add('rte-toc-highlight-target');
+                            heading.querySelectorAll('*').forEach(function(child) {
+                                child.classList.add('rte-toc-highlight-target');
+                            });
+                            
+                            heading.setAttribute('tabindex', '-1');
+                            heading.focus();
+
+                            // Directly highlight the exact target heading element via Selection API
+                            // Run at multiple intervals to ensure it persists during smooth scrolling & focus shifts.
+                            function applyHighlightSelection() {
+                                try {
+                                    var doc = heading.ownerDocument || document;
+                                    var win = doc.defaultView || window;
+                                    var range = doc.createRange();
+                                    var textNode = null;
+                                    var walk = doc.createTreeWalker(heading, NodeFilter.SHOW_TEXT, null, false);
+                                    var next = walk.nextNode();
+                                    while (next) {
+                                        if (next.textContent.trim()) {
+                                            textNode = next;
+                                            break;
+                                        }
+                                        next = walk.nextNode();
+                                    }
+                                    if (textNode) {
+                                        var parent = textNode.parentNode;
+                                        if (parent && (parent.tagName === 'A' || parent.closest('a'))) {
+                                            range.selectNodeContents(parent.closest('a') || parent);
+                                        } else {
+                                            range.setStart(textNode, 0);
+                                            range.setEnd(textNode, textNode.textContent.length);
+                                        }
+                                    } else {
+                                        range.selectNodeContents(heading);
+                                    }
+                                    var sel = win.getSelection();
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                } catch (e) { }
+                            }
+                            applyHighlightSelection();
+                            setTimeout(applyHighlightSelection, 50);
+                            setTimeout(applyHighlightSelection, 200);
+                            setTimeout(applyHighlightSelection, 500);
+                            setTimeout(applyHighlightSelection, 800);
+
+                            setTimeout(function() {
+                                heading.classList.remove('rte-toc-highlight-target');
+                                heading.querySelectorAll('*').forEach(function(child) {
+                                    child.classList.remove('rte-toc-highlight-target');
+                                });
+                                heading.removeAttribute('tabindex');
+                                // Clear selection highlight after animation finishes
+                                try {
+                                    window.getSelection().removeAllRanges();
+                                } catch (e) { }
+                            }, 2500);
+                        }
+                    }
+                }
+            };
+            document.addEventListener('click', handleGuestTocClick);
+            document.addEventListener('mousedown', handleGuestTocClick);
+        });
+    </script>
+
     {{-- Auto-expand RTE containers to fit Free Canvas Mode absolute media & prevent horizontal spill --}}
     <script>
         window.addEventListener('load', function() {
@@ -406,6 +664,188 @@
                     }
                 }
             });
+        });
+    </script>
+    
+    {{-- Search Block Runtime — makes .rte-search-block interactive on guest pages --}}
+    <script>
+        window.addEventListener('load', function () {
+            // ── Initialize all search blocks on the page ──
+            var searchBlocks = document.querySelectorAll('.rte-search-block');
+            searchBlocks.forEach(function (block) {
+                initSearchBlock(block);
+            });
+
+            function initSearchBlock(block) {
+                var input = block.querySelector('.rte-search-block-input');
+                var submitBtn = block.querySelector('.rte-search-block-submit');
+                var prevBtn = block.querySelector('.rte-search-block-prev');
+                var nextBtn = block.querySelector('.rte-search-block-next');
+                var clearBtn = block.querySelector('.rte-search-block-clear');
+                var status = block.querySelector('.rte-search-block-status');
+
+                if (!input || !submitBtn) return;
+
+                var currentMatches = [];
+                var currentIndex = -1;
+
+                // ── Determine the search scope: the closest content container ──
+                function getSearchRoot() {
+                    var root = block.closest('.rte-content, .rte-content-body, .profile-section-desc, .vsshow-section-desc, .richtext-guest-view');
+                    return root || document.body;
+                }
+
+                // ── Walk text nodes and collect matches ──
+                function collectTextNodes(root) {
+                    var list = [];
+                    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                        acceptNode: function (node) {
+                            if (block.contains(node)) return NodeFilter.FILTER_REJECT;
+                            if (node.parentElement && (node.parentElement.closest('.rte-toc-block') || node.parentElement.closest('.rte-search-block'))) {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            if (node.parentElement && (node.parentElement.tagName === 'SCRIPT' || node.parentElement.tagName === 'STYLE' || node.parentElement.tagName === 'TEXTAREA')) {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                    }, false);
+                    while (walker.nextNode()) {
+                        list.push(walker.currentNode);
+                    }
+                    return list;
+                }
+
+                function doSearch() {
+                    var q = input.value.trim();
+                    doClear();
+                    if (!q) return;
+
+                    var root = getSearchRoot();
+                    var textNodes = collectTextNodes(root);
+                    var regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+
+                    var matchesToHighlight = [];
+
+                    textNodes.forEach(function (node) {
+                        var val = node.nodeValue;
+                        if (regex.test(val)) {
+                            matchesToHighlight.push(node);
+                        }
+                    });
+
+                    matchesToHighlight.forEach(function (node) {
+                        var val = node.nodeValue;
+                        var parent = node.parentNode;
+                        if (!parent) return;
+
+                        var frag = document.createDocumentFragment();
+                        var parts = val.split(regex);
+                        parts.forEach(function (part) {
+                            if (part.toLowerCase() === q.toLowerCase()) {
+                                var mark = document.createElement('mark');
+                                mark.className = 'rte-search-highlight';
+                                mark.textContent = part;
+                                frag.appendChild(mark);
+                                currentMatches.push(mark);
+                            } else {
+                                frag.appendChild(document.createTextNode(part));
+                            }
+                        });
+                        parent.replaceChild(frag, node);
+                    });
+
+                    if (currentMatches.length > 0) {
+                        currentIndex = 0;
+                        highlightActiveMatch();
+                        updateStatus();
+                    } else {
+                        if (status) status.textContent = 'Tidak ditemukan hasil.';
+                    }
+                }
+
+                function highlightActiveMatch() {
+                    currentMatches.forEach(function (m, idx) {
+                        if (idx === currentIndex) {
+                            m.classList.add('rte-search-highlight-active');
+                            // Scroll match into view safely
+                            m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else {
+                            m.classList.remove('rte-search-highlight-active');
+                        }
+                    });
+                }
+
+                function updateStatus() {
+                    if (status) {
+                        status.textContent = 'Hasil ' + (currentIndex + 1) + ' dari ' + currentMatches.length;
+                    }
+                }
+
+                function goNext() {
+                    if (currentMatches.length === 0) return;
+                    currentIndex = (currentIndex + 1) % currentMatches.length;
+                    highlightActiveMatch();
+                    updateStatus();
+                }
+
+                function goPrev() {
+                    if (currentMatches.length === 0) return;
+                    currentIndex = (currentIndex - 1 + currentMatches.length) % currentMatches.length;
+                    highlightActiveMatch();
+                    updateStatus();
+                }
+
+                function doClear() {
+                    currentMatches = [];
+                    currentIndex = -1;
+                    if (status) status.textContent = '';
+                    
+                    var root = getSearchRoot();
+                    var marks = root.querySelectorAll('mark.rte-search-highlight');
+                    marks.forEach(function (mark) {
+                        var parent = mark.parentNode;
+                        if (parent) {
+                            parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                            parent.normalize();
+                        }
+                    });
+                }
+
+                submitBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    doSearch();
+                });
+
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        doSearch();
+                    }
+                });
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        goPrev();
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        goNext();
+                    });
+                }
+
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        input.value = '';
+                        doClear();
+                    });
+                }
+            }
         });
     </script>
 </body>
