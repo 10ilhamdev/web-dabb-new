@@ -119,20 +119,10 @@ table[style*="border-collapse"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1.5rem !important;
     max-width: none !important;
-    width: max-content !important;
-    min-width: 100% !important;
+    width: 100%;
+    min-width: 100%;
     border-spacing: 0 !important;
     table-layout: auto !important;
-}
-
-/* Force 100% width ONLY if no custom inline width style or width attribute is set */
-.rte-content table:not([style*="width"]):not([width]),
-.rte-content-body table:not([style*="width"]):not([width]),
-.profile-section-desc table:not([style*="width"]):not([width]),
-.vsshow-section-desc table:not([style*="width"]):not([width]),
-.richtext-guest-view table:not([style*="width"]):not([width]) {
-    width: 100% !important;
-    min-width: 100% !important;
 }
 
 .rte-content table td,

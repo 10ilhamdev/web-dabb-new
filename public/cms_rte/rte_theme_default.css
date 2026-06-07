@@ -534,8 +534,6 @@
     margin: 0.5em 0;
     table-layout: fixed;
     min-width: 0 !important;
-}
-.rte-content table:not([style*="width"]):not([width]) {
     width: 100%;
 }
 

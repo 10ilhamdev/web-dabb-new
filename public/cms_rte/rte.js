@@ -5065,6 +5065,37 @@
             rangeClone.collapse(true);
             rangeClone.insertNode(markerStart);
 
+            // Split inline elements at markers to ensure formatting is fully contained/removable
+            function splitInlineAncestors(marker, root) {
+                var curr = marker;
+                var inlineTagsRe = /^(B|STRONG|I|EM|U|S|STRIKE|SUB|SUP|SPAN|FONT|A)$/;
+                while (curr && curr.parentNode && curr.parentNode !== root) {
+                    var parent = curr.parentNode;
+                    if (!inlineTagsRe.test(parent.tagName.toUpperCase())) {
+                        break; // Stop at block containers
+                    }
+                    var hasNextSiblings = !!curr.nextSibling;
+                    if (hasNextSiblings) {
+                        var newParent = document.createElement(parent.tagName);
+                        for (var i = 0; i < parent.attributes.length; i++) {
+                            var attr = parent.attributes[i];
+                            newParent.setAttribute(attr.name, attr.value);
+                        }
+                        var sib = curr.nextSibling;
+                        while (sib) {
+                            var next = sib.nextSibling;
+                            newParent.appendChild(sib);
+                            sib = next;
+                        }
+                        parent.parentNode.insertBefore(newParent, parent.nextSibling);
+                    }
+                    parent.parentNode.insertBefore(curr, hasNextSiblings ? newParent : parent.nextSibling);
+                    curr = parent;
+                }
+            }
+            splitInlineAncestors(markerEnd, self.content);
+            splitInlineAncestors(markerStart, self.content);
+
             // 1. Convert containing blocks in the editor document if blockTagName is specified
             if (sourceStyles.blockTagName) {
                 var blocksToConvert = [];
@@ -5588,7 +5619,19 @@
         var self = this;
         var rows = table.rows;
         if (!rows.length) return;
-        var cells = Array.prototype.slice.call(rows[0].cells);
+
+        // Find the layout row (the row with the maximum cells, avoiding merged header rows)
+        var layoutRowIdx = 0;
+        var maxCells = 0;
+        for (var r = 0; r < rows.length; r++) {
+            var cellCount = rows[r].cells.length;
+            if (cellCount > maxCells) {
+                maxCells = cellCount;
+                layoutRowIdx = r;
+            }
+        }
+        var layoutRow = rows[layoutRowIdx];
+        var cells = Array.prototype.slice.call(layoutRow.cells);
         var tblRect = table.getBoundingClientRect();
 
         // Clear existing column resizers from overlay
@@ -5617,10 +5660,12 @@
                     startX = e.touches ? e.touches[0].clientX : e.clientX;
 
                     // Clear widths on all other rows to avoid layout conflicts
-                    for (var r = 1; r < table.rows.length; r++) {
-                        Array.prototype.slice.call(table.rows[r].cells).forEach(function (c) {
-                            c.style.width = '';
-                        });
+                    for (var r = 0; r < table.rows.length; r++) {
+                        if (r !== layoutRowIdx) {
+                            Array.prototype.slice.call(table.rows[r].cells).forEach(function (c) {
+                                c.style.width = '';
+                            });
+                        }
                     }
 
                     // Convert all first-row cells to pixel widths for stable dragging
@@ -5648,7 +5693,14 @@
                     var cx = e.touches ? e.touches[0].clientX : e.clientX;
                     var dx = cx - startX;
 
-                    table.style.tableLayout = 'fixed';
+                    var isMerged = false;
+                    var firstRow = table.rows[0];
+                    if (firstRow) {
+                        for (var c = 0; c < firstRow.cells.length; c++) {
+                            if (firstRow.cells[c].colSpan > 1) { isMerged = true; break; }
+                        }
+                    }
+                    table.style.tableLayout = isMerged ? 'auto' : 'fixed';
 
                     if (nextCell) {
                         var newW = Math.max(10, startW + dx);
@@ -5880,7 +5932,7 @@
             }
             if (selected.length === 0) return;
 
-            var defaultBorder = '1px solid #d0d4da';
+            var defaultBorder = '1px solid #000000';
 
             var minRow = Infinity, maxRow = -1, minCol = Infinity, maxCol = -1;
             selected.forEach(function (c) {
@@ -5925,9 +5977,9 @@
                     if (col > minCol) c.style.borderLeft = defaultBorder;
                     if (col < maxCol) c.style.borderRight = defaultBorder;
                 } else if (type === 'diagDown') {
-                    c.style.backgroundImage = 'linear-gradient(to bottom right, transparent calc(50% - 1px), #d0d4da calc(50% - 1px), #d0d4da calc(50% + 1px), transparent calc(50% + 1px))';
+                    c.style.backgroundImage = 'linear-gradient(to bottom right, transparent calc(50% - 1px), #000000 calc(50% - 1px), #000000 calc(50% + 1px), transparent calc(50% + 1px))';
                 } else if (type === 'diagUp') {
-                    c.style.backgroundImage = 'linear-gradient(to top right, transparent calc(50% - 1px), #d0d4da calc(50% - 1px), #d0d4da calc(50% + 1px), transparent calc(50% + 1px))';
+                    c.style.backgroundImage = 'linear-gradient(to top right, transparent calc(50% - 1px), #000000 calc(50% - 1px), #000000 calc(50% + 1px), transparent calc(50% + 1px))';
                 }
             });
 
@@ -6002,9 +6054,17 @@
         toolbar.appendChild(createDropdown(ICON.table, 'Table', [
             {
                 label: 'AutoFit Contents', icon: ICON.tableColWidth, action: function () {
-                    tbl.style.width = 'auto';
+                    tbl.style.width = 'max-content';
+                    tbl.style.minWidth = 'max-content';
+                    tbl.removeAttribute('width');
+                    tbl.removeAttribute('height');
                     tbl.style.tableLayout = 'auto';
-                    Array.from(tbl.querySelectorAll('td, th')).forEach(function (c) { c.style.width = ''; });
+                    Array.from(tbl.querySelectorAll('td, th')).forEach(function (c) { 
+                        c.style.width = ''; 
+                        c.style.minWidth = ''; 
+                        c.removeAttribute('width');
+                        c.removeAttribute('height');
+                    });
                     self._updateTableOverlayPosition();
                     self._syncSource();
                 }
@@ -6012,8 +6072,16 @@
             {
                 label: 'AutoFit Window', icon: ICON.tableColWidth, action: function () {
                     tbl.style.width = '100%';
+                    tbl.style.minWidth = '';
+                    tbl.removeAttribute('width');
+                    tbl.removeAttribute('height');
                     tbl.style.tableLayout = 'auto';
-                    Array.from(tbl.querySelectorAll('td, th')).forEach(function (c) { c.style.width = ''; });
+                    Array.from(tbl.querySelectorAll('td, th')).forEach(function (c) { 
+                        c.style.width = ''; 
+                        c.style.minWidth = ''; 
+                        c.removeAttribute('width');
+                        c.removeAttribute('height');
+                    });
                     self._updateTableOverlayPosition();
                     self._syncSource();
                 }
@@ -6450,8 +6518,19 @@
 
     RichTextEditor.prototype._scaleTableCellWidths = function (table, ratio) {
         if (!table.rows.length) return;
-        var firstRow = table.rows[0];
-        var cells = Array.from(firstRow.cells);
+
+        // Find the layout row (row with maximum cells)
+        var layoutRowIdx = 0;
+        var maxCells = 0;
+        for (var r = 0; r < table.rows.length; r++) {
+            var cellCount = table.rows[r].cells.length;
+            if (cellCount > maxCells) {
+                maxCells = cellCount;
+                layoutRowIdx = r;
+            }
+        }
+        var targetRow = table.rows[layoutRowIdx];
+        var cells = Array.from(targetRow.cells);
         cells.forEach(function (cell) {
             var currentW = cell.style.width;
             if (currentW) {
@@ -6469,17 +6548,26 @@
         });
 
         // Also clear widths on other rows
-        for (var r = 1; r < table.rows.length; r++) {
-            Array.from(table.rows[r].cells).forEach(function (c) {
-                c.style.width = '';
-            });
+        for (var r = 0; r < table.rows.length; r++) {
+            if (r !== layoutRowIdx) {
+                Array.from(table.rows[r].cells).forEach(function (c) {
+                    c.style.width = '';
+                });
+            }
         }
     };
 
     RichTextEditor.prototype._setTableWidthPercent = function (table, percent) {
         table.style.width = percent + '%';
         table.removeAttribute('width');
-        table.style.tableLayout = 'fixed';
+        var isMerged = false;
+        var firstRow = table.rows[0];
+        if (firstRow) {
+            for (var c = 0; c < firstRow.cells.length; c++) {
+                if (firstRow.cells[c].colSpan > 1) { isMerged = true; break; }
+            }
+        }
+        table.style.tableLayout = isMerged ? 'auto' : 'fixed';
         this._normalizeColumnWidths(table);
         this._updateTableOverlayPosition();
         this._syncSource();
@@ -6487,19 +6575,40 @@
     RichTextEditor.prototype._normalizeColumnWidths = function (table) {
         if (!table.rows.length) return;
 
-        // Force fixed layout and clear min-width inline to ensure browser respects defined widths
-        table.style.tableLayout = 'fixed';
+        // Force layout and clear min-width inline to ensure browser respects defined widths
+        var isMerged = false;
+        var firstRow = table.rows[0];
+        if (firstRow) {
+            for (var c = 0; c < firstRow.cells.length; c++) {
+                if (firstRow.cells[c].colSpan > 1) { isMerged = true; break; }
+            }
+        }
+        table.style.tableLayout = isMerged ? 'auto' : 'fixed';
         table.style.minWidth = '0px';
-        // Clear inline widths and width attributes on other rows
-        for (var r = 1; r < table.rows.length; r++) {
-            Array.prototype.slice.call(table.rows[r].cells).forEach(function (c) {
-                c.style.width = '';
-                c.removeAttribute('width');
-            });
+
+        // Find the layout row (row with maximum cells)
+        var layoutRowIdx = 0;
+        var maxCells = 0;
+        for (var r = 0; r < table.rows.length; r++) {
+            var cellCount = table.rows[r].cells.length;
+            if (cellCount > maxCells) {
+                maxCells = cellCount;
+                layoutRowIdx = r;
+            }
         }
 
-        var firstRow = table.rows[0];
-        var cells = Array.prototype.slice.call(firstRow.cells);
+        // Clear inline widths and width attributes on other rows
+        for (var r = 0; r < table.rows.length; r++) {
+            if (r !== layoutRowIdx) {
+                Array.prototype.slice.call(table.rows[r].cells).forEach(function (c) {
+                    c.style.width = '';
+                    c.removeAttribute('width');
+                });
+            }
+        }
+
+        var targetRow = table.rows[layoutRowIdx];
+        var cells = Array.prototype.slice.call(targetRow.cells);
         if (!cells.length) return;
         var tblW = table.style.width || '';
         var isTblPercent = (tblW.indexOf('%') !== -1 || tblW === 'auto' || tblW === '');
@@ -6536,8 +6645,25 @@
     RichTextEditor.prototype._repositionFloatTableToolbar = function (table) {
         var toolbar = this._floatToolbar;
         if (!toolbar || !table) return;
-        var tblRect = table.getBoundingClientRect();
-        var spaceAbove = tblRect.top;
+
+        // Try to find the active cell (where the cursor or selection is)
+        var activeCell = null;
+        var sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            var td = (node.nodeType === Node.TEXT_NODE) ? node.parentElement : node;
+            while (td && td.tagName !== 'TD' && td.tagName !== 'TH') td = td.parentElement;
+            if (td && table.contains(td)) {
+                activeCell = td;
+            }
+        }
+        if (!activeCell) {
+            var selected = table.querySelector('.rte-cell-selected');
+            if (selected) activeCell = selected;
+        }
+
+        var targetRect = activeCell ? activeCell.getBoundingClientRect() : table.getBoundingClientRect();
+        var spaceAbove = targetRect.top;
 
         toolbar.style.position = 'fixed';
         toolbar.style.zIndex = '99995';
@@ -6545,11 +6671,11 @@
         var tbW = toolbar.offsetWidth || 300;
         var tbH = toolbar.offsetHeight || 44;
 
-        var left = Math.min(Math.max(tblRect.left + tblRect.width / 2 - tbW / 2, 4), window.innerWidth - tbW - 4);
+        var left = Math.min(Math.max(targetRect.left + targetRect.width / 2 - tbW / 2, 4), window.innerWidth - tbW - 4);
         toolbar.style.left = left + 'px';
 
         if (spaceAbove < 60) {
-            var bottomTop = tblRect.bottom + 8;
+            var bottomTop = targetRect.bottom + 8;
             if (bottomTop + tbH > window.innerHeight) bottomTop = window.innerHeight - tbH - 8;
             toolbar.style.top = bottomTop + 'px';
             toolbar.style.marginTop = '0px';
@@ -6557,7 +6683,7 @@
             toolbar.classList.remove('rte-ft-top');
             toolbar.classList.add('rte-ft-bottom');
         } else {
-            toolbar.style.top = (tblRect.top - 46) + 'px';
+            toolbar.style.top = (targetRect.top - 46) + 'px';
             toolbar.style.marginTop = '0px';
             toolbar.style.transform = '';
             toolbar.classList.remove('rte-ft-bottom');
@@ -6567,7 +6693,6 @@
 
     RichTextEditor.prototype._initTableResize = function (table) {
         var self = this;
-        table.style.tableLayout = 'fixed';
 
         // Observe table changes to update selection
         if (this._tableResizeObserver) this._tableResizeObserver.disconnect();
@@ -7494,6 +7619,10 @@
             if (d.updateLabel) d.updateLabel();
             if (d.updateSwatch) d.updateSwatch();
         });
+
+        if (self._selectedTable) {
+            self._repositionFloatTableToolbar(self._selectedTable);
+        }
     };
 
     RichTextEditor.prototype._bind = function () {
@@ -7514,6 +7643,9 @@
             if (document.activeElement === self.content ||
                 (self.content.contains && self.content.contains(document.activeElement))) {
                 self._snapshotSelection();
+                if (self._selectedTable) {
+                    self._repositionFloatTableToolbar(self._selectedTable);
+                }
             }
         });
 

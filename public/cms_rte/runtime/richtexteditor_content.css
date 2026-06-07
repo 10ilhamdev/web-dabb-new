@@ -64,13 +64,9 @@
     border-collapse: collapse !important;
     margin: 1rem 0;
     max-width: none !important;
-    width: max-content;
+    width: 100%;
     min-width: 100%;
     /* Allow JS to set table-layout: fixed during resize; default to auto */
-}
-
-.rte-content-body table:not([style*="width"]):not([width]) {
-    width: 100%;
 }
 
 .rte-content-body table td,
