@@ -3702,6 +3702,17 @@
             curr = curr.parentElement;
         }
 
+        // Copy link details if source node is inside a link, or if the selection contains a link
+        var linkEl = srcNode.closest('a');
+        if (!linkEl) {
+            var frag = range.cloneContents();
+            linkEl = frag.querySelector('a');
+        }
+        if (linkEl) {
+            this._copiedStyles.linkHref = linkEl.getAttribute('href');
+            this._copiedStyles.linkTarget = linkEl.getAttribute('target');
+        }
+
         this._formatCopied = true;
         // Highlight the button briefly
         var btn = this._buttons['copyformat'];
@@ -5144,7 +5155,7 @@
             }
 
             // Unwrap existing conflicting inline formatting tags in the extracted fragment safely
-            var inlineTags = Array.prototype.slice.call(frag.querySelectorAll('b, strong, i, em, u, s, strike, sub, sup, span, font'));
+            var inlineTags = Array.prototype.slice.call(frag.querySelectorAll('b, strong, i, em, u, s, strike, sub, sup, span, font, a'));
             inlineTags.forEach(function (el) {
                 var parent = el.parentNode;
                 if (!parent) return;
@@ -5186,6 +5197,14 @@
                 if (styles.isStrike) { var s = document.createElement('s'); s.appendChild(root); root = s; }
                 if (styles.isSub) { var sub = document.createElement('sub'); sub.appendChild(root); root = sub; }
                 if (styles.isSup) { var sup = document.createElement('sup'); sup.appendChild(root); root = sup; }
+
+                if (styles.linkHref) {
+                    var a = document.createElement('a');
+                    a.setAttribute('href', styles.linkHref);
+                    if (styles.linkTarget) a.setAttribute('target', styles.linkTarget);
+                    a.appendChild(root);
+                    root = a;
+                }
                 return root;
             }
 
