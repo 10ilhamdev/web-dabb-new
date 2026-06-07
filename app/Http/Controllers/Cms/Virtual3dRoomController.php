@@ -133,7 +133,68 @@ class Virtual3dRoomController extends Controller
             'diameter_left'    => 'nullable|integer',
             'diameter_right'   => 'nullable|integer',
             'doors'            => 'nullable|array',
+            'deleted_media_ids' => 'nullable|string',
+            'new_media'           => 'nullable|array',
+            'new_media.*.file'    => 'required|file|mimes:jpg,jpeg,png,webp,mp4,webm|max:20480',
+            'new_media.*.wall'    => 'required|in:front,back,left,right',
+            'new_media.*.type'    => 'required|in:image,video',
+            'new_media.*.position_x' => 'required|numeric',
+            'new_media.*.position_y' => 'required|numeric',
+            'new_media.*.width'      => 'required|numeric',
+            'new_media.*.height'     => 'required|numeric',
+            'new_media.*.description' => 'nullable',
         ]);
+
+        // Apply deferred media deletions (media the user removed in the editor but
+        // that are only committed once "Save" is pressed).
+        $mediaChanged = false;
+        if (!empty($validated['deleted_media_ids'])) {
+            $deletedIds = array_filter(array_map('intval', explode(',', $validated['deleted_media_ids'])));
+            if (!empty($deletedIds)) {
+                $mediaToDelete = $room->media()->whereIn('id', $deletedIds)->get();
+                foreach ($mediaToDelete as $media) {
+                    Storage::disk('public')->delete($media->file_path);
+                    $media->delete();
+                }
+                $room->load('media');
+                $mediaChanged = $mediaChanged || $mediaToDelete->isNotEmpty();
+            }
+        }
+
+        // Apply deferred media uploads (files held in the browser and only sent
+        // to the server when "Save" is pressed).
+        if ($request->hasFile('new_media') || !empty($validated['new_media'])) {
+            foreach ($validated['new_media'] ?? [] as $i => $item) {
+                if (!$request->hasFile("new_media.$i.file")) {
+                    continue;
+                }
+                $path = $request->file("new_media.$i.file")
+                    ->store('virtual_3d_rooms/media', 'public');
+
+                $desc = $item['description'] ?? '';
+                if (is_string($desc) && (str_starts_with($desc, '{') || str_starts_with($desc, '['))) {
+                    $decoded = json_decode($desc, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $desc = $decoded;
+                    }
+                }
+
+                $media = new Virtual3dMedia();
+                $media->virtual3d_room_id = $room->id;
+                $media->wall = $item['wall'];
+                $media->type = $item['type'];
+                $media->description = $desc;
+                $media->file_path = $path;
+                $media->position_x = $item['position_x'];
+                $media->position_y = $item['position_y'];
+                $media->width = $item['width'];
+                $media->height = $item['height'];
+                $media->save();
+
+                $mediaChanged = true;
+            }
+            $room->load('media');
+        }
 
         $room->name         = $validated['name'];
         $room->description  = $validated['description'];
@@ -174,8 +235,14 @@ class Virtual3dRoomController extends Controller
             // ③ No thumbnail at all → auto-generate
             $room->load('media');
             $room->thumbnail_path = $this->generateAutoThumbnail($room);
+        } elseif ($mediaChanged && str_contains($room->thumbnail_path, 'virtual_3d_rooms/thumbnails/thumbnail_')) {
+            // ④ Media added/removed and current thumbnail is auto-generated → regenerate
+            // so it reflects the current media (and clean up the stale file).
+            Storage::disk('public')->delete($room->thumbnail_path);
+            $room->load('media');
+            $room->thumbnail_path = $this->generateAutoThumbnail($room);
         }
-        // ④ Existing thumbnail + no changes → keep as-is (do nothing)
+        // ⑤ Existing manual thumbnail + no changes → keep as-is (do nothing)
 
         $room->save();
 

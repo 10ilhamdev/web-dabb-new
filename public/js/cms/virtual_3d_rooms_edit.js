@@ -14,7 +14,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (saveBtn) {
         saveBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            document.getElementById('virtual3d-room-form').submit();
+            const form = document.getElementById('virtual3d-room-form');
+            injectPendingMediaIntoForm(form);
+            form.submit();
         });
     }
 
@@ -31,6 +33,50 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+/* Collect all pending (not-yet-uploaded) media and attach them to the form
+   as file + metadata inputs so they are submitted together on Save. */
+function injectPendingMediaIntoForm(form) {
+    if (!form) return;
+
+    // Clear any previously injected pending inputs (in case submit was retried).
+    form.querySelectorAll('.pending-media-input').forEach(el => el.remove());
+
+    if (typeof mediaItems === 'undefined' || !Array.isArray(mediaItems)) return;
+
+    const pending = mediaItems.filter(m => m && m.isPending && m.file);
+    pending.forEach(function (item, i) {
+        // File input (FileList set via DataTransfer)
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.name = 'new_media[' + i + '][file]';
+        fileInput.className = 'pending-media-input';
+        fileInput.style.display = 'none';
+        const dt = new DataTransfer();
+        dt.items.add(item.file);
+        fileInput.files = dt.files;
+        form.appendChild(fileInput);
+
+        // Metadata hidden inputs
+        const meta = {
+            wall: item.wall,
+            type: item.type,
+            position_x: item.position_x,
+            position_y: item.position_y,
+            width: item.width,
+            height: item.height,
+            description: item.description || ''
+        };
+        Object.keys(meta).forEach(function (key) {
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'new_media[' + i + '][' + key + ']';
+            hidden.className = 'pending-media-input';
+            hidden.value = meta[key];
+            form.appendChild(hidden);
+        });
+    });
+}
 
 /* ── Colour preview ─────────────────────────────────────────── */
 function updatePreviewColors() {
@@ -79,8 +125,23 @@ function removeThumbnail() {
 }
 
 /* ── Media list helpers ─────────────────────────────────────── */
+/* Mark a media id for deletion in the hidden input. The actual DB delete
+   happens server-side only when the form is saved. */
+function markMediaForDeletion(id) {
+    // Only real DB records (positive ids) need server-side deletion. Pending
+    // uploads (negative temp ids) are simply dropped from memory.
+    if (Number(id) <= 0) return;
+    const input = document.getElementById('deletedMediaIdsInput');
+    if (!input) return;
+    const ids = input.value ? input.value.split(',').filter(Boolean) : [];
+    if (!ids.includes(String(id))) {
+        ids.push(String(id));
+        input.value = ids.join(',');
+    }
+}
+
 async function deleteMediaItem(id, btnEl) {
-    const confirmMsg = (window.v3dConfig?.messages?.deleteConfirm) || 'Yakin hapus media ini dari dinding?';
+    const confirmMsg = (window.v3dConfig?.messages?.deleteConfirm) || 'Yakin hapus media ini dari dinding? Perubahan baru tersimpan setelah klik Simpan.';
     const deleteBtnText = (window.v3dConfig?.deleteBtn) || 'Hapus';
     Swal.fire({
         title: (window.v3dConfig?.deleteBtn) || 'Hapus Media',
@@ -98,49 +159,21 @@ async function deleteMediaItem(id, btnEl) {
             cancelButton: 'px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors mr-3'
         },
         buttonsStyling: false
-    }).then(async (result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
-            const url = window.v3dRoutes.deleteMedia.replace('__MEDIA_ID__', id);
-            try {
-                const response = await fetch(url, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': window.v3dCsrf, 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    mediaItems = mediaItems.filter(m => m.id !== id);
-                    if (activeMediaId === id) deselectItem();
-                    renderWallItems();
-                    const listItem = btnEl.closest('.media-list-item');
-                    if (listItem) listItem.remove();
-                    filterMediaList(); // Re-filter to update count and empty message
-                    
-                    Swal.fire({
-                        title: 'Berhasil',
-                        text: (window.v3dConfig?.messages?.deleteSuccess) || 'Media berhasil dihapus.',
-                        icon: 'success',
-                        borderRadius: '12px',
-                        confirmButtonColor: '#3b82f6'
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Gagal',
-                        text: (window.v3dConfig?.messages?.deleteFailed) || 'Gagal menghapus media.',
-                        icon: 'error',
-                        borderRadius: '12px',
-                        confirmButtonColor: '#3b82f6'
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-                Swal.fire({
-                    title: 'Gagal',
-                    text: (window.v3dConfig?.messages?.deleteFailed) || 'Gagal menghapus media.',
-                    icon: 'error',
-                    borderRadius: '12px',
-                    confirmButtonColor: '#3b82f6'
-                });
+            // Defer the actual deletion: mark it, then hide from the UI only.
+            markMediaForDeletion(id);
+            // Free the preview blob if this was a pending (not-yet-saved) upload.
+            const removed = mediaItems.find(m => m.id === id);
+            if (removed && removed.isPending && removed.blobUrl) {
+                try { URL.revokeObjectURL(removed.blobUrl); } catch (e) {}
             }
+            mediaItems = mediaItems.filter(m => m.id !== id);
+            if (activeMediaId === id) deselectItem();
+            renderWallItems();
+            const listItem = btnEl.closest('.media-list-item');
+            if (listItem) listItem.remove();
+            filterMediaList(); // Re-filter to update count and empty message
         }
     });
 }
@@ -153,7 +186,7 @@ function addMediaToList(media) {
     <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-100 media-list-item" data-id="${media.id}" data-wall="${media.wall}">
         <div class="w-12 h-10 flex-shrink-0 rounded overflow-hidden bg-gray-200">
             ${media.type === 'image'
-                ? `<img src="/storage/${media.file_path}" class="w-full h-full object-cover">`
+                ? `<img src="${media.isPending ? media.blobUrl : '/storage/' + media.file_path}" class="w-full h-full object-cover">`
                 : `<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>`}
         </div>
         <div class="flex-1 min-w-0">

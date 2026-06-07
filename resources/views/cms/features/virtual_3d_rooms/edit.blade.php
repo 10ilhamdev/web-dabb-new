@@ -7,36 +7,18 @@
         /* Ensure x-cloak works even before external CSS loads */
         [x-cloak] { display: none !important; }
 
-        /* Force RTE toolbar into a single scrollable row for captions */
-        .rte-caption-container div[class*='rte-commandbar'] {
-            white-space: nowrap !important;
-            overflow-x: auto !important;
-            display: none !important; /* Hide by default */
-            flex-wrap: nowrap !important;
-            padding: 0 !important;
-            background: #f8fafc !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-            height: 34px !important;
-            min-height: 34px !important;
-        }
-        .rte-caption-container:focus-within div[class*='rte-commandbar'] {
-            display: flex !important;
-        }
-        .rte-caption-container div[class*='rte-commandbar'] > div {
-            display: flex !important;
-            flex-wrap: nowrap !important;
-            align-items: center !important;
-            height: 100% !important;
-        }
-        .rte-caption-container div[class*='rte-toolbar-item'] {
-            transform: scale(0.7) !important;
-            margin: -4px !important;
-            width: 24px !important;
-            height: 24px !important;
-        }
-        .rte-caption-container .rte-modern-editor {
-            height: 80px !important;
+        /* Fix the editor height so it doesn't overflow the card */
+        .caption-widget-container .richtexteditor {
+            height: auto !important;
             min-height: 80px !important;
+        }
+        .caption-widget-container .rte-content-wrap {
+            height: auto !important;
+            min-height: 80px !important;
+        }
+        .caption-widget-container .rte-content {
+            min-height: 80px !important;
+            padding-bottom: 10px !important;
         }
         .caption-widget-mode select {
             width: 100%;
@@ -143,6 +125,8 @@
         @method('PUT')
         <input type="hidden" name="auto_thumbnail" id="autoThumbnailInput">
         <input type="hidden" name="remove_thumbnail" id="removeThumbnailInput" value="0">
+        {{-- Holds comma-separated IDs of media marked for deletion; only removed from DB on "Save". --}}
+        <input type="hidden" name="deleted_media_ids" id="deletedMediaIdsInput" value="">
 
         <div class="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -285,6 +269,16 @@
                             doorsData = window.doorsData;
                         }
                         if (window.updateWallEditorDoors) window.updateWallEditorDoors();
+
+                        const pvDoor = document.getElementById('pv-door');
+                        if (pvDoor) {
+                            const backDoor = this.doors['back'] || { link_type: 'none' };
+                            if (backDoor.link_type === 'room' || backDoor.link_type === 'url') {
+                                pvDoor.style.display = 'flex';
+                            } else {
+                                pvDoor.style.display = 'none';
+                            }
+                        }
                     },
                     init() {
                         window.addEventListener('wall-changed', (e) => {
@@ -473,7 +467,7 @@
                                 {{ __('cms.virtual_3d_rooms.preview_front') }}</div>
                             <div class="room3d-face back" id="pv-wall-back">
                                 <span>{{ __('cms.virtual_3d_rooms.preview_back') }}</span>
-                                <div class="room3d-door" id="pv-door">
+                                <div class="room3d-door" id="pv-door" style="display: {{ isset($room->doors['back']['link_type']) && in_array($room->doors['back']['link_type'], ['room', 'url']) ? 'flex' : 'none' }};">
                                     <span>{{ __('cms.virtual_3d_rooms.preview_door') }}</span>
                                     <div class="room3d-door-knob"></div>
                                 </div>
@@ -908,10 +902,25 @@
 
             window.saveV3DActiveMedia = async function() {
                 if (!activeMediaId || !activeItem) return;
-                
+
+                const descriptionData = propWidget ? propWidget.getData() : '';
+                const finalDescription = typeof descriptionData === 'object' ? JSON.stringify(descriptionData) : descriptionData;
+
+                // Pending (not-yet-saved) media has no DB record. Keep its changes in
+                // memory only; they are submitted together when the form is saved.
+                if (activeItem.isPending) {
+                    activeItem.description = finalDescription;
+                    let savedMsg = 'Saved!';
+                    try {
+                        if (window.v3dConfig && window.v3dConfig.translations && window.v3dConfig.translations.messages) {
+                            savedMsg = window.v3dConfig.translations.messages.saveSuccess || savedMsg;
+                        }
+                    } catch (e) {}
+                    showToast(savedMsg);
+                    return;
+                }
+
                 try {
-                    const descriptionData = propWidget ? propWidget.getData() : '';
-                    const finalDescription = typeof descriptionData === 'object' ? JSON.stringify(descriptionData) : descriptionData;
                     console.log('Final description to save:', finalDescription);
 
                     const url = window.v3dRoutes.updateMedia.replace('__MEDIA_ID__', activeItem.id);
@@ -966,7 +975,7 @@
                 }
             };
 
-            window.uploadNewMedia = async function() {
+            window.uploadNewMedia = function() {
                 try {
                     const fileInput = document.getElementById('uploadFile');
                     if (!fileInput || !fileInput.files.length) {
@@ -979,40 +988,36 @@
                         });
                         return;
                     }
-                    const formData = new FormData();
-                    formData.append('file', fileInput.files[0]);
-                    formData.append('wall', document.getElementById('uploadWall').value);
-                    formData.append('type', document.getElementById('uploadType').value);
-                    formData.append('position_x', 50);
-                    formData.append('position_y', 50);
-                    formData.append('width', 30);
-                    formData.append('height', 40);
-                    
-                    formData.append('description', '');
 
-                    const response = await fetch(window.v3dRoutes.upload, {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': window.v3dCsrf },
-                        body: formData
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        mediaItems.push(data.media);
-                        renderWallItems();
-                        selectItem(data.media.id);
-                        fileInput.value = '';
-                        
-                        addMediaToList(data.media);
-                        showToast(cfg.translations.uploadSuccess);
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal',
-                            text: 'Gagal mengunggah: ' + (data.message || 'Error'),
-                            icon: 'error',
-                            borderRadius: '12px',
-                            confirmButtonColor: '#3b82f6'
-                        });
-                    }
+                    const file = fileInput.files[0];
+                    const wall = document.getElementById('uploadWall').value;
+                    const type = document.getElementById('uploadType').value;
+
+                    // Defer the upload: hold the File in the browser and show a local
+                    // preview. The file is only sent to the server on "Save".
+                    const tempId = (window.__pendingMediaSeq = (window.__pendingMediaSeq || 0) - 1);
+                    const blobUrl = URL.createObjectURL(file);
+                    const pendingItem = {
+                        id: tempId,            // negative temp id (not yet in DB)
+                        isPending: true,
+                        file: file,            // actual File to submit later
+                        blobUrl: blobUrl,      // preview source
+                        wall: wall,
+                        type: type,
+                        position_x: 50,
+                        position_y: 50,
+                        width: 30,
+                        height: 40,
+                        description: ''
+                    };
+
+                    mediaItems.push(pendingItem);
+                    renderWallItems();
+                    selectItem(tempId);
+                    fileInput.value = '';
+
+                    addMediaToList(pendingItem);
+                    showToast(cfg.translations.uploadSuccess);
                 } catch (error) {
                     console.error('Upload error:', error);
                     Swal.fire({

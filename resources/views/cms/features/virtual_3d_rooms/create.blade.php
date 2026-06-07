@@ -174,14 +174,24 @@
                     currentWall: 'front',
                     doors: {
                         'front': { 'link_type': 'none', 'target': null, 'label': null },
-                        'back': { 'link_type': 'none', 'target': null, 'label' => null },
-                        'left': { 'link_type': 'none', 'target' => null, 'label' => null },
-                        'right': { 'link_type': 'none', 'target' => null, 'label' => null },
+                        'back': { 'link_type': 'none', 'target': null, 'label': null },
+                        'left': { 'link_type': 'none', 'target': null, 'label': null },
+                        'right': { 'link_type': 'none', 'target': null, 'label': null },
+                    },
+                    syncDoors() {
+                        const pvDoor = document.getElementById('pv-door');
+                        if (pvDoor) {
+                            const backDoor = this.doors['back'] || { link_type: 'none' };
+                            if (backDoor.link_type === 'room' || backDoor.link_type === 'url') {
+                                pvDoor.style.display = 'flex';
+                            } else {
+                                pvDoor.style.display = 'none';
+                            }
+                        }
                     },
                     init() {
-                        // In create mode, we don't have the wall editor yet,
-                        // but we might want to keep the wall indicator synced if added later.
-                        // For now we just allow setting the doors.
+                        this.$watch('doors', () => { this.syncDoors(); }, { deep: true });
+                        this.syncDoors();
                     }
                 }">
                     <div class="flex items-center justify-between mb-4">
@@ -284,7 +294,7 @@
                                 {{ __('cms.virtual_3d_rooms.preview_front') }}</div>
                             <div class="room3d-face back" id="pv-wall-back">
                                 <span>{{ __('cms.virtual_3d_rooms.preview_back') }}</span>
-                                <div class="room3d-door" id="pv-door">
+                                <div class="room3d-door" id="pv-door" style="display: none;">
                                     <span>{{ __('cms.virtual_3d_rooms.preview_door') }}</span>
                                     <div class="room3d-door-knob"></div>
                                 </div>

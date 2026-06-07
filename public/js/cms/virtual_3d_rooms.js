@@ -226,14 +226,16 @@ function renderWallItems() {
         el.style.height = item.height + '%';
 
         // Content - build with proper DOM manipulation to avoid innerHTML += issue
+        // Pending (not-yet-saved) items render from a local blob URL.
+        const mediaSrc = item.isPending ? item.blobUrl : ('/storage/' + item.file_path);
         if (item.type === 'image') {
             const img = document.createElement('img');
-            img.src = '/storage/' + item.file_path;
+            img.src = mediaSrc;
             img.alt = 'media';
             el.appendChild(img);
         } else {
             const video = document.createElement('video');
-            video.src = '/storage/' + item.file_path;
+            video.src = mediaSrc;
             video.muted = true;
             video.loop = true;
             el.appendChild(video);
@@ -294,7 +296,7 @@ function update3dPreviewMedia() {
 
                 if (item.type === 'image') {
                     const img = document.createElement('img');
-                    img.src = '/storage/' + item.file_path;
+                    img.src = item.isPending ? item.blobUrl : ('/storage/' + item.file_path);
                     img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
                     thumb.appendChild(img);
                 } else {
@@ -634,9 +636,10 @@ async function saveActiveMedia() {
     }
 }
 
-async function deleteActiveMedia() {
+function deleteActiveMedia() {
     if (!activeMediaId || !activeItem) return;
-    const confirmMsg = messages.deleteConfirm || 'Delete this media from the wall?';
+    const confirmMsg = messages.deleteConfirm || 'Hapus media ini dari dinding? Perubahan baru tersimpan setelah klik Simpan.';
+    const targetId = activeMediaId;
     Swal.fire({
         title: 'Hapus Media',
         html: confirmMsg,
@@ -653,54 +656,21 @@ async function deleteActiveMedia() {
             cancelButton: 'px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors mr-3'
         },
         buttonsStyling: false
-    }).then(async (result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
-            const url = window.v3dRoutes.deleteMedia.replace('__MEDIA_ID__', activeItem.id);
-
-            try {
-                const response = await fetch(url, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': window.v3dCsrf, 'Accept': 'application/json' }
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    mediaItems = mediaItems.filter(m => m.id !== activeMediaId);
-
-                    // Also find in document list and remove
-                    const listItem = document.querySelector(`.media-list-item[data-id="${activeMediaId}"]`);
-                    if (listItem) listItem.remove();
-
-                    deselectItem();
-                    renderWallItems();
-                    filterMediaList();
-
-                    Swal.fire({
-                        title: 'Berhasil',
-                        text: messages.deleteSuccess || 'Media deleted.',
-                        icon: 'success',
-                        borderRadius: '12px',
-                        confirmButtonColor: '#3b82f6'
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Gagal',
-                        text: messages.deleteFailed || 'Failed to delete media.',
-                        icon: 'error',
-                        borderRadius: '12px',
-                        confirmButtonColor: '#3b82f6'
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-                Swal.fire({
-                    title: 'Gagal',
-                    text: messages.deleteFailed || 'Failed to delete media.',
-                    icon: 'error',
-                    borderRadius: '12px',
-                    confirmButtonColor: '#3b82f6'
-                });
+            // Defer the actual deletion: mark it, then hide from the UI only.
+            // The DB delete happens server-side when the form is saved.
+            if (typeof markMediaForDeletion === 'function') {
+                markMediaForDeletion(targetId);
             }
+            mediaItems = mediaItems.filter(m => m.id !== targetId);
+
+            const listItem = document.querySelector(`.media-list-item[data-id="${targetId}"]`);
+            if (listItem) listItem.remove();
+
+            deselectItem();
+            renderWallItems();
+            filterMediaList();
         }
     });
 }

@@ -33,7 +33,8 @@
       "Bash(awk 'NR>=176 && NR<=353' resources/views/layouts/guest.blade.php)",
       "Bash(awk 'NR>=354 && NR<=595')",
       "Bash(cp resources/views/layouts/guest.blade.php ./gcheck.tmp)",
-      "Bash(rm -f ./gcheck.tmp)"
+      "Bash(rm -f ./gcheck.tmp)",
+      "Bash(grep -ivE \"^\\\\s*$\")"
     ]
   }
 }
