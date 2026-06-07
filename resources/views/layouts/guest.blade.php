@@ -45,6 +45,17 @@
             background: transparent !important;
             box-shadow: none !important;
         }
+        .rte-scrollbar-cell,
+        .rte-chunk-scrollbar-row td {
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            height: 20px !important;
+        }
+        .rte-chunk-scrollbar-row {
+            background: transparent !important;
+            border: none !important;
+        }
     </style>
 </head>
 
@@ -344,6 +355,404 @@
                 }
             });
             
+            // ── 4. Collapsible Tables (Table-level + Row-level) ──
+            var contentContainers = document.querySelectorAll('.rte-content, .rte-content-body, .profile-section-desc, .vsshow-section-desc, .richtext-guest-view');
+            contentContainers.forEach(function(container) {
+                var tables = container.querySelectorAll('table');
+                tables.forEach(function(table) {
+                    // Skip if already processed or inside TOC/search blocks/collapsible containers
+                    if (table.closest('.rte-toc-block') || table.closest('.rte-search-block') || table.closest('.rte-table-container')) return;
+
+                    var rows = Array.prototype.slice.call(table.rows);
+
+                    // Create the wrapper
+                    var tableContainer = document.createElement('div');
+                    tableContainer.className = 'rte-table-container collapsed'; // Overall table is collapsed by default
+
+                    var topToggleBar = document.createElement('div');
+                    topToggleBar.className = 'rte-table-toggle-bar';
+
+                    var topToggleBtn = document.createElement('button');
+                    topToggleBtn.type = 'button';
+                    topToggleBtn.className = 'rte-table-toggle-btn';
+
+                    var topIconSpan = document.createElement('span');
+                    topIconSpan.className = 'rte-table-toggle-icon';
+                    
+                    var topTextSpan = document.createElement('span');
+                    topTextSpan.className = 'rte-table-toggle-text';
+                    topTextSpan.textContent = 'Tampilkan Tabel';
+
+                    topToggleBtn.appendChild(topIconSpan);
+                    topToggleBtn.appendChild(topTextSpan);
+                    topToggleBar.appendChild(topToggleBtn);
+
+                    var contentWrapper = document.createElement('div');
+                    contentWrapper.className = 'rte-table-content-wrapper';
+
+                    // Insert the new container before the table
+                    table.parentNode.insertBefore(tableContainer, table);
+                    tableContainer.appendChild(topToggleBar);
+                    tableContainer.appendChild(contentWrapper);
+                    contentWrapper.appendChild(table);
+
+                    // Row-level collapse setup with dynamic chunking
+                    var headerRows = [];
+                    var dataRows = [];
+                    
+                    // Robust detection of header rows. Scan from top; rows before the first row starting with a digit in the first cell are headers.
+                    var firstDataRowIdx = -1;
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        if (row.querySelector('th')) {
+                            continue;
+                        }
+                        var firstCell = row.cells && row.cells[0];
+                        if (firstCell) {
+                            var cellText = firstCell.textContent.trim();
+                            if (/^\d+/.test(cellText)) {
+                                firstDataRowIdx = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (firstDataRowIdx === -1) {
+                        firstDataRowIdx = 1; // Fallback
+                    }
+
+                    rows.forEach(function(row, idx) {
+                        if (idx < firstDataRowIdx || row.querySelector('th') || (row.parentNode && row.parentNode.tagName.toLowerCase() === 'thead')) {
+                            headerRows.push(row);
+                        } else {
+                            dataRows.push(row);
+                        }
+                    });
+
+                    // Create chunk size filter dropdown
+                    var filterContainer = document.createElement('div');
+                    filterContainer.className = 'rte-table-filter-container';
+
+                    var filterLabel = document.createElement('label');
+                    filterLabel.textContent = 'Tampilkan per:';
+
+                    var filterSelect = document.createElement('select');
+                    filterSelect.className = 'rte-table-filter-select';
+
+                    var limits = [2, 5, 10, 25, 50, 100];
+                    limits.forEach(function(limit) {
+                        var opt = document.createElement('option');
+                        opt.value = limit;
+                        opt.textContent = limit + ' baris';
+                        if (limit === 5) {
+                            opt.selected = true;
+                        }
+                        filterSelect.appendChild(opt);
+                    });
+
+                    filterContainer.appendChild(filterLabel);
+                    filterContainer.appendChild(filterSelect);
+                    topToggleBar.appendChild(filterContainer);
+
+                    // Create scrollbar toggle checkbox
+                    var scrollbarToggleContainer = document.createElement('div');
+                    scrollbarToggleContainer.className = 'rte-table-scrollbar-toggle-container';
+                    scrollbarToggleContainer.style.display = 'inline-flex';
+                    scrollbarToggleContainer.style.alignItems = 'center';
+                    scrollbarToggleContainer.style.gap = '6px';
+                    scrollbarToggleContainer.style.color = '#475569';
+                    scrollbarToggleContainer.style.fontSize = '13px';
+                    scrollbarToggleContainer.style.fontWeight = '500';
+                    scrollbarToggleContainer.style.flexShrink = '0';
+                    scrollbarToggleContainer.style.whiteSpace = 'nowrap';
+
+                    var scrollbarCheckbox = document.createElement('input');
+                    scrollbarCheckbox.type = 'checkbox';
+                    scrollbarCheckbox.className = 'rte-table-scrollbar-checkbox';
+                    scrollbarCheckbox.checked = true; // Checked by default
+                    scrollbarCheckbox.style.cursor = 'pointer';
+
+                    var scrollbarCheckboxLabel = document.createElement('label');
+                    scrollbarCheckboxLabel.textContent = 'Scrollbar Tambahan';
+                    scrollbarCheckboxLabel.style.cursor = 'pointer';
+
+                    scrollbarToggleContainer.appendChild(scrollbarCheckbox);
+                    scrollbarToggleContainer.appendChild(scrollbarCheckboxLabel);
+                    topToggleBar.appendChild(scrollbarToggleContainer);
+
+                    // Create search container and input
+                    var searchContainer = document.createElement('div');
+                    searchContainer.className = 'rte-table-search-container';
+
+                    var searchLabel = document.createElement('label');
+                    searchLabel.textContent = 'Cari:';
+
+                    var searchInput = document.createElement('input');
+                    searchInput.type = 'text';
+                    searchInput.className = 'rte-table-search-input';
+                    searchInput.placeholder = 'Cari data...';
+
+                    searchContainer.appendChild(searchLabel);
+                    searchContainer.appendChild(searchInput);
+                    topToggleBar.appendChild(searchContainer);
+
+                    // Stop click propagation on controls
+                    filterSelect.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                    scrollbarCheckbox.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                    scrollbarCheckbox.addEventListener('change', function() {
+                        updateScrollbarWidths();
+                    });
+                    searchInput.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+
+                    function applyChunking(chunkSize, searchQuery) {
+                        // 1. Remove all existing chunk toggle rows, no-data rows, and dummy scrollbars
+                        var existingToggleRows = table.querySelectorAll('.rte-chunk-toggle-row, .rte-chunk-no-data-row, .rte-chunk-scrollbar-row');
+                        existingToggleRows.forEach(function(r) {
+                            r.parentNode.removeChild(r);
+                        });
+
+                        // 2. Count table columns correctly by summing colSpan values across all rows
+                        var maxCols = 1;
+                        rows.forEach(function(r) {
+                            var rowCols = 0;
+                            if (r.cells) {
+                                for (var j = 0; j < r.cells.length; j++) {
+                                    rowCols += r.cells[j].colSpan || 1;
+                                }
+                            }
+                            if (rowCols > maxCols) {
+                                maxCols = rowCols;
+                            }
+                        });
+
+                        // 3. Filter dataRows based on search query supporting multiple words
+                        var query = (searchQuery || '').toLowerCase().trim();
+                        var queryWords = query.split(/\s+/).filter(function(w) { return w.length > 0; });
+                        var filteredRows = dataRows.filter(function(row) {
+                            if (queryWords.length === 0) return true;
+                            var text = row.textContent.toLowerCase();
+                            return queryWords.every(function(word) {
+                                return text.indexOf(word) !== -1;
+                            });
+                        });
+
+                        // Hide all dataRows first
+                        dataRows.forEach(function(row) {
+                            row.style.display = 'none';
+                        });
+
+                        // If no rows match, show the "no data" row
+                        if (filteredRows.length === 0) {
+                            var noDataRow = document.createElement('tr');
+                            noDataRow.className = 'rte-chunk-no-data-row';
+
+                            var noDataCell = document.createElement('td');
+                            noDataCell.colSpan = maxCols;
+                            noDataCell.className = 'rte-no-data-cell';
+                            noDataCell.textContent = 'Tidak ada data yang cocok';
+
+                            noDataRow.appendChild(noDataCell);
+
+                            var tbody = table.querySelector('tbody');
+                            if (tbody) {
+                                tbody.appendChild(noDataRow);
+                            } else {
+                                table.appendChild(noDataRow);
+                            }
+                            return;
+                        }
+
+                        // 4. Loop through filteredRows and chunk them
+                        for (var i = 0; i < filteredRows.length; i += chunkSize) {
+                            var chunk = filteredRows.slice(i, i + chunkSize);
+                            var isFirstChunk = (i === 0);
+
+                            // Set visibility for this chunk
+                            chunk.forEach(function(row) {
+                                if (isFirstChunk) {
+                                    row.style.display = '';
+                                } else {
+                                    row.style.display = 'none';
+                                }
+                            });
+
+                            // Create dummy scrollbar row for this chunk
+                            var scrollbarRow = document.createElement('tr');
+                            scrollbarRow.className = 'rte-chunk-scrollbar-row';
+                            scrollbarRow.style.display = isFirstChunk ? '' : 'none';
+
+                            var scrollbarCell = document.createElement('td');
+                            scrollbarCell.className = 'rte-scrollbar-cell';
+                            scrollbarCell.colSpan = maxCols;
+                            scrollbarCell.style.padding = '0';
+                            scrollbarCell.style.border = 'none';
+
+                            var dummyScrollbar = document.createElement('div');
+                            dummyScrollbar.className = 'rte-dummy-scrollbar';
+                            dummyScrollbar.style.overflowX = 'auto';
+                            dummyScrollbar.style.overflowY = 'hidden';
+                            dummyScrollbar.style.position = 'sticky';
+                            dummyScrollbar.style.left = '0';
+                            dummyScrollbar.style.width = '0px'; // Will be set to wrapperWidth in updateScrollbarWidths
+                            dummyScrollbar.style.height = '20px';
+
+                            var dummyContent = document.createElement('div');
+                            dummyContent.style.height = '1px';
+                            dummyContent.style.width = '0px'; // Will be set by updateScrollbarWidths
+
+                            dummyScrollbar.appendChild(dummyContent);
+                            scrollbarCell.appendChild(dummyScrollbar);
+                            scrollbarRow.appendChild(scrollbarCell);
+
+                            // Insert the scrollbar row after the last row in this chunk
+                            var lastRowInChunk = chunk[chunk.length - 1];
+                            lastRowInChunk.parentNode.insertBefore(scrollbarRow, lastRowInChunk.nextSibling);
+
+                            if (!isFirstChunk && chunk.length > 0) {
+                                // Create a toggle row before this chunk
+                                var toggleRow = document.createElement('tr');
+                                toggleRow.className = 'rte-chunk-toggle-row';
+
+                                var toggleCell = document.createElement('td');
+                                toggleCell.colSpan = maxCols;
+
+                                var toggleBtn = document.createElement('button');
+                                toggleBtn.type = 'button';
+                                toggleBtn.className = 'rte-chunk-toggle-btn';
+
+                                var iconSpan = document.createElement('span');
+                                iconSpan.className = 'rte-chunk-toggle-icon';
+                                iconSpan.textContent = '>';
+
+                                var textSpan = document.createElement('span');
+                                textSpan.className = 'rte-chunk-toggle-text';
+                                var startIdx = i + 1;
+                                var endIdx = Math.min(i + chunkSize, filteredRows.length);
+                                textSpan.textContent = 'Tampilkan Baris ' + startIdx + ' - ' + endIdx;
+
+                                toggleBtn.appendChild(iconSpan);
+                                toggleBtn.appendChild(textSpan);
+                                toggleCell.appendChild(toggleBtn);
+                                toggleRow.appendChild(toggleCell);
+
+                                // Insert the toggle row in the table before the first row of this chunk
+                                var firstRowInChunk = chunk[0];
+                                firstRowInChunk.parentNode.insertBefore(toggleRow, firstRowInChunk);
+
+                                // Setup click handler for this chunk
+                                (function(btn, rowsToToggle, start, end, icon, text, scrollRow) {
+                                    btn.addEventListener('click', function() {
+                                        var isCollapsed = (rowsToToggle[0].style.display === 'none');
+                                        var targetDisplay = isCollapsed ? '' : 'none';
+                                        rowsToToggle.forEach(function(r) {
+                                            r.style.display = targetDisplay;
+                                        });
+                                        scrollRow.style.display = targetDisplay;
+                                        
+                                        if (isCollapsed) {
+                                            icon.textContent = '▼';
+                                            text.textContent = 'Sembunyikan Baris ' + start + ' - ' + end;
+                                        } else {
+                                            icon.textContent = '>';
+                                            text.textContent = 'Tampilkan Baris ' + start + ' - ' + end;
+                                        }
+                                        updateScrollbarWidths();
+                                    });
+                                })(toggleBtn, chunk, startIdx, endIdx, iconSpan, textSpan, scrollbarRow);
+                            }
+                        }
+
+                        // Setup scroll synchronization between main wrapper and all dummy scrollbars
+                        var isSyncing = false;
+                        var allScrollContainers = [contentWrapper];
+                        var dummyScrollbars = table.querySelectorAll('.rte-dummy-scrollbar');
+                        dummyScrollbars.forEach(function(ds) {
+                            allScrollContainers.push(ds);
+                        });
+
+                        allScrollContainers.forEach(function(container) {
+                            container.addEventListener('scroll', function() {
+                                if (isSyncing) return;
+                                isSyncing = true;
+                                var scrollLeft = this.scrollLeft;
+                                allScrollContainers.forEach(function(other) {
+                                    if (other !== container) {
+                                        other.scrollLeft = scrollLeft;
+                                    }
+                                });
+                                isSyncing = false;
+                            });
+                        });
+
+                        updateScrollbarWidths();
+                    }
+                    function updateScrollbarWidths() {
+                        var tableWidth = table.scrollWidth || table.offsetWidth;
+                        var wrapperWidth = contentWrapper.offsetWidth;
+                        var scrollbarRows = table.querySelectorAll('.rte-chunk-scrollbar-row');
+                        var isScrollbarEnabled = scrollbarCheckbox.checked;
+                        
+                        if (tableWidth > 0 && wrapperWidth > 0) {
+                            var showScrollbars = isScrollbarEnabled && (tableWidth > wrapperWidth);
+                            scrollbarRows.forEach(function(row) {
+                                // Find the last row of the chunk (which is the sibling element immediately preceding the scrollbar row)
+                                var lastRow = row.previousElementSibling;
+                                // If the last row of the chunk is visible, then the chunk is expanded/visible
+                                var isChunkVisible = lastRow && lastRow.style.display !== 'none';
+                                
+                                if (showScrollbars && isChunkVisible) {
+                                    row.style.display = '';
+                                    var ds = row.querySelector('.rte-dummy-scrollbar');
+                                    if (ds) {
+                                        ds.style.display = 'block';
+                                        ds.style.width = wrapperWidth + 'px'; // Set to wrapper visible width
+                                        var content = ds.firstChild;
+                                        if (content) content.style.width = tableWidth + 'px'; // Set content to full table width
+                                    }
+                                } else {
+                                    row.style.display = 'none';
+                                }
+                            });
+                        }
+                    }
+                    // Window resize listener
+                    window.addEventListener('resize', updateScrollbarWidths);
+
+                    // Run initial chunking with default value 5
+                    applyChunking(5, '');
+
+                    // Re-apply chunking when select filter changes
+                    filterSelect.addEventListener('change', function() {
+                        applyChunking(parseInt(filterSelect.value, 10), searchInput.value);
+                    });
+
+                    // Re-apply chunking on search input
+                    searchInput.addEventListener('input', function() {
+                        applyChunking(parseInt(filterSelect.value, 10), searchInput.value);
+                    });
+
+                    // Top-level (entire table) toggle handler
+                    topToggleBtn.addEventListener('click', function() {
+                        if (tableContainer.classList.contains('collapsed')) {
+                            tableContainer.classList.remove('collapsed');
+                            tableContainer.classList.add('expanded');
+                            topTextSpan.textContent = 'Sembunyikan Tabel';
+                            setTimeout(updateScrollbarWidths, 50);
+                        } else {
+                            tableContainer.classList.remove('expanded');
+                            tableContainer.classList.add('collapsed');
+                            topTextSpan.textContent = 'Tampilkan Tabel';
+                        }
+                    });
+                });
+            });
+
             // Re-trigger Prism syntax highlighting after container updates
             if (window.Prism) {
                 try { window.Prism.highlightAll(); } catch(e) {}

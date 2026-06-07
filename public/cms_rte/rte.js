@@ -1783,9 +1783,19 @@
                 if (selectedCells.length > 0) {
                     selectedCells.forEach(function (c) { c.style.textAlign = textAlignValue; });
                 } else {
+                    var cellRange = null;
                     var selForCell = window.getSelection();
                     if (selForCell && selForCell.rangeCount > 0) {
-                        var cellNode = selForCell.anchorNode;
+                        var tempRange = selForCell.getRangeAt(0);
+                        if (activeTable.contains(tempRange.commonAncestorContainer)) {
+                            cellRange = tempRange;
+                        }
+                    }
+                    if (!cellRange && self._savedRange && activeTable.contains(self._savedRange.commonAncestorContainer)) {
+                        cellRange = self._savedRange;
+                    }
+                    if (cellRange) {
+                        var cellNode = cellRange.startContainer;
                         while (cellNode && cellNode !== activeTable) {
                             if (cellNode.tagName === 'TD' || cellNode.tagName === 'TH') {
                                 cellNode.style.textAlign = textAlignValue;
@@ -1803,12 +1813,15 @@
                 });
             } else {
                 // Normal text alignment: apply text-align directly to all block elements in selection
-                var selAlign = window.getSelection();
-                var range = null;
-                if (selAlign && selAlign.rangeCount > 0) {
-                    range = selAlign.getRangeAt(0);
-                } else if (self._savedRange) {
-                    range = self._savedRange;
+                var range = self._savedRange;
+                if (!range) {
+                    var selAlign = window.getSelection();
+                    if (selAlign && selAlign.rangeCount > 0) {
+                        var tempRange = selAlign.getRangeAt(0);
+                        if (self.content.contains(tempRange.commonAncestorContainer)) {
+                            range = tempRange;
+                        }
+                    }
                 }
                 if (!range) {
                     var r = document.createRange();
@@ -1823,30 +1836,92 @@
                     // Collect all block elements that overlap with the selection
                     var blocksToAlign = [];
 
-                    var startNode = range.startContainer;
-                    var ancestor = range.commonAncestorContainer;
-                    if (ancestor.nodeType === Node.TEXT_NODE) ancestor = ancestor.parentNode;
-
-                    // Find nearest block container of the selection
-                    var blockTextTagsRe = /^(P|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
-                    var blockContainer = ancestor;
-                    while (blockContainer && blockContainer !== self.content) {
-                        if (blockContainer.tagName && (blockTextTagsRe.test(blockContainer.tagName) || blockContainer.tagName === 'DIV')) {
-                            break;
+                    // Fast-path: if editor is empty/has no blocks, initialize it with a single aligned paragraph
+                    if (self.content.textContent.trim() === '' && self.content.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, td, th').length === 0) {
+                        self.content.innerHTML = '';
+                        var p = document.createElement('p');
+                        p.appendChild(document.createElement('br'));
+                        p.style.textAlign = textAlignValue;
+                        self.content.appendChild(p);
+                        
+                        var newRange = document.createRange();
+                        newRange.selectNodeContents(p);
+                        newRange.collapse(true);
+                        var sel = window.getSelection();
+                        if (sel) {
+                            sel.removeAllRanges();
+                            sel.addRange(newRange);
                         }
-                        blockContainer = blockContainer.parentNode;
-                    }
-                    if (!blockContainer) blockContainer = self.content;
-
-                    if (blockContainer !== self.content && blockTextTagsRe.test(blockContainer.tagName)) {
-                        // The selection is nested inside a single block container (P, H1-6, etc.). Style it directly.
-                        blocksToAlign.push(blockContainer);
+                        self._savedRange = newRange;
+                        blocksToAlign.push(p);
                     } else {
-                        // The container is self.content or a DIV. It can contain direct inline children.
-                        // Loop through direct children of this block container that intersect the range.
-                        var childNodes = Array.prototype.slice.call(blockContainer.childNodes);
-                        childNodes.forEach(function (node) {
-                            if (range.intersectsNode(node)) {
+                        var startNode = range.startContainer;
+                        var ancestor = range.commonAncestorContainer;
+                        if (ancestor.nodeType === Node.TEXT_NODE) ancestor = ancestor.parentNode;
+
+                        // Find nearest block container of the selection
+                        var blockTextTagsRe = /^(P|H[1-6]|LI|TD|TH|BLOCKQUOTE|PRE)$/;
+                        var blockContainer = ancestor;
+                        while (blockContainer && blockContainer !== self.content) {
+                            if (blockContainer.tagName && (blockTextTagsRe.test(blockContainer.tagName) || blockContainer.tagName === 'DIV')) {
+                                break;
+                            }
+                            blockContainer = blockContainer.parentNode;
+                        }
+                        if (!blockContainer) blockContainer = self.content;
+
+                        if (blockContainer !== self.content && blockTextTagsRe.test(blockContainer.tagName)) {
+                            // The selection is nested inside a single block container (P, H1-6, etc.). Style it directly.
+                            blocksToAlign.push(blockContainer);
+                        } else {
+                            // The container is self.content or a DIV. It can contain direct inline children.
+                            // Loop through direct children of this block container that intersect the range.
+                            var childNodes = Array.prototype.slice.call(blockContainer.childNodes);
+                            var intersectingNodes = [];
+
+                            if (range.collapsed) {
+                                var targetNode = range.startContainer;
+                                if (targetNode === blockContainer) {
+                                    var offset = range.startOffset;
+                                    if (blockContainer.childNodes.length > 0) {
+                                        if (offset >= blockContainer.childNodes.length) {
+                                            intersectingNodes.push(blockContainer.childNodes[blockContainer.childNodes.length - 1]);
+                                        } else {
+                                            intersectingNodes.push(blockContainer.childNodes[offset]);
+                                        }
+                                    }
+                                } else {
+                                    // Walk up from targetNode until we find the child of blockContainer
+                                    var walk = targetNode;
+                                    while (walk && walk.parentNode !== blockContainer) {
+                                        walk = walk.parentNode;
+                                    }
+                                    if (walk) {
+                                        intersectingNodes.push(walk);
+                                    }
+                                }
+                            } else {
+                                childNodes.forEach(function (node) {
+                                    var intersects = false;
+                                    try {
+                                        if (range.intersectsNode) {
+                                            intersects = range.intersectsNode(node);
+                                        } else {
+                                            var nodeRange = document.createRange();
+                                            nodeRange.selectNode(node);
+                                            intersects = (range.compareBoundaryPoints(Range.END_TO_START, nodeRange) < 0 &&
+                                                range.compareBoundaryPoints(Range.START_TO_END, nodeRange) > 0);
+                                        }
+                                    } catch (e) {
+                                        intersects = false;
+                                    }
+                                    if (intersects) {
+                                        intersectingNodes.push(node);
+                                    }
+                                });
+                            }
+
+                            intersectingNodes.forEach(function (node) {
                                 if (node.nodeType === Node.ELEMENT_NODE && blockTagsRe.test(node.tagName)) {
                                     blocksToAlign.push(node);
                                 } else {
@@ -1855,23 +1930,40 @@
                                         return;
                                     }
                                     // Wrap this top-level inline/text node in a P element
-                                    var p = document.createElement('p');
-                                    node.parentNode.insertBefore(p, node);
-                                    p.appendChild(node);
-                                    blocksToAlign.push(p);
+                                    if (node.parentNode) {
+                                        var p = document.createElement('p');
+                                        node.parentNode.insertBefore(p, node);
+                                        p.appendChild(node);
+                                        blocksToAlign.push(p);
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                        // Fallback: if nothing was collected, find closest block parent of startNode
-                        if (blocksToAlign.length === 0) {
-                            var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
-                            while (blk && blk !== self.content) {
-                                if (blk.tagName && blockTagsRe.test(blk.tagName)) {
-                                    blocksToAlign.push(blk);
-                                    break;
+                            // Fallback: if nothing was collected, find closest block parent of startNode
+                            if (blocksToAlign.length === 0) {
+                                var blk = startNode.nodeType === Node.TEXT_NODE ? startNode.parentNode : startNode;
+                                var topLevel = blk;
+                                while (blk && blk !== self.content) {
+                                    if (blk.tagName && blockTagsRe.test(blk.tagName)) {
+                                        blocksToAlign.push(blk);
+                                        break;
+                                    }
+                                    topLevel = blk;
+                                    blk = blk.parentNode;
                                 }
-                                blk = blk.parentNode;
+                                // If we reached self.content and found no block parent, wrap the top-level inline element in a <p>
+                                if (blocksToAlign.length === 0 && topLevel && topLevel !== self.content) {
+                                    if (topLevel.nodeType === Node.TEXT_NODE && !topLevel.nodeValue.trim()) {
+                                        // Do nothing for empty text
+                                    } else {
+                                        if (topLevel.parentNode) {
+                                            var p = document.createElement('p');
+                                            topLevel.parentNode.insertBefore(p, topLevel);
+                                            p.appendChild(topLevel);
+                                            blocksToAlign.push(p);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

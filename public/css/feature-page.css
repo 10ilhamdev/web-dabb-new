@@ -375,19 +375,4 @@
     }
 }
 
-/* Table responsive - horizontal scroll for tables on mobile */
-@media (max-width: 768px) {
-    .feature-content table {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        max-width: 100%;
-        border-collapse: collapse;
-    }
-    .feature-content table tbody,
-    .feature-content table tr,
-    .feature-content table td,
-    .feature-content table th {
-        display: block;
-    }
-}
+/* Table responsive - handled via .rte-table-content-wrapper */
