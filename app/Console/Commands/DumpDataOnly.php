@@ -173,9 +173,19 @@ class DumpDataOnly extends Command
 
     /**
      * Escape string untuk MySQL INSERT - aman untuk semua karakter termasuk NULL byte.
+     *
+     * U+2028 (Line Separator) dan U+2029 (Paragraph Separator) dikonversi ke
+     * newline biasa terlebih dahulu agar tidak muncul literal di file SQL
+     * dan tidak memicu peringatan "unusual line terminators" di editor.
      */
     private function mysqlEscape(string $value): string
     {
+        // Konversi unusual line terminators ke newline biasa SEBELUM proses lain
+        // U+2028 LINE SEPARATOR      = \xE2\x80\xA8 (UTF-8)
+        // U+2029 PARAGRAPH SEPARATOR = \xE2\x80\xA9 (UTF-8)
+        $value = str_replace("\xE2\x80\xA8", "\n", $value);
+        $value = str_replace("\xE2\x80\xA9", "\n", $value);
+
         // Urutan penting: NULL bytes duluan, lalu backslash, lalu kutip
         $value = str_replace("\0", '\\0', $value);
         $value = str_replace('\\', '\\\\', $value);
