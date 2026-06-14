@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-    <div class="mb-8" x-data="{ tf: '{{ $tf }}', showCustom: {{ $tf === 'custom' ? 'true' : 'false' }} }">
+    <div class="mb-8" x-data="{ tf: '{{ $tf }}', showCustom: {{ $tf === 'custom' ? 'true' : 'false' }}, showFilter: false }">
         <!-- Title & Filter Header -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
             <div>
@@ -76,15 +76,15 @@
                 <!-- Page Breakdown Table -->
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex-1 flex flex-col">
                     <h3 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">{{ __('cms.reports.page_breakdown') }}</h3>
-                    <div class="space-y-3 flex-1 overflow-y-auto pr-1" style="max-height: 290px;">
+                    <div id="pageBreakdownList" class="space-y-3 flex-1 overflow-y-auto pr-1" style="max-height: 290px;">
                         @php
                             $totalPageCounts = array_sum(array_column($pages, 'count'));
                         @endphp
-                        @foreach($pages as $key => $p)
+                        @foreach(array_values($pages) as $index => $p)
                             @php
                                 $pct = $totalPageCounts > 0 ? round(($p['count'] / $totalPageCounts) * 100, 1) : 0;
                             @endphp
-                            <div>
+                            <div data-page-label="{{ $p['label'] }}" data-index="{{ $index }}">
                                 <div class="flex justify-between text-xs font-semibold mb-1">
                                     <span class="text-gray-700">{{ $p['label'] }}</span>
                                     <span class="text-gray-900">{{ number_format($p['count']) }} <span class="text-gray-400 font-normal">({{ $pct }}%)</span></span>
@@ -100,10 +100,57 @@
 
             <!-- Right: Bar Chart -->
             <div class="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-                <div class="mb-4">
-                    <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.chart_views_title') }}</h2>
-                    <p class="text-xs text-gray-400">{{ __('cms.reports.chart_views_sub') }}</p>
+                <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.chart_views_title') }}</h2>
+                        <p class="text-xs text-gray-400">{{ __('cms.reports.chart_views_sub') }}</p>
+                    </div>
+                    <!-- Filter Toggle Button -->
+                    <div>
+                        <button type="button" @click="showFilter = !showFilter" class="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg border border-gray-200 transition-colors inline-flex items-center gap-1.5 shadow-sm">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                            {{ __('cms.reports.filter_page') }}
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Collapsible Page Filter Checklist -->
+                <div id="filterPagesContainer" x-show="showFilter" x-transition class="mb-6 p-4 bg-gray-50/50 border border-gray-100 rounded-xl transition-all duration-300" x-cloak>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 border-b border-gray-150 pb-2">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span class="text-xs font-bold text-gray-700">{{ __('cms.reports.select_page_display') }}</span>
+                            <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer bg-blue-50/50 px-2 py-0.5 rounded-lg border border-blue-100 hover:bg-blue-50 transition-colors">
+                                <input type="checkbox" id="chkMergeSubFeatures" checked class="rounded border-gray-300 text-[#174E93] focus:ring-[#174E93] transition-colors">
+                                <span>{{ __('cms.reports.merge_sub_features') }}</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" id="btnSelectAllPages" class="text-[11px] text-blue-600 hover:text-blue-800 font-bold">{{ __('cms.reports.select_all') }}</button>
+                            <span class="text-gray-300 text-xs">|</span>
+                            <button type="button" id="btnDeselectAllPages" class="text-[11px] text-gray-500 hover:text-gray-700 font-bold">{{ __('cms.reports.deselect_all') }}</button>
+                        </div>
+                    </div>
+                    <!-- Unmerged Checklist -->
+                    <div id="filterPagesListUnmerged" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1" style="display: none;">
+                        @foreach(array_values($pages) as $index => $p)
+                            <label class="flex items-start gap-2.5 p-1.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors text-xs font-semibold text-gray-700">
+                                <input type="checkbox" value="{{ $p['label'] }}" checked class="page-filter-checkbox-unmerged mt-0.5 rounded border-gray-300 text-[#174E93] focus:ring-[#174E93] transition-colors" data-index="{{ $index }}">
+                                <span class="leading-tight">{{ $p['label'] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <!-- Merged Checklist -->
+                    <div id="filterPagesListMerged" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-44 overflow-y-auto pr-1">
+                        @foreach(array_unique(array_column($pages, 'root_label')) as $rootLabel)
+                            <label class="flex items-start gap-2.5 p-1.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors text-xs font-semibold text-gray-700">
+                                <input type="checkbox" value="{{ $rootLabel }}" checked class="page-filter-checkbox-merged mt-0.5 rounded border-gray-300 text-[#174E93] focus:ring-[#174E93] transition-colors">
+                                <span class="leading-tight">{{ $rootLabel }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div class="w-full relative my-auto" style="min-height: 380px;">
                     <div id="barChart"></div>
                 </div>
@@ -196,7 +243,8 @@
         window.pengunjungChartData = {
             barLabels: {!! json_encode($barLabels) !!},
             barSeries: {!! json_encode($barSeries) !!},
+            pagesDetail: {!! json_encode(array_values($pages)) !!},
         };
     </script>
-    <script src="{{ asset('js/cms/features/reports/pengunjung.js') }}"></script>
+    <script src="{{ asset('js/cms/features/reports/pengunjung.js') }}?v={{ time() }}"></script>
 @endpush

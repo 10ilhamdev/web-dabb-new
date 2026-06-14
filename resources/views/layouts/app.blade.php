@@ -328,8 +328,18 @@
                             <div class="ml-2 sm:ml-3 flex flex-col min-w-0" style="line-height: 1.2;">
                                 <span
                                     class="text-[13px] font-semibold text-gray-800 truncate max-w-[75px] sm:max-w-none">{{ auth()->user()->name ?? __('dashboard.profile.default_name') }}</span>
+                                @php
+                                    $roleName = auth()->user()->role;
+                                    $roleKey = "dashboard.roles.{$roleName}";
+                                    if (\Illuminate\Support\Facades\Lang::has($roleKey)) {
+                                        $roleLabel = __($roleKey);
+                                    } else {
+                                        $roleModel = \App\Models\Role::where('name', $roleName)->first();
+                                        $roleLabel = $roleModel ? $roleModel->label : ucwords(str_replace('_', ' ', $roleName));
+                                    }
+                                @endphp
                                 <span
-                                    class="text-[11px] text-gray-500 truncate max-w-[75px] sm:max-w-none">{{ is_null(auth()->user()->password) ? __('dashboard.profile.password_not_set') : __("dashboard.roles." . auth()->user()->role) }}</span>
+                                    class="text-[11px] text-gray-500 truncate max-w-[75px] sm:max-w-none">{{ is_null(auth()->user()->password) ? __('dashboard.profile.password_not_set') : $roleLabel }}</span>
                             </div>
                             <div
                                 class="hidden sm:inline-flex ml-4 p-1 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 focus:outline-none shrink-0">
@@ -508,9 +518,16 @@
                             <select id="role" name="role" required
                                 class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#174E93] focus:border-[#174E93] text-[14px]">
                                 <option value="" disabled selected>{{ __('dashboard.set_password.select_placeholder') }}</option>
-                                <option value="umum">{{ __('dashboard.roles.umum') }}</option>
-                                <option value="pelajar_mahasiswa">{{ __('dashboard.roles.pelajar_mahasiswa') }}</option>
-                                <option value="instansi_swasta">{{ __('dashboard.roles.instansi_swasta') }}</option>
+                                @php
+                                    $regRoles = \App\Models\Role::where('is_registerable', 1)->get();
+                                @endphp
+                                @foreach($regRoles as $regRole)
+                                    @php
+                                        $rKey = "dashboard.roles.{$regRole->name}";
+                                        $rLabel = \Illuminate\Support\Facades\Lang::has($rKey) ? __($rKey) : $regRole->label;
+                                    @endphp
+                                    <option value="{{ $regRole->name }}">{{ $rLabel }}</option>
+                                @endforeach
                             </select>
                             @error('role', 'setPassword')
                                 <p class="text-red-500 text-[12px] mt-1">{{ $message }}</p>

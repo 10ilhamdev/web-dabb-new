@@ -66,6 +66,14 @@
             flex-wrap: wrap;
             padding: 1rem 1.5rem;
             border-bottom: 1px solid #f3f4f6;
+            position: relative;
+            z-index: 20 !important;
+        }
+
+        @media (min-width: 768px) {
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
         }
 
         #tablePengguna_wrapper .dt-top-row .dataTables_length {
@@ -653,7 +661,7 @@
                 dtSearchPlaceholder: @json($dtSearchPlaceholder),
             };
         </script>
-        <script src="{{ asset('js/cms/features/pengguna/index.js') }}"></script>
+        <script src="{{ asset('js/cms/features/pengguna/index.js') }}?v={{ time() }}"></script>
 
         <script>
             /* Alpine component for user management page */

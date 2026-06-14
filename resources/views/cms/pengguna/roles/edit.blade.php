@@ -81,6 +81,22 @@
                     @enderror
                 </div>
 
+                {{-- Tampilkan di Pendaftaran (is_registerable) --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.roles.form_registerable') }}</label>
+                    <div class="flex items-center gap-4 mt-2">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_registerable" value="1"
+                                {{ old('is_registerable', $role->is_registerable ? '1' : '0') == '1' ? 'checked' : '' }}
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">{{ __('cms.roles.form_registerable_help') }}</span>
+                        </label>
+                    </div>
+                    @error('is_registerable')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Table Name --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.roles.form_table_name') }}

@@ -31,7 +31,16 @@
                     <div>
                         <h2 class="text-lg font-bold text-gray-900">{{ $user->name }}</h2>
                         <div class="text-sm font-medium border-l-[3px] border-blue-200 pl-3 mt-1.5 flex items-center space-x-3">
-                            <span class="text-gray-500">{{ __("dashboard.roles.{$user->role}") }}</span>
+                            @php
+                                $roleKey = "dashboard.roles.{$user->role}";
+                                if (\Illuminate\Support\Facades\Lang::has($roleKey)) {
+                                    $roleNameTranslated = __($roleKey);
+                                } else {
+                                    $roleModel = \App\Models\Role::where('name', $user->role)->first();
+                                    $roleNameTranslated = $roleModel ? $roleModel->label : ucwords(str_replace('_', ' ', $user->role));
+                                }
+                            @endphp
+                            <span class="text-gray-500">{{ $roleNameTranslated }}</span>
                         </div>
                     </div>
                     {{-- Email Verification Badge / Resend Button --}}

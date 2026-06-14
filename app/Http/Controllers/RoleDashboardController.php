@@ -20,7 +20,26 @@ class RoleDashboardController extends Controller
 
     public function index(Request $request): RedirectResponse
     {
-        $roleName = $request->user()->role;
+        $user = $request->user();
+        $roleName = $user->role;
+
+        // Self-healing: if the user has a role that doesn't exist in the roles table
+        if (!Role::where('name', $roleName)->exists()) {
+            if ($roleName === 'organisasi' && Role::where('name', 'organisasii')->exists()) {
+                $user->role = 'organisasii';
+                $user->save();
+                $roleName = 'organisasii';
+            } else {
+                $matchedRole = Role::where('name', 'like', $roleName . '%')->first()
+                    ?? Role::where('is_registerable', true)->first();
+                if ($matchedRole) {
+                    $user->role = $matchedRole->name;
+                    $user->save();
+                    $roleName = $matchedRole->name;
+                }
+            }
+        }
+
         $slug = Str::slug($roleName, '-');
         return redirect()->route('dashboard.role', ['slug' => $slug]);
     }
@@ -369,11 +388,35 @@ class RoleDashboardController extends Controller
         ];
     }
 
-    public function show(Request $request, string $roleIdentifier): View
+    public function show(Request $request, string $roleIdentifier)
     {
         $roleName = self::fromSlug($roleIdentifier);
+        $user = $request->user();
 
-        if ($request->user()->role !== $roleName) {
+        // Self-healing: if the user visits the page but has the old role name
+        if ($user->role !== $roleName) {
+            if (!Role::where('name', $user->role)->exists()) {
+                if ($user->role === 'organisasi' && Role::where('name', 'organisasii')->exists()) {
+                    $user->role = 'organisasii';
+                    $user->save();
+                } else {
+                    $matchedRole = Role::where('name', 'like', $user->role . '%')->first()
+                        ?? Role::where('is_registerable', true)->first();
+                    if ($matchedRole) {
+                        $user->role = $matchedRole->name;
+                        $user->save();
+                    }
+                }
+            }
+        }
+
+        // Re-read roleName after self-healing, check if it matches identifier
+        if ($user->role !== $roleName) {
+            $slug = Str::slug($user->role, '-');
+            if ($slug !== $roleIdentifier) {
+                return redirect()->route('dashboard.role', ['slug' => $slug])
+                    ->with('info', 'Dashboard dialihkan ke ' . $user->role);
+            }
             abort(403, 'Anda tidak memiliki akses ke dashboard ini.');
         }
 

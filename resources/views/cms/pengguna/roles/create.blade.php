@@ -80,6 +80,22 @@
                     @enderror
                 </div>
 
+                {{-- Tampilkan di Pendaftaran (is_registerable) --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.roles.form_registerable') }}</label>
+                    <div class="flex items-center gap-4 mt-2">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_registerable" value="1"
+                                {{ old('is_registerable', '1') == '1' ? 'checked' : '' }}
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">{{ __('cms.roles.form_registerable_help') }}</span>
+                        </label>
+                    </div>
+                    @error('is_registerable')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Table Name --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('cms.roles.form_table_name') }}
@@ -129,9 +145,9 @@
                         <select id="templateSelect"
                             class="text-sm border border-gray-200 rounded-lg px-5 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             <option value="">{{ __('cms.roles.select_template') }}</option>
-                            <option value="admin">Admin / Pegawai</option>
-                            <option value="umum">Umum / Pelajar</option>
-                            <option value="instansi">Instansi</option>
+                            @foreach ($existingRoles as $role)
+                                <option value="{{ $role->name }}">{{ $role->label }}</option>
+                            @endforeach
                             <option value="empty">{{ __('cms.roles.empty_template') }}</option>
                         </select>
                         <button type="button" onclick="addColumn()"
@@ -322,6 +338,7 @@
         const columnTypes = @json($columnTypes);
         const unsignedTypes = @json($unsignedTypes);
         const integerTypes = @json($integerTypes);
+        const dbTables = @json($dbTables);
 
         // Group type helpers (mirrors MySQL rules)
         const noLengthTypes = [
@@ -513,6 +530,19 @@
             container.appendChild(div);
             var typeSelect = div.querySelector('select[name="columns[' + index + '][column_type]"]');
             if (typeSelect) toggleAttributes(typeSelect, index);
+
+            // Populates the tables dropdown if it's already checked as foreign key
+            if (colData.foreign) {
+                const tableSelect = div.querySelector(`select[name="columns[${index}][references_table]"]`);
+                if (tableSelect) {
+                    populateAllTables(tableSelect);
+                    if (colData.references_table) {
+                        tableSelect.value = colData.references_table;
+                        loadForeignColumns(tableSelect, index, colData.references_column);
+                    }
+                }
+            }
+
             reindexColumns(); // Reindex after add
         }
 
@@ -657,24 +687,18 @@
          * Fetch all DB tables and populate the given select element.
          */
         function populateAllTables(tableSelect) {
-            fetch(`{{ route('cms.pengguna.roles.tables') }}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-            })
-            .then(r => r.json())
-            .then(tables => {
-                tables.forEach(t => {
-                    const opt = document.createElement('option');
-                    opt.value = t.name;
-                    opt.textContent = t.name;
-                    tableSelect.appendChild(opt);
-                });
+            dbTables.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.name;
+                opt.textContent = t.name;
+                tableSelect.appendChild(opt);
             });
         }
 
         /**
          * Cascade: when a FK table is selected, load its columns into the column dropdown.
          */
-        function loadForeignColumns(tableSelect, index) {
+        function loadForeignColumns(tableSelect, index, selectedValue = '') {
             const table = tableSelect.value;
             const colSelect = document.querySelector(`select[name="columns[${index}][references_column]"]`);
             if (!colSelect) return;
@@ -693,6 +717,9 @@
                     const opt = document.createElement('option');
                     opt.value = c.name;
                     opt.textContent = c.name + ' (' + c.type + ')';
+                    if (c.name === selectedValue) {
+                        opt.selected = true;
+                    }
                     colSelect.appendChild(opt);
                 });
             })

@@ -1370,6 +1370,8 @@ return [
         'form_relation_name_help' => 'Relation method name on User model. e.g. userPartner.',
         'form_description' => 'Description',
         'form_description_placeholder' => 'Short description of this role...',
+        'form_registerable' => 'Account Registration',
+        'form_registerable_help' => 'Show in Registration (enable to make this role appear in public registration choices).',
 
         'name_system_locked' => 'System role name cannot be changed.',
 
@@ -2252,6 +2254,11 @@ return [
         'preset_custom' => 'Custom',
         'total_views' => 'Total Page Views',
         'page_breakdown' => 'Page Breakdown',
+        'filter_page' => 'Page Filter',
+        'select_page_display' => 'Select Pages to Display:',
+        'merge_sub_features' => 'Merge Sub Features',
+        'select_all' => 'Select All',
+        'deselect_all' => 'Clear',
         'chart_views_title' => 'Page Views Chart',
         'chart_views_sub' => 'Access distribution based on website menu categories',
         'table_pengunjung_title' => 'Page Access History (Visitor Log)',

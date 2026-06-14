@@ -12,6 +12,33 @@ function escapeHtml(str) {
         .replace(/'/g, "&#39;");
 }
 
+function confirmDeleteRole(form, roleName) {
+    if (window.Swal) {
+        Swal.fire({
+            title: isIndonesian() ? 'Apakah Anda yakin?' : 'Are you sure?',
+            text: isIndonesian()
+                ? 'Peran "' + roleName + '" akan dihapus beserta seluruh kolom tabel dan profil fisik penggunanya!'
+                : 'Role "' + roleName + '" will be deleted along with all its table columns and user profiles!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: isIndonesian() ? 'Ya, Hapus!' : 'Yes, Delete!',
+            cancelButtonText: isIndonesian() ? 'Batal' : 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    } else {
+        if (confirm(isIndonesian()
+            ? 'Apakah Anda yakin ingin menghapus peran "' + roleName + '"?'
+            : 'Are you sure you want to delete role "' + roleName + '"?')) {
+            form.submit();
+        }
+    }
+}
+
 function getLocale() {
     return $("html").attr("lang") || "id";
 }
@@ -46,7 +73,7 @@ function downloadBlob(blob, filename) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
 }
 
 function buildTableHTML(dt) {
@@ -63,18 +90,18 @@ function buildTableHTML(dt) {
     var rows = dt.rows({ search: "applied" });
     var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
     html += "<thead><tr style=\"background:#174E93;color:white;\">";
-    colNames.forEach(function(name) {
+    colNames.forEach(function (name) {
         html += '<th style="text-align:center;padding:6px 10px;font-size:9pt;">' + name + "</th>";
     });
     html += "</tr></thead><tbody>";
-    rows.every(function() {
+    rows.every(function () {
         var $cells = $(this.node()).find("td");
         var cells = [];
-        $cells.each(function() { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
+        $cells.each(function () { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
         if (cells.length < 8) return;
         var bg = this[0] % 2 === 0 ? "#ffffff" : "#f3f6f9";
         html += '<tr style="background:' + bg + ';">';
-        for (var c = 1; c < cells.length; c++) {
+        for (var c = 1; c < 8; c++) {
             var isCenter = (c === 1 || c === 5 || c === 6 || c === 4);
             html += '<td style="' + (isCenter ? 'text-align:center;' : '') + 'padding:5px 10px;color:#374151;font-size:9pt;">' + escapeHtml(cells[c]) + "</td>";
         }
@@ -84,14 +111,17 @@ function buildTableHTML(dt) {
     return html;
 }
 
-function buildHeaderHTML() {
-    var logoSrc = (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+function buildHeaderHTML(logoSrc) {
+    logoSrc = logoSrc || (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+    if (logoSrc.indexOf("http") !== 0 && logoSrc.indexOf("file://") !== 0) {
+        logoSrc = window.location.origin + (logoSrc.indexOf("/") === 0 ? "" : "/") + logoSrc;
+    }
     return (
         '<div style="margin-bottom:14px;">' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
         "<tr>" +
         '<td style="width:62px;vertical-align:middle;">' +
-        '<img src="' + logoSrc + '" alt="ANRI" style="height:52px;width:auto;display:block;" />' +
+        '<img src="' + logoSrc + '" alt="ANRI" width="52" height="52" style="width:52px;height:52px;display:block;" />' +
         "</td>" +
         '<td style="vertical-align:middle;padding-left:12px;">' +
         '<div style="font-weight:bold;font-size:12.5pt;color:#174E93;line-height:1.3;">' + i18nInstName() + "<br/>" +
@@ -103,26 +133,60 @@ function buildHeaderHTML() {
 }
 
 function exportToWord(dt) {
-    var html = [
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
-        'xmlns:w="urn:schemas-microsoft-com:office:word"',
-        'xmlns="http://www.w3.org/TR/REC-html40">',
-        '<head><meta charset="utf-8"><title>DABB - Peran</title>',
-        "<style>body{font-family:Arial,sans-serif;margin:25px 20px;font-size:10pt;color:#111827;}table{width:100%;border-collapse:collapse;}th,td{padding:5px 8px;border:1px solid #d1d5db;}@page{margin:20mm;}</style>",
-        "</head><body>", buildHeaderHTML(), buildTableHTML(dt), "</body></html>",
-    ].join("");
-    var fname = isIndonesian() ? "Daftar-Peran-Sistem-Bandung-Sustainable-Archives-Depot.doc" : "System-Role-List-Bandung-Sustainable-Archives-Depot.doc";
-    downloadBlob(new Blob(["﻿" + html], { type: "application/msword" }), fname);
+    loadLogoBase64(function (logoBase64) {
+        var hasLogo = logoBase64 && logoBase64.indexOf("base64,") !== -1;
+        var logoRef = hasLogo ? "file:///logo_anri.png" : "";
+
+        var html = [
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
+            'xmlns:w="urn:schemas-microsoft-com:office:word"',
+            'xmlns="http://www.w3.org/TR/REC-html40">',
+            '<head><meta charset="utf-8"><title>DABB - Peran</title>',
+            "<style>body{font-family:Arial,sans-serif;margin:25px 20px;font-size:10pt;color:#111827;}table{width:100%;border-collapse:collapse;}th,td{padding:5px 8px;border:1px solid #d1d5db;}@page{margin:20mm;}</style>",
+            "</head><body>", buildHeaderHTML(logoRef), buildTableHTML(dt), "</body></html>",
+        ].join("");
+
+        var mhtml = [
+            'Mime-Version: 1.0',
+            'Content-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"',
+            '',
+            '--NEXT.ITEM-BOUNDARY',
+            'Content-Type: text/html; charset="utf-8"',
+            'Content-Location: file:///main.html',
+            '',
+            html,
+            ''
+        ];
+
+        if (hasLogo) {
+            var base64Data = logoBase64.split("base64,")[1];
+            mhtml.push(
+                '--NEXT.ITEM-BOUNDARY',
+                'Content-Type: image/png',
+                'Content-Transfer-Encoding: base64',
+                'Content-Location: file:///logo_anri.png',
+                '',
+                base64Data,
+                ''
+            );
+        }
+
+        mhtml.push('--NEXT.ITEM-BOUNDARY--');
+
+        var fileContent = mhtml.join('\r\n');
+        var fname = isIndonesian() ? "Daftar-Peran-Sistem-Bandung-Sustainable-Archives-Depot.doc" : "System-Role-List-Bandung-Sustainable-Archives-Depot.doc";
+        downloadBlob(new Blob(["﻿" + fileContent], { type: "application/msword" }), fname);
+    });
 }
 
 function exportToCSV(dt) {
     var isId = isIndonesian();
-    var headers = ["No","Nama","Label","Tabel","Kolom","Tipe","Pengguna"];
+    var headers = ["No", "Nama", "Label", "Tabel", "Kolom", "Tipe", "Pengguna"];
     var lines = [headers.join(",")];
-    dt.rows({ search: "applied" }).every(function() {
+    dt.rows({ search: "applied" }).every(function () {
         var $cells = $(this.node()).find("td");
         var cells = [];
-        $cells.each(function() { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
+        $cells.each(function () { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
         if (cells.length >= 8) lines.push('"' + cells.slice(1).join('","').replace(/"/g, '""') + '"');
     });
     var content = ['"' + i18nInstName() + '"', '"' + i18nAddress() + '"', ""].concat(lines).join("\n");
@@ -132,23 +196,23 @@ function exportToCSV(dt) {
 
 function exportToExcel(dt) {
     var isId = isIndonesian();
-    var colNames = ["No","Nama","Label","Tabel","Kolom","Tipe","Pengguna"];
+    var colNames = ["No", "Nama", "Label", "Tabel", "Kolom", "Tipe", "Pengguna"];
     var tableRows = "";
     var hdrBg = "174E93";
     tableRows += "<tr style=\"background:#" + hdrBg + ";color:white;font-weight:bold;text-align:center;\">";
-    colNames.forEach(function(name) { tableRows += "<td style=\"padding:6px 10px;border:1px solid #dee2e6;text-align:center;\">" + escapeHtml(name) + "</td>"; });
+    colNames.forEach(function (name) { tableRows += "<td style=\"padding:6px 10px;border:1px solid #dee2e6;text-align:center;\">" + escapeHtml(name) + "</td>"; });
     tableRows += "</tr>";
-    dt.rows({ search: "applied" }).every(function(idx) {
+    dt.rows({ search: "applied" }).every(function (idx) {
         var $cells = $(this.node()).find("td");
         var cells = [];
-        $cells.each(function() { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
+        $cells.each(function () { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
         if (cells.length < 8) return;
         var bg = idx % 2 === 0 ? "#FFFFFF" : "#D6E4F0";
         var textColor = idx % 2 === 0 ? "#374151" : "#1a3a5c";
         tableRows += "<tr style=\"background:" + bg + ";\">";
         var isCenterArr = [true, false, false, false, true, true, true];
         for (var c = 1; c < cells.length; c++) {
-            var centerStyle = isCenterArr[c-1] ? "text-align:center;" : "";
+            var centerStyle = isCenterArr[c - 1] ? "text-align:center;" : "";
             tableRows += "<td style=\"padding:5px 10px;border:1px solid #dee2e6;" + centerStyle + "color:" + textColor + ";\">" + escapeHtml(cells[c]) + "</td>";
         }
         tableRows += "</tr>";
@@ -171,15 +235,15 @@ function exportToExcel(dt) {
 
 function exportToCopy(dt) {
     var isId = isIndonesian();
-    var headers = ["No","Nama","Label","Tabel","Kolom","Tipe","Pengguna"];
+    var headers = ["No", "Nama", "Label", "Tabel", "Kolom", "Tipe", "Pengguna"];
     var lines = [headers.join("\t")];
-    dt.rows({ search: "applied" }).every(function() {
+    dt.rows({ search: "applied" }).every(function () {
         var $cells = $(this.node()).find("td");
         var cells = [];
-        $cells.each(function() { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
-        if (cells.length >= 8) lines.push(cells.slice(1).join("\t"));
+        $cells.each(function () { cells.push($(this).clone().find(".arrow-icon").remove().end().text().trim()); });
+        if (cells.length >= 8) lines.push(cells.slice(1, 8).join("\t"));
     });
-    if (navigator.clipboard) navigator.clipboard.writeText(lines.join("\n")).catch(function(){});
+    if (navigator.clipboard) navigator.clipboard.writeText(lines.join("\n")).catch(function () { });
 }
 
 function exportToPrint(dt) {
@@ -194,10 +258,141 @@ function exportToPrint(dt) {
     w.print();
 }
 
+function readTableData(dt) {
+    var headers = [], rows = [];
+    dt.columns([1, 2, 3, 4, 5, 6, 7]).header().each(function (th) {
+        headers.push((th.innerText || th.textContent || "").trim());
+    });
+    dt.rows({ search: "applied" }).every(function () {
+        var $node = $(dt.row(this).node()), $cells = $node.find("td"), row = [];
+        for (var c = 1; c < 8; c++) {
+            row.push($cells.eq(c).clone().find(".arrow-icon").remove().end().text().trim());
+        }
+        rows.push(row);
+    });
+    return { headers: headers, rows: rows };
+}
+
+var _logoLoadCache = null;
+function loadLogoBase64(callback) {
+    if (_logoLoadCache) { callback(_logoLoadCache); return; }
+    var imgEl = document.querySelector('img[src*="logo_anri"]');
+    if (imgEl && imgEl.complete && imgEl.naturalWidth) {
+        try {
+            var c = document.createElement("canvas");
+            c.width = imgEl.naturalWidth; c.height = imgEl.naturalHeight;
+            c.getContext("2d").drawImage(imgEl, 0, 0);
+            var d = c.toDataURL("image/png");
+            _logoLoadCache = d;
+            callback(d);
+            return;
+        } catch (e) {}
+    }
+    var img = new Image();
+    img.onload = function () {
+        try {
+            var c = document.createElement("canvas");
+            c.width = img.naturalWidth || 120; c.height = img.naturalHeight || 120;
+            c.getContext("2d").drawImage(img, 0, 0);
+            var d = c.toDataURL("image/png");
+            _logoLoadCache = d;
+            callback(d);
+        } catch (e) { _logoLoadCache = ""; callback(""); }
+    };
+    img.onerror = function () { _logoLoadCache = ""; callback(""); };
+    img.src = imgEl ? imgEl.src : "/image/logo_anri.png";
+}
+
+function exportToPDF(dt) {
+    var data = readTableData(dt);
+    var body = [
+        data.headers.map(function (h, i) {
+            return { text: h, fontSize: 10, bold: true, color: "white", fillColor: "#174E93", alignment: i === 0 || i === 4 || i === 5 || i === 6 ? "center" : "left" };
+        })
+    ];
+
+    data.rows.forEach(function (row, idx) {
+        var bg = idx % 2 === 0 ? "#ffffff" : "#f3f6f9";
+        body.push(row.map(function (cell, ci) {
+            return { text: cell, fontSize: 9, alignment: ci === 0 || ci === 4 || ci === 5 || ci === 6 ? "center" : "left", fillColor: bg, color: "#374151" };
+        }));
+    });
+
+    var fname = isIndonesian()
+        ? "Daftar-Peran-Sistem-Bandung-Sustainable-Archives-Depot.pdf"
+        : "System-Role-List-Bandung-Sustainable-Archives-Depot.pdf";
+
+    loadLogoBase64(function (logoDataUrl) {
+        var headerBlock = {
+            stack: [
+                logoDataUrl
+                    ? { image: logoDataUrl, width: 52, alignment: "center", margin: [0, 0, 0, 4] }
+                    : { text: "", width: 52 },
+                { text: i18nInstName(), fontSize: 13, bold: true, color: "#174E93", alignment: "center", margin: [0, 2, 0, 2] },
+                { text: i18nAddress(), fontSize: 8, color: "#6b7280", alignment: "center", margin: [0, 0, 0, 2] },
+                { text: i18nDate(), fontSize: 8, color: "#9ca3af", alignment: "center", margin: [0, 0, 0, 0] },
+            ],
+            margin: [0, 0, 0, 8],
+            alignment: "center",
+        };
+
+        var docDef = {
+            pageSize: "A4",
+            pageOrientation: "landscape",
+            pageMargins: [18, 18, 18, 18],
+            defaultStyle: { font: "Roboto" },
+            content: [
+                headerBlock,
+                {
+                    canvas: [{ type: "line", x1: 0, y1: 0, x2: 805, y2: 0, lineWidth: 2, lineColor: "#174E93" }],
+                    margin: [0, 0, 0, 6],
+                },
+                {
+                    text: i18nTitle(),
+                    fontSize: 11,
+                    bold: true,
+                    alignment: "center",
+                    margin: [0, 0, 0, 8],
+                },
+                {
+                    columns: [
+                        { width: 40, text: "" },
+                        {
+                            width: "auto",
+                            alignment: "center",
+                            table: {
+                                headerRows: 1,
+                                widths: [30, 100, 150, 150, 80, 80, 80],
+                                body: body,
+                            },
+                        },
+                        { width: 40, text: "" },
+                    ],
+                },
+            ],
+            footer: function (page, count) {
+                return {
+                    columns: [
+                        { text: "DABB CMS — " + i18nDate(), fontSize: 7, color: "#9ca3af", margin: [18, 0, 0, 0] },
+                        { text: page + " / " + count, fontSize: 7, color: "#9ca3af", alignment: "right", margin: [0, 0, 18, 0] },
+                    ],
+                    margin: [0, 4, 0, 0],
+                };
+            },
+        };
+
+        try {
+            pdfMake.createPdf(docDef).download(fname);
+        } catch (e) {
+            alert('PDF Error: ' + e.message);
+        }
+    });
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    DataTables Init
 ══════════════════════════════════════════════════════════════════════════════ */
-$(document).ready(function() {
+$(document).ready(function () {
     if (!$("#tableRoles").length) {
         console.warn("[roles] #tableRoles not found");
         return;
@@ -215,10 +410,10 @@ $(document).ready(function() {
             url: window.location.href,
             type: "GET",
             headers: { "X-Requested-With": "XMLHttpRequest" },
-            dataSrc: function(json) {
+            dataSrc: function (json) {
                 return json.data || [];
             },
-            error: function(xhr, status, thrown) {
+            error: function (xhr, status, thrown) {
                 console.error("[roles] AJAX error:", status, thrown, xhr.responseText);
             }
         },
@@ -233,33 +428,33 @@ $(document).ready(function() {
             },
             {
                 data: null,
-                render: function(data, type, row, meta) {
+                render: function (data, type, row, meta) {
                     return meta.row + 1;
                 }
             },
             {
                 data: 'name',
-                render: function(data) {
+                render: function (data) {
                     return '<code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded">' + data + '</code>';
                 }
             },
             { data: 'label' },
             {
                 data: 'table_name',
-                render: function(data) {
+                render: function (data) {
                     if (!data) return '<span class="text-gray-400">—</span>';
                     return '<code class="font-mono bg-gray-50 px-1.5 py-0.5 rounded text-xs">' + data + '</code>';
                 }
             },
             {
                 data: 'columns_count',
-                render: function(data) {
+                render: function (data) {
                     return '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100">' + (data || 0) + ' ' + (i18n.columnsCount || 'columns') + '</span>';
                 }
             },
             {
                 data: 'is_system',
-                render: function(data) {
+                render: function (data) {
                     if (data) {
                         return '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-100">' + (i18n.typeSystem || 'System') + '</span>';
                     }
@@ -270,14 +465,14 @@ $(document).ready(function() {
             {
                 data: null,
                 orderable: false,
-                render: function(data) {
+                render: function (data) {
                     var editUrl = i18n.urlBaseEdit.replace(':id', data.id);
                     var deleteUrl = i18n.urlBaseDelete.replace(':id', data.id);
                     var html = '<div class="flex items-center justify-center gap-2">' +
                         '<a href="' + editUrl + '" class="inline-flex items-center justify-center w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md transition-colors" title="Edit">' +
                         '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></a>';
                     if (!data.is_system) {
-                        html += '<form action="' + deleteUrl + '" method="POST" class="inline">' +
+                        html += '<form action="' + deleteUrl + '" method="POST" class="inline delete-role-form" data-role-label="' + escapeHtml(data.label) + '">' +
                             '<input type="hidden" name="_token" value="' + i18n.csrfToken + '">' +
                             '<input type="hidden" name="_method" value="DELETE">' +
                             '<button type="submit" class="inline-flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Hapus">' +
@@ -293,9 +488,9 @@ $(document).ready(function() {
             search: "",
             searchPlaceholder: i18n.dtSearchPlaceholder || "",
             lengthMenu: "_MENU_",
-            info:        i18n.dtInfo        || "Showing _START_ to _END_ of _TOTAL_ entries",
-            infoEmpty:   i18n.dtInfoEmpty   || "No entries",
-            infoFiltered:i18n.dtInfoFiltered || "(filtered)",
+            info: i18n.dtInfo || "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: i18n.dtInfoEmpty || "No entries",
+            infoFiltered: i18n.dtInfoFiltered || "(filtered)",
             zeroRecords: i18n.dtZeroRecords || "No matching records found",
             paginate: { first: "&laquo;", previous: "&lsaquo;", next: "&rsaquo;", last: "&raquo;" },
             loadingRecords: "Memuat...",
@@ -307,15 +502,16 @@ $(document).ready(function() {
                 text: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> ' + (i18n.btnExport || "Export"),
                 className: "btn-export-dropdown",
                 buttons: [
-                    { text: i18n.btnCopy  || "Copy",   action: function(e, dt){ exportToCopy(dt);  } },
-                    { text: i18n.btnCsv   || "CSV",    action: function(e, dt){ exportToCSV(dt);   } },
-                    { text: i18n.btnExcel || "Excel",  action: function(e, dt){ exportToExcel(dt); } },
-                    { text: i18n.btnWord  || "Word",   action: function(e, dt){ exportToWord(dt);   } },
-                    { text: i18n.btnPrint || "Print",  action: function(e, dt){ exportToPrint(dt); } },
+                    { text: i18n.btnCopy || "Copy", action: function (e, dt) { exportToCopy(dt); } },
+                    { text: i18n.btnCsv || "CSV", action: function (e, dt) { exportToCSV(dt); } },
+                    { text: i18n.btnExcel || "Excel", action: function (e, dt) { exportToExcel(dt); } },
+                    { text: i18n.btnWord || "Word", action: function (e, dt) { exportToWord(dt); } },
+                    { text: i18n.btnPdf || "PDF", action: function (e, dt) { exportToPDF(dt); } },
+                    { text: i18n.btnPrint || "Print", action: function (e, dt) { exportToPrint(dt); } },
                 ],
             },
         ],
-        initComplete: function() {
+        initComplete: function () {
             var $tr = $("#tableRoles_wrapper .dt-top-right");
             if ($tr.length && i18n.urlCreate) {
                 $tr.append(
@@ -327,8 +523,14 @@ $(document).ready(function() {
         },
     });
 
+    /* Handle role delete confirmation via event delegation */
+    $("#tableRoles").on("submit", ".delete-role-form", function (e) {
+        e.preventDefault();
+        confirmDeleteRole(this, $(this).data("role-label"));
+    });
+
     /* Expandable row details */
-    $("#tableRoles tbody").on("click", "td.details-control", function() {
+    $("#tableRoles tbody").on("click", "td.details-control", function () {
         var tr = $(this).closest("tr");
         var row = table.row(tr);
         if (row.child.isShown()) {
@@ -341,7 +543,7 @@ $(document).ready(function() {
                 if (typeof formatRolesColumns === "function") {
                     row.child(formatRolesColumns(cols)).show();
                 } else {
-                    row.child('<div class="role-columns-detail"><p class="text-sm text-gray-400 italic">Columns: ' + JSON.stringify(cols).substring(0,100) + '</p></div>').show();
+                    row.child('<div class="role-columns-detail"><p class="text-sm text-gray-400 italic">Columns: ' + JSON.stringify(cols).substring(0, 100) + '</p></div>').show();
                 }
                 tr.addClass("shown");
             }
@@ -349,7 +551,7 @@ $(document).ready(function() {
     });
 
     /* Filter: type */
-    $("#filter-type").on("change", function() {
+    $("#filter-type").on("change", function () {
         var val = $(this).val();
         if (!val) {
             table.column(6).search("").draw();
@@ -361,7 +563,7 @@ $(document).ready(function() {
     });
 
     /* Filter: columns count */
-    $("#filter-columns").on("change", function() {
+    $("#filter-columns").on("change", function () {
         var val = $(this).val();
         if (!val) {
             table.column(5).search("").draw();
@@ -369,7 +571,7 @@ $(document).ready(function() {
             table.column(5).search("0 ").draw();
         } else {
             table.column(5).search("").draw();
-            $.fn.dataTable.ext.search.push(function(settings, data) {
+            $.fn.dataTable.ext.search.push(function (settings, data) {
                 if (settings.nTable.id !== "tableRoles") return true;
                 var text = data[5] || "";
                 var count = parseInt(text) || 0;

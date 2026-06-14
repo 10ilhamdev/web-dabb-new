@@ -53,8 +53,20 @@ function i18nDate() {
 var _logoLoadCache = null;
 function loadLogoBase64(callback) {
     if (_logoLoadCache) { callback(_logoLoadCache); return; }
+    var imgEl = document.querySelector('img[src*="logo_anri"]');
+    if (imgEl && imgEl.complete && imgEl.naturalWidth) {
+        try {
+            var c = document.createElement("canvas");
+            c.width = imgEl.naturalWidth; c.height = imgEl.naturalHeight;
+            c.getContext("2d").drawImage(imgEl, 0, 0);
+            var d = c.toDataURL("image/png");
+            _logoLoadCache = d;
+            callback(d);
+            return;
+        } catch (e) {}
+    }
     var img = new Image();
-    img.onload = function(){
+    img.onload = function () {
         try {
             var c = document.createElement("canvas");
             c.width = img.naturalWidth || 120; c.height = img.naturalHeight || 120;
@@ -62,10 +74,10 @@ function loadLogoBase64(callback) {
             var d = c.toDataURL("image/png");
             _logoLoadCache = d;
             callback(d);
-        } catch(e) { _logoLoadCache = ""; callback(""); }
+        } catch (e) { _logoLoadCache = ""; callback(""); }
     };
-    img.onerror = function(){ _logoLoadCache = ""; callback(""); };
-    img.src = "/image/logo_anri.png";
+    img.onerror = function () { _logoLoadCache = ""; callback(""); };
+    img.src = imgEl ? imgEl.src : "/image/logo_anri.png";
 }
 
 function downloadBlob(blob, filename) {
@@ -83,12 +95,12 @@ function downloadBlob(blob, filename) {
 function buildTableHTML(dt) {
     var data = readTableData(dt);
     var colNames = data.headers;
-    var colWidths = [40, 130, 180, 220, 120];
+    var colWidths = ["6%", "19%", "26%", "32%", "17%"];
 
     var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
     html += "<thead><tr style=\"background:#174E93;color:white;\">";
     colNames.forEach(function(name, i){
-        var w = colWidths[i] ? "width:" + colWidths[i] + "px;" : "";
+        var w = colWidths[i] ? "width:" + colWidths[i] + ";" : "";
         html += '<th style="text-align:center;' + w + 'padding:6px 10px;font-size:9pt;">' + escapeHtml(name) + "</th>";
     });
     html += "</tr></thead><tbody>";
@@ -107,14 +119,17 @@ function buildTableHTML(dt) {
     return html;
 }
 
-function buildHeaderHTML() {
-    var logoSrc = (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+function buildHeaderHTML(logoSrc) {
+    logoSrc = logoSrc || (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+    if (logoSrc.indexOf("http") !== 0 && logoSrc.indexOf("file://") !== 0) {
+        logoSrc = window.location.origin + (logoSrc.indexOf("/") === 0 ? "" : "/") + logoSrc;
+    }
     return (
         '<div style="margin-bottom:14px;">' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
         "<tr>" +
         '<td style="width:62px;vertical-align:middle;">' +
-        '<img src="' + logoSrc + '" alt="ANRI" style="height:52px;width:auto;display:block;" />' +
+        '<img src="' + logoSrc + '" alt="ANRI" width="52" height="52" style="width:52px;height:52px;display:block;" />' +
         "</td>" +
         '<td style="vertical-align:middle;padding-left:12px;">' +
         '<div style="font-weight:bold;font-size:12.5pt;color:#174E93;line-height:1.3;">' +
@@ -138,21 +153,54 @@ function exportToWord(dt) {
         "@page{margin:20mm;}div{page-break-after:always;}",
     ].join("");
 
-    var html = [
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
-        'xmlns:w="urn:schemas-microsoft-com:office:word"',
-        'xmlns="http://www.w3.org/TR/REC-html40">',
-        '<head><meta charset="utf-8"><title>' + i18nTitle() + '</title>',
-        "<style>" + css + "</style></head><body>",
-        buildHeaderHTML(),
-        buildTableHTML(dt),
-        "</body></html>",
-    ].join("");
+    loadLogoBase64(function(logoBase64) {
+        var hasLogo = logoBase64 && logoBase64.indexOf("base64,") !== -1;
+        var logoRef = hasLogo ? "file:///logo_anri.png" : "";
 
-    var fname = isIndonesian()
-        ? "Laporan-Log-Pengunjung-DABB.doc"
-        : "Visitor-Log-Report-DABB.doc";
-    downloadBlob(new Blob(["\uFEFF" + html], { type: "application/msword" }), fname);
+        var html = [
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
+            'xmlns:w="urn:schemas-microsoft-com:office:word"',
+            'xmlns="http://www.w3.org/TR/REC-html40">',
+            '<head><meta charset="utf-8"><title>' + i18nTitle() + '</title>',
+            "<style>" + css + "</style></head><body>",
+            buildHeaderHTML(logoRef),
+            buildTableHTML(dt),
+            "</body></html>",
+        ].join("");
+
+        var mhtml = [
+            'Mime-Version: 1.0',
+            'Content-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"',
+            '',
+            '--NEXT.ITEM-BOUNDARY',
+            'Content-Type: text/html; charset="utf-8"',
+            'Content-Location: file:///main.html',
+            '',
+            html,
+            ''
+        ];
+
+        if (hasLogo) {
+            var base64Data = logoBase64.split("base64,")[1];
+            mhtml.push(
+                '--NEXT.ITEM-BOUNDARY',
+                'Content-Type: image/png',
+                'Content-Transfer-Encoding: base64',
+                'Content-Location: file:///logo_anri.png',
+                '',
+                base64Data,
+                ''
+            );
+        }
+
+        mhtml.push('--NEXT.ITEM-BOUNDARY--');
+
+        var fileContent = mhtml.join('\r\n');
+        var fname = isIndonesian()
+            ? "Laporan-Log-Pengunjung-DABB.doc"
+            : "Visitor-Log-Report-DABB.doc";
+        downloadBlob(new Blob(["\uFEFF" + fileContent], { type: "application/msword" }), fname);
+    });
 }
 
 function exportToPDF(dt) {
@@ -398,22 +446,28 @@ $(function () {
 
     // ApexCharts Initialization
     if (window.pengunjungChartData) {
-        var barLabels = window.pengunjungChartData.barLabels || [];
-        var barSeries = window.pengunjungChartData.barSeries || [];
+        var barLabels = Array.isArray(window.pengunjungChartData.barLabels)
+            ? window.pengunjungChartData.barLabels
+            : Object.values(window.pengunjungChartData.barLabels || {});
+        var barSeries = Array.isArray(window.pengunjungChartData.barSeries)
+            ? window.pengunjungChartData.barSeries
+            : Object.values(window.pengunjungChartData.barSeries || {});
 
         if (document.querySelector("#barChart") && barSeries.length) {
+            var isMobile = window.innerWidth < 768;
             var barOptions = {
                 series: [{ name: window.pengunjungI18n?.seriesName || 'Jumlah Kunjungan', data: barSeries }],
                 chart: {
                     type: 'bar',
-                    height: 380,
+                    height: isMobile ? Math.max(380, barSeries.length * 28) : 420,
                     toolbar: { show: true, tools: { download: true } }
                 },
                 plotOptions: {
                     bar: {
-                        borderRadius: 6,
-                        horizontal: false,
+                        borderRadius: 4,
+                        horizontal: isMobile,
                         columnWidth: '55%',
+                        barHeight: '70%',
                         distributed: true
                     }
                 },
@@ -422,16 +476,31 @@ $(function () {
                 legend: { show: false },
                 xaxis: {
                     categories: barLabels,
-                    tickAmount: window.innerWidth < 768 ? 6 : undefined,
                     labels: {
-                        hideOverlappingLabels: true,
-                        style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter', fontWeight: 500 }
+                        trim: false,
+                        rotate: isMobile ? 0 : -45,
+                        rotateAlways: !isMobile,
+                        minHeight: isMobile ? undefined : 100,
+                        maxHeight: isMobile ? undefined : 180,
+                        style: { colors: '#64748b', fontSize: '10px', fontFamily: 'Inter', fontWeight: 500 }
                     }
                 },
                 yaxis: {
-                    labels: { style: { colors: '#64748b', fontSize: '11px', fontFamily: 'Inter' }, formatter: function(v) { return Math.round(v); } }
+                    labels: {
+                        trim: false,
+                        style: { colors: '#64748b', fontSize: '10px', fontFamily: 'Inter' },
+                        formatter: function(v) { return typeof v === 'number' ? Math.round(v) : v; }
+                    }
                 },
-                grid: { borderColor: '#f1f5f9', strokeDashArray: 3 },
+                grid: {
+                    borderColor: '#f1f5f9',
+                    strokeDashArray: 3,
+                    padding: {
+                        left: isMobile ? 10 : 30,
+                        right: isMobile ? 15 : 30,
+                        bottom: isMobile ? 10 : 25
+                    }
+                },
                 tooltip: { y: { formatter: function(val) { return val + ' ' + (window.pengunjungI18n?.tooltipUnit || 'kunjungan'); } } }
             };
 
@@ -440,6 +509,155 @@ $(function () {
             setTimeout(function() {
                 window.dispatchEvent(new Event('resize'));
             }, 150);
+
+            // Filtering Handler
+            function updateFilteredChart() {
+                var mergeActive = document.querySelector("#chkMergeSubFeatures")?.checked;
+                console.log("updateFilteredChart - mergeActive:", mergeActive);
+                var activeLabels = [];
+                var activeSeries = [];
+
+                if (mergeActive) {
+                    // Get all checked root page labels
+                    var checkedRoots = [];
+                    document.querySelectorAll(".page-filter-checkbox-merged:checked").forEach(function(cb) {
+                        checkedRoots.push(cb.value);
+                    });
+                    console.log("updateFilteredChart - checkedRoots:", checkedRoots);
+
+                    // Group and sum by root parent
+                    var mergedData = {};
+                    // Maintain insertion order based on features list
+                    var orderedRoots = [];
+                    (window.pengunjungChartData.pagesDetail || []).forEach(function(p) {
+                        var root = p.root_label;
+                        if (checkedRoots.indexOf(root) !== -1) {
+                            if (orderedRoots.indexOf(root) === -1) {
+                                orderedRoots.push(root);
+                                mergedData[root] = 0;
+                            }
+                            mergedData[root] += p.count;
+                        }
+                    });
+
+                    orderedRoots.forEach(function(root) {
+                        activeLabels.push(root);
+                        activeSeries.push(mergedData[root]);
+                    });
+                } else {
+                    var checkedCheckboxes = document.querySelectorAll(".page-filter-checkbox-unmerged:checked");
+                    var checkedIndices = [];
+                    checkedCheckboxes.forEach(function(cb) {
+                        checkedIndices.push(parseInt(cb.getAttribute("data-index")));
+                    });
+                    console.log("updateFilteredChart - checkedIndices:", checkedIndices);
+
+                    checkedIndices.sort(function(a, b) { return a - b; });
+
+                    checkedIndices.forEach(function(idx) {
+                        activeLabels.push(barLabels[idx]);
+                        activeSeries.push(barSeries[idx]);
+                    });
+                }
+
+                barChart.updateOptions({
+                    series: [{
+                        name: window.pengunjungI18n?.seriesName || 'Jumlah Kunjungan',
+                        data: activeSeries
+                    }],
+                    chart: {
+                        height: isMobile ? Math.max(380, activeSeries.length * 28) : 420
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: isMobile
+                        }
+                    },
+                    xaxis: {
+                        categories: activeLabels,
+                        labels: {
+                            trim: false,
+                            rotate: isMobile ? 0 : -45,
+                            rotateAlways: !isMobile,
+                            minHeight: isMobile ? undefined : 100,
+                            maxHeight: isMobile ? undefined : 180
+                        }
+                    }
+                });
+
+                var breakdownListContainer = document.querySelector("#pageBreakdownList");
+                if (breakdownListContainer) {
+                    var totalViews = (window.pengunjungChartData.pagesDetail || []).reduce(function(acc, p) { return acc + p.count; }, 0);
+                    var html = "";
+                    activeLabels.forEach(function(label, i) {
+                        var count = activeSeries[i] || 0;
+                        var pct = totalViews > 0 ? ((count / totalViews) * 100).toFixed(1) : 0;
+                        html += '<div data-page-label="' + escapeHtml(label) + '">' +
+                            '<div class="flex justify-between text-xs font-semibold mb-1">' +
+                                '<span class="text-gray-700">' + escapeHtml(label) + '</span>' +
+                                '<span class="text-gray-900">' + count.toLocaleString() + ' <span class="text-gray-400 font-normal">(' + pct + '%)</span></span>' +
+                            '</div>' +
+                            '<div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">' +
+                                '<div class="bg-[#174E93] h-1.5 rounded-full transition-all duration-500" style="width: ' + pct + '%;"></div>' +
+                            '</div>' +
+                        '</div>';
+                    });
+                    breakdownListContainer.innerHTML = html;
+                }
+            }
+
+            // Event Listeners for Filters
+            var chkMergeSubFeatures = document.querySelector("#chkMergeSubFeatures");
+            if (chkMergeSubFeatures) {
+                chkMergeSubFeatures.addEventListener("change", function() {
+                    var mergeActive = this.checked;
+                    var containerUnmerged = document.querySelector("#filterPagesListUnmerged");
+                    var containerMerged = document.querySelector("#filterPagesListMerged");
+
+                    if (mergeActive) {
+                        if (containerUnmerged) containerUnmerged.style.display = "none";
+                        if (containerMerged) containerMerged.style.display = "grid";
+                    } else {
+                        if (containerUnmerged) containerUnmerged.style.display = "grid";
+                        if (containerMerged) containerMerged.style.display = "none";
+                    }
+                    updateFilteredChart();
+                });
+            }
+
+            var btnSelectAllPages = document.querySelector("#btnSelectAllPages");
+            var btnDeselectAllPages = document.querySelector("#btnDeselectAllPages");
+
+            if (btnSelectAllPages) {
+                btnSelectAllPages.addEventListener("click", function() {
+                    var mergeActive = document.querySelector("#chkMergeSubFeatures")?.checked;
+                    var selector = mergeActive ? ".page-filter-checkbox-merged" : ".page-filter-checkbox-unmerged";
+                    document.querySelectorAll(selector).forEach(function(cb) {
+                        cb.checked = true;
+                    });
+                    updateFilteredChart();
+                });
+            }
+
+            if (btnDeselectAllPages) {
+                btnDeselectAllPages.addEventListener("click", function() {
+                    var mergeActive = document.querySelector("#chkMergeSubFeatures")?.checked;
+                    var selector = mergeActive ? ".page-filter-checkbox-merged" : ".page-filter-checkbox-unmerged";
+                    document.querySelectorAll(selector).forEach(function(cb) {
+                        cb.checked = false;
+                    });
+                    updateFilteredChart();
+                });
+            }
+
+            document.addEventListener("change", function(e) {
+                if (e.target && (e.target.classList.contains("page-filter-checkbox-unmerged") || e.target.classList.contains("page-filter-checkbox-merged"))) {
+                    updateFilteredChart();
+                }
+            });
+
+            // Initial call on page load to synchronize breakdown list and chart
+            updateFilteredChart();
         }
     }
 });

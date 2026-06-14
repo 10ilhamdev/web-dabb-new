@@ -11,12 +11,17 @@ function escapeHtml(str) {
 
 function readTableData(dt) {
     var headers = [], rows = [];
-    dt.columns([0,1,2,3]).header().each(function(th){
+    var colCount = dt.columns()[0].length;
+    var colIndexes = [];
+    for (var i = 0; i < colCount; i++) {
+        colIndexes.push(i);
+    }
+    dt.columns(colIndexes).header().each(function(th){
         headers.push((th.innerText || th.textContent || "").trim());
     });
     dt.rows({ search: "applied" }).every(function(){
         var $node = $(dt.row(this).node()), $cells = $node.find("td"), row = [];
-        for (var c = 0; c < 4; c++) {
+        for (var c = 0; c < colCount; c++) {
             var cellText = $cells.eq(c).text().trim().replace(/\s+/g, ' ');
             row.push(cellText);
         }
@@ -53,8 +58,20 @@ function i18nDate() {
 var _logoLoadCache = null;
 function loadLogoBase64(callback) {
     if (_logoLoadCache) { callback(_logoLoadCache); return; }
+    var imgEl = document.querySelector('img[src*="logo_anri"]');
+    if (imgEl && imgEl.complete && imgEl.naturalWidth) {
+        try {
+            var c = document.createElement("canvas");
+            c.width = imgEl.naturalWidth; c.height = imgEl.naturalHeight;
+            c.getContext("2d").drawImage(imgEl, 0, 0);
+            var d = c.toDataURL("image/png");
+            _logoLoadCache = d;
+            callback(d);
+            return;
+        } catch (e) {}
+    }
     var img = new Image();
-    img.onload = function(){
+    img.onload = function () {
         try {
             var c = document.createElement("canvas");
             c.width = img.naturalWidth || 120; c.height = img.naturalHeight || 120;
@@ -62,10 +79,10 @@ function loadLogoBase64(callback) {
             var d = c.toDataURL("image/png");
             _logoLoadCache = d;
             callback(d);
-        } catch(e) { _logoLoadCache = ""; callback(""); }
+        } catch (e) { _logoLoadCache = ""; callback(""); }
     };
-    img.onerror = function(){ _logoLoadCache = ""; callback(""); };
-    img.src = "/image/logo_anri.png";
+    img.onerror = function () { _logoLoadCache = ""; callback(""); };
+    img.src = imgEl ? imgEl.src : "/image/logo_anri.png";
 }
 
 function downloadBlob(blob, filename) {
@@ -83,12 +100,13 @@ function downloadBlob(blob, filename) {
 function buildTableHTML(dt) {
     var data = readTableData(dt);
     var colNames = data.headers;
-    var colWidths = [40, 220, 150, 220];
+    var colCount = colNames.length;
+    var colWidths = colCount === 3 ? ["10%", "30%", "60%"] : ["7%", "35%", "23%", "35%"];
 
     var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
     html += "<thead><tr style=\"background:#174E93;color:white;\">";
     colNames.forEach(function(name, i){
-        var w = colWidths[i] ? "width:" + colWidths[i] + "px;" : "";
+        var w = colWidths[i] ? "width:" + colWidths[i] + ";" : "";
         html += '<th style="text-align:center;' + w + 'padding:6px 10px;font-size:9pt;">' + escapeHtml(name) + "</th>";
     });
     html += "</tr></thead><tbody>";
@@ -97,7 +115,10 @@ function buildTableHTML(dt) {
         var bg = idx % 2 === 0 ? "#ffffff" : "#f3f6f9";
         html += '<tr style="background:' + bg + ';">';
         row.forEach(function(cell, ci){
-            var align = ci === 0 || ci === 2 ? "center" : "left";
+            var align = "left";
+            if (ci === 0) align = "center";
+            else if (colCount === 3 && ci === 1) align = "center";
+            else if (colCount === 4 && ci === 2) align = "center";
             html += '<td style="text-align:' + align + ';padding:5px 8px;font-size:9pt;color:#374151;">' + escapeHtml(cell) + "</td>";
         });
         html += "</tr>";
@@ -107,14 +128,17 @@ function buildTableHTML(dt) {
     return html;
 }
 
-function buildHeaderHTML() {
-    var logoSrc = (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+function buildHeaderHTML(logoSrc) {
+    logoSrc = logoSrc || (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+    if (logoSrc.indexOf("http") !== 0 && logoSrc.indexOf("file://") !== 0) {
+        logoSrc = window.location.origin + (logoSrc.indexOf("/") === 0 ? "" : "/") + logoSrc;
+    }
     return (
         '<div style="margin-bottom:14px;">' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
         "<tr>" +
         '<td style="width:62px;vertical-align:middle;">' +
-        '<img src="' + logoSrc + '" alt="ANRI" style="height:52px;width:auto;display:block;" />' +
+        '<img src="' + logoSrc + '" alt="ANRI" width="52" height="52" style="width:52px;height:52px;display:block;" />' +
         "</td>" +
         '<td style="vertical-align:middle;padding-left:12px;">' +
         '<div style="font-weight:bold;font-size:12.5pt;color:#174E93;line-height:1.3;">' +
@@ -138,37 +162,80 @@ function exportToWord(dt) {
         "@page{margin:20mm;}div{page-break-after:always;}",
     ].join("");
 
-    var html = [
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
-        'xmlns:w="urn:schemas-microsoft-com:office:word"',
-        'xmlns="http://www.w3.org/TR/REC-html40">',
-        '<head><meta charset="utf-8"><title>' + i18nTitle() + '</title>',
-        "<style>" + css + "</style></head><body>",
-        buildHeaderHTML(),
-        buildTableHTML(dt),
-        "</body></html>",
-    ].join("");
+    loadLogoBase64(function(logoBase64) {
+        var hasLogo = logoBase64 && logoBase64.indexOf("base64,") !== -1;
+        var logoRef = hasLogo ? "file:///logo_anri.png" : "";
 
-    var fname = isIndonesian()
-        ? "Laporan-Aktivitas-Pengguna-DABB.doc"
-        : "User-Activity-Report-DABB.doc";
-    downloadBlob(new Blob(["\uFEFF" + html], { type: "application/msword" }), fname);
+        var html = [
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
+            'xmlns:w="urn:schemas-microsoft-com:office:word"',
+            'xmlns="http://www.w3.org/TR/REC-html40">',
+            '<head><meta charset="utf-8"><title>' + i18nTitle() + '</title>',
+            "<style>" + css + "</style></head><body>",
+            buildHeaderHTML(logoRef),
+            buildTableHTML(dt),
+            "</body></html>",
+        ].join("");
+
+        var mhtml = [
+            'Mime-Version: 1.0',
+            'Content-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"',
+            '',
+            '--NEXT.ITEM-BOUNDARY',
+            'Content-Type: text/html; charset="utf-8"',
+            'Content-Location: file:///main.html',
+            '',
+            html,
+            ''
+        ];
+
+        if (hasLogo) {
+            var base64Data = logoBase64.split("base64,")[1];
+            mhtml.push(
+                '--NEXT.ITEM-BOUNDARY',
+                'Content-Type: image/png',
+                'Content-Transfer-Encoding: base64',
+                'Content-Location: file:///logo_anri.png',
+                '',
+                base64Data,
+                ''
+            );
+        }
+
+        mhtml.push('--NEXT.ITEM-BOUNDARY--');
+
+        var fileContent = mhtml.join('\r\n');
+        var fname = isIndonesian()
+            ? "Laporan-Aktivitas-Pengguna-DABB.doc"
+            : "User-Activity-Report-DABB.doc";
+        downloadBlob(new Blob(["\uFEFF" + fileContent], { type: "application/msword" }), fname);
+    });
 }
 
 function exportToPDF(dt) {
     var data = readTableData(dt);
-    var colWidths = [30, 200, 120, 250];
+    var colCount = data.headers.length;
+    var colWidths = colCount === 3 ? [45, 150, 450] : [30, 200, 120, 250];
 
     var body = [
         data.headers.map(function(h, i) {
-            return { text: h, fontSize: 10, bold: true, color: "white", fillColor: "#174E93", alignment: i === 0 || i === 2 ? "center" : "left" };
+            var align = "left";
+            if (i === 0) align = "center";
+            else if (colCount === 3 && i === 1) align = "center";
+            else if (colCount === 4 && i === 2) align = "center";
+            return { text: h, fontSize: 10, bold: true, color: "white", fillColor: "#174E93", alignment: align };
         })
     ];
 
     data.rows.forEach(function(row, idx){
         var bg = idx % 2 === 0 ? "#ffffff" : "#f3f6f9";
         body.push(row.map(function(cell, ci) {
-            return { text: cell, fontSize: 9, alignment: ci === 0 || ci === 2 ? "center" : "left", fillColor: bg, color: ci === 1 ? "#111827" : "#374151", bold: ci === 1 };
+            var align = "left";
+            if (ci === 0) align = "center";
+            else if (colCount === 3 && ci === 1) align = "center";
+            else if (colCount === 4 && ci === 2) align = "center";
+            var isBold = ci === 0 || (colCount === 3 ? ci === 1 : ci === 2);
+            return { text: cell, fontSize: 9, alignment: align, fillColor: bg, color: isBold ? "#111827" : "#374151", bold: isBold };
         }));
     });
 
@@ -280,6 +347,7 @@ function exportToExcel(dt) {
 
     loadLogoBase64(function(logoBase64) {
         var data = readTableData(dt);
+        var colCount = data.headers.length;
         var tableRows = "";
         
         tableRows += "<tr style=\"background:#174E93;color:white;font-weight:bold;text-align:center;\">";
@@ -293,7 +361,10 @@ function exportToExcel(dt) {
             var textColor = (idx % 2 === 0) ? "#374151" : "#1a3a5c";
             tableRows += "<tr style=\"background:" + bg + ";\">";
             row.forEach(function(cell, ci) {
-                var align = ci === 0 || ci === 2 ? "center" : "left";
+                var align = "left";
+                if (ci === 0) align = "center";
+                else if (colCount === 3 && ci === 1) align = "center";
+                else if (colCount === 4 && ci === 2) align = "center";
                 tableRows += "<td style=\"padding:5px 10px;border:1px solid #dee2e6;text-align:" + align + ";color:" + textColor + ";\">" + escXml(cell) + "</td>";
             });
             tableRows += "</tr>";
@@ -307,12 +378,12 @@ function exportToExcel(dt) {
             '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Aktivitas</x:Name><x:WorksheetOptions><x:Print><x:ValidPrinterInfo/></x:Print></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->' +
             '<style>body{font-family:Calibri,sans-serif;margin:0;padding:0;}table{border-collapse:collapse;width:100%;}td{padding:4px 6px;border:1px solid #dee2e6;vertical-align:middle;}</style>' +
             '</head><body><table>' +
-            '<tr><td colspan="4" style="text-align:center;padding:12px;border:none;font-size:22pt;font-weight:bold;color:#174E93;">ANRI - Depot Arsip Berkelanjutan Bandung</td></tr>' +
-            '<tr><td colspan="4" style="text-align:center;padding:4px 6px;border:none;font-size:14pt;font-weight:bold;color:#174E93;">' + escXml(i18nInstName()) + '</td></tr>' +
-            '<tr><td colspan="4" style="text-align:center;padding:2px 6px;border:none;font-size:10pt;color:#374151;">DABB \u2014 CMS Management</td></tr>' +
-            '<tr><td colspan="4" style="text-align:center;padding:2px 6px;border:none;font-size:9pt;color:#6b7280;">' + escXml(i18nAddress()) + '</td></tr>' +
-            '<tr><td colspan="4" style="text-align:center;padding:2px 6px;border:none;font-size:9pt;color:#9ca3af;">' + escXml(i18nDate()) + '</td></tr>' +
-            '<tr><td colspan="4" style="text-align:center;padding:6px;border:none;"><span style="font-size:11pt;font-weight:bold;color:#174E93;">' + escXml(i18nTitle()) + '</span></td></tr>' +
+            '<tr><td colspan="' + colCount + '" style="text-align:center;padding:12px;border:none;font-size:22pt;font-weight:bold;color:#174E93;">ANRI - Depot Arsip Berkelanjutan Bandung</td></tr>' +
+            '<tr><td colspan="' + colCount + '" style="text-align:center;padding:4px 6px;border:none;font-size:14pt;font-weight:bold;color:#174E93;">' + escXml(i18nInstName()) + '</td></tr>' +
+            '<tr><td colspan="' + colCount + '" style="text-align:center;padding:2px 6px;border:none;font-size:10pt;color:#374151;">DABB \u2014 CMS Management</td></tr>' +
+            '<tr><td colspan="' + colCount + '" style="text-align:center;padding:2px 6px;border:none;font-size:9pt;color:#6b7280;">' + escXml(i18nAddress()) + '</td></tr>' +
+            '<tr><td colspan="' + colCount + '" style="text-align:center;padding:2px 6px;border:none;font-size:9pt;color:#9ca3af;">' + escXml(i18nDate()) + '</td></tr>' +
+            '<tr><td colspan="' + colCount + '" style="text-align:center;padding:6px;border:none;"><span style="font-size:11pt;font-weight:bold;color:#174E93;">' + escXml(i18nTitle()) + '</span></td></tr>' +
             '</table><table>' + tableRows + '</table></body></html>';
 
         var blob = new Blob(["\uFEFF" + htmlContent], { type: "application/vnd.ms-excel" });
@@ -357,6 +428,7 @@ $(function () {
         try {
             if ($.fn.dataTable) $.fn.dataTable.ext.errMode = 'none';
             $("#tableRealtime").DataTable({
+                autoWidth: false,
                 order: [],
                 language: {
                     search: "",
@@ -386,6 +458,7 @@ $(function () {
         try {
             if ($.fn.dataTable) $.fn.dataTable.ext.errMode = 'none';
             $("#tableActivity").DataTable({
+                autoWidth: false,
                 order: [],
                 language: {
                     search: "",

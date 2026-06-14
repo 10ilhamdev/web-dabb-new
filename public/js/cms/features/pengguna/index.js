@@ -79,6 +79,18 @@ function i18nDate() {
 var _logoLoadCache = null;
 function loadLogoBase64(callback) {
     if (_logoLoadCache) { callback(_logoLoadCache); return; }
+    var imgEl = document.querySelector('img[src*="logo_anri"]');
+    if (imgEl && imgEl.complete && imgEl.naturalWidth) {
+        try {
+            var c = document.createElement("canvas");
+            c.width = imgEl.naturalWidth; c.height = imgEl.naturalHeight;
+            c.getContext("2d").drawImage(imgEl, 0, 0);
+            var d = c.toDataURL("image/png");
+            _logoLoadCache = d;
+            callback(d);
+            return;
+        } catch (e) {}
+    }
     var img = new Image();
     img.onload = function(){
         try {
@@ -91,7 +103,7 @@ function loadLogoBase64(callback) {
         } catch(e) { _logoLoadCache = ""; callback(""); }
     };
     img.onerror = function(){ _logoLoadCache = ""; callback(""); };
-    img.src = "/image/logo_anri.png";
+    img.src = imgEl ? imgEl.src : "/image/logo_anri.png";
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -125,12 +137,12 @@ function buildTableHTML(dt) {
         isIndonesian() ? "Status" : "Status",
         isIndonesian() ? "Bergabung" : "Joined",
     ];
-    var colWidths = [32, 85, 120, 80, 75, 60, 68];
+    var colWidths = ["5%", "18%", "25%", "15%", "12%", "11%", "14%"];
 
-    var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
+    var html = '<table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
     html += "<thead><tr style=\"background:#174E93;color:white;\">";
     colNames.forEach(function(name, i){
-        var w = colWidths[i] ? "width:" + colWidths[i] + "px;" : "";
+        var w = colWidths[i] ? "width:" + colWidths[i] + ";" : "";
         html += '<th style="text-align:center;' + w + 'padding:6px 10px;font-size:9pt;">' + name + "</th>";
     });
     html += "</tr></thead><tbody>";
@@ -138,13 +150,13 @@ function buildTableHTML(dt) {
     data.rows.forEach(function(row, idx){
         var bg = idx % 2 === 0 ? "#ffffff" : "#f3f6f9";
         html += '<tr style="background:' + bg + ';">';
-        html += '<td style="text-align:center;color:#6b7280;padding:5px 8px;font-size:8.5pt;">' + escapeHtml(row[0]) + "</td>";
-        html += '<td style="padding:5px 10px;"><span style="font-weight:600;color:#111827;font-size:9pt;">' + escapeHtml(row[1] || "") + "</span></td>";
-        html += '<td style="padding:5px 10px;"><span style="color:#6b7280;font-size:9pt;">' + escapeHtml(row[2] || "") + "</span></td>";
-        html += '<td style="padding:5px 10px;"><span style="color:#374151;font-size:9pt;">' + escapeHtml(row[3]) + "</span></td>";
-        html += '<td style="padding:5px 10px;"><span style="color:#374151;font-size:9pt;">' + escapeHtml(row[4]) + "</span></td>";
-        html += '<td style="text-align:center;padding:5px 8px;"><span style="color:#374151;font-size:9pt;">' + escapeHtml(row[5]) + "</span></td>";
-        html += '<td style="text-align:center;padding:5px 8px;"><span style="color:#374151;font-size:8.5pt;">' + escapeHtml(row[6]) + "</span></td>";
+        html += '<td style="text-align:center;color:#6b7280;padding:5px 8px;font-size:8.5pt;word-break:break-all;word-wrap:break-word;">' + escapeHtml(row[0]) + "</td>";
+        html += '<td style="padding:5px 10px;word-break:break-all;word-wrap:break-word;"><span style="font-weight:600;color:#111827;font-size:9pt;">' + escapeHtml(row[1] || "") + "</span></td>";
+        html += '<td style="padding:5px 10px;word-break:break-all;word-wrap:break-word;"><span style="color:#6b7280;font-size:9pt;display:block;">' + escapeHtml(row[2] || "") + "</span></td>";
+        html += '<td style="padding:5px 10px;word-break:break-all;word-wrap:break-word;"><span style="color:#374151;font-size:9pt;">' + escapeHtml(row[3]) + "</span></td>";
+        html += '<td style="padding:5px 10px;word-break:break-all;word-wrap:break-word;"><span style="color:#374151;font-size:9pt;">' + escapeHtml(row[4]) + "</span></td>";
+        html += '<td style="text-align:center;padding:5px 8px;word-break:break-all;word-wrap:break-word;"><span style="color:#374151;font-size:9pt;">' + escapeHtml(row[5]) + "</span></td>";
+        html += '<td style="text-align:center;padding:5px 8px;word-break:break-all;word-wrap:break-word;"><span style="color:#374151;font-size:8.5pt;">' + escapeHtml(row[6]) + "</span></td>";
         html += "</tr>";
     });
 
@@ -155,23 +167,26 @@ function buildTableHTML(dt) {
 /* ═══════════════════════════════════════════════════════════════════════════
    HTML header builder (used by Word / Print)
 ══════════════════════════════════════════════════════════════════════════════ */
-function buildHeaderHTML() {
-    var logoSrc = (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+function buildHeaderHTML(logoSrc) {
+    logoSrc = logoSrc || (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+    if (logoSrc.indexOf("http") !== 0 && logoSrc.indexOf("file://") !== 0) {
+        logoSrc = window.location.origin + (logoSrc.indexOf("/") === 0 ? "" : "/") + logoSrc;
+    }
     return (
         '<div style="margin-bottom:14px;">' +
-        '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;border:none;">' +
         "<tr>" +
-        '<td style="width:62px;vertical-align:middle;">' +
-        '<img src="' + logoSrc + '" alt="ANRI" style="height:52px;width:auto;display:block;" />' +
+        '<td style="width:62px;vertical-align:middle;border:none;padding:0;">' +
+        '<img src="' + logoSrc + '" alt="ANRI" width="52" height="52" style="width:52px;height:52px;display:block;border:none;" />' +
         "</td>" +
-        '<td style="vertical-align:middle;padding-left:12px;">' +
-        '<div style="font-weight:bold;font-size:12.5pt;color:#174E93;line-height:1.3;">' +
+        '<td style="vertical-align:middle;padding-left:12px;border:none;">' +
+        '<div style="font-weight:bold;font-size:12.5pt;color:#174E93;line-height:1.3;border:none;">' +
         i18nInstName() +
         "<br/>" +
-        '<span style="font-size:9.5pt;color:#374151;font-weight:normal;">DABB &mdash; CMS Management</span>' +
+        '<span style="font-size:9.5pt;color:#374151;font-weight:normal;border:none;">DABB &mdash; CMS Management</span>' +
         "</div>" +
-        '<div style="font-size:8pt;color:#6b7280;margin-top:3px;">' + i18nAddress() + "</div>" +
-        '<div style="font-size:8pt;color:#6b7280;">' + i18nDate() + "</div>" +
+        '<div style="font-size:8pt;color:#6b7280;margin-top:3px;border:none;">' + i18nAddress() + "</div>" +
+        '<div style="font-size:8pt;color:#6b7280;border:none;">' + i18nDate() + "</div>" +
         "</td>" +
         "</tr>" +
         "</table>" +
@@ -189,21 +204,54 @@ function exportToWord(dt) {
         "@page{margin:20mm;}div{page-break-after:always;}",
     ].join("");
 
-    var html = [
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
-        'xmlns:w="urn:schemas-microsoft-com:office:word"',
-        'xmlns="http://www.w3.org/TR/REC-html40">',
-        '<head><meta charset="utf-8"><title>DABB - Pengguna</title>',
-        "<style>" + css + "</style></head><body>",
-        buildHeaderHTML(),
-        buildTableHTML(dt),
-        "</body></html>",
-    ].join("");
+    loadLogoBase64(function (logoBase64) {
+        var hasLogo = logoBase64 && logoBase64.indexOf("base64,") !== -1;
+        var logoRef = hasLogo ? "file:///logo_anri.png" : "";
 
-    var fname = isIndonesian()
-        ? "Daftar-Pengguna-Sistem-Bandung-Sustainable-Archives-Depot.doc"
-        : "System-User-List-Bandung-Sustainable-Archives-Depot.doc";
-    downloadBlob(new Blob(["﻿" + html], { type: "application/msword" }), fname);
+        var html = [
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
+            'xmlns:w="urn:schemas-microsoft-com:office:word"',
+            'xmlns="http://www.w3.org/TR/REC-html40">',
+            '<head><meta charset="utf-8"><title>DABB - Pengguna</title>',
+            "<style>" + css + "</style></head><body>",
+            buildHeaderHTML(logoRef),
+            buildTableHTML(dt),
+            "</body></html>",
+        ].join("");
+
+        var mhtml = [
+            'Mime-Version: 1.0',
+            'Content-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"',
+            '',
+            '--NEXT.ITEM-BOUNDARY',
+            'Content-Type: text/html; charset="utf-8"',
+            'Content-Location: file:///main.html',
+            '',
+            html,
+            ''
+        ];
+
+        if (hasLogo) {
+            var base64Data = logoBase64.split("base64,")[1];
+            mhtml.push(
+                '--NEXT.ITEM-BOUNDARY',
+                'Content-Type: image/png',
+                'Content-Transfer-Encoding: base64',
+                'Content-Location: file:///logo_anri.png',
+                '',
+                base64Data,
+                ''
+            );
+        }
+
+        mhtml.push('--NEXT.ITEM-BOUNDARY--');
+
+        var fileContent = mhtml.join('\r\n');
+        var fname = isIndonesian()
+            ? "Daftar-Pengguna-Sistem-Bandung-Sustainable-Archives-Depot.doc"
+            : "System-User-List-Bandung-Sustainable-Archives-Depot.doc";
+        downloadBlob(new Blob(["﻿" + fileContent], { type: "application/msword" }), fname);
+    });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

@@ -1371,6 +1371,8 @@ return [
         'form_relation_name_help' => 'Nama method relasi di model User. Contoh: userMitra.',
         'form_description' => 'Deskripsi',
         'form_description_placeholder' => 'Deskripsi singkat peran ini...',
+        'form_registerable' => 'Pendaftaran Akun',
+        'form_registerable_help' => 'Tampilkan di Pendaftaran (aktifkan agar role ini tampil di pilihan registrasi publik).',
 
         'name_system_locked' => 'Nama peran sistem tidak dapat diubah.',
 
@@ -2255,6 +2257,11 @@ return [
         'preset_custom' => 'Kustom',
         'total_views' => 'Total Kunjungan Halaman',
         'page_breakdown' => 'Rincian Per Halaman',
+        'filter_page' => 'Filter Halaman',
+        'select_page_display' => 'Pilih Halaman yang Ditampilkan:',
+        'merge_sub_features' => 'Gabungkan Sub Fitur',
+        'select_all' => 'Pilih Semua',
+        'deselect_all' => 'Kosongkan',
         'chart_views_title' => 'Grafik Kunjungan Per Halaman',
         'chart_views_sub' => 'Distribusi jumlah akses berdasarkan kategori menu website',
         'table_pengunjung_title' => 'Riwayat Akses Halaman (Log Pengunjung)',

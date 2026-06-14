@@ -88,7 +88,10 @@ class RoleController extends Controller
         })->toJson();
         $unsignedTypes = $this->supportsUnsignedTypes();
         $integerTypes = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'bit'];
-        return view('cms.pengguna.roles.create', compact('columnTypes', 'templatesJson', 'menuPermissions', 'unsignedTypes', 'integerTypes'));
+
+        $dbTables = $this->getFastTableNames();
+
+        return view('cms.pengguna.roles.create', compact('columnTypes', 'templatesJson', 'menuPermissions', 'unsignedTypes', 'integerTypes', 'existingRoles', 'dbTables'));
     }
 
     public function store(Request $request)
@@ -158,6 +161,7 @@ class RoleController extends Controller
             'name' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9_]+$/', Rule::unique('roles', 'name')],
             'label' => ['required', 'string', 'max:100'],
             'is_system' => ['required', 'boolean'],
+            'is_registerable' => ['nullable', 'boolean'],
             'table_name' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9_]+$/', Rule::unique('roles', 'table_name')],
             'relation_name' => ['required', 'string', 'max:100', 'regex:/^[a-z][a-zA-Z0-9]*$/', Rule::unique('roles', 'relation_name')],
             'description' => ['nullable', 'string'],
@@ -172,21 +176,40 @@ class RoleController extends Controller
             'relation_name.required' => __('cms.roles.validation_relation_name_required'),
         ]);
 
-        DB::transaction(function () use ($request, $data) {
-            $role = Role::create($data);
+        $data['is_registerable'] = $request->has('is_registerable');
 
-            // Create table automatically
+        $role = null;
+        try {
+            DB::transaction(function () use ($request, $data, &$role) {
+                $role = Role::create($data);
+                // Sync permissions
+                $this->syncPermissions($role, $request->input('permissions', []));
+            });
+
+            // Create table automatically (DDL - must run outside DB::transaction)
             $this->createRoleTable($data['table_name']);
 
-            // Create default columns
-            $this->generateDefaultColumns($role, $request->input('columns', []));
+            if ($role instanceof Role) {
+                // Create default columns (DDL - must run outside DB::transaction)
+                $this->generateDefaultColumns($role, $request->input('columns', []));
+            }
 
             // Generate model file
             $this->generateRoleModel($data['relation_name'], $data['table_name']);
+        } catch (\Throwable $e) {
+            if ($role) {
+                if (Schema::hasTable($data['table_name'])) {
+                    Schema::dropIfExists($data['table_name']);
+                }
+                $role->delete();
+            }
 
-            // Sync permissions
-            $this->syncPermissions($role, $request->input('permissions', []));
-        });
+            $msg = $this->formatMysqlErrorMessage($e);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $msg);
+        }
 
         return redirect()
             ->route('cms.pengguna.roles.index')
@@ -202,18 +225,7 @@ class RoleController extends Controller
 
         $role->load('columns', 'permissions');
 
-        // All DB tables for FK dropdown
-        $skipTables = [
-            'migrations', 'password_reset_tokens', 'personal_access_tokens',
-            'failed_jobs', 'job_batches', 'sessions', 'cache', 'notifications',
-        ];
-        $dbTables = collect(Schema::getTables())
-            ->pluck('name')
-            ->reject(fn($t) => in_array($t, $skipTables) || str_starts_with($t, '_'))
-            ->sort()
-            ->values()
-            ->map(fn($t) => ['name' => $t])
-            ->all();
+        $dbTables = $this->getFastTableNames();
 
         // Pre-load columns for all tables referenced by existing FK columns
         $dbColumnsByTable = [];
@@ -318,6 +330,7 @@ class RoleController extends Controller
             'name' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9_]+$/', Rule::unique('roles', 'name')->ignore($role->id)],
             'label' => ['required', 'string', 'max:100'],
             'is_system' => ['required', 'boolean'],
+            'is_registerable' => ['nullable', 'boolean'],
             'table_name' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9_]+$/', Rule::unique('roles', 'table_name')->ignore($role->id)],
             'relation_name' => ['required', 'string', 'max:100', 'regex:/^[a-z][a-zA-Z0-9]*$/', Rule::unique('roles', 'relation_name')->ignore($role->id)],
             'description' => ['nullable', 'string'],
@@ -332,9 +345,17 @@ class RoleController extends Controller
             'relation_name.required' => __('cms.roles.validation_relation_name_required'),
         ]);
 
+        $data['is_registerable'] = $request->has('is_registerable');
+
+        $oldName = $role->name;
         $oldTableName = $role->table_name;
         $oldRelationName = $role->relation_name;
         $role->update($data);
+
+        // Sync users assigned to this role name to the new role name
+        if ($oldName !== $role->name) {
+            \App\Models\User::where('role', $oldName)->update(['role' => $role->name]);
+        }
 
         // Rename table if table_name changed (DDL - outside transaction)
         if ($oldTableName !== $data['table_name'] && Schema::hasTable($oldTableName)) {
@@ -483,20 +504,7 @@ class RoleController extends Controller
      */
     public function getTables()
     {
-        $skipTables = [
-            'migrations', 'password_reset_tokens', 'personal_access_tokens',
-            'failed_jobs', 'job_batches', 'sessions', 'cache', 'notifications',
-        ];
-
-        $tables = collect(Schema::getTables())
-            ->pluck('name')
-            ->reject(fn($t) => in_array($t, $skipTables) || str_starts_with($t, '_'))
-            ->sort()
-            ->values()
-            ->map(fn($t) => ['name' => $t])
-            ->all();
-
-        return response()->json($tables);
+        return response()->json($this->getFastTableNames());
     }
 
     /**
@@ -1018,7 +1026,7 @@ class RoleController extends Controller
     /**
      * Define column structure for Blueprint using EXACT MySQL types.
      */
-    private function defineColumn($table, RoleColumn $column, string $action = 'add')
+    private function defineColumn(\Illuminate\Database\Schema\Blueprint $table, RoleColumn $column, string $action = 'add')
     {
         $method = $action === 'add' ? 'addColumn' : 'column';
         $type = strtolower($column->column_type);
@@ -1524,5 +1532,41 @@ class {$modelName} extends Model
 PHP;
 
         file_put_contents($modelPath, $content);
+    }
+
+    private function getFastTableNames(): array
+    {
+        $skipTables = [
+            'migrations', 'password_reset_tokens', 'personal_access_tokens',
+            'failed_jobs', 'job_batches', 'sessions', 'cache', 'notifications',
+        ];
+
+        try {
+            $dbName = DB::connection()->getDatabaseName();
+            $tableRows = DB::select("
+                SELECT TABLE_NAME as name 
+                FROM information_schema.TABLES 
+                WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'
+            ", [$dbName]);
+
+            return collect($tableRows)
+                ->map(fn($row) => ((array) $row)['name'] ?? '')
+                ->filter()
+                ->unique()
+                ->reject(fn($t) => in_array($t, $skipTables) || str_starts_with($t, '_'))
+                ->sort()
+                ->values()
+                ->map(fn($t) => ['name' => $t])
+                ->all();
+        } catch (\Throwable $e) {
+            return collect(Schema::getTables())
+                ->pluck('name')
+                ->unique()
+                ->reject(fn($t) => in_array($t, $skipTables) || str_starts_with($t, '_'))
+                ->sort()
+                ->values()
+                ->map(fn($t) => ['name' => $t])
+                ->all();
+        }
     }
 }

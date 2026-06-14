@@ -155,6 +155,26 @@
             </div>
 
             {{-- Info Section --}}
+            @php
+                $infoItems = $idContent['sections']['info_items'] ?? [];
+                if (!is_array($infoItems)) {
+                    $infoItems = [];
+                }
+                if (empty($infoItems)) {
+                    if (!empty($idContent['sections']['info_1']) || !empty($idContent['sections']['info_image_1'])) {
+                        $infoItems[] = [
+                            'paragraph' => $idContent['sections']['info_1'] ?? '',
+                            'image' => $idContent['sections']['info_image_1'] ?? '',
+                        ];
+                    }
+                    if (!empty($idContent['sections']['info_2']) || !empty($idContent['sections']['info_image_2'])) {
+                        $infoItems[] = [
+                            'paragraph' => $idContent['sections']['info_2'] ?? '',
+                            'image' => $idContent['sections']['info_image_2'] ?? '',
+                        ];
+                    }
+                }
+            @endphp
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-white flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center">
@@ -173,46 +193,98 @@
                         <input type="text" name="sections[info_title]" value="{{ $idContent['sections']['info_title'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.image1') }}</label>
-                            @if(!empty($idContent['sections']['info_image_1']))
-                                <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $idContent['sections']['info_image_1']) }}" alt="Info Image 1" class="h-24 rounded-lg border border-gray-200 object-cover">
+                    
+                    <div id="info-items-container">
+                        @foreach($infoItems as $index => $item)
+                        <div class="info-item border border-gray-100 rounded-lg p-5 bg-gray-50/50 mb-6 relative">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Gambar Paragraf</label>
+                                    @if(!empty($item['image']))
+                                        <div class="mb-3">
+                                            <img src="{{ asset('storage/' . $item['image']) }}" alt="Info Image" class="h-28 rounded-lg border object-cover">
+                                        </div>
+                                    @endif
+                                    <input type="file" name="sections[info_items][{{ $index }}][image_file]" accept="image/jpeg,image/png,image/webp"
+                                        class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                    <input type="hidden" name="sections[info_items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}">
+                                    <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG, WebP. Biarkan kosong jika tidak ingin mengubah.</p>
                                 </div>
-                            @endif
-                            <input type="file" name="info_image_1" accept="image/jpeg,image/png,image/webp"
-                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                            <p class="text-xs text-gray-400 mt-1">{{ __('cms.home.info.image_help') }}</p>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Paragraf</label>
+                                    <textarea name="sections[info_items][{{ $index }}][paragraph]" rows="5"
+                                        class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y">{{ $item['paragraph'] ?? '' }}</textarea>
+                                </div>
+                            </div>
+                            <div class="flex justify-end mt-3">
+                                <button type="button" onclick="this.closest('.info-item').remove()"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors border border-red-100">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Hapus Paragraf
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.paragraph1') }}</label>
-                            <textarea name="sections[info_1]" rows="4"
-                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y">{{ $idContent['sections']['info_1'] ?? '' }}</textarea>
-                        </div>
+                        @endforeach
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.image2') }}</label>
-                            @if(!empty($idContent['sections']['info_image_2']))
-                                <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $idContent['sections']['info_image_2']) }}" alt="Info Image 2" class="h-24 rounded-lg border border-gray-200 object-cover">
-                                </div>
-                            @endif
-                            <input type="file" name="info_image_2" accept="image/jpeg,image/png,image/webp"
-                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                            <p class="text-xs text-gray-400 mt-1">{{ __('cms.home.info.image_help') }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">{{ __('cms.home.info.paragraph2') }}</label>
-                            <textarea name="sections[info_2]" rows="4"
-                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y">{{ $idContent['sections']['info_2'] ?? '' }}</textarea>
-                        </div>
+
+                    <div class="pt-2">
+                        <button type="button" onclick="addInfoItem()"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Tambah Seksi Informasi
+                        </button>
                     </div>
                 </div>
             </div>
 
+            <script>
+                let infoItemIndex = {{ count($infoItems) }};
+                function addInfoItem() {
+                    const container = document.getElementById('info-items-container');
+                    const item = document.createElement('div');
+                    item.className = 'info-item border border-gray-100 rounded-lg p-5 bg-gray-50/50 mb-6 relative';
+                    item.innerHTML = `
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Gambar Paragraf</label>
+                                <input type="file" name="sections[info_items][${infoItemIndex}][image_file]" accept="image/jpeg,image/png,image/webp"
+                                    class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                <input type="hidden" name="sections[info_items][${infoItemIndex}][image]" value="">
+                                <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG, WebP.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Paragraf</label>
+                                <textarea name="sections[info_items][${infoItemIndex}][paragraph]" rows="5"
+                                    class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            <button type="button" onclick="this.closest('.info-item').remove()"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors border border-red-100">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Hapus Paragraf
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                    infoItemIndex++;
+                }
+            </script>
+
             {{-- Activities Section --}}
+            @php
+                $activityItems = $idContent['activity_items'] ?? [];
+                if (!is_array($activityItems)) {
+                    $activityItems = [];
+                }
+                $actColors = ['#D06767','#3598DB','#89DB51','#000000','#DB420F','#E660D4'];
+            @endphp
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-white flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
@@ -231,26 +303,74 @@
                         <input type="text" name="sections[activities]" value="{{ $idContent['sections']['activities'] ?? '' }}"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        @php
-                            $actColors = ['#D06767','#3598DB','#89DB51','#000000','#DB420F','#E660D4'];
-                            $activityItems = $idContent['activity_items'] ?? [];
-                            // Always show 6 fields
-                            for ($ai = count($activityItems); $ai < 6; $ai++) {
-                                $activityItems[$ai] = '';
-                            }
-                        @endphp
+                    
+                    <div id="activity-items-container" class="space-y-2.5">
                         @foreach($activityItems as $i => $item)
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
-                                style="background: {{ $actColors[$i] ?? '#999' }}">{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}</div>
-                            <input type="text" name="activity_items[{{ $i }}]" value="{{ $item }}"
-                                class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <div class="activity-item flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0 activity-number-badge"
+                                style="background: {{ $actColors[$i % count($actColors)] ?? '#3598DB' }}">
+                                {{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}
+                            </div>
+                            <input type="text" name="activity_items[]" value="{{ $item }}"
+                                class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white">
+                            <button type="button" onclick="removeActivityItem(this)"
+                                class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
                         </div>
                         @endforeach
                     </div>
+
+                    <div class="pt-2">
+                        <button type="button" onclick="addActivityItem()"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg transition-colors text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Tambah Kegiatan
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <script>
+                const actColors = ['#D06767', '#3598DB', '#89DB51', '#000000', '#DB420F', '#E660D4'];
+                function renumberActivities() {
+                    const badges = document.querySelectorAll('#activity-items-container .activity-number-badge');
+                    badges.forEach((badge, index) => {
+                        badge.textContent = String(index + 1).padStart(2, '0');
+                        badge.style.backgroundColor = actColors[index % actColors.length];
+                    });
+                }
+                function removeActivityItem(btn) {
+                    btn.closest('.activity-item').remove();
+                    renumberActivities();
+                }
+                function addActivityItem() {
+                    const container = document.getElementById('activity-items-container');
+                    const index = container.querySelectorAll('.activity-item').length;
+                    const item = document.createElement('div');
+                    item.className = 'activity-item flex items-center gap-2 bg-gray-50 p-2 rounded-lg';
+                    const color = actColors[index % actColors.length];
+                    item.innerHTML = `
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0 activity-number-badge" style="background: ${color}">
+                            ${String(index + 1).padStart(2, '0')}
+                        </div>
+                        <input type="text" name="activity_items[]" value=""
+                            class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white">
+                        <button type="button" onclick="removeActivityItem(this)"
+                            class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    `;
+                    container.appendChild(item);
+                    renumberActivities();
+                }
+            </script>
 
             {{-- Related Links Section --}}
             @php

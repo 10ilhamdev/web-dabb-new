@@ -368,17 +368,20 @@ class ReportController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        // Only include official website pages
+        // Exclude admin, cms, dashboard, profile, and api pages
         $query->where(function ($q) {
-            $q->where('path', '/')
-              ->orWhere('path', 'like', 'profil%')
-              ->orWhere('path', 'like', '%pameran-arsip%')
-              ->orWhere('path', 'like', '%pengumuman%')
-              ->orWhere('path', 'like', '%berita%')
-              ->orWhere('path', 'like', '%galeri%')
-              ->orWhere('path', 'like', '%layanan-publik%')
-              ->orWhere('path', 'like', '%pengelolaan%')
-              ->orWhere('path', 'like', '%kontak-kami%');
+            $q->where('path', 'not like', 'cms%')
+              ->where('path', 'not like', '/cms%')
+              ->where('path', 'not like', 'dashboard%')
+              ->where('path', 'not like', '/dashboard%')
+              ->where('path', 'not like', 'profile%')
+              ->where('path', 'not like', '/profile%')
+              ->where('path', 'not like', 'api%')
+              ->where('path', 'not like', '/api%')
+              ->where('path', 'not like', '_debugbar%')
+              ->where('path', 'not like', '/_debugbar%')
+              ->where('path', 'not like', 'profil/admin%')
+              ->where('path', 'not like', '/profil/admin%');
         });
 
         $now = Carbon::now();
@@ -431,17 +434,20 @@ class ReportController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        // Only include official website pages
+        // Exclude admin, cms, dashboard, profile, and api pages
         $query->where(function ($q) {
-            $q->where('path', '/')
-              ->orWhere('path', 'like', 'profil%')
-              ->orWhere('path', 'like', '%pameran-arsip%')
-              ->orWhere('path', 'like', '%pengumuman%')
-              ->orWhere('path', 'like', '%berita%')
-              ->orWhere('path', 'like', '%galeri%')
-              ->orWhere('path', 'like', '%layanan-publik%')
-              ->orWhere('path', 'like', '%pengelolaan%')
-              ->orWhere('path', 'like', '%kontak-kami%');
+            $q->where('path', 'not like', 'cms%')
+              ->where('path', 'not like', '/cms%')
+              ->where('path', 'not like', 'dashboard%')
+              ->where('path', 'not like', '/dashboard%')
+              ->where('path', 'not like', 'profile%')
+              ->where('path', 'not like', '/profile%')
+              ->where('path', 'not like', 'api%')
+              ->where('path', 'not like', '/api%')
+              ->where('path', 'not like', '_debugbar%')
+              ->where('path', 'not like', '/_debugbar%')
+              ->where('path', 'not like', 'profil/admin%')
+              ->where('path', 'not like', '/profil/admin%');
         });
 
         $now = Carbon::now();
@@ -466,49 +472,90 @@ class ReportController extends Controller
         $views = $query->get();
         $totalViews = $views->count();
 
-        // Define page mapping
-        $pages = [
-            'beranda' => ['label' => 'Beranda', 'match' => '/', 'count' => 0],
-            'profil' => ['label' => 'Profil', 'match' => 'profil', 'count' => 0],
-            'pameran' => ['label' => 'Pameran Arsip', 'match' => 'pameran-arsip', 'count' => 0],
-            'pengumuman' => ['label' => 'Pengumuman', 'match' => 'pengumuman', 'count' => 0],
-            'berita' => ['label' => 'Berita', 'match' => 'berita', 'count' => 0],
-            'galeri' => ['label' => 'Galeri', 'match' => 'galeri', 'count' => 0],
-            'layanan' => ['label' => 'Layanan Publik', 'match' => 'layanan-publik', 'count' => 0],
-            'pengelolaan' => ['label' => 'Pengelolaan', 'match' => 'pengelolaan', 'count' => 0],
-            'kontak' => ['label' => 'Kontak Kami', 'match' => 'kontak-kami', 'count' => 0],
-        ];
+        // Get all active features (including ancestor active status check)
+        $features = \App\Models\Feature::with('parent')->get()->filter(function($f) {
+            if ($f->type !== 'link') {
+                return false;
+            }
+            if (strtolower($f->name) === 'admin' || str_contains(strtolower($f->path), 'admin') || str_contains(strtolower($f->path), 'cms')) {
+                return false;
+            }
+            $curr = $f;
+            while ($curr !== null) {
+                if (!$curr->is_active) {
+                    return false;
+                }
+                $curr = $curr->parent;
+            }
+            return true;
+        });
+
+        $getSortKey = function($f) use (&$getSortKey) {
+            $order = $f->order ?? 0;
+            $key = str_pad($order, 5, '0', STR_PAD_LEFT);
+            if ($f->parent) {
+                return $getSortKey($f->parent) . '.' . $key;
+            }
+            return $key;
+        };
+
+        $orderedFeatures = $features->sortBy($getSortKey);
+        $matchingFeatures = $features->sortByDesc(fn($f) => strlen(trim($f->path, '/')));
+
+        $pages = [];
+        $hasBeranda = false;
+        foreach ($orderedFeatures as $f) {
+            $fPath = trim($f->path, '/');
+            if ($fPath === '' || $fPath === 'beranda') {
+                $fPath = 'beranda';
+                $hasBeranda = true;
+            }
+            
+            // Find root parent
+            $root = $f;
+            while ($root->parent !== null) {
+                $root = $root->parent;
+            }
+            $rootLabel = $root->translated_name ?: $root->name;
+
+            $pages[$fPath] = [
+                'label' => $f->translated_name ?: $f->name,
+                'root_label' => $rootLabel,
+                'count' => 0
+            ];
+        }
+        if (!$hasBeranda) {
+            $pages['beranda'] = [
+                'label' => 'Beranda',
+                'root_label' => 'Beranda',
+                'count' => 0
+            ];
+        }
 
         foreach ($views as $v) {
-            $path = $v->path;
-            $normalizedPath = trim($path, '/');
-            if ($normalizedPath === '') {
-                $normalizedPath = '/';
+            $path = trim($v->path, '/');
+            if ($path === '' || $path === 'beranda') {
+                $path = 'beranda';
             }
 
-            if ($normalizedPath === '/') {
-                $pages['beranda']['count']++;
-            } elseif (str_contains($normalizedPath, 'profil')) {
-                $pages['profil']['count']++;
-            } elseif (str_contains($normalizedPath, 'pameran-arsip')) {
-                $pages['pameran']['count']++;
-            } elseif (str_contains($normalizedPath, 'pengumuman')) {
-                $pages['pengumuman']['count']++;
-            } elseif (str_contains($normalizedPath, 'berita')) {
-                $pages['berita']['count']++;
-            } elseif (str_contains($normalizedPath, 'galeri')) {
-                $pages['galeri']['count']++;
-            } elseif (str_contains($normalizedPath, 'layanan-publik')) {
-                $pages['layanan']['count']++;
-            } elseif (str_contains($normalizedPath, 'pengelolaan')) {
-                $pages['pengelolaan']['count']++;
-            } elseif (str_contains($normalizedPath, 'kontak-kami')) {
-                $pages['kontak']['count']++;
+            foreach ($matchingFeatures as $f) {
+                $fPath = trim($f->path, '/');
+                if ($fPath === '' || $fPath === 'beranda') {
+                    $fPath = 'beranda';
+                }
+
+                if ($fPath === 'beranda' && $path === 'beranda') {
+                    $pages['beranda']['count']++;
+                    break;
+                } elseif ($fPath !== 'beranda' && str_starts_with($path, $fPath)) {
+                    $pages[$fPath]['count']++;
+                    break;
+                }
             }
         }
 
-        $barLabels = array_column($pages, 'label');
-        $barSeries = array_column($pages, 'count');
+        $barLabels = array_values(array_column($pages, 'label'));
+        $barSeries = array_values(array_column($pages, 'count'));
 
         // All recent logs for DataTables client-side handling
         $recentLogs = (clone $query)->latest()->get();
@@ -555,17 +602,20 @@ class ReportController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        // Only include official website pages
+        // Exclude admin, cms, dashboard, profile, and api pages
         $query->where(function ($q) {
-            $q->where('path', '/')
-              ->orWhere('path', 'like', 'profil%')
-              ->orWhere('path', 'like', '%pameran-arsip%')
-              ->orWhere('path', 'like', '%pengumuman%')
-              ->orWhere('path', 'like', '%berita%')
-              ->orWhere('path', 'like', '%galeri%')
-              ->orWhere('path', 'like', '%layanan-publik%')
-              ->orWhere('path', 'like', '%pengelolaan%')
-              ->orWhere('path', 'like', '%kontak-kami%');
+            $q->where('path', 'not like', 'cms%')
+              ->where('path', 'not like', '/cms%')
+              ->where('path', 'not like', 'dashboard%')
+              ->where('path', 'not like', '/dashboard%')
+              ->where('path', 'not like', 'profile%')
+              ->where('path', 'not like', '/profile%')
+              ->where('path', 'not like', 'api%')
+              ->where('path', 'not like', '/api%')
+              ->where('path', 'not like', '_debugbar%')
+              ->where('path', 'not like', '/_debugbar%')
+              ->where('path', 'not like', 'profil/admin%')
+              ->where('path', 'not like', '/profil/admin%');
         });
 
         $now = Carbon::now();
@@ -592,55 +642,93 @@ class ReportController extends Controller
         // Total unique visitors is count of unique IP + Date combinations overall
         $totalViews = (clone $query)->select('ip', DB::raw('DATE(created_at) as date'))->distinct()->get()->count();
 
-        // Define page mapping
-        $pages = [
-            'beranda' => ['label' => 'Beranda', 'match' => '/', 'count' => 0],
-            'profil' => ['label' => 'Profil', 'match' => 'profil', 'count' => 0],
-            'pameran' => ['label' => 'Pameran Arsip', 'match' => 'pameran-arsip', 'count' => 0],
-            'pengumuman' => ['label' => 'Pengumuman', 'match' => 'pengumuman', 'count' => 0],
-            'berita' => ['label' => 'Berita', 'match' => 'berita', 'count' => 0],
-            'galeri' => ['label' => 'Galeri', 'match' => 'galeri', 'count' => 0],
-            'layanan' => ['label' => 'Layanan Publik', 'match' => 'layanan-publik', 'count' => 0],
-            'pengelolaan' => ['label' => 'Pengelolaan', 'match' => 'pengelolaan', 'count' => 0],
-            'kontak' => ['label' => 'Kontak Kami', 'match' => 'kontak-kami', 'count' => 0],
-        ];
+        // Get all active features (including ancestor active status check)
+        $features = \App\Models\Feature::with('parent')->get()->filter(function($f) {
+            if ($f->type !== 'link') {
+                return false;
+            }
+            if (strtolower($f->name) === 'admin' || str_contains(strtolower($f->path), 'admin') || str_contains(strtolower($f->path), 'cms')) {
+                return false;
+            }
+            $curr = $f;
+            while ($curr !== null) {
+                if (!$curr->is_active) {
+                    return false;
+                }
+                $curr = $curr->parent;
+            }
+            return true;
+        });
+
+        $getSortKey = function($f) use (&$getSortKey) {
+            $order = $f->order ?? 0;
+            $key = str_pad($order, 5, '0', STR_PAD_LEFT);
+            if ($f->parent) {
+                return $getSortKey($f->parent) . '.' . $key;
+            }
+            return $key;
+        };
+
+        $orderedFeatures = $features->sortBy($getSortKey);
+        $matchingFeatures = $features->sortByDesc(fn($f) => strlen(trim($f->path, '/')));
+
+        $pages = [];
+        $hasBeranda = false;
+        foreach ($orderedFeatures as $f) {
+            $fPath = trim($f->path, '/');
+            if ($fPath === '' || $fPath === 'beranda') {
+                $fPath = 'beranda';
+                $hasBeranda = true;
+            }
+
+            // Find root parent
+            $root = $f;
+            while ($root->parent !== null) {
+                $root = $root->parent;
+            }
+            $rootLabel = $root->translated_name ?: $root->name;
+
+            $pages[$fPath] = [
+                'label' => $f->translated_name ?: $f->name,
+                'root_label' => $rootLabel,
+                'count' => 0
+            ];
+        }
+        if (!$hasBeranda) {
+            $pages['beranda'] = [
+                'label' => 'Beranda',
+                'root_label' => 'Beranda',
+                'count' => 0
+            ];
+        }
 
         // Track unique page visits per IP+Date
         $uniquePageVisits = [];
 
         foreach ($views as $v) {
-            $path = $v->path;
-            $normalizedPath = trim($path, '/');
-            if ($normalizedPath === '') {
-                $normalizedPath = '/';
+            $path = trim($v->path, '/');
+            if ($path === '' || $path === 'beranda') {
+                $path = 'beranda';
             }
 
-            // Determine category
-            if ($normalizedPath === '/') {
-                $category = 'beranda';
-            } elseif (str_contains($normalizedPath, 'profil')) {
-                $category = 'profil';
-            } elseif (str_contains($normalizedPath, 'pameran-arsip')) {
-                $category = 'pameran';
-            } elseif (str_contains($normalizedPath, 'pengumuman')) {
-                $category = 'pengumuman';
-            } elseif (str_contains($normalizedPath, 'berita')) {
-                $category = 'berita';
-            } elseif (str_contains($normalizedPath, 'galeri')) {
-                $category = 'galeri';
-            } elseif (str_contains($normalizedPath, 'layanan-publik')) {
-                $category = 'layanan';
-            } elseif (str_contains($normalizedPath, 'pengelolaan')) {
-                $category = 'pengelolaan';
-            } elseif (str_contains($normalizedPath, 'kontak-kami')) {
-                $category = 'kontak';
-            } else {
-                continue; // Ignore any unmapped pages
-            }
+            foreach ($matchingFeatures as $f) {
+                $fPath = trim($f->path, '/');
+                if ($fPath === '' || $fPath === 'beranda') {
+                    $fPath = 'beranda';
+                }
 
-            // Create unique key for this IP, Date, and specific Path
-            $key = $normalizedPath . '_' . $v->ip . '_' . $v->date;
-            $uniquePageVisits[$key] = $category;
+                if ($fPath === 'beranda' && $path === 'beranda') {
+                    $category = 'beranda';
+                    $key = $category . '_' . $v->ip . '_' . $v->date;
+                    $uniquePageVisits[$key] = $category;
+                    break;
+                } elseif ($fPath !== 'beranda' && str_starts_with($path, $fPath)) {
+                    $category = $fPath;
+                    $key = $category . '_' . $v->ip . '_' . $v->date;
+                    $uniquePageVisits[$key] = $category;
+                    break;
+                }
+            }
         }
 
         // Increment counts based on unique page visits
@@ -650,8 +738,8 @@ class ReportController extends Controller
             }
         }
 
-        $barLabels = array_column($pages, 'label');
-        $barSeries = array_column($pages, 'count');
+        $barLabels = array_values(array_column($pages, 'label'));
+        $barSeries = array_values(array_column($pages, 'count'));
 
         // Recent logs for DataTables client-side handling
         // For unique visitors logs, we can group by IP and Date and show the latest access
@@ -875,7 +963,7 @@ class ReportController extends Controller
                     'role' => $row->user?->role ?? ($row->user_id ? 'user' : 'guest'),
                     'total_views' => $row->page_views,
                     'last_path' => $latestView?->path ?? '/',
-                    'last_activity' => $latestView?->created_at ? $latestView->created_at->format('H:i:s') : '-',
+                    'last_activity' => $latestView?->created_at ? $latestView->created_at->format('d M Y H:i:s') : '-',
                 ];
             });
         } else {
@@ -888,7 +976,7 @@ class ReportController extends Controller
                 return [
                     'last_path' => $row->path,
                     'total_views' => $row->page_views,
-                    'last_activity' => \Carbon\Carbon::parse($row->last_access)->format('H:i:s'),
+                    'last_activity' => \Carbon\Carbon::parse($row->last_access)->format('d M Y H:i:s'),
                 ];
             })->sortByDesc('last_access')->values();
         }

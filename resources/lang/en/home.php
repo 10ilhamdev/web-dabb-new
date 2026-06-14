@@ -28,10 +28,6 @@ return [
                 'link' => 'https://www.anri.go.id/',
                 'photo' => 'home/related/wkMY4hkyf8JPyqddKGuZ7VHuodNOYNqV6CT8aYE8.png',
             ],
-            [
-                'link' => 'https://www.perpusnas.go.id/',
-                'photo' => 'home/related/eBbGmQeUtdKQwDmuVIMiKQFxrO7h8Q9sPvGiLbFs.png',
-            ],
         ],
     ],
     'sections' => [
@@ -51,6 +47,20 @@ return [
         'faq' => 'General Questions',
         'info_image_1' => 'home/info/995CyKK5TZLR9HtWCV0x5ZSAfQJEp903F1oitLkS.jpg',
         'info_image_2' => 'home/info/sgMSl1L9lV7pwvL2ZIy6grzlLnnhziLeQ8eXlLNG.png',
+        'info_items' => [
+            [
+                'image' => 'home/info/995CyKK5TZLR9HtWCV0x5ZSAfQJEp903F1oitLkS.jpg',
+                'paragraph' => 'The Bandung Sustainable Archives Depot (DABB) is a strategic work unit within the National Archives of the Republic of Indonesia (ANRI). The presence of DABB is a manifestation of the state\'s commitment to bringing the role of national archives closer to the regions, standing as a symbol of modernization in managing the nation\'s collective memory.',
+            ],
+            [
+                'image' => 'home/info/sgMSl1L9lV7pwvL2ZIy6grzlLnnhziLeQ8eXlLNG.png',
+                'paragraph' => 'As an extension of ANRI in the regions, we have a specific focus on managing the treasure trove of static archives originating from vertical agencies throughout the West Java Province. We are here to ensure that every historical track record is managed under one standard, safe and sustainable roof.',
+            ],
+            [
+                'image' => 'home/info/djz28LDApYVePQreD3dJ9RYYBcN0z1PKnJ0JOs1f.jpg',
+                'paragraph' => 'Example Paragraph',
+            ],
+        ],
     ],
     'activity_items' => [
         'Archives Acquisition Activities',
@@ -59,6 +69,8 @@ return [
         'Service Mechanism',
         'LARASKA',
         'Archives Consultation',
+        'Activity 7',
+        'Activity 8',
     ],
     'stats' => [
         'total' => 'Total Visitors',
@@ -321,7 +333,7 @@ Disclaimer | #',
         'statis_indirect_pdf' => 'Indirect_Service_Mechanism_DABB_2025.pdf (1.4 MB)',
         'lib_pdf' => 'DABB_2025_Library_Service_Mechanism.pdf (1.4 MB)',
         'captcha_warning' => 'Please complete the Captcha first.',
-        'form_success_message' => 'Visit registration form submitted successfully!',
+        'form_success_message' => 'Visit registration form successfully submitted!',
     ],
     'kontak_kami' => [
         'address' => 'Alamat Lengkap',

@@ -17,6 +17,14 @@
             flex-wrap: wrap;
             padding: 1rem 1.5rem;
             border-bottom: 1px solid #f3f4f6;
+            position: relative;
+            z-index: 20 !important;
+        }
+
+        @media (min-width: 768px) {
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
         }
 
         #tableRoles_wrapper .dt-top-row .dataTables_length { margin: 0; }
@@ -447,6 +455,7 @@
             btnCopy: @json(__('cms.pengguna.btn_copy')),
             btnCsv: @json(__('cms.pengguna.btn_csv')),
             btnExcel: @json(__('cms.pengguna.btn_excel')),
+            btnWord: @json(__('cms.pengguna.btn_word')),
             btnPdf: @json(__('cms.pengguna.btn_pdf')),
             btnPrint: @json(__('cms.pengguna.btn_print')),
             btnAddRole: @json(__('cms.roles.add_button')),
@@ -468,7 +477,7 @@
             noColumns: @json(__('cms.roles.no_columns')),
         };
     </script>
-    <script src="{{ asset('js/cms/features/pengguna/roles/index.js') }}"></script>
+    <script src="{{ asset('js/cms/features/pengguna/roles/index.js?v=' . (file_exists(public_path('js/cms/features/pengguna/roles/index.js')) ? filemtime(public_path('js/cms/features/pengguna/roles/index.js')) : time())) }}" defer></script>
     <script>
         /* Format expandable row columns detail — must be defined before roles/index.js runs */
         function formatRolesColumns(columnsData) {

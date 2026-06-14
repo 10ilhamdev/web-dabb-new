@@ -566,5 +566,5 @@
         };
         window.formFields = @json($formFields ?? []);
     </script>
-    <script src="{{ asset('js/cms/features/reports/kunjungan.js') }}" defer></script>
+    <script src="{{ asset('js/cms/features/reports/kunjungan.js') }}?v={{ time() }}" defer></script>
 @endpush

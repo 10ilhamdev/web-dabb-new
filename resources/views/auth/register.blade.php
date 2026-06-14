@@ -49,7 +49,7 @@
                         <option value="" disabled selected>{{ __('auth.select_account_type') }}</option>
                         @foreach($rolesData as $roleKey => $roleInfo)
                             <option value="{{ $roleKey }}">
-                                {{ __("auth.role_{$roleKey}") }}
+                                {{ \Illuminate\Support\Facades\Lang::has("auth.role_{$roleKey}") ? __("auth.role_{$roleKey}") : ($roleInfo['label'] ?? $roleKey) }}
                             </option>
                         @endforeach
                     </select>

@@ -28,10 +28,6 @@ return [
                 'link' => 'https://www.anri.go.id/',
                 'photo' => 'home/related/wkMY4hkyf8JPyqddKGuZ7VHuodNOYNqV6CT8aYE8.png',
             ],
-            [
-                'link' => 'https://www.perpusnas.go.id/',
-                'photo' => 'home/related/eBbGmQeUtdKQwDmuVIMiKQFxrO7h8Q9sPvGiLbFs.png',
-            ],
         ],
     ],
     'sections' => [
@@ -51,6 +47,16 @@ return [
         'faq' => 'Pertanyaan Umum',
         'info_image_1' => 'home/info/995CyKK5TZLR9HtWCV0x5ZSAfQJEp903F1oitLkS.jpg',
         'info_image_2' => 'home/info/sgMSl1L9lV7pwvL2ZIy6grzlLnnhziLeQ8eXlLNG.png',
+        'info_items' => [
+            [
+                'image' => 'home/info/995CyKK5TZLR9HtWCV0x5ZSAfQJEp903F1oitLkS.jpg',
+                'paragraph' => 'Depot Arsip Berkelanjutan Bandung (DABB) adalah unit kerja strategis di lingkungan Arsip Nasional Republik Indonesia (ANRI). Kehadiran DABB merupakan wujud komitmen negara untuk mendekatkan peran arsip nasional ke daerah, berdiri sebagai simbol modernisasi dalam pengelolaan memori kolektif bangsa.',
+            ],
+            [
+                'image' => 'home/info/sgMSl1L9lV7pwvL2ZIy6grzlLnnhziLeQ8eXlLNG.png',
+                'paragraph' => 'Sebagai perpanjangan tangan ANRI di daerah, kami memiliki fokus spesifik untuk mengelola khazanah arsip statis yang berasal dari instansi vertikal di seluruh wilayah Provinsi Jawa Barat. Kami hadir untuk memastikan bahwa setiap jejak rekam sejarah terkelola dalam satu atap yang standar, aman, dan berkelanjutan.',
+            ],
+        ],
     ],
     'activity_items' => [
         'Kegiatan Akuisisi Arsip',

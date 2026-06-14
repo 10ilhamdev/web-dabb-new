@@ -53,8 +53,20 @@ function i18nDate() {
 var _logoLoadCache = null;
 function loadLogoBase64(callback) {
     if (_logoLoadCache) { callback(_logoLoadCache); return; }
+    var imgEl = document.querySelector('img[src*="logo_anri"]');
+    if (imgEl && imgEl.complete && imgEl.naturalWidth) {
+        try {
+            var c = document.createElement("canvas");
+            c.width = imgEl.naturalWidth; c.height = imgEl.naturalHeight;
+            c.getContext("2d").drawImage(imgEl, 0, 0);
+            var d = c.toDataURL("image/png");
+            _logoLoadCache = d;
+            callback(d);
+            return;
+        } catch (e) {}
+    }
     var img = new Image();
-    img.onload = function(){
+    img.onload = function () {
         try {
             var c = document.createElement("canvas");
             c.width = img.naturalWidth || 120; c.height = img.naturalHeight || 120;
@@ -62,10 +74,10 @@ function loadLogoBase64(callback) {
             var d = c.toDataURL("image/png");
             _logoLoadCache = d;
             callback(d);
-        } catch(e) { _logoLoadCache = ""; callback(""); }
+        } catch (e) { _logoLoadCache = ""; callback(""); }
     };
-    img.onerror = function(){ _logoLoadCache = ""; callback(""); };
-    img.src = "/image/logo_anri.png";
+    img.onerror = function () { _logoLoadCache = ""; callback(""); };
+    img.src = imgEl ? imgEl.src : "/image/logo_anri.png";
 }
 
 function downloadBlob(blob, filename) {
@@ -83,12 +95,12 @@ function downloadBlob(blob, filename) {
 function buildTableHTML(dt) {
     var data = readTableData(dt);
     var colNames = data.headers;
-    var colWidths = [30, 130, 110, 90, 55, 75, 75];
+    var colWidths = ["6%", "23%", "19%", "16%", "10%", "13%", "13%"];
 
     var html = '<table style="width:100%;border-collapse:collapse;font-size:9.5pt;" border="1" cellpadding="6" cellspacing="0">';
     html += "<thead><tr style=\"background:#174E93;color:white;\">";
     colNames.forEach(function(name, i){
-        var w = colWidths[i] ? "width:" + colWidths[i] + "px;" : "";
+        var w = colWidths[i] ? "width:" + colWidths[i] + ";" : "";
         html += '<th style="text-align:center;' + w + 'padding:6px 10px;font-size:9pt;">' + escapeHtml(name) + "</th>";
     });
     html += "</tr></thead><tbody>";
@@ -107,14 +119,17 @@ function buildTableHTML(dt) {
     return html;
 }
 
-function buildHeaderHTML() {
-    var logoSrc = (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+function buildHeaderHTML(logoSrc) {
+    logoSrc = logoSrc || (document.querySelector('img[src*="logo_anri"]') || {}).src || "/image/logo_anri.png";
+    if (logoSrc.indexOf("http") !== 0 && logoSrc.indexOf("file://") !== 0) {
+        logoSrc = window.location.origin + (logoSrc.indexOf("/") === 0 ? "" : "/") + logoSrc;
+    }
     return (
         '<div style="margin-bottom:14px;">' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
         "<tr>" +
         '<td style="width:62px;vertical-align:middle;">' +
-        '<img src="' + logoSrc + '" alt="ANRI" style="height:52px;width:auto;display:block;" />' +
+        '<img src="' + logoSrc + '" alt="ANRI" width="52" height="52" style="width:52px;height:52px;display:block;" />' +
         "</td>" +
         '<td style="vertical-align:middle;padding-left:12px;">' +
         '<div style="font-weight:bold;font-size:12.5pt;color:#174E93;line-height:1.3;">' +
@@ -138,21 +153,54 @@ function exportToWord(dt) {
         "@page{margin:20mm;}div{page-break-after:always;}",
     ].join("");
 
-    var html = [
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
-        'xmlns:w="urn:schemas-microsoft-com:office:word"',
-        'xmlns="http://www.w3.org/TR/REC-html40">',
-        '<head><meta charset="utf-8"><title>' + i18nTitle() + '</title>',
-        "<style>" + css + "</style></head><body>",
-        buildHeaderHTML(),
-        buildTableHTML(dt),
-        "</body></html>",
-    ].join("");
+    loadLogoBase64(function(logoBase64) {
+        var hasLogo = logoBase64 && logoBase64.indexOf("base64,") !== -1;
+        var logoRef = hasLogo ? "file:///logo_anri.png" : "";
 
-    var fname = isIndonesian()
-        ? "Laporan-Pendaftaran-Kunjungan-DABB.doc"
-        : "Visit-Registration-Report-DABB.doc";
-    downloadBlob(new Blob(["\uFEFF" + html], { type: "application/msword" }), fname);
+        var html = [
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office"',
+            'xmlns:w="urn:schemas-microsoft-com:office:word"',
+            'xmlns="http://www.w3.org/TR/REC-html40">',
+            '<head><meta charset="utf-8"><title>' + i18nTitle() + '</title>',
+            "<style>" + css + "</style></head><body>",
+            buildHeaderHTML(logoRef),
+            buildTableHTML(dt),
+            "</body></html>",
+        ].join("");
+
+        var mhtml = [
+            'Mime-Version: 1.0',
+            'Content-Type: multipart/related; boundary="NEXT.ITEM-BOUNDARY"',
+            '',
+            '--NEXT.ITEM-BOUNDARY',
+            'Content-Type: text/html; charset="utf-8"',
+            'Content-Location: file:///main.html',
+            '',
+            html,
+            ''
+        ];
+
+        if (hasLogo) {
+            var base64Data = logoBase64.split("base64,")[1];
+            mhtml.push(
+                '--NEXT.ITEM-BOUNDARY',
+                'Content-Type: image/png',
+                'Content-Transfer-Encoding: base64',
+                'Content-Location: file:///logo_anri.png',
+                '',
+                base64Data,
+                ''
+            );
+        }
+
+        mhtml.push('--NEXT.ITEM-BOUNDARY--');
+
+        var fileContent = mhtml.join('\r\n');
+        var fname = isIndonesian()
+            ? "Laporan-Pendaftaran-Kunjungan-DABB.doc"
+            : "Visit-Registration-Report-DABB.doc";
+        downloadBlob(new Blob(["\uFEFF" + fileContent], { type: "application/msword" }), fname);
+    });
 }
 
 function exportToPDF(dt) {

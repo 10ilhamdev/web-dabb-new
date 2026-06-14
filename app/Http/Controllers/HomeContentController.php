@@ -77,19 +77,45 @@ class HomeContentController extends Controller
             $data['hero']['background_type'] = $data['hero']['background_type'] ?? ($existingForHero['hero']['background_type'] ?? '');
         }
 
-        // Handle info section image uploads
-        foreach ([1, 2] as $num) {
-            $fieldName = "info_image_{$num}";
-            if ($request->hasFile($fieldName)) {
-                $file = $request->file($fieldName);
-                $path = $file->store('home/info', 'public');
-                // Delete old image if exists
-                $existing = $this->loadLangFile('id', $featureId);
-                $oldPath = $existing['sections']["info_image_{$num}"] ?? null;
-                if ($oldPath) {
-                    Storage::disk('public')->delete($oldPath);
+        // Handle dynamic info section items image uploads
+        $existing = $this->loadLangFile('id', $featureId);
+        $existingInfoItems = $existing['sections']['info_items'] ?? [];
+
+        if (isset($data['sections']['info_items']) && is_array($data['sections']['info_items'])) {
+            foreach ($data['sections']['info_items'] as $index => &$item) {
+                $imageFieldName = "sections.info_items.{$index}.image_file";
+                if ($request->hasFile($imageFieldName)) {
+                    $file = $request->file($imageFieldName);
+                    if ($file && $file->isValid()) {
+                        $path = $file->store('home/info', 'public');
+                        // Delete old image if exists
+                        $oldPath = $existingInfoItems[$index]['image'] ?? null;
+                        if ($oldPath) {
+                            Storage::disk('public')->delete($oldPath);
+                        }
+                        $item['image'] = $path;
+                    }
+                } else {
+                    $item['image'] = $request->input("sections.info_items.{$index}.image", '');
                 }
-                $data['sections']["info_image_{$num}"] = $path;
+                unset($item['image_file']);
+            }
+            unset($item);
+            $data['sections']['info_items'] = array_values($data['sections']['info_items']);
+        } else {
+            if (!isset($data['sections'])) {
+                $data['sections'] = [];
+            }
+            $data['sections']['info_items'] = [];
+        }
+
+        // Delete orphaned info photos from storage
+        $newInfoItems = $data['sections']['info_items'];
+        $newInfoPhotos = array_filter(array_column($newInfoItems, 'image'));
+        foreach ($existingInfoItems as $oldItem) {
+            $oldPhoto = $oldItem['image'] ?? '';
+            if ($oldPhoto && !in_array($oldPhoto, $newInfoPhotos)) {
+                Storage::disk('public')->delete($oldPhoto);
             }
         }
 
@@ -156,8 +182,12 @@ class HomeContentController extends Controller
             }
         }
 
-        // related_links must be fully replaced (not deep-merged) so deleted items don't persist
-        $replaceKeys = [['feature_strip', 'related_links']];
+        // related_links, info_items, and activity_items must be fully replaced (not deep-merged) so deleted items don't persist
+        $replaceKeys = [
+            ['feature_strip', 'related_links'],
+            ['sections', 'info_items'],
+            ['activity_items']
+        ];
 
         // 1. Save Indonesian version
         $this->saveLangFile('id', $data, $featureId, $replaceKeys);

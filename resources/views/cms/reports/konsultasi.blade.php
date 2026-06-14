@@ -378,5 +378,5 @@
             dtSearchPlaceholder: @json(__('cms.datatable.search_placeholder')),
         };
     </script>
-    <script src="{{ asset('js/cms/features/reports/konsultasi.js') }}"></script>
+    <script src="{{ asset('js/cms/features/reports/konsultasi.js') }}?v={{ time() }}"></script>
 @endpush

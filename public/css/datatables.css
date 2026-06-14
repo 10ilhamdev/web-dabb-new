@@ -113,6 +113,8 @@ div.dataTables_wrapper div.dt-top-row {
     border: none;
     flex-wrap: wrap;
     gap: 12px;
+    position: relative;
+    z-index: 20 !important;
 }
 
 div.dataTables_wrapper div.dt-top-row .dt-top-right {
@@ -451,5 +453,12 @@ table.dataTable.no-footer { border-bottom: 1px solid #dee2e6 !important; }
     div.dataTables_wrapper div.dataTables_info {
         text-align: center !important;
         white-space: normal !important;
+    }
+}
+
+/* Prevent export dropdown from being cut off by the overflow-x-auto responsive wrapper on desktop */
+@media (min-width: 768px) {
+    .overflow-x-auto {
+        overflow: visible !important;
     }
 }

@@ -4,7 +4,19 @@
     <div class="text-[13px] text-gray-500 font-medium">
         <a href="{{ route('dashboard') }}"
             class="text-gray-400 hover:text-gray-600">{{ __('dashboard.header.breadcrumb_home') }}</a> /
-        <span class="text-[#0ea5e9]">{{ __("dashboard.{$role}.title") }}</span>
+        @php
+            $roleTitleKey = "dashboard.{$role}.title";
+            if (\Illuminate\Support\Facades\Lang::has($roleTitleKey)) {
+                $roleTitle = __($roleTitleKey);
+            } else {
+                $roleModel = \App\Models\Role::where('name', $role)->first();
+                $roleLabel = $roleModel ? $roleModel->label : ucwords(str_replace('_', ' ', $role));
+                $roleTitle = app()->getLocale() === 'id'
+                    ? "Dashboard " . $roleLabel
+                    : $roleLabel . " Dashboard";
+            }
+        @endphp
+        <span class="text-[#0ea5e9]">{{ $roleTitle }}</span>
     </div>
 @endsection
 
@@ -14,11 +26,30 @@
         <h1 class="text-lg sm:text-xl md:text-[22px] font-bold text-[#1E293B] mb-1 sm:mb-2">
             @php
                 $greetingKey = "dashboard.welcome.greeting_{$role}";
-                $greeting = __($greetingKey, ['name' => $user->name]);
+                if (\Illuminate\Support\Facades\Lang::has($greetingKey)) {
+                    $greeting = __($greetingKey, ['name' => $user->name]);
+                } else {
+                    $roleModel = \App\Models\Role::where('name', $role)->first();
+                    $roleLabel = $roleModel ? $roleModel->label : ucwords(str_replace('_', ' ', $role));
+                    $greeting = app()->getLocale() === 'id'
+                        ? "Selamat Datang, {$roleLabel} {$user->name}"
+                        : "Welcome, {$roleLabel} {$user->name}";
+                }
+
+                $subtitleKey = "dashboard.welcome.subtitle_{$role}";
+                if (\Illuminate\Support\Facades\Lang::has($subtitleKey)) {
+                    $subtitle = __($subtitleKey);
+                } else {
+                    $roleModel = \App\Models\Role::where('name', $role)->first();
+                    $roleLabel = $roleModel ? $roleModel->label : ucwords(str_replace('_', ' ', $role));
+                    $subtitle = app()->getLocale() === 'id'
+                        ? "Selamat datang di portal layanan Depot Arsip Berkelanjutan Bandung (DABB) untuk {$roleLabel}."
+                        : "Welcome to the Depot Arsip Berkelanjutan Bandung (DABB) service portal for {$roleLabel}.";
+                }
             @endphp
             {{ $greeting }}
         </h1>
-        <p class="text-gray-500 text-sm">{{ __("dashboard.welcome.subtitle_{$role}") }}</p>
+        <p class="text-gray-500 text-sm">{{ $subtitle }}</p>
 
         {{-- ===== STATS CARDS: All roles (admin = all visitors, non-admin = user's own visits) ===== --}}
         @if (in_array($role, ['admin', 'pegawai']))

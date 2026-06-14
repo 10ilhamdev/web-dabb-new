@@ -55,7 +55,7 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}?v={{ file_exists(public_path('css/welcome.css')) ? filemtime(public_path('css/welcome.css')) : time() }}">
 @endpush
 
 @section('content')
@@ -110,25 +110,39 @@
         </div>
     </div>
 
-    @if(home('sections.info_title') || home('sections.info_image_1') || home('sections.info_1') || home('sections.info_image_2') || home('sections.info_2'))
+    @php
+        $infoItems = home('sections.info_items');
+        if (!is_array($infoItems) || empty($infoItems)) {
+            $infoItems = [];
+            if (home('sections.info_image_1') || home('sections.info_1')) {
+                $infoItems[] = [
+                    'image' => home('sections.info_image_1'),
+                    'paragraph' => home('sections.info_1'),
+                ];
+            }
+            if (home('sections.info_image_2') || home('sections.info_2')) {
+                $infoItems[] = [
+                    'image' => home('sections.info_image_2'),
+                    'paragraph' => home('sections.info_2'),
+                ];
+            }
+        }
+    @endphp
+    @if(home('sections.info_title') || !empty($infoItems))
     <section id="info-section">
         <div class="container">
             <h2 class="section-title">{{ home('sections.info_title') }}</h2>
             <div class="separator"></div>
-            @if(home('sections.info_image_1') || home('sections.info_1') || home('sections.info_image_2') || home('sections.info_2'))
+            @if(!empty($infoItems))
             <div class="info-grid">
-                @if(home('sections.info_image_1'))
-                <img class="info-photo" src="{{ asset('storage/' . home('sections.info_image_1')) }}" alt="Kantor DABB">
-                @endif
-                @if(home('sections.info_1'))
-                <p>{{ home('sections.info_1') }}</p>
-                @endif
-                @if(home('sections.info_image_2'))
-                <img class="info-photo" src="{{ asset('storage/' . home('sections.info_image_2')) }}" alt="Pegawai DABB">
-                @endif
-                @if(home('sections.info_2'))
-                <p>{{ home('sections.info_2') }}</p>
-                @endif
+                @foreach($infoItems as $index => $item)
+                    @if(!empty($item['image']))
+                    <img class="info-photo" src="{{ asset('storage/' . $item['image']) }}" alt="Info Image {{ $index + 1 }}">
+                    @endif
+                    @if(!empty($item['paragraph']))
+                    <p>{{ $item['paragraph'] }}</p>
+                    @endif
+                @endforeach
             </div>
             @endif
         </div>
@@ -151,7 +165,7 @@
                 @foreach ($activityItems as $index => $item)
                     <div class="activity-card">
                         <div class="activity-number">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</div>
-                        <div class="activity-text" style="background: {{ $colors[$index] ?? '#3598DB' }}">{{ $item }}</div>
+                        <div class="activity-text" style="background: {{ $colors[$index % count($colors)] ?? '#3598DB' }}">{{ $item }}</div>
                     </div>
                 @endforeach
             </div>
@@ -187,7 +201,6 @@
                         @endforeach
                     </div>
                     {{-- Slide 2: duplikat tersembunyi untuk seamless loop --}}
-                    @if(count($validLinks) > 1)
                     <div class="related-links-slide" aria-hidden="true">
                         @foreach($validLinks as $link)
                         <a href="{{ $link['link'] ?? '#' }}" class="related-link-card" target="{{ !empty($link['link']) ? '_blank' : '_self' }}" tabindex="-1">
@@ -197,10 +210,8 @@
                         </a>
                         @endforeach
                     </div>
-                    @endif
                 </div>
             </div>
-            @if(count($validLinks) > 1)
             <script>
                 (function() {
                     var marquee = document.getElementById('related-links-marquee');
@@ -267,7 +278,6 @@
                     }
                 })();
             </script>
-            @endif
             @endif
             @endif
         </div>

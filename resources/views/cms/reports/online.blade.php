@@ -2,6 +2,15 @@
 
 @section('title', __('dashboard.sidebar.reports_online'))
 
+@push('styles')
+<style>
+    #tableActivity, #tableRealtime {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+</style>
+@endpush
+
 @section('header')
     <div class="text-[13px] text-gray-500 font-medium">
         <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-gray-600">{{ __('dashboard.header.breadcrumb_home') }}</a> /
@@ -206,20 +215,20 @@
             </div>
 
             <!-- Right: Today's Activity Logs -->
-            <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col min-w-0">
                 <div class="mb-6">
                     <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.table_activity_title') }}</h2>
                     <p class="text-xs text-gray-400">{{ __('cms.reports.table_activity_sub') }}</p>
                 </div>
 
                 <div class="overflow-x-auto flex-1">
-                    <table class="w-full text-left border-collapse dataTable" id="tableActivity">
+                    <table class="w-full text-left border-collapse dataTable table-fixed" id="tableActivity">
                         <thead>
                             <tr class="border-b border-gray-100 text-[12px] font-semibold text-gray-500 uppercase bg-gray-50/50">
-                                <th class="py-3 px-4 rounded-l-xl">{{ __('cms.reports.col_no') }}</th>
-                                <th class="py-3 px-4">{{ __('cms.reports.col_user') }}</th>
-                                <th class="py-3 px-4 text-center">{{ __('cms.reports.col_page_views') }}</th>
-                                <th class="py-3 px-4 rounded-r-xl">{{ __('cms.reports.col_last_access') }}</th>
+                                <th class="py-3 px-4 rounded-l-xl w-[8%]">{{ __('cms.reports.col_no') }}</th>
+                                <th class="py-3 px-4 w-[37%]">{{ __('cms.reports.col_user') }}</th>
+                                <th class="py-3 px-4 text-center w-[20%]">{{ __('cms.reports.col_page_views') }}</th>
+                                <th class="py-3 px-4 rounded-r-xl w-[35%]">{{ __('cms.reports.col_last_access') }}</th>
                             </tr>
                         </thead>
                         <tbody class="text-[13px] text-gray-600 divide-y divide-gray-50">
@@ -312,19 +321,19 @@
             </div>
 
             <!-- Right: Riwayat Aktivitas Saya -->
-            <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col min-w-0">
                 <div class="mb-6">
                     <h2 class="text-lg font-bold text-gray-800">{{ __('cms.reports.my_activity_title') }}</h2>
                     <p class="text-xs text-gray-400">{{ __('cms.reports.my_activity_sub') }}</p>
                 </div>
 
                 <div class="overflow-x-auto flex-1">
-                    <table class="w-full text-left border-collapse dataTable" id="tableActivity">
+                    <table class="w-full text-left border-collapse dataTable table-fixed" id="tableActivity">
                         <thead>
                             <tr class="border-b border-gray-100 text-[12px] font-semibold text-gray-500 uppercase bg-gray-50/50">
-                                <th class="py-3 px-4 rounded-l-xl">{{ __('cms.reports.col_no') }}</th>
-                                <th class="py-3 px-4 text-center">{{ __('cms.reports.col_page_views') }}</th>
-                                <th class="py-3 px-4 rounded-r-xl">{{ __('cms.reports.col_last_access') }}</th>
+                                <th class="py-3 px-4 rounded-l-xl w-[10%]">{{ __('cms.reports.col_no') }}</th>
+                                <th class="py-3 px-4 text-center w-[30%]">{{ __('cms.reports.col_page_views') }}</th>
+                                <th class="py-3 px-4 rounded-r-xl w-[60%]">{{ __('cms.reports.col_last_access') }}</th>
                             </tr>
                         </thead>
                         <tbody class="text-[13px] text-gray-600 divide-y divide-gray-50">
@@ -395,5 +404,5 @@
             lineSeries: @json($lineSeries),
         };
     </script>
-    <script src="{{ asset('js/cms/features/reports/online.js') }}"></script>
+    <script src="{{ asset('js/cms/features/reports/online.js') }}?v={{ time() }}"></script>
 @endpush

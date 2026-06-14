@@ -213,6 +213,8 @@ return [
     'Regional_Image_of_West_Java_in_the_Archives' => 'Regional Image of West Java in the Archives',
     'Archive_Source_Manuscript_Priangan_Tea_Plantation_Series' => 'Archive Source Manuscript Priangan Tea Plantation Series',
     'TODO_Regional_Image_of_West_Java_in_the_Archives' => 'TODO: Regional Image of West Java in the Archives',
+    'col_contoh' => 'Contoh',
+    'placeholder_contoh' => 'Contoh',
     // Common virtual room / book names (auto-translated)
     'Ruang_Utama' => 'Ruang Utama',
     'Aula_Utama' => 'Aula Utama',
