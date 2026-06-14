@@ -484,4 +484,15 @@ class Virtual3dRoomController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function toggleVisibility(Feature $feature, Virtual3dRoom $room)
+    {
+        $room->update(['is_active' => !$room->is_active]);
+
+        $msg = $room->is_active
+            ? __('cms.common.flash.shown', ['name' => $room->name])
+            : __('cms.common.flash.hidden', ['name' => $room->name]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

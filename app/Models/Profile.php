@@ -26,6 +26,7 @@ class Profile extends Model
         'images',
         'image_positions',
         'order',
+        'is_active',
     ];
 
     protected function casts(): array
@@ -34,6 +35,7 @@ class Profile extends Model
             'images' => 'array',
             'image_positions' => 'array',
             'chart_data' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 

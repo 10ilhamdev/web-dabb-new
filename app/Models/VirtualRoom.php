@@ -14,6 +14,11 @@ class VirtualRoom extends Model
         'description',
         'thumbnail_path',
         'image_360_path',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     protected static function booted()

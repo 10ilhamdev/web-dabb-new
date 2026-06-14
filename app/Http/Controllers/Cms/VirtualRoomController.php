@@ -150,4 +150,15 @@ class VirtualRoomController extends Controller
         return redirect()->route('cms.features.virtual_rooms.index', $feature)
             ->with('success', __('cms.virtual_rooms.flash.deleted'));
     }
+
+    public function toggleVisibility(Feature $feature, VirtualRoom $room)
+    {
+        $room->update(['is_active' => !$room->is_active]);
+
+        $msg = $room->is_active
+            ? __('cms.common.flash.shown', ['name' => $room->name])
+            : __('cms.common.flash.hidden', ['name' => $room->name]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

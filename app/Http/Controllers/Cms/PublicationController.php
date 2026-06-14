@@ -180,4 +180,18 @@ class PublicationController extends Controller
         return redirect()->route('cms.features.publication.index', $feature)
             ->with('success', __('cms.publication.flash.deleted'));
     }
+
+    /**
+     * Toggle visibility (is_active) of a publication page.
+     */
+    public function toggleVisibility(Feature $feature, Publication $publication)
+    {
+        $publication->update(['is_active' => !$publication->is_active]);
+
+        $msg = $publication->is_active
+            ? __('cms.common.flash.shown', ['name' => $publication->title])
+            : __('cms.common.flash.hidden', ['name' => $publication->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

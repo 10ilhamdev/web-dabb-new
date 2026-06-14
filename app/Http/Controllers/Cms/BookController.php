@@ -415,4 +415,18 @@ class BookController extends Controller
             return 0;
         }
     }
+
+    /**
+     * Toggle visibility (is_active) of a book.
+     */
+    public function toggleVisibility(Feature $feature, Book $book)
+    {
+        $book->update(['is_active' => !$book->is_active]);
+
+        $msg = $book->is_active
+            ? __('cms.common.flash.shown', ['name' => $book->title])
+            : __('cms.common.flash.hidden', ['name' => $book->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

@@ -916,6 +916,10 @@ return [
         'hide' => 'Sembunyikan',
         'show' => 'Tampilkan',
         'delete' => 'Hapus',
+        'flash' => [
+            'shown' => 'Halaman ":name" sekarang ditampilkan.',
+            'hidden' => 'Halaman ":name" sekarang disembunyikan.',
+        ],
     ],
 
     /*

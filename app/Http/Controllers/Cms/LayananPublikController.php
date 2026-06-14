@@ -728,4 +728,18 @@ class LayananPublikController extends Controller
         return redirect()->route('cms.features.layanan_publik.index', $feature)
             ->with('success', __('cms.layanan_publik.flash.deleted'));
     }
+
+    /**
+     * Toggle visibility (is_active) of a layanan publik page.
+     */
+    public function toggleVisibility(Feature $feature, LayananPublik $layananPublik)
+    {
+        $layananPublik->update(['is_active' => !$layananPublik->is_active]);
+
+        $msg = $layananPublik->is_active
+            ? __('cms.common.flash.shown', ['name' => $layananPublik->title])
+            : __('cms.common.flash.hidden', ['name' => $layananPublik->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

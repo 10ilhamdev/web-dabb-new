@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('thumbnail_path')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->string('wall_color')->default('#e5e7eb');
             $table->string('floor_color')->default('#8B7355');
             $table->string('ceiling_color')->default('#f5f5f5');

@@ -27,10 +27,12 @@ class Virtual3dRoom extends Model
         'door_wall',
         'door_target',
         'door_label',
+        'is_active',
     ];
 
     protected $casts = [
         'doors' => 'array',
+        'is_active' => 'boolean',
     ];
 
     protected static function booted()

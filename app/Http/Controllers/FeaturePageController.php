@@ -577,7 +577,7 @@ class FeaturePageController extends Controller
 
         // Profile page type — load all profile pages from profiles table with their sections
         if ($feature->page_type === 'profile') {
-            $allProfilePages = $feature->profiles()->with('sections')->orderBy('order')->get();
+            $allProfilePages = $feature->profiles()->where('is_active', true)->with('sections')->orderBy('order')->get();
             $locale = app()->getLocale();
 
             // Ensure image_positions is loaded (it's auto-casted in Profile model)
@@ -651,7 +651,7 @@ class FeaturePageController extends Controller
 
         // Virtual Slideshow — show SimHive-style interactive page with page selection
         if ($feature->page_type === 'slideshow') {
-            $pages = $feature->slideshowPages()->with('slideshowSlides')->orderBy('order')->get();
+            $pages = $feature->slideshowPages()->where('is_active', true)->with('slideshowSlides')->orderBy('order')->get();
             $selectedPage = null;
             $slides = collect();
             $locale = app()->getLocale();
@@ -731,13 +731,13 @@ class FeaturePageController extends Controller
 
         // Virtual 3D Rooms feature — show interactive 4-walls 3D room
         if (method_exists($feature, 'virtual3dRooms')) {
-            $virtual3dRooms = $feature->virtual3dRooms()->with('media')->get();
+            $virtual3dRooms = $feature->virtual3dRooms()->where('is_active', true)->with('media')->get();
 
             // Check subfeatures if the parent feature has no virtual 3d rooms
             if ($virtual3dRooms->isEmpty() && method_exists($feature, 'subfeatures')) {
                 foreach ($feature->subfeatures as $sub) {
                     if (method_exists($sub, 'virtual3dRooms')) {
-                        $virtual3dRooms = $virtual3dRooms->merge($sub->virtual3dRooms()->with('media')->get());
+                        $virtual3dRooms = $virtual3dRooms->merge($sub->virtual3dRooms()->where('is_active', true)->with('media')->get());
                     }
                 }
             }
@@ -763,7 +763,7 @@ class FeaturePageController extends Controller
 
         // Virtual rooms feature (360) — show dedicated 360° tour page
         if (method_exists($feature, 'virtualRooms')) {
-            $virtualRooms = $feature->virtualRooms()->withCount('hotspots')->with('hotspots')->get();
+            $virtualRooms = $feature->virtualRooms()->where('is_active', true)->withCount('hotspots')->with('hotspots')->get();
             if ($virtualRooms->isNotEmpty()) {
                 if ($requiresLoginModal) {
                     foreach ($virtualRooms as $room) {
@@ -785,7 +785,7 @@ class FeaturePageController extends Controller
 
         // Virtual Book Pages - show flip book
         if ($feature->is_virtual_book || $feature->books()->exists()) {
-            $books = $feature->books()->with('pages')->orderBy('order')->get();
+            $books = $feature->books()->where('is_active', true)->with('pages')->orderBy('order')->get();
 
             // Set previews for login modal (array for carousel if multiple books)
             if ($requiresLoginModal && $books->isNotEmpty()) {
@@ -960,11 +960,11 @@ class FeaturePageController extends Controller
             return $this->publicShow($feature, 1, $requiresLoginModal, $loginModalPreviews, $loginModalPreview, $loginModalRoomNames, $loginModalRoomName, $loginModalPrompt);
         }
 
-        $virtual3dRooms = $feature->virtual3dRooms()->with('media')->get();
+        $virtual3dRooms = $feature->virtual3dRooms()->where('is_active', true)->with('media')->get();
         if ($virtual3dRooms->isEmpty() && method_exists($feature, 'subfeatures')) {
             foreach ($feature->subfeatures as $sub) {
                 if (method_exists($sub, 'virtual3dRooms')) {
-                    $virtual3dRooms = $virtual3dRooms->merge($sub->virtual3dRooms()->with('media')->get());
+                    $virtual3dRooms = $virtual3dRooms->merge($sub->virtual3dRooms()->where('is_active', true)->with('media')->get());
                 }
             }
         }

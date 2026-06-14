@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('thumbnail')->nullable();
             $table->string('pdf_path')->nullable();
             $table->integer('order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
 

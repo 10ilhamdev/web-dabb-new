@@ -322,4 +322,18 @@ class KontakKamiController extends Controller
         return redirect()->route('cms.features.kontak_kami.index', $feature)
             ->with('success', __('cms.kontak_kami.flash.deleted'));
     }
+
+    /**
+     * Toggle visibility (is_active) of a kontak kami page.
+     */
+    public function toggleVisibility(Feature $feature, KontakKami $kontakKami)
+    {
+        $kontakKami->update(['is_active' => !$kontakKami->is_active]);
+
+        $msg = $kontakKami->is_active
+            ? __('cms.common.flash.shown', ['name' => $kontakKami->title])
+            : __('cms.common.flash.hidden', ['name' => $kontakKami->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

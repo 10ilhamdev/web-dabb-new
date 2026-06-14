@@ -20,6 +20,7 @@ return new class extends Migration
             $table->longText('description_en')->nullable();
             $table->integer('order')->default(0);
             $table->string('thumbnail_path')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->foreign('feature_id')->references('id')->on('features')->onDelete('cascade');

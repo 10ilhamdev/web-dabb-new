@@ -587,4 +587,18 @@ class PengelolaanController extends Controller
         return redirect()->route('cms.features.pengelolaan.index', $feature)
             ->with('success', __('cms.pengelolaan.flash.deleted'));
     }
+
+    /**
+     * Toggle visibility (is_active) of a pengelolaan page.
+     */
+    public function toggleVisibility(Feature $feature, Pengelolaan $pengelolaan)
+    {
+        $pengelolaan->update(['is_active' => !$pengelolaan->is_active]);
+
+        $msg = $pengelolaan->is_active
+            ? __('cms.common.flash.shown', ['name' => $pengelolaan->title])
+            : __('cms.common.flash.hidden', ['name' => $pengelolaan->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

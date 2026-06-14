@@ -18,6 +18,11 @@ class VirtualSlideshowPage extends Model
         'description_en',
         'order',
         'thumbnail_path',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     protected static function booted()

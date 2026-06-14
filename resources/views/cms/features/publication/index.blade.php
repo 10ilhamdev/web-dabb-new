@@ -56,6 +56,7 @@
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ __('cms.publication.col_type') }}</th>
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ __('cms.publication.col_date') }}</th>
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.publication.col_order') }}</th>
+                        <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Status</th>
                         <th class="px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">{{ __('cms.publication.col_action') }}</th>
                     </tr>
                 </thead>
@@ -85,6 +86,23 @@
                                 {{ ($page->published_at ?? $page->created_at)->translatedFormat('d M Y') }}
                             </td>
                             <td class="px-6 py-4 text-center text-gray-600">{{ $page->order }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <form action="{{ route('cms.features.publication.pages.toggle_visibility', [$feature, $page]) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" title="{{ $page->is_active ? 'Sembunyikan' : 'Tampilkan' }}"
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors
+                                        {{ $page->is_active ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100' : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200' }}">
+                                        @if($page->is_active)
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            Aktif
+                                        @else
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                            Tersembunyi
+                                        @endif
+                                    </button>
+                                </form>
+                            </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="{{ route('cms.features.publication.pages.edit', [$feature, $page]) }}"
@@ -179,7 +197,7 @@ function publicationManager() {
 $(document).ready(function() {
     $.fn.dataTable.ext.errMode = 'none';
     $('#tablePublicationPages').DataTable({
-        columnDefs: [{ orderable: false, targets: [5] }],
+        columnDefs: [{ orderable: false, targets: [5, 6] }],
         order: [[0, 'asc']],
         language: {
             info: "{{ __('cms.datatable.info') }}",

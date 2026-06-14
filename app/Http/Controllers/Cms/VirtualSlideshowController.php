@@ -1256,4 +1256,19 @@ class VirtualSlideshowController extends Controller
         return redirect()->route('cms.features.slideshow.index', $feature)
             ->with('success', __('cms.virtual_slideshow.flash.slide_deleted'));
     }
+
+    /**
+     * Toggle visibility (is_active) of a slideshow page.
+     */
+    public function togglePageVisibility(Feature $feature, $pageId)
+    {
+        $page = VirtualSlideshowPage::findOrFail($pageId);
+        $page->update(['is_active' => !$page->is_active]);
+
+        $msg = $page->is_active
+            ? __('cms.common.flash.shown', ['name' => $page->title])
+            : __('cms.common.flash.hidden', ['name' => $page->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

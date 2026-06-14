@@ -37,6 +37,7 @@ class Book extends Model
         'thumbnail',
         'pdf_path',
         'order',
+        'is_active',
     ];
 
     protected $casts = [
@@ -46,6 +47,7 @@ class Book extends Model
         'back_cover_position' => 'array',
         'back_cover_texts' => 'array',
         'back_title_position' => 'array',
+        'is_active' => 'boolean',
     ];
 
     protected static function booted()

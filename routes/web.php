@@ -140,6 +140,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/virtual-rooms/{room}/edit', [VirtualRoomController::class, 'edit'])->name('virtual_rooms.edit');
         Route::put('/{feature}/virtual-rooms/{room}', [VirtualRoomController::class, 'update'])->name('virtual_rooms.update');
         Route::delete('/{feature}/virtual-rooms/{room}', [VirtualRoomController::class, 'destroy'])->name('virtual_rooms.destroy');
+        Route::patch('/{feature}/virtual-rooms/{room}/toggle-visibility', [VirtualRoomController::class, 'toggleVisibility'])->name('virtual_rooms.toggle_visibility');
 
         // Virtual 3D Rooms Feature (yang baru - 4 dinding 1 pintu)
         Route::get('/{feature}/virtual-3d-rooms', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'index'])->name('virtual_3d_rooms.index');
@@ -148,6 +149,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/virtual-3d-rooms/{room}/edit', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'edit'])->name('virtual_3d_rooms.edit');
         Route::put('/{feature}/virtual-3d-rooms/{room}', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'update'])->name('virtual_3d_rooms.update');
         Route::delete('/{feature}/virtual-3d-rooms/{room}', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'destroy'])->name('virtual_3d_rooms.destroy');
+        Route::patch('/{feature}/virtual-3d-rooms/{room}/toggle-visibility', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'toggleVisibility'])->name('virtual_3d_rooms.toggle_visibility');
 
         // Media Management untuk Virtual 3D Rooms
         Route::post('/{feature}/virtual-3d-rooms/{room}/media', [App\Http\Controllers\Cms\Virtual3dRoomController::class, 'uploadMedia'])->name('virtual_3d_rooms.media.store');
@@ -161,6 +163,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/virtual-books/{book}/edit', [App\Http\Controllers\Cms\BookController::class, 'edit'])->name('virtual_books.edit');
         Route::put('/{feature}/virtual-books/{book}', [App\Http\Controllers\Cms\BookController::class, 'update'])->name('virtual_books.update');
         Route::delete('/{feature}/virtual-books/{book}', [App\Http\Controllers\Cms\BookController::class, 'destroy'])->name('virtual_books.destroy');
+        Route::patch('/{feature}/virtual-books/{book}/toggle-visibility', [App\Http\Controllers\Cms\BookController::class, 'toggleVisibility'])->name('virtual_books.toggle_visibility');
 
         // Virtual Book Pages (Pages within a book)
         Route::get('/{feature}/virtual-books/{book}/pages', [App\Http\Controllers\Cms\BookController::class, 'pages'])->name('virtual_books.pages.index');
@@ -184,6 +187,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/slideshow/pages/{pageId}/edit', [FeaturePageController::class, 'edit'])->name('slideshow.pages.edit');
         Route::put('/{feature}/slideshow/pages/{pageId}', [FeaturePageController::class, 'update'])->name('slideshow.pages.update');
         Route::delete('/{feature}/slideshow/pages/{pageId}', [FeaturePageController::class, 'destroy'])->name('slideshow.pages.destroy');
+        Route::patch('/{feature}/slideshow/pages/{pageId}/toggle-visibility', [VirtualSlideshowController::class, 'togglePageVisibility'])->name('slideshow.pages.toggle_visibility');
 
         // Slides per VirtualSlideshowPage
         Route::get('/{feature}/slideshow/pages/{pageId}/slides', [VirtualSlideshowController::class, 'slidesIndex'])->name('slideshow.pages.slides.index');
@@ -212,6 +216,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/profile/{page}/edit', [CmsProfileController::class, 'edit'])->name('profile.pages.edit');
         Route::put('/{feature}/profile/{page}', [CmsProfileController::class, 'update'])->name('profile.pages.update');
         Route::delete('/{feature}/profile/{page}', [CmsProfileController::class, 'destroy'])->name('profile.pages.destroy');
+        Route::patch('/{feature}/profile/{page}/toggle-visibility', [CmsProfileController::class, 'toggleVisibility'])->name('profile.pages.toggle_visibility');
 
         // Profile Page Sections (sub is optional — null for standalone profile feature)
         Route::post('/{feature}/profile/{page}/sections', [CmsProfileController::class, 'storeSection'])->name('profile.sections.store');
@@ -225,6 +230,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/publication/{publication}/edit', [\App\Http\Controllers\Cms\PublicationController::class, 'edit'])->name('publication.pages.edit');
         Route::put('/{feature}/publication/{publication}', [\App\Http\Controllers\Cms\PublicationController::class, 'update'])->name('publication.pages.update');
         Route::delete('/{feature}/publication/{publication}', [\App\Http\Controllers\Cms\PublicationController::class, 'destroy'])->name('publication.pages.destroy');
+        Route::patch('/{feature}/publication/{publication}/toggle-visibility', [\App\Http\Controllers\Cms\PublicationController::class, 'toggleVisibility'])->name('publication.pages.toggle_visibility');
 
         // Layanan Publik Page
         Route::get('/{feature}/layanan_publik', [\App\Http\Controllers\Cms\LayananPublikController::class, 'index'])->name('layanan_publik.index');
@@ -233,6 +239,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/layanan_publik/{layananPublik}/edit', [\App\Http\Controllers\Cms\LayananPublikController::class, 'edit'])->name('layanan_publik.pages.edit');
         Route::put('/{feature}/layanan_publik/{layananPublik}', [\App\Http\Controllers\Cms\LayananPublikController::class, 'update'])->name('layanan_publik.pages.update');
         Route::delete('/{feature}/layanan_publik/{layananPublik}', [\App\Http\Controllers\Cms\LayananPublikController::class, 'destroy'])->name('layanan_publik.pages.destroy');
+        Route::patch('/{feature}/layanan_publik/{layananPublik}/toggle-visibility', [\App\Http\Controllers\Cms\LayananPublikController::class, 'toggleVisibility'])->name('layanan_publik.pages.toggle_visibility');
 
         // Pengelolaan Page
         Route::get('/{feature}/pengelolaan', [\App\Http\Controllers\Cms\PengelolaanController::class, 'index'])->name('pengelolaan.index');
@@ -241,6 +248,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/pengelolaan/{pengelolaan}/edit', [\App\Http\Controllers\Cms\PengelolaanController::class, 'edit'])->name('pengelolaan.pages.edit');
         Route::put('/{feature}/pengelolaan/{pengelolaan}', [\App\Http\Controllers\Cms\PengelolaanController::class, 'update'])->name('pengelolaan.pages.update');
         Route::delete('/{feature}/pengelolaan/{pengelolaan}', [\App\Http\Controllers\Cms\PengelolaanController::class, 'destroy'])->name('pengelolaan.pages.destroy');
+        Route::patch('/{feature}/pengelolaan/{pengelolaan}/toggle-visibility', [\App\Http\Controllers\Cms\PengelolaanController::class, 'toggleVisibility'])->name('pengelolaan.pages.toggle_visibility');
 
         // Kontak Kami Page
         Route::get('/{feature}/kontak_kami', [\App\Http\Controllers\Cms\KontakKamiController::class, 'index'])->name('kontak_kami.index');
@@ -249,6 +257,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{feature}/kontak_kami/{kontakKami}/edit', [\App\Http\Controllers\Cms\KontakKamiController::class, 'edit'])->name('kontak_kami.pages.edit');
         Route::put('/{feature}/kontak_kami/{kontakKami}', [\App\Http\Controllers\Cms\KontakKamiController::class, 'update'])->name('kontak_kami.pages.update');
         Route::delete('/{feature}/kontak_kami/{kontakKami}', [\App\Http\Controllers\Cms\KontakKamiController::class, 'destroy'])->name('kontak_kami.pages.destroy');
+        Route::patch('/{feature}/kontak_kami/{kontakKami}/toggle-visibility', [\App\Http\Controllers\Cms\KontakKamiController::class, 'toggleVisibility'])->name('kontak_kami.pages.toggle_visibility');
 
 
         // Legacy routes - redirect to new structure

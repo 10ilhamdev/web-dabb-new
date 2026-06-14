@@ -630,4 +630,18 @@ class ProfileController extends Controller
             }
         }
     }
+
+    /**
+     * Toggle visibility (is_active) of a profile page.
+     */
+    public function toggleVisibility(Feature $feature, Profile $page)
+    {
+        $page->update(['is_active' => !$page->is_active]);
+
+        $msg = $page->is_active
+            ? __('cms.common.flash.shown', ['name' => $page->title])
+            : __('cms.common.flash.hidden', ['name' => $page->title]);
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

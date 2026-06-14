@@ -437,11 +437,11 @@
                             </button>
                         </div>
 
-                        <div class="border border-gray-300 rounded-lg bg-white overflow-y-auto overflow-x-auto"
-                            style="min-height: 380px; max-height: 400px;">
-                            <div id="preview-wrapper" style="display: block; width: 1200px; padding: 0 15px;">
+                        <div class="border border-gray-300 rounded-lg bg-white"
+                            style="min-height: 380px; max-height: 400px; overflow: auto !important; position: relative; z-index: 1; isolation: isolate;">
+                            <div id="preview-wrapper" style="display: block; width: 1200px; padding: 0 15px; position: relative;">
                                 <div id="preview-container" class="profile-section-desc"
-                                    style="transform-origin: top left; transition: transform 0.2s ease; background: transparent; width: 100%; border: none; padding: 0;">
+                                    style="transform-origin: top left; transition: transform 0.2s ease; background: transparent; width: 100%; border: none; padding: 0; position: relative;">
                                     {{-- Preview content akan diisi oleh JavaScript --}}
                                 </div>
                             </div>

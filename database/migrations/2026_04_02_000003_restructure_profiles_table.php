@@ -36,6 +36,7 @@ return new class extends Migration
                 $table->json('images')->nullable();
                 $table->json('image_positions')->nullable();
                 $table->integer('order')->default(0);
+                $table->boolean('is_active')->default(true);
                 $table->timestamps();
 
                 $table->foreign('feature_id', 'profiles_new_feature_id_foreign')

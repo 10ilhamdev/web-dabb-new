@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('thumbnail_path')->nullable();
             $table->string('image_360_path')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

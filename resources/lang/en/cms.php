@@ -915,6 +915,10 @@ return [
         'hide' => 'Hide',
         'show' => 'Show',
         'delete' => 'Delete',
+        'flash' => [
+            'shown' => 'Page ":name" is now shown.',
+            'hidden' => 'Page ":name" is now hidden.',
+        ],
     ],
 
     /*
