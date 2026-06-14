@@ -307,8 +307,8 @@
                 };
 
                 // 1. Pameran 360° (real)
-                foreach (\App\Models\VirtualRoom::with('feature')->orderBy('id', 'desc')->limit(8)->get() as $room) {
-                    if (!$room->feature || !$room->feature->path) continue;
+                foreach (\App\Models\VirtualRoom::where('is_active', true)->with('feature')->orderBy('id', 'desc')->limit(8)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path || !$room->feature->is_active) continue;
                     $previews->push([
                         'name'  => $room->translated_name ?? $pickTitle($room) ?? '360° Virtual',
                         'image' => $storageImg($room->thumbnail_path ?: $room->image_360_path),
@@ -318,8 +318,8 @@
                 }
 
                 // 2. Pameran Arsip 3D
-                foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(8)->get() as $room) {
-                    if (!$room->feature || !$room->feature->path) continue;
+                foreach (\App\Models\Virtual3dRoom::where('is_active', true)->with('feature')->orderBy('id', 'desc')->limit(8)->get() as $room) {
+                    if (!$room->feature || !$room->feature->path || !$room->feature->is_active) continue;
                     $previews->push([
                         'name'  => $room->translated_name ?? $pickTitle($room) ?? '3D Virtual',
                         'image' => $storageImg($room->thumbnail_path),
@@ -329,8 +329,8 @@
                 }
 
                 // 3. Pameran Arsip Buku Virtual
-                foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(8)->get() as $book) {
-                    if (!$book->feature || !$book->feature->path) continue;
+                foreach (\App\Models\Book::where('is_active', true)->with('feature')->orderBy('id', 'desc')->limit(8)->get() as $book) {
+                    if (!$book->feature || !$book->feature->path || !$book->feature->is_active) continue;
                     $previews->push([
                         'name'  => $book->translated_title ?? $pickTitle($book, ['title', 'name']) ?? 'Virtual Book',
                         'image' => $storageImg($book->thumbnail ?: $book->cover_image),
@@ -341,13 +341,13 @@
 
                 // 4. Pameran Arsip Slideshow Virtual — sumber gambar mengikuti logika
                 //    halaman landing slideshow: thumbnail_path → slide pertama (images/image_urls).
-                $slideshowPages = \App\Models\VirtualSlideshowPage::with(['feature', 'slideshowSlides'])
+                $slideshowPages = \App\Models\VirtualSlideshowPage::where('is_active', true)->with(['feature', 'slideshowSlides'])
                     ->orderBy('id', 'desc')
                     ->limit(8)
                     ->get();
 
                 foreach ($slideshowPages as $slidePage) {
-                    if (!$slidePage->feature || !$slidePage->feature->path) continue;
+                    if (!$slidePage->feature || !$slidePage->feature->path || !$slidePage->feature->is_active) continue;
 
                     $thumbUrl = null;
                     if (!empty($slidePage->thumbnail_path)) {

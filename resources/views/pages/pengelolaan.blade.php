@@ -37,6 +37,9 @@
             gap: 2.5rem;
             align-items: start;
         }
+        .pub-container.no-sidebar {
+            grid-template-columns: 1fr;
+        }
 
         .detail-main {
             grid-column: 1;
@@ -496,7 +499,10 @@
 
     <section class="pub-section" x-data="{ openLightbox: false, activeImage: '' }">
         <div class="container">
-            <div class="pub-container">
+            @php
+                $hasSidebar = ($popularNews && $popularNews->isNotEmpty()) || ($pameranArsip && $pameranArsip->isNotEmpty());
+            @endphp
+            <div class="pub-container{{ !$hasSidebar ? ' no-sidebar' : '' }}">
                 {{-- Main Detail --}}
                 <div class="detail-main">
                     <h1 class="detail-title">{{ $title }}</h1>
@@ -978,6 +984,11 @@
                 <aside class="news-sidebar">
 
                     {{-- Popular News --}}
+                    @if($popularNews && $popularNews->isNotEmpty())
+                    @php
+                        $newsFeature = \App\Models\Feature::where('page_type', 'publication')->where('path', 'like', '%berita%')->first();
+                        $newsLink = $newsFeature ? url($newsFeature->path) : '/dabb/berita';
+                    @endphp
                     <div class="sidebar-block mb-10">
                         <h2 class="sidebar-title">{{ __('home.layanan_publik.popular_news') }}</h2>
                         <div class="popular-news-list">
@@ -1001,10 +1012,16 @@
                                 </a>
                             @endforeach
                         </div>
-                        <a href="/publikasi/berita" class="btn-sidebar-more">{{ __('home.layanan_publik.see_more_news') }}</a>
+                        <a href="{{ $newsLink }}" class="btn-sidebar-more">{{ __('home.layanan_publik.see_more_news') }}</a>
                     </div>
+                    @endif
 
                     {{-- Pameran Arsip --}}
+                    @if($pameranArsip && $pameranArsip->isNotEmpty())
+                    @php
+                        $firstExhibition = \App\Models\Feature::where('parent_id', 3)->where('is_active', true)->orderBy('order')->first();
+                        $exhibitionLink = $firstExhibition ? url($firstExhibition->path) : '#';
+                    @endphp
                     <div class="sidebar-block mb-10">
                         <h2 class="sidebar-title">{{ __('home.layanan_publik.archive_exhibition') }}</h2>
                         <div class="popular-news-list">
@@ -1024,8 +1041,9 @@
                                 </a>
                             @endforeach
                         </div>
-                        <a href="/pameran/tetap" class="btn-sidebar-more">{{ __('home.layanan_publik.see_more_exhibitions') }}</a>
+                        <a href="{{ $exhibitionLink }}" class="btn-sidebar-more">{{ __('home.layanan_publik.see_more_exhibitions') }}</a>
                     </div>
+                    @endif
 
                 </aside>
             </div>

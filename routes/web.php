@@ -55,6 +55,13 @@ Route::get('/halaman/{feature}/{pageNum?}', [FeaturePageController::class, 'publ
     ->name('feature.page');
 
 // Public Service Form Submissions
+Route::get('/captcha-generate', function () {
+    $num1 = rand(1, 9);
+    $num2 = rand(1, 9);
+    session(['math_captcha_result' => $num1 + $num2]);
+    return response()->json(['question' => "$num1 + $num2 = ?"]);
+})->name('captcha.generate');
+
 Route::post('/layanan-publik/visit', [App\Http\Controllers\PublicServiceSubmissionController::class, 'storeVisit'])->name('public.visit.store');
 Route::post('/layanan-publik/consultation', [App\Http\Controllers\PublicServiceSubmissionController::class, 'storeConsultation'])->name('public.consultation.store');
 

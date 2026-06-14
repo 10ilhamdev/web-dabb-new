@@ -150,6 +150,9 @@
             gap: 2.5rem;
             align-items: start;
         }
+        .pub-container.no-sidebar {
+            grid-template-columns: 1fr;
+        }
 
         .news-sidebar {
             grid-column: 2;
@@ -400,7 +403,10 @@
 
             {{-- Berita Layout --}}
             @if($currentPage->type === 'berita')
-                <div class="pub-container">
+                @php
+                    $hasSidebar = ($popularNews && $popularNews->isNotEmpty());
+                @endphp
+                <div class="pub-container{{ !$hasSidebar ? ' no-sidebar' : '' }}">
                     {{-- Main Content: News List --}}
                     <div class="news-main">
                         <div class="flex justify-between items-center mb-6">
@@ -485,6 +491,7 @@
 
                     {{-- Sidebar --}}
                     <aside class="news-sidebar">
+                        @if($popularNews && $popularNews->isNotEmpty())
                         <div class="sidebar-block mb-10">
                             <h2 class="sidebar-title">{{ $locale === 'en' ? 'Popular News' : 'Berita Populer' }}</h2>
                             <div class="popular-news-list">
@@ -523,6 +530,7 @@
                                 @endforeach
                             </div>
                         </div>
+                        @endif
                     </aside>
                 </div>
             @endif

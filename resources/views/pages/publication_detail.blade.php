@@ -37,6 +37,9 @@
             gap: 2.5rem;
             align-items: start;
         }
+        .pub-container.no-sidebar {
+            grid-template-columns: 1fr;
+        }
 
         .detail-main {
             grid-column: 1;
@@ -239,7 +242,10 @@
 
     <section class="pub-section">
         <div class="container">
-            <div class="pub-container">
+            @php
+                $hasSidebar = ($popularNews && $popularNews->isNotEmpty());
+            @endphp
+            <div class="pub-container{{ !$hasSidebar ? ' no-sidebar' : '' }}">
                 {{-- Main Detail --}}
                 <div class="detail-main">
                     <h1 class="detail-title">{{ $title }}</h1>
@@ -271,6 +277,7 @@
                 {{-- Sidebar --}}
                 <aside class="news-sidebar">
 
+                    @if($popularNews && $popularNews->isNotEmpty())
                     <div class="sidebar-block mb-10">
                         <h2 class="sidebar-title">{{ $locale === 'en' ? 'Popular News' : 'Berita Populer' }}</h2>
                         <div class="popular-news-list">
@@ -305,6 +312,7 @@
                             @endforeach
                         </div>
                     </div>
+                    @endif
 
                     <div class="sidebar-block mb-8 bg-[#F8F9FA] p-6 rounded-xl border border-gray-100">
                         <div class="share-section !pt-0 !border-t-0">

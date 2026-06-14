@@ -12,6 +12,15 @@ class PublicServiceSubmissionController extends Controller
 {
     public function storeVisit(Request $request)
     {
+        $captchaAns = $request->input('captcha_ans');
+        $expected = session('math_captcha_result');
+        if (is_null($expected) || $captchaAns != $expected) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jawaban Captcha salah! Silakan coba lagi.'
+            ]);
+        }
+
         $all = $request->all();
 
         // Helper to find field by keywords
@@ -187,7 +196,7 @@ class PublicServiceSubmissionController extends Controller
         }
 
         // Collect dynamic fields
-        $except = ['_token', 'g-recaptcha-response', 'surat_file'];
+        $except = ['_token', 'g-recaptcha-response', 'captcha_ans', 'surat_file'];
         $formData = $request->except($except);
 
         VisitRegistration::create([

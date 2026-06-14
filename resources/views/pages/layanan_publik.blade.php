@@ -924,12 +924,40 @@
                                              }
                                          }, 500);
 
+                                         window.refreshMathCaptcha = function() {
+                                             fetch('{{ route('captcha.generate') }}')
+                                                 .then(response => response.json())
+                                                 .then(data => {
+                                                     const questionEl = document.getElementById('captcha-question');
+                                                     if (questionEl) {
+                                                         questionEl.innerText = data.question;
+                                                     }
+                                                     const ansInput = document.getElementById('captcha_ans');
+                                                     if (ansInput) {
+                                                         ansInput.value = '';
+                                                     }
+                                                 })
+                                                 .catch(err => console.error('Failed to generate captcha:', err));
+                                         };
+
+                                         // Init on load
+                                         window.refreshMathCaptcha();
+
+                                         // Bind refresh button click
+                                         setTimeout(() => {
+                                             const refreshBtn = document.getElementById('btn-refresh-captcha');
+                                             if (refreshBtn) {
+                                                 refreshBtn.addEventListener('click', window.refreshMathCaptcha);
+                                             }
+                                         }, 600);
+
                                          window.handleVisitFormSubmit = function(form, event) {
                                              event.preventDefault();
                                              if (typeof window.validateFormQuota === 'function' && !window.validateFormQuota()) {
                                                  return false;
                                              }
-                                             if (typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) {
+                                             const captchaAnsInput = document.getElementById('captcha_ans');
+                                             if (!captchaAnsInput || !captchaAnsInput.value.trim()) {
                                                  Swal.fire({
                                                      title: 'Oops!',
                                                      text: '{{ __('home.layanan_publik.captcha_warning') }}',
@@ -969,8 +997,8 @@
                                                      if (typeof window.renderCalendar === 'function') {
                                                          window.renderCalendar();
                                                      }
-                                                     if (typeof grecaptcha !== 'undefined') {
-                                                         grecaptcha.reset();
+                                                     if (typeof window.refreshMathCaptcha === 'function') {
+                                                         window.refreshMathCaptcha();
                                                      }
                                                      let fileChosenText = document.getElementById('file_chosen_text');
                                                      if (fileChosenText) {
@@ -984,6 +1012,9 @@
                                                          icon: 'error',
                                                          confirmButtonColor: '#174E93'
                                                      });
+                                                     if (typeof window.refreshMathCaptcha === 'function') {
+                                                         window.refreshMathCaptcha();
+                                                     }
                                                  }
                                              })
                                              .catch(err => {
@@ -993,6 +1024,9 @@
                                                      icon: 'error',
                                                      confirmButtonColor: '#174E93'
                                                  });
+                                                 if (typeof window.refreshMathCaptcha === 'function') {
+                                                     window.refreshMathCaptcha();
+                                                 }
                                              });
                                              return false;
                                          };
@@ -1126,7 +1160,13 @@
 
                                     <div class="form-group">
                                         <label class="form-label">{{ __('home.layanan_publik.form_captcha') }} <span class="required">*</span></label>
-                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY', '6LfD3PIbAAAAAJs_eEHvoOl75_83eXSqpPSRFJ_u') }}"></div>
+                                        <div class="flex items-center gap-3 captcha-container" style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                                            <span id="captcha-question" class="captcha-question" style="font-weight: bold; font-size: 1.1rem; background: #f3f4f6; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid #d1d5db; min-width: 100px; text-align: center; display: inline-block;">? + ? = ?</span>
+                                            <input type="number" id="captcha_ans" name="captcha_ans" class="form-input" style="width: 100px;" required placeholder="?">
+                                            <button type="button" id="btn-refresh-captcha" class="btn-refresh-captcha" style="background: none; border: none; color: #174E93; cursor: pointer; display: flex; align-items: center; font-size: 0.9rem;" title="Refresh Captcha">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn-submit">{{ __('home.layanan_publik.form_submit') }}</button>
                                 </form>
@@ -1770,5 +1810,4 @@
         @endif
     }
 </script>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endpush

@@ -541,10 +541,10 @@ class FeaturePageController extends Controller
         $feature = Feature::where('path', $path)->firstOrFail();
         $feature->loadCount('pages');
 
-        // If the feature or any of its ancestors is blocked at the URL level, return 404 (not just hidden from menu)
+        // If the feature or any of its ancestors is blocked at the URL level, or is inactive, return 404
         $checkFeature = $feature;
         while ($checkFeature) {
-            if ($checkFeature->is_url_blocked) {
+            if ($checkFeature->is_url_blocked || !$checkFeature->is_active) {
                 abort(404);
             }
             $checkFeature = $checkFeature->parent;
@@ -982,10 +982,10 @@ class FeaturePageController extends Controller
         $fullPath = '/' . $path;
         $feature = Feature::where('path', $fullPath)->firstOrFail();
 
-        // If the feature or any of its ancestors is blocked at the URL level, return 404
+        // If the feature or any of its ancestors is blocked at the URL level, or is inactive, return 404
         $checkFeature = $feature;
         while ($checkFeature) {
-            if ($checkFeature->is_url_blocked) {
+            if ($checkFeature->is_url_blocked || !$checkFeature->is_active) {
                 abort(404);
             }
             $checkFeature = $checkFeature->parent;
@@ -1169,7 +1169,10 @@ class FeaturePageController extends Controller
     private function getSidebarData(string $locale)
     {
         return \Illuminate\Support\Facades\Cache::remember('sidebar_data_' . $locale, 60, function() {
-            $news = \App\Models\Publication::select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type'])
+            $news = \App\Models\Publication::whereHas('feature', function($q) {
+                    $q->where('is_active', true);
+                })
+                ->select(['id', 'title', 'title_en', 'images', 'published_at', 'created_at', 'views', 'shares', 'type', 'feature_id'])
                 ->where('type', 'berita')
                 ->where('is_active', true)
                 ->orderBy('views', 'desc')
@@ -1190,8 +1193,12 @@ class FeaturePageController extends Controller
                 });
 
             $pameran = collect();
-            foreach (\App\Models\Virtual3dRoom::with('feature')->orderBy('id', 'desc')->limit(3)->get() as $room) {
-                if (!$room->feature || !$room->feature->path) continue;
+
+            // 1. Virtual 3D Rooms
+            foreach (\App\Models\Virtual3dRoom::where('is_active', true)->whereHas('feature', function($q) {
+                $q->where('is_active', true);
+            })->with('feature')->orderBy('id', 'desc')->limit(5)->get() as $room) {
+                if (!$room->feature || !$room->feature->path || !$room->feature->is_active) continue;
                 $pameran->push((object)[
                     'title' => $room->translated_name ?? $room->name,
                     'image' => $room->thumbnail_path ? asset('storage/' . $room->thumbnail_path) : null,
@@ -1199,8 +1206,25 @@ class FeaturePageController extends Controller
                     'date'  => $room->created_at,
                 ]);
             }
-            foreach (\App\Models\Book::with('feature')->orderBy('id', 'desc')->limit(2)->get() as $book) {
-                if (!$book->feature || !$book->feature->path) continue;
+
+            // 2. Virtual Rooms (360)
+            foreach (\App\Models\VirtualRoom::where('is_active', true)->whereHas('feature', function($q) {
+                $q->where('is_active', true);
+            })->with('feature')->orderBy('id', 'desc')->limit(5)->get() as $room) {
+                if (!$room->feature || !$room->feature->path || !$room->feature->is_active) continue;
+                $pameran->push((object)[
+                    'title' => $room->translated_name ?? $room->name,
+                    'image' => ($room->thumbnail_path ?: $room->image_360_path) ? asset('storage/' . ($room->thumbnail_path ?: $room->image_360_path)) : null,
+                    'link'  => url($room->feature->path),
+                    'date'  => $room->created_at,
+                ]);
+            }
+
+            // 3. Virtual Books
+            foreach (\App\Models\Book::where('is_active', true)->whereHas('feature', function($q) {
+                $q->where('is_active', true);
+            })->with('feature')->orderBy('id', 'desc')->limit(5)->get() as $book) {
+                if (!$book->feature || !$book->feature->path || !$book->feature->is_active) continue;
                 $pameran->push((object)[
                     'title' => $book->translated_title ?? $book->title,
                     'image' => ($book->thumbnail ?: $book->cover_image) ? asset('storage/' . ($book->thumbnail ?: $book->cover_image)) : null,
@@ -1208,6 +1232,32 @@ class FeaturePageController extends Controller
                     'date'  => $book->created_at,
                 ]);
             }
+
+            // 4. Virtual Slideshow Pages
+            foreach (\App\Models\VirtualSlideshowPage::where('is_active', true)->whereHas('feature', function($q) {
+                $q->where('is_active', true);
+            })->with(['feature', 'slideshowSlides'])->orderBy('id', 'desc')->limit(5)->get() as $slidePage) {
+                if (!$slidePage->feature || !$slidePage->feature->path || !$slidePage->feature->is_active) continue;
+                $thumbUrl = null;
+                if ($slidePage->thumbnail_path) {
+                    $thumbUrl = asset('storage/' . $slidePage->thumbnail_path);
+                } else {
+                    $firstSlide = $slidePage->slideshowSlides->sortBy('order')->first();
+                    if ($firstSlide && !empty($firstSlide->images)) {
+                        $thumbUrl = asset('storage/' . $firstSlide->images[0]);
+                    }
+                }
+                $pameran->push((object)[
+                    'title' => $slidePage->translated_title ?? $slidePage->title,
+                    'image' => $thumbUrl,
+                    'link'  => url($slidePage->feature->path) . '?page=' . ($slidePage->order ?? 1),
+                    'date'  => $slidePage->created_at,
+                ]);
+            }
+
+            // Sort all by date desc and limit to 5
+            $pameran = $pameran->sortByDesc('date')->take(5)->values();
+
             return ['popularNews' => $news, 'pameranArsip' => $pameran];
         });
     }
