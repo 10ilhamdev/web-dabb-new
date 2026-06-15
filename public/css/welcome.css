@@ -46,7 +46,7 @@ section { padding: 48px 0; }
     flex-wrap: nowrap;
     /* Navbar needs more room than the page-wide 1170px cap, otherwise the
        menu overflows left and collides with the brand text. */
-    width: min(1600px, 96%);
+    width: min(1800px, 96%);
 }
 .brand { display: flex; align-items: center; gap: 14px; flex: 0 1 auto; min-width: 0; }
 .brand img { width: 54px; flex-shrink: 0; }
@@ -225,6 +225,16 @@ section { padding: 48px 0; }
 }
 .nav-submenu-item:hover > .nav-submenu {
     display: block;
+}
+
+/* Dynamic left-opening submenu class set by JS when it would overflow the screen */
+.nav-submenu.open-left {
+    left: auto;
+    right: 100%;
+}
+.nav-submenu.open-left::before {
+    left: auto;
+    right: -10px;
 }
 
 .auth-utils { margin-left: auto; display: flex; align-items: center; gap: 14px; white-space: nowrap; }
@@ -776,7 +786,7 @@ footer { background: var(--dark); color: #fff; margin-top: 30px; }
 .blue-text { color: var(--blue-light) !important; font-weight: 700; }
 .copyright { background: #131415; text-align: center; padding: 8px 0; font-size: 14px; }
 
-@media (max-width: 1280px) {
+@media (max-width: 1366px) {
     .hero-grid,
     .info-grid,
     .feature-strip,
@@ -920,16 +930,16 @@ footer { background: var(--dark); color: #fff; margin-top: 30px; }
 }
 
 /* Medium-wide viewport: shrink spacing/fonts so all desktop menu items fit */
-@media (min-width: 1281px) and (max-width: 1700px) {
-    .top-nav .container { gap: 14px; }
-    .brand strong { font-size: 22px; max-width: 260px; }
-    .brand img { width: 46px; }
-    .nav-right { gap: 14px; }
-    .menu { gap: 14px; }
+@media (min-width: 1367px) and (max-width: 1700px) {
+    .top-nav .container { gap: 8px; }
+    .brand strong { font-size: 18px; max-width: 220px; }
+    .brand img { width: 40px; }
+    .nav-right { gap: 8px; }
+    .menu { gap: 8px; }
     .menu a,
     .nav-dropdown-toggle,
-    .auth-utils .login-link { font-size: 13px; }
-    .lang-switch { padding-left: 10px; gap: 8px; }
+    .auth-utils .login-link { font-size: 12px; }
+    .lang-switch { padding-left: 6px; gap: 4px; }
 }
 
 @media (max-width: 640px) {

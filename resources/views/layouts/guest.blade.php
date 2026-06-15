@@ -26,6 +26,8 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <link rel="stylesheet" href="{{ asset('css/welcome.css?v=' . (file_exists(public_path('css/welcome.css')) ? filemtime(public_path('css/welcome.css')) : time())) }}">
+
     @stack('styles')
 
     <!-- CMS RTE Content CSS — loads RTE content styles for guest display -->

@@ -55,7 +55,7 @@
 }
 
 /* Reset any inherited transform that may cause zoom offset at certain screen sizes */
-@media (max-width: 1280px) {
+@media (max-width: 1366px) {
     .footer-map-wrap,
     .footer-map-wrap iframe {
         transform: none !important;

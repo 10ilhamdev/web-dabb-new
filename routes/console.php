@@ -49,7 +49,7 @@ Schedule::command('npm:build')
 // Melakukan: cache:clear, config:clear, route:clear, view:clear, event:clear,
 // component:clear, symfony:cache:clear, dan optimize:clear
 Schedule::command('cache:optimize')
-    ->dailyAt('17:00') // jalan setiap hari jam 17:00 WIB
+    ->dailyAt('18:00') // jalan setiap hari jam 18:00 WIB
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler-cache-optimize.log'));
 

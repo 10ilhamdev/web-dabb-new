@@ -541,10 +541,10 @@ class FeaturePageController extends Controller
         $feature = Feature::where('path', $path)->firstOrFail();
         $feature->loadCount('pages');
 
-        // If the feature or any of its ancestors is blocked at the URL level, or is inactive, return 404
+        // If the feature or any of its ancestors is blocked at the URL level, return 404
         $checkFeature = $feature;
         while ($checkFeature) {
-            if ($checkFeature->is_url_blocked || !$checkFeature->is_active) {
+            if ($checkFeature->is_url_blocked) {
                 abort(404);
             }
             $checkFeature = $checkFeature->parent;
@@ -982,10 +982,10 @@ class FeaturePageController extends Controller
         $fullPath = '/' . $path;
         $feature = Feature::where('path', $fullPath)->firstOrFail();
 
-        // If the feature or any of its ancestors is blocked at the URL level, or is inactive, return 404
+        // If the feature or any of its ancestors is blocked at the URL level, return 404
         $checkFeature = $feature;
         while ($checkFeature) {
-            if ($checkFeature->is_url_blocked || !$checkFeature->is_active) {
+            if ($checkFeature->is_url_blocked) {
                 abort(404);
             }
             $checkFeature = $checkFeature->parent;

@@ -94,7 +94,7 @@
 <script>
     (function () {
         // Mobile: tap a dropdown toggle to expand inline instead of relying on hover.
-        var mql = window.matchMedia('(max-width: 1280px)');
+        var mql = window.matchMedia('(max-width: 1366px)');
         document.querySelectorAll('.top-nav .nav-dropdown-toggle, .top-nav .nav-submenu-toggle').forEach(function (toggle) {
             toggle.addEventListener('click', function (e) {
                 if (!mql.matches) return;
@@ -109,6 +109,24 @@
                 if (!mql.matches) return;
                 var nav = link.closest('.top-nav');
                 if (nav) nav.classList.remove('open');
+            });
+        });
+
+        // Dynamic direction for sub-menus (flyout left/right depending on screen boundary)
+        document.querySelectorAll('.top-nav .nav-submenu-item').forEach(function (item) {
+            item.addEventListener('mouseenter', function () {
+                if (mql.matches) return; // Skip on mobile view
+                var submenu = item.querySelector('.nav-submenu');
+                if (!submenu) return;
+                
+                var rect = item.getBoundingClientRect();
+                var submenuWidth = submenu.offsetWidth || 200;
+                
+                if (rect.right + submenuWidth > window.innerWidth) {
+                    submenu.classList.add('open-left');
+                } else {
+                    submenu.classList.remove('open-left');
+                }
             });
         });
     })();
