@@ -59,65 +59,7 @@
             border: none !important;
         }
 
-        /* Custom Cursor styling (Fine pointer devices only) */
-        @media (pointer: fine) {
-            body, a, button, select, input, textarea, [role="button"], .rte-carousel-caption-btn, .rte-table-toggle-btn {
-                cursor: none;
-            }
-            .custom-cursor-dot {
-                width: 6px;
-                height: 6px;
-                background-color: #00f2fe;
-                box-shadow: 0 0 8px #00f2fe, 0 0 15px rgba(0, 242, 254, 0.6);
-                position: fixed;
-                top: 0;
-                left: 0;
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 9999999;
-                transform: translate(-50%, -50%);
-                transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.25s;
-                will-change: transform;
-            }
-            .custom-cursor-outline {
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid rgba(0, 242, 254, 0.4);
-                box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
-                position: fixed;
-                top: 0;
-                left: 0;
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 9999998;
-                transform: translate(-50%, -50%);
-                transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.25s, background-color 0.25s, box-shadow 0.25s;
-                will-change: transform;
-            }
-            /* Hover styling for interactive elements */
-            .custom-cursor-hover .custom-cursor-dot {
-                width: 10px;
-                height: 10px;
-                background-color: #ff007f;
-                box-shadow: 0 0 12px #ff007f, 0 0 25px rgba(255, 0, 127, 0.8);
-            }
-            .custom-cursor-hover .custom-cursor-outline {
-                width: 50px;
-                height: 50px;
-                border-color: rgba(255, 0, 127, 0.6);
-                background-color: rgba(255, 0, 127, 0.04);
-                box-shadow: 0 0 20px rgba(255, 0, 127, 0.35);
-            }
-            /* Scanner mode when hovering over normal reading texts */
-            .custom-cursor-text-hover .custom-cursor-outline {
-                width: 44px;
-                height: 44px;
-                border: 1px dashed #00f2fe;
-                background-color: rgba(0, 242, 254, 0.02);
-                box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
-                animation: cursor-spin-animation 6s linear infinite;
-            }
-        }
+        /* Custom cursor disabled */
         @media (pointer: coarse) {
             .custom-cursor-dot, .custom-cursor-outline {
                 display: none;
@@ -202,23 +144,7 @@
             color: #000000;
         }
 
-        /* Cyber Spark Particles */
-        .cursor-particle {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background-color: #00f2fe;
-            box-shadow: 0 0 8px #00f2fe, 0 0 15px #00f2fe;
-            pointer-events: none;
-            z-index: 9999996;
-            opacity: 1;
-            transform: translate(-50%, -50%);
-            will-change: transform, opacity;
-            transition: transform 0.6s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.6s ease-out;
-        }
+
     </style>
 </head>
 
@@ -1420,9 +1346,7 @@
         });
     </script>
 
-    <!-- Custom Cursor HTML Elements -->
-    <div class="custom-cursor-dot"></div>
-    <div class="custom-cursor-outline"></div>
+    <!-- Custom Cursor HTML Elements Disabled -->
 
     <!-- Custom Cursor & Scroll Reveal Script -->
     <script>
@@ -1438,135 +1362,6 @@
                         progressBar.style.width = scrolled + '%';
                     }
                 });
-            }
-
-            // Only run cursor logic on fine-pointer devices (desktop with mouse)
-            if (window.matchMedia('(pointer: fine)').matches) {
-                var cursorDot = document.querySelector('.custom-cursor-dot');
-                var cursorOutline = document.querySelector('.custom-cursor-outline');
-                
-                if (cursorDot && cursorOutline) {
-                    var mouseX = 0, mouseY = 0; // Actual mouse position
-                    var dotX = 0, dotY = 0;     // Center dot position
-                    var outlineX = 0, outlineY = 0; // Outer circle position (will follow with interpolation)
-                    var isCursorVisible = false;
-
-                    // Hide default cursor layout on window leave
-                    document.addEventListener('mouseleave', function() {
-                        cursorDot.style.opacity = '0';
-                        cursorOutline.style.opacity = '0';
-                        isCursorVisible = false;
-                    });
-
-                    // Track mouse coordinates & emit spark particles
-                    var lastParticleTime = 0;
-                    window.addEventListener('mousemove', function(e) {
-                        mouseX = e.clientX;
-                        mouseY = e.clientY;
-                        if (!isCursorVisible) {
-                            cursorDot.style.opacity = '1';
-                            cursorOutline.style.opacity = '1';
-                            isCursorVisible = true;
-                        }
-
-                        // Emit particle every 45ms to avoid spamming DOM
-                        var now = Date.now();
-                        if (now - lastParticleTime > 45) {
-                            createParticle(e.clientX, e.clientY);
-                            lastParticleTime = now;
-                        }
-                    });
-
-                    function createParticle(x, y) {
-                        // Limit active particles to prevent performance hit
-                        if (document.querySelectorAll('.cursor-particle').length > 15) return;
-
-                        var particle = document.createElement('div');
-                        particle.className = 'cursor-particle';
-                        particle.style.left = x + 'px';
-                        particle.style.top = y + 'px';
-
-                        // Cyberpunk colors: Cyan or Pink
-                        var colors = ['#00f2fe', '#ff007f'];
-                        var randomColor = colors[Math.floor(Math.random() * colors.length)];
-                        particle.style.backgroundColor = randomColor;
-                        particle.style.boxShadow = '0 0 8px ' + randomColor + ', 0 0 15px ' + randomColor;
-
-                        document.body.appendChild(particle);
-
-                        // Random small offset for disperse animation
-                        var angle = Math.random() * Math.PI * 2;
-                        var velocity = Math.random() * 35 + 15;
-                        var targetX = Math.cos(angle) * velocity;
-                        var targetY = Math.sin(angle) * velocity;
-
-                        // Force a reflow
-                        particle.offsetWidth;
-
-                        // Animate particle dispersion & fade
-                        particle.style.transform = 'translate3d(' + (targetX - 2.5) + 'px, ' + (targetY - 2.5) + 'px, 0) scale(0.2)';
-                        particle.style.opacity = '0';
-
-                        // Remove particle element from DOM after transition finishes
-                        setTimeout(function() {
-                            if (particle.parentNode) {
-                                particle.parentNode.removeChild(particle);
-                            }
-                        }, 600);
-                    }
-                    
-                    // Smoothly animate the cursor positions using requestAnimationFrame
-                    function animateCursor() {
-                        // Immediately update dot position
-                        dotX += (mouseX - dotX);
-                        dotY += (mouseY - dotY);
-                        cursorDot.style.transform = 'translate3d(' + dotX + 'px, ' + dotY + 'px, 0) translate(-50%, -50%)';
-                        
-                        // Lerp outer circle position for premium elastic effect (coefficient 0.15)
-                        outlineX += (mouseX - outlineX) * 0.15;
-                        outlineY += (mouseY - outlineY) * 0.15;
-                        cursorOutline.style.transform = 'translate3d(' + outlineX + 'px, ' + outlineY + 'px, 0) translate(-50%, -50%)';
-                        
-                        requestAnimationFrame(animateCursor);
-                    }
-                    requestAnimationFrame(animateCursor);
-                    
-                    // Event delegation for interactive hover states
-                    document.addEventListener('mouseover', function(e) {
-                        var target = e.target;
-                        if (target) {
-                            // 1. Check if interactive (needs pink pointer cursor)
-                            var isInteractive = target.closest('a, button, select, input, textarea, [role="button"], .rte-carousel-caption-btn, .rte-table-toggle-btn');
-                            if (isInteractive) {
-                                document.body.classList.add('custom-cursor-hover');
-                                document.body.classList.remove('custom-cursor-text-hover');
-                                return;
-                            }
-                            
-                            // 2. Check if text container/content (needs cyan scanner/rotate cursor)
-                            var isTextContent = target.closest('h1, h2, h3, h4, h5, h6, p, li, td, th, span.font-medium, .profile-section-desc, .vsshow-section-desc');
-                            if (isTextContent && !isTextContent.closest('nav') && !isTextContent.closest('footer')) {
-                                document.body.classList.add('custom-cursor-text-hover');
-                                document.body.classList.remove('custom-cursor-hover');
-                                return;
-                            }
-                        }
-                    });
-                    
-                    document.addEventListener('mouseout', function(e) {
-                        var target = e.target;
-                        if (target) {
-                            var isInteractive = target.closest('a, button, select, input, textarea, [role="button"], .rte-carousel-caption-btn, .rte-table-toggle-btn');
-                            if (isInteractive) {
-                                document.body.classList.remove('custom-cursor-hover');
-                            }
-                            var isTextContent = target.closest('h1, h2, h3, h4, h5, h6, p, li, td, th, span.font-medium, .profile-section-desc, .vsshow-section-desc');
-                            if (isTextContent) {
-                                document.body.classList.remove('custom-cursor-text-hover');
-                            }
-                        }
-                    });
-                }
             }
 
             // --- Scroll Reveal Logic ---
